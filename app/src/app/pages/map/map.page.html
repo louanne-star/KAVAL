@@ -1,0 +1,47 @@
+<ion-content [fullscreen]="true">
+  <div id="map-container"></div>
+
+  <!-- Header -->
+  <div class="header-flottant">
+    <div class="header-inner">
+      <div class="header-left">
+        <span class="logo-shell">🐚</span>
+        <div>
+          <p class="logo-name">KAVAL</p>
+          <p class="logo-sub">Île Nou · Bagne de NC</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="badge-zones">
+          <span class="badge-dot"></span>
+          1/5
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bouton recentrer -->
+  <button class="btn-recentrer" (click)="recentrer()">◎</button>
+
+  <!-- Bottom sheet -->
+  <div class="bottom-sheet" *ngIf="zoneSelectionnee">
+    <div class="sheet-card">
+      <div class="sheet-handle"></div>
+      <div class="sheet-top">
+        <div class="sheet-zone-badge">Zone {{ zoneSelectionnee.ordre }}</div>
+        <button class="btn-close" (click)="fermerFiche()">✕</button>
+      </div>
+      <h2 class="sheet-nom">{{ zoneSelectionnee.nom }}</h2>
+      <p class="sheet-desc">{{ zoneSelectionnee.description }}</p>
+      <div class="sheet-actions">
+        <div class="statut-pill" [class.unlocked]="zoneSelectionnee.debloque">
+          {{ zoneSelectionnee.debloque ? '🔓 Débloquée' : '🔒 Verrouillée' }}
+        </div>
+        <button class="btn-explorer" *ngIf="zoneSelectionnee.debloque">
+          Explorer →
+        </button>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
