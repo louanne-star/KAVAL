@@ -1,20 +1,58 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-parcours',
   templateUrl: './parcours.page.html',
   styleUrls: ['./parcours.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule]
 })
-export class ParcoursPage implements OnInit {
+export class ParcoursPage {
 
-  constructor() { }
+  zonesVisitees = 1;
 
-  ngOnInit() {
-  }
-
+  zones = [
+    {
+      ordre: 1,
+      nom: 'Le Camp Est',
+      sousTitre: 'Carrière & industrie',
+      iconeVisite: '⛏️',
+      iconeLocked: '⛏️',
+      statut: 'visite'
+    },
+    {
+      ordre: 2,
+      nom: 'La Vacherie',
+      sousTitre: 'Agriculture & libérés',
+      iconeVisite: '🌾',
+      iconeLocked: '🌾',
+      statut: 'actif'
+    },
+    {
+      ordre: 3,
+      nom: "L'Hôpital du Marais",
+      sousTitre: 'Soins & chapelle',
+      iconeVisite: '✝️',
+      iconeLocked: '✝️',
+      statut: 'locked'
+    },
+    {
+      ordre: 4,
+      nom: 'Le Pénitencier',
+      sousTitre: 'Cœur du bagne',
+      iconeVisite: '🗝️',
+      iconeLocked: '🔒',
+      statut: 'locked'
+    },
+    {
+      ordre: 5,
+      nom: 'La Ferme Nord',
+      sousTitre: 'Phare & léproserie',
+      iconeVisite: '🌊',
+      iconeLocked: '🌊',
+      statut: 'locked'
+    }
+  ];
 }

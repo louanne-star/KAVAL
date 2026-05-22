@@ -1,13 +1,53 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>parcours</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="parcours-content">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">parcours</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- Header -->
+  <div class="parcours-header">
+    <p class="header-label">KAVAL · ÎLE NOU</p>
+    <h1 class="header-titre">Votre Épopée</h1>
+    <p class="header-sub">{{ zonesVisitees }} zone visitée sur {{ zones.length }}</p>
+    <div class="header-progress">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width]="(zonesVisitees / zones.length * 100) + '%'"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline">
+    <div class="timeline-item"
+         *ngFor="let zone of zones; let last = last"
+         [class.visite]="zone.statut === 'visite'"
+         [class.actif]="zone.statut === 'actif'"
+         [class.locked]="zone.statut === 'locked'">
+
+      <!-- Ligne verticale -->
+      <div class="timeline-line" *ngIf="!last"></div>
+
+      <!-- Bloc zone -->
+      <div class="zone-bloc">
+        <!-- Check ou lock -->
+        <div class="zone-badge" *ngIf="zone.statut === 'visite'">✓</div>
+        <div class="zone-badge locked-badge" *ngIf="zone.statut === 'locked'">🔒</div>
+
+        <!-- Icone -->
+        <div class="zone-icone">
+          <span>{{ zone.statut === 'locked' ? zone.iconeLocked : zone.iconeVisite }}</span>
+        </div>
+
+        <!-- Infos -->
+        <div class="zone-infos" *ngIf="zone.statut !== 'locked'">
+          <p class="zone-ordre">Zone {{ zone.ordre }}</p>
+          <h3 class="zone-nom">{{ zone.nom }}</h3>
+          <p class="zone-sous-titre">{{ zone.sousTitre }}</p>
+        </div>
+
+        <div class="zone-infos" *ngIf="zone.statut === 'locked'">
+          <p class="zone-ordre">Zone {{ zone.ordre }}</p>
+          <p class="zone-locked-text">{{ zone.sousTitre }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </ion-content>
