@@ -1,8 +1,7 @@
-<!-- page d'accueil(carte)-->
 <ion-content [fullscreen]="true">
   <div id="map-container"></div>
 
-  <!-- Header -->
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
   <div class="header-flottant">
     <div class="header-inner">
       <div class="header-left">
@@ -15,33 +14,86 @@
       <div class="header-right">
         <div class="badge-zones">
           <span class="badge-dot"></span>
-          1/5
+          {{ journeyService.zonesDebloquees() }}/5
         </div>
+      </div>
+    </div>
+
+    <!-- Step indicator: shows progress through the 5-zone journey -->
+    <div class="etapes-wrapper" *ngIf="journeyService.zones().length > 0">
+      <ng-container *ngFor="let z of journeyService.zones(); let i = index">
+        <div class="trait-etape" *ngIf="i > 0" [class.actif]="z.debloque"></div>
+        <div class="etape-pastille"
+             [class.debloquee]="z.debloque"
+             [class.prochaine]="!z.debloque && journeyService.prochaineZone()?.id === z.id">
+          <span>{{ z.ordre }}</span>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Waiting for GPS to build the route -->
+    <div class="gps-attente" *ngIf="journeyService.zones().length === 0 && !journeyService.erreurGPS()">
+      <span class="attente-dot"></span>
+      Localisation en cours…
+    </div>
+  </div>
+
+  <!-- ── Direction hint: distance + bearing to next zone ─────────────────── -->
+  <ng-container *ngIf="journeyService.indicationDirection() as hint">
+    <div class="direction-hint" *ngIf="!journeyService.parcoursTermine()">
+      <span class="hint-fleche">{{ hint.fleche }}</span>
+      <div class="hint-text">
+        <p class="hint-nom">{{ journeyService.prochaineZone()?.nom }}</p>
+        <p class="hint-dist">{{ hint.distance }} m · {{ hint.direction }}</p>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── GPS error banner ─────────────────────────────────────────────────── -->
+  <div class="gps-erreur" *ngIf="journeyService.erreurGPS()">
+    ⚠ {{ journeyService.erreurGPS() }}
+  </div>
+
+  <!-- ── Recenter button ──────────────────────────────────────────────────── -->
+  <button class="btn-recentrer" (click)="recentrer()">◎</button>
+
+  <!-- ── Bottom sheet: selected zone detail ──────────────────────────────── -->
+  <div class="bottom-sheet" *ngIf="zoneSelectionnee() as zone">
+    <div class="sheet-card">
+      <div class="sheet-handle"></div>
+      <div class="sheet-top">
+        <div class="sheet-zone-badge">Étape {{ zone.ordre }}</div>
+        <button class="btn-close" (click)="fermerFiche()">✕</button>
+      </div>
+      <h2 class="sheet-nom">{{ zone.nom }}</h2>
+      <p class="sheet-desc">{{ zone.description }}</p>
+      <div class="sheet-actions">
+        <div class="statut-pill" [class.unlocked]="zone.debloque">
+          {{ zone.debloque ? '🔓 Débloquée' : '🔒 Verrouillée' }}
+        </div>
+        <button class="btn-explorer" *ngIf="zone.debloque">
+          Explorer →
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Bouton recentrer -->
-  <button class="btn-recentrer" (click)="recentrer()">◎</button>
-
-  <!-- Bottom sheet -->
-  <div class="bottom-sheet" *ngIf="zoneSelectionnee">
-    <div class="sheet-card">
-      <div class="sheet-handle"></div>
-      <div class="sheet-top">
-        <div class="sheet-zone-badge">Zone {{ zoneSelectionnee.ordre }}</div>
-        <button class="btn-close" (click)="fermerFiche()">✕</button>
-      </div>
-      <h2 class="sheet-nom">{{ zoneSelectionnee.nom }}</h2>
-      <p class="sheet-desc">{{ zoneSelectionnee.description }}</p>
-      <div class="sheet-actions">
-        <div class="statut-pill" [class.unlocked]="zoneSelectionnee.debloque">
-          {{ zoneSelectionnee.debloque ? '🔓 Débloquée' : '🔒 Verrouillée' }}
+  <!-- ── Completion screen: shown when all 5 zones are unlocked ──────────── -->
+  <div class="ecran-completion" *ngIf="journeyService.parcoursTermine()">
+    <div class="completion-card">
+      <div class="completion-trophee">🏆</div>
+      <h2 class="completion-titre">Parcours terminé !</h2>
+      <p class="completion-sous-titre">
+        Vous avez exploré les 5 sites historiques de l'Île Nou.
+      </p>
+      <div class="completion-zones">
+        <div class="completion-zone" *ngFor="let z of journeyService.zones()">
+          <span class="zone-coche">✓</span> {{ z.nom }}
         </div>
-        <button class="btn-explorer" *ngIf="zoneSelectionnee.debloque">
-          Explorer →
-        </button>
       </div>
+      <button class="btn-recommencer" (click)="recommencer()">
+        Recommencer →
+      </button>
     </div>
   </div>
 
