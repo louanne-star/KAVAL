@@ -71,7 +71,7 @@
         <div class="statut-pill" [class.unlocked]="zone.debloque">
           {{ zone.debloque ? '🔓 Débloquée' : '🔒 Verrouillée' }}
         </div>
-        <button class="btn-explorer" *ngIf="zone.debloque">
+        <button class="btn-explorer" *ngIf="zone.debloque" (click)="explorer(zone.id)">
           Explorer →
         </button>
       </div>
