@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
+import { BadgeService } from '../../services/badge.service';
 
 @Component({
   selector: 'app-map',
@@ -44,7 +45,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   private marqueurUtilisateur?: L.Marker;
   private zonesDebloqueesPrecedentes = new Set<string>();
 
-  constructor(readonly journeyService: JourneyService, private ngZone: NgZone, private router: Router) {
+  constructor(readonly journeyService: JourneyService, private ngZone: NgZone, private router: Router, private badgeService: BadgeService) {
 
     // Redraws zone circles, ghost segments and markers when zones or OSRM
     // geometries change. The effect reads both signals so it fires on either.
@@ -374,6 +375,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   async recommencer() {
     this.zoneSelectionneeId.set(null);
-    await this.journeyService.reinitialiser();
+    await Promise.all([
+      this.journeyService.reinitialiser(),
+      this.badgeService.reinitialiser(),
+    ]);
   }
 }

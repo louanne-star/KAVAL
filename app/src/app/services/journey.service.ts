@@ -68,6 +68,7 @@ const ZONES_SOURCE: Omit<JourneyZone, 'ordre' | 'debloque'>[] = [
 
 const RAYON_DEBLOCAGE  = 50;
 const CLE_PERSISTANCE  = 'kaval_journey_v1';
+const DEV_TOUT_DEBLOQUE = false; // ← passer à true pour tester sans se déplacer
 const OSRM_BASE        = 'https://router.project-osrm.org/route/v1/foot';
 const DIRECTION_NOMS   = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
 const DIRECTION_FLECHES: Record<string, string> = {
@@ -114,6 +115,8 @@ export class JourneyService {
     const direction = DIRECTION_NOMS[Math.round(bearing / 45) % 8];
     return { distance: Math.round(dist), direction, fleche: DIRECTION_FLECHES[direction] ?? '→' };
   });
+
+  readonly devMode = DEV_TOUT_DEBLOQUE;
 
   // watchPosition handle — kept as a number to pass to clearWatch on dispose
   private gpsWatchId = -1;
@@ -163,6 +166,7 @@ export class JourneyService {
       .filter((z): z is JourneyZone => z !== null);
 
     if (zones.length === 5) {
+      if (DEV_TOUT_DEBLOQUE) zones.forEach(z => z.debloque = true);
       this.zones.set(zones);
       this.fetcherItineraires(zones); // Restore real road geometries in background
     }
@@ -215,14 +219,18 @@ export class JourneyService {
       ...src, ordre: i + 1, debloque: false
     }));
 
-    zones[0].debloque = true; // Zone 1 always unlocked
+    if (DEV_TOUT_DEBLOQUE) {
+      zones.forEach(z => z.debloque = true);
+    } else {
+      zones[0].debloque = true; // Zone 1 always unlocked
 
-    // Edge case: user starts near a later zone — unlock all zones up to that point
-    for (let i = 1; i < zones.length; i++) {
-      if (this.haversine(lat, lng, zones[i].coords[0], zones[i].coords[1]) <= RAYON_DEBLOCAGE) {
-        zones[i].debloque = true;
-      } else {
-        break;
+      // Edge case: user starts near a later zone — unlock all zones up to that point
+      for (let i = 1; i < zones.length; i++) {
+        if (this.haversine(lat, lng, zones[i].coords[0], zones[i].coords[1]) <= RAYON_DEBLOCAGE) {
+          zones[i].debloque = true;
+        } else {
+          break;
+        }
       }
     }
 
@@ -297,6 +305,8 @@ export class JourneyService {
   // ── Geofencing ─────────────────────────────────────────────────────────────
 
   private async verifierDeblocage(position: GeolocationPosition) {
+    if (DEV_TOUT_DEBLOQUE) return;
+
     const { latitude: lat, longitude: lng } = position.coords;
     const zones   = [...this.zones()];
     let modifie   = false;

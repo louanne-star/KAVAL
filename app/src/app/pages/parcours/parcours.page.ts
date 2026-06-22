@@ -19,6 +19,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   zoneSelectionnee: JourneyZone | null = null;
   jeuOuvert = false;
   badgeAnimation = false;
+  private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
 
   readonly META: Record<string, { icone: string; sousTitre: string; jeu?: string }> = {
     camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
@@ -34,8 +35,13 @@ export class ParcoursPage implements OnInit, OnDestroy {
       this.ngZone.run(async () => {
         this.jeuOuvert = false;
         await this.badgeService.gagnerBadge(this.zoneSelectionnee!.id);
-        this.badgeAnimation = true;
-        setTimeout(() => { this.badgeAnimation = false; }, 3000);
+        clearTimeout(this.badgeAnimTimeout);
+        this.badgeAnimation = false;
+        // Passer par false d'abord force *ngIf à recréer l'élément → animation rejoue
+        setTimeout(() => {
+          this.badgeAnimation = true;
+          this.badgeAnimTimeout = setTimeout(() => { this.badgeAnimation = false; }, 3000);
+        }, 50);
       });
     }
   };
@@ -63,6 +69,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.paramSub?.unsubscribe();
     window.removeEventListener('message', this.onMessage);
+    clearTimeout(this.badgeAnimTimeout);
   }
 
   get jeuUrl(): SafeResourceUrl | null {
