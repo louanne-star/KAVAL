@@ -79,7 +79,7 @@
   </div>
 
   <!-- ── Completion screen: shown when all 5 zones are unlocked ──────────── -->
-  <div class="ecran-completion" *ngIf="journeyService.parcoursTermine()">
+  <div class="ecran-completion" *ngIf="journeyService.parcoursTermine() && !journeyService.devMode">
     <div class="completion-card">
       <div class="completion-trophee">🏆</div>
       <h2 class="completion-titre">Parcours terminé !</h2>

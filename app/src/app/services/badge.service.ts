@@ -18,6 +18,11 @@ export class BadgeService {
     return this._badges().has(zoneId);
   }
 
+  async reinitialiser(): Promise<void> {
+    this._badges.set(new Set());
+    await Preferences.remove({ key: CLE_BADGES });
+  }
+
   async gagnerBadge(zoneId: string): Promise<void> {
     const set = new Set(this._badges());
     set.add(zoneId);
