@@ -392,10 +392,119 @@ ion-content {
   &[disabled] { cursor: default; }
 }
 
-.rating-label {
+.btn-commentaire {
+  background: none;
+  border: none;
   font-size: 12px;
+  color: #bbb;
+  cursor: pointer;
+  padding: 0;
+  font-style: italic;
+  white-space: nowrap;
+  transition: color 0.15s;
+
+  &:hover { color: #888; }
+  &.avec-commentaire { color: #3498db; font-style: normal; font-weight: 600; }
+}
+
+// ── Modale commentaire ────────────────────────────────────────────────────────
+
+.commentaire-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2001;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 80px;
+  animation: fonduEntree 0.2s ease;
+}
+
+.commentaire-card {
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 20px 24px;
+  width: 100%;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.commentaire-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.commentaire-titre {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a2e1e;
+}
+
+.commentaire-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: none;
+  color: #aaa;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.commentaire-textarea {
+  width: 100%;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #1a2e1e;
+  line-height: 1.6;
+  resize: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus { border-color: #3498db; }
+  &::placeholder { color: #bbb; }
+}
+
+.commentaire-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.commentaire-annuler {
+  flex: 0 0 auto;
+  background: #f5f5f5;
   color: #888;
-  &.vide { font-style: italic; }
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.commentaire-sauver {
+  flex: 1;
+  background: linear-gradient(135deg, #1a2e1e, #2d5a3d);
+  color: #c9a84c;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 0;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(26,46,30,0.25);
 }
 
 // ── Navigation en direct ──────────────────────────────────────────────────────

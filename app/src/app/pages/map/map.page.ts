@@ -7,6 +7,7 @@ import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/j
 import { BadgeService } from '../../services/badge.service';
 import { RatingService } from '../../services/rating.service';
 import { FavoriteService } from '../../services/favorite.service';
+import { CommentService } from '../../services/comment.service';
 
 @Component({
   selector: 'app-map',
@@ -148,10 +149,30 @@ export class MapPage implements AfterViewInit, OnDestroy {
     'uturn':        '↩',
   };
 
+  // ── Commentaire ───────────────────────────────────────────────────────────
+
+  commentaireOuvert = signal<string | null>(null); // zoneId de la modale ouverte
+  brouillonCommentaire = '';
+
+  ouvrirCommentaire(zoneId: string) {
+    this.brouillonCommentaire = this.commentService.getCommentaire(zoneId) ?? '';
+    this.commentaireOuvert.set(zoneId);
+  }
+
+  fermerCommentaire() {
+    this.commentaireOuvert.set(null);
+  }
+
+  async sauvegarderCommentaire(zoneId: string) {
+    await this.commentService.commenter(zoneId, this.brouillonCommentaire.trim());
+    this.commentaireOuvert.set(null);
+  }
+
   constructor(
     readonly journeyService: JourneyService,
     readonly ratingService: RatingService,
     readonly favoriteService: FavoriteService,
+    readonly commentService: CommentService,
     private ngZone: NgZone,
     private router: Router,
     readonly badgeService: BadgeService,
@@ -560,6 +581,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
       this.badgeService.reinitialiser(),
       this.ratingService.reinitialiser(),
       this.favoriteService.reinitialiser(),
+      this.commentService.reinitialiser(),
     ]);
   }
 }
