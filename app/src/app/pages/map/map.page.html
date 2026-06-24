@@ -31,6 +31,30 @@
     ⚠ {{ journeyService.erreurGPS() }}
   </div>
 
+  <!-- ── HUD navigation active (instructions OSRM) ───────────────────────── -->
+  <div class="nav-hud" *ngIf="navCibleId() && instructionNav() as inst">
+    <div class="hud-icone">{{ inst.icone }}</div>
+    <div class="hud-corps">
+      <div class="hud-instruction">{{ inst.texte }}</div>
+      <div class="hud-meta">
+        <span *ngIf="inst.distance > 0">dans {{ inst.distance }} m · </span>
+        <span *ngIf="distanceNavCible() !== null">{{ distanceNavCible() }} m jusqu'à {{ navCibleZone()?.nom }}</span>
+      </div>
+    </div>
+    <button class="hud-annuler" (click)="annulerNav()">✕</button>
+  </div>
+
+  <!-- ── Notification d'arrivée ───────────────────────────────────────────── -->
+  <div class="arrivee-notif" *ngIf="zoneArrivee() as zone">
+    <div class="arrivee-icone">{{ META[zone.id]?.icone }}</div>
+    <div class="arrivee-corps">
+      <div class="arrivee-titre">Vous êtes arrivé !</div>
+      <div class="arrivee-nom">{{ zone.nom }}</div>
+    </div>
+    <div class="arrivee-badge">🏅</div>
+    <button class="arrivee-close" (click)="fermerArrivee()">✕</button>
+  </div>
+
   <!-- ── Recenter button ──────────────────────────────────────────────────── -->
   <button class="btn-recentrer" (click)="recentrer()">◎</button>
 
@@ -92,7 +116,7 @@
         <button class="btn-itineraire"
                 [class.actif]="navCibleId() === zone.id"
                 (click)="toggleItineraire(zone.id)">
-          {{ navCibleId() === zone.id ? '✕ Annuler' : '↗ Itinéraire' }}
+          {{ navCibleId() === zone.id ? '✕ Annuler' : 'Itinéraire' }}
         </button>
         <button class="btn-explorer" (click)="explorer(zone.id)">
           Explorer →

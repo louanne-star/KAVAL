@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, signal, computed, effect, NgZone } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracked, NgZone } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -80,6 +80,27 @@ export class MapPage implements AfterViewInit, OnDestroy {
     );
   });
 
+  // ── Navigation active : cible + instruction OSRM ─────────────────────────
+
+  instructionNav = signal<{ texte: string; icone: string; distance: number } | null>(null);
+  zoneArrivee    = signal<JourneyZone | null>(null);
+
+  readonly navCibleZone = computed(() => {
+    const cibleId = this.navCibleId();
+    if (!cibleId) return null;
+    return this.journeyService.zones().find(z => z.id === cibleId) ?? null;
+  });
+
+  readonly distanceNavCible = computed(() => {
+    const zone = this.navCibleZone();
+    const pos  = this.journeyService.positionUtilisateur();
+    if (!zone || !pos) return null;
+    return Math.round(this.journeyService.haversine(
+      pos.coords.latitude, pos.coords.longitude,
+      zone.coords[0], zone.coords[1]
+    ));
+  });
+
   // ── Leaflet handles: zone layer ───────────────────────────────────────────
 
   private map!: L.Map;
@@ -92,12 +113,40 @@ export class MapPage implements AfterViewInit, OnDestroy {
   private navLigne?: { bg: L.Polyline; fg: L.Polyline };
   private navAbortCtrl?: AbortController;
   private navDernierePosition: [number, number] | null = null;
-  // Debounce: only refetch OSRM route when user has moved > 30m
   private readonly NAV_SEUIL_METRES = 30;
 
   // ── Leaflet handles: user dot ─────────────────────────────────────────────
 
   private marqueurUtilisateur?: L.Marker;
+
+  // ── Arrivée ───────────────────────────────────────────────────────────────
+
+  private arriveeDejaTraitee = new Set<string>();
+  private arriveeTimeout?: ReturnType<typeof setTimeout>;
+
+  // ── OSRM instruction maps ─────────────────────────────────────────────────
+
+  private readonly MODIFIER_FR: Record<string, string> = {
+    'left':         'Tournez à gauche',
+    'right':        'Tournez à droite',
+    'straight':     'Continuez tout droit',
+    'slight left':  'Légèrement à gauche',
+    'slight right': 'Légèrement à droite',
+    'sharp left':   'Virage serré à gauche',
+    'sharp right':  'Virage serré à droite',
+    'uturn':        'Demi-tour',
+  };
+
+  private readonly MODIFIER_ICONE: Record<string, string> = {
+    'left':         '↰',
+    'right':        '↱',
+    'straight':     '↑',
+    'slight left':  '↖',
+    'slight right': '↗',
+    'sharp left':   '↩',
+    'sharp right':  '↪',
+    'uturn':        '↩',
+  };
 
   constructor(
     readonly journeyService: JourneyService,
@@ -108,26 +157,27 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly badgeService: BadgeService,
   ) {
 
-    // Redraws zone circles, ghost segments and markers when zones or OSRM
-    // geometries change. The effect reads both signals so it fires on either.
+    // Redessine les cercles, segments et marqueurs quand les zones ou l'itinéraire changent.
     effect(() => {
       const zones    = this.journeyService.zones();
       const segments = this.journeyService.segmentsItineraire();
       if (this.mapPret()) this.mettreAJourCarte(zones, segments);
     });
 
-    // Moves the user dot AND refreshes the live nav route on every GPS fix.
+    // Déplace le point GPS, met à jour la navigation live et vérifie les arrivées.
     effect(() => {
       const pos = this.journeyService.positionUtilisateur();
       if (this.mapPret() && pos) {
         this.mettreAJourMarqueurUtilisateur(pos);
         this.mettreAJourNavigation(pos);
+        this.verifierArrivees(pos);
       }
     });
 
-    // Redessine immédiatement la route quand la cible change.
+    // Force un nouveau fetch OSRM quand la cible change.
     effect(() => {
       this.navCibleId(); // subscribe
+      this.navDernierePosition = null;
       const pos = this.journeyService.positionUtilisateur();
       if (this.mapPret() && pos) this.mettreAJourNavigation(pos);
     });
@@ -145,6 +195,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.navAbortCtrl?.abort();
+    clearTimeout(this.arriveeTimeout);
     this.map?.remove();
   }
 
@@ -166,11 +217,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   // ── Zone layer update ─────────────────────────────────────────────────────
-  //
-  // Render order inside Leaflet's overlayPane (SVG):
-  //   1. Territory circles   — subtle aura around unlocked zones
-  //   2. Ghost segments      — full zone-to-zone paths (faint background)
-  //   3. Markers             — always in markerPane, above SVG layer
 
   private mettreAJourCarte(zones: JourneyZone[], itineraires: SegmentItineraire[]) {
     if (zones.length === 0) {
@@ -180,7 +226,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
     const prochainId = this.prochaineZoneSansBadge()?.id ?? null;
 
-    // 1. Territory aura circles (updated in-place for CSS transition)
     zones.forEach(zone => {
       if (this.overlays.has(zone.id)) {
         this.overlays.get(zone.id)!.setStyle({
@@ -203,10 +248,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
       }
     });
 
-    // 2. Ghost segments: zone-to-zone full paths shown as background reference
     this.mettreAJourSegments(zones, itineraires);
 
-    // 3. Zone marker pins
     zones.forEach(zone => {
       this.marqueurs.get(zone.id)?.remove();
       const marqueur = L.marker(zone.coords, {
@@ -220,10 +263,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
         }));
       this.marqueurs.set(zone.id, marqueur);
     });
-
   }
 
-  // ── Ghost segments (zone-to-zone background paths) ────────────────────────
+  // ── Ghost segments ────────────────────────────────────────────────────────
 
   private mettreAJourSegments(zones: JourneyZone[], itineraires: SegmentItineraire[]) {
     this.segments.forEach(s => { s.bg.remove(); s.fg.remove(); });
@@ -254,11 +296,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   // ── Live navigation: user position → next zone ────────────────────────────
-  //
-  // Requests an OSRM walking route from the user's current GPS position to
-  // the next locked zone. Only refetches when the user has moved > 30m,
-  // cancelling any in-flight request first via AbortController.
-  // Falls back silently (keeps the last line) on network error.
 
   private async mettreAJourNavigation(pos: GeolocationPosition) {
     const cibleId   = this.navCibleId();
@@ -274,7 +311,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
 
-    // Skip fetch if user hasn't moved enough
     if (this.navDernierePosition) {
       const dist = this.journeyService.haversine(lat, lng, this.navDernierePosition[0], this.navDernierePosition[1]);
       if (dist < this.NAV_SEUIL_METRES) return;
@@ -286,24 +322,44 @@ export class MapPage implements AfterViewInit, OnDestroy {
     const signal = this.navAbortCtrl.signal;
 
     try {
-      // OSRM expects lng,lat order
-      const url = `https://router.project-osrm.org/route/v1/foot/${lng},${lat};${prochaine.coords[1]},${prochaine.coords[0]}?overview=full&geometries=geojson`;
+      const url = `https://router.project-osrm.org/route/v1/foot/${lng},${lat};${prochaine.coords[1]},${prochaine.coords[0]}?overview=full&geometries=geojson&steps=true`;
       const resp = await fetch(url, { signal });
       if (!resp.ok || signal.aborted) return;
 
       const data = await resp.json();
       if (data.code !== 'Ok' || !data.routes?.[0]) return;
 
-      // Convert OSRM [lng, lat] → Leaflet [lat, lng]
       const coords: L.LatLngExpression[] = (data.routes[0].geometry.coordinates as [number, number][])
         .map(([lo, la]) => [la, lo]);
 
-      // Draw or update inside Angular zone so the map re-renders correctly
-      this.ngZone.run(() => this.dessinerNavActive(coords));
+      const steps = data.routes[0].legs?.[0]?.steps ?? [];
+      const instruction = this.parseInstruction(steps);
+
+      this.ngZone.run(() => {
+        this.dessinerNavActive(coords);
+        this.instructionNav.set(instruction);
+      });
 
     } catch {
-      // AbortError or network failure — keep the last drawn line
+      // AbortError ou panne réseau — garde le dernier tracé
     }
+  }
+
+  private parseInstruction(steps: any[]): { texte: string; icone: string; distance: number } | null {
+    if (!steps?.length) return null;
+    const premierPas    = steps[0];
+    const prochainVirage = steps[1];
+
+    if (!prochainVirage || prochainVirage.maneuver?.type === 'arrive') {
+      return { texte: 'Continuez tout droit', icone: '↑', distance: Math.round(premierPas.distance ?? 0) };
+    }
+
+    const modifier = prochainVirage.maneuver?.modifier ?? 'straight';
+    return {
+      texte:    this.MODIFIER_FR[modifier]    ?? 'Continuez tout droit',
+      icone:    this.MODIFIER_ICONE[modifier] ?? '↑',
+      distance: Math.round(premierPas.distance ?? 0),
+    };
   }
 
   private dessinerNavActive(coords: L.LatLngExpression[]) {
@@ -325,6 +381,38 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.navLigne?.fg.remove();
     this.navLigne = undefined;
     this.navDernierePosition = null;
+    this.instructionNav.set(null);
+  }
+
+  // ── Détection d'arrivée ───────────────────────────────────────────────────
+
+  private verifierArrivees(pos: GeolocationPosition) {
+    const lat   = pos.coords.latitude;
+    const lng   = pos.coords.longitude;
+    const zones = untracked(() => this.journeyService.zones());
+
+    for (const zone of zones) {
+      const dejaBadge = untracked(() => this.badgeService.aBadge(zone.id));
+      if (dejaBadge || this.arriveeDejaTraitee.has(zone.id)) continue;
+
+      const dist = this.journeyService.haversine(lat, lng, zone.coords[0], zone.coords[1]);
+      if (dist > zone.rayonZone) continue;
+
+      this.arriveeDejaTraitee.add(zone.id);
+      this.badgeService.gagnerBadge(zone.id).then(() => {
+        this.ngZone.run(() => {
+          // Si la zone arrivée était la cible nav active, on la réinitialise
+          if (this.navCibleId() === zone.id) this.navCibleId.set(null);
+
+          // Affiche la notification d'arrivée
+          this.zoneArrivee.set(zone);
+          clearTimeout(this.arriveeTimeout);
+          this.arriveeTimeout = setTimeout(() => {
+            if (this.zoneArrivee()?.id === zone.id) this.zoneArrivee.set(null);
+          }, 5000);
+        });
+      });
+    }
   }
 
   // ── Marker icon factory ───────────────────────────────────────────────────
@@ -425,7 +513,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
     const actif = this.navCibleId() === zoneId;
     this.navCibleId.set(actif ? null : zoneId);
     if (!actif) {
-      // Ferme la fiche et zoom pour montrer le tracé
       this.zoneSelectionneeId.set(null);
       const zone = this.journeyService.zones().find(z => z.id === zoneId);
       const pos  = this.journeyService.positionUtilisateur();
@@ -437,6 +524,16 @@ export class MapPage implements AfterViewInit, OnDestroy {
         this.map.fitBounds(bounds, { padding: [80, 80] });
       }
     }
+  }
+
+  annulerNav() {
+    this.navCibleId.set(null);
+    this.supprimerNavActive();
+  }
+
+  fermerArrivee() {
+    clearTimeout(this.arriveeTimeout);
+    this.zoneArrivee.set(null);
   }
 
   async toggleFavori(zoneId: string) {
@@ -455,6 +552,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   async recommencer() {
     this.zoneSelectionneeId.set(null);
+    this.arriveeDejaTraitee.clear();
+    this.zoneArrivee.set(null);
+    clearTimeout(this.arriveeTimeout);
     await Promise.all([
       this.journeyService.reinitialiser(),
       this.badgeService.reinitialiser(),
