@@ -87,10 +87,17 @@
       <!-- Description courte -->
       <p class="sheet-desc">{{ zone.description }}</p>
 
-      <!-- Action -->
-      <button class="btn-explorer" (click)="explorer(zone.id)">
-        Explorer ce lieu →
-      </button>
+      <!-- Actions -->
+      <div class="sheet-actions-row">
+        <button class="btn-itineraire"
+                [class.actif]="navCibleId() === zone.id"
+                (click)="toggleItineraire(zone.id)">
+          {{ navCibleId() === zone.id ? '✕ Annuler' : '↗ Itinéraire' }}
+        </button>
+        <button class="btn-explorer" (click)="explorer(zone.id)">
+          Explorer →
+        </button>
+      </div>
 
     </div>
   </div>

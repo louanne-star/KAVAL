@@ -312,7 +312,34 @@ ion-content {
   margin: 0 0 16px;
 }
 
+.sheet-actions-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-itineraire {
+  flex: 1;
+  background: #f0f7f2;
+  color: #1a2e1e;
+  border: 1.5px solid #3498db;
+  border-radius: 14px;
+  padding: 13px 0;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  color: #3498db;
+  transition: background 0.2s, color 0.2s;
+
+  &.actif {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+  }
+}
+
 .btn-explorer {
+  flex: 1;
   background: linear-gradient(135deg, #1a2e1e, #2d5a3d);
   color: #c9a84c;
   border: none;
@@ -323,7 +350,6 @@ ion-content {
   cursor: pointer;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 16px rgba(26,46,30,0.3);
-  width: 100%;
   text-align: center;
 }
 

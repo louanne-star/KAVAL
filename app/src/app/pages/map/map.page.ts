@@ -31,6 +31,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   private mapPret    = signal(false);
   zoneSelectionneeId = signal<string | null>(null);
+  navCibleId         = signal<string | null>(null);
 
   zoneSelectionnee = computed(() => {
     const id = this.zoneSelectionneeId();
@@ -122,6 +123,13 @@ export class MapPage implements AfterViewInit, OnDestroy {
         this.mettreAJourMarqueurUtilisateur(pos);
         this.mettreAJourNavigation(pos);
       }
+    });
+
+    // Redessine immédiatement la route quand la cible change.
+    effect(() => {
+      this.navCibleId(); // subscribe
+      const pos = this.journeyService.positionUtilisateur();
+      if (this.mapPret() && pos) this.mettreAJourNavigation(pos);
     });
   }
 
@@ -253,9 +261,12 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // Falls back silently (keeps the last line) on network error.
 
   private async mettreAJourNavigation(pos: GeolocationPosition) {
-    const prochaine = this.prochaineZoneSansBadge();
+    const cibleId   = this.navCibleId();
+    const prochaine = cibleId
+      ? (this.journeyService.zones().find(z => z.id === cibleId) ?? null)
+      : this.prochaineZoneSansBadge();
 
-    if (!prochaine || this.parcoursComplet()) {
+    if (!prochaine) {
       this.supprimerNavActive();
       return;
     }
@@ -405,7 +416,28 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
   }
 
-  fermerFiche() { this.zoneSelectionneeId.set(null); }
+  fermerFiche() {
+    this.zoneSelectionneeId.set(null);
+    this.navCibleId.set(null);
+  }
+
+  toggleItineraire(zoneId: string) {
+    const actif = this.navCibleId() === zoneId;
+    this.navCibleId.set(actif ? null : zoneId);
+    if (!actif) {
+      // Ferme la fiche et zoom pour montrer le tracé
+      this.zoneSelectionneeId.set(null);
+      const zone = this.journeyService.zones().find(z => z.id === zoneId);
+      const pos  = this.journeyService.positionUtilisateur();
+      if (zone && pos) {
+        const bounds = L.latLngBounds(
+          [pos.coords.latitude, pos.coords.longitude],
+          zone.coords
+        );
+        this.map.fitBounds(bounds, { padding: [80, 80] });
+      }
+    }
+  }
 
   async toggleFavori(zoneId: string) {
     await this.favoriteService.toggle(zoneId);
