@@ -1,53 +1,30 @@
 <ion-content [fullscreen]="true">
   <div id="map-container"></div>
 
-  <!-- ── Header ──────────────────────────────────────────────────────────── -->
-  <div class="header-flottant">
-    <div class="header-inner">
-      <div class="header-left">
-        <span class="logo-shell">🐚</span>
-        <div>
-          <p class="logo-name">KAVAL</p>
-          <p class="logo-sub">Île Nou · Bagne de NC</p>
-        </div>
-      </div>
-      <div class="header-right">
-        <div class="badge-zones">
-          <span class="badge-dot"></span>
-          {{ journeyService.zonesDebloquees() }}/5
-        </div>
+  <!-- ── Header style Navios ─────────────────────────────────────────────── -->
+  <div class="header-navios">
+
+    <div class="nav-logo">
+      <span class="logo-shell">🐚</span>
+      <span class="logo-name">KAVAL</span>
+    </div>
+
+    <div class="nav-actions">
+      <button class="nav-btn" (click)="explorer('')" disabled title="Recherche (bientôt)">
+        <ion-icon name="search-outline"></ion-icon>
+      </button>
+      <button class="nav-btn"
+              [class.favori-actif]="zoneSelectionnee() && favoriteService.estFavori(zoneSelectionnee()!.id)"
+              (click)="zoneSelectionnee() && toggleFavori(zoneSelectionnee()!.id)"
+              title="Favoris">
+        <ion-icon [name]="zoneSelectionnee() && favoriteService.estFavori(zoneSelectionnee()!.id) ? 'heart' : 'heart-outline'"></ion-icon>
+      </button>
+      <div class="nav-avatar" title="Compte (bientôt)">
+        <ion-icon name="person-outline"></ion-icon>
       </div>
     </div>
 
-    <!-- Step indicator: shows progress through the 5-zone journey -->
-    <div class="etapes-wrapper" *ngIf="journeyService.zones().length > 0">
-      <ng-container *ngFor="let z of journeyService.zones(); let i = index">
-        <div class="trait-etape" *ngIf="i > 0" [class.actif]="z.debloque"></div>
-        <div class="etape-pastille"
-             [class.debloquee]="z.debloque"
-             [class.prochaine]="!z.debloque && journeyService.prochaineZone()?.id === z.id">
-          <span>{{ z.ordre }}</span>
-        </div>
-      </ng-container>
-    </div>
-
-    <!-- Waiting for GPS to build the route -->
-    <div class="gps-attente" *ngIf="journeyService.zones().length === 0 && !journeyService.erreurGPS()">
-      <span class="attente-dot"></span>
-      Localisation en cours…
-    </div>
   </div>
-
-  <!-- ── Direction hint: distance + bearing to next zone ─────────────────── -->
-  <ng-container *ngIf="journeyService.indicationDirection() as hint">
-    <div class="direction-hint" *ngIf="!journeyService.parcoursTermine()">
-      <span class="hint-fleche">{{ hint.fleche }}</span>
-      <div class="hint-text">
-        <p class="hint-nom">{{ journeyService.prochaineZone()?.nom }}</p>
-        <p class="hint-dist">{{ hint.distance }} m · {{ hint.direction }}</p>
-      </div>
-    </div>
-  </ng-container>
 
   <!-- ── GPS error banner ─────────────────────────────────────────────────── -->
   <div class="gps-erreur" *ngIf="journeyService.erreurGPS()">
@@ -57,29 +34,69 @@
   <!-- ── Recenter button ──────────────────────────────────────────────────── -->
   <button class="btn-recentrer" (click)="recentrer()">◎</button>
 
-  <!-- ── Bottom sheet: selected zone detail ──────────────────────────────── -->
+  <!-- ── Bottom sheet style Gym Beam ─────────────────────────────────────── -->
   <div class="bottom-sheet" *ngIf="zoneSelectionnee() as zone">
     <div class="sheet-card">
+
       <div class="sheet-handle"></div>
-      <div class="sheet-top">
-        <div class="sheet-zone-badge">Étape {{ zone.ordre }}</div>
-        <button class="btn-close" (click)="fermerFiche()">✕</button>
-      </div>
-      <h2 class="sheet-nom">{{ zone.nom }}</h2>
-      <p class="sheet-desc">{{ zone.description }}</p>
-      <div class="sheet-actions">
-        <div class="statut-pill" [class.unlocked]="zone.debloque">
-          {{ zone.debloque ? '🔓 Débloquée' : '🔒 Verrouillée' }}
+
+      <!-- Ligne haut : infos zone + nav en direct -->
+      <div class="sheet-main">
+
+        <div class="sheet-info">
+          <div class="sheet-badge-row">
+            <span class="sheet-etape">Étape {{ zone.ordre }}</span>
+            <span class="sheet-statut" *ngIf="badgeService.aBadge(zone.id)">🏅</span>
+          </div>
+          <h2 class="sheet-nom">{{ zone.nom }}</h2>
+          <p class="sheet-type">{{ META[zone.id]?.sousTitre }}</p>
+
+          <!-- Étoiles -->
+          <div class="sheet-rating">
+            <div class="stars-row">
+              <button *ngFor="let s of [1,2,3,4,5]"
+                      class="star-btn"
+                      [class.lit]="(ratingService.getNote(zone.id) ?? 0) >= s"
+                      [disabled]="!zone.debloque"
+                      (click)="noterZone(zone.id, s)">★</button>
+            </div>
+            <span class="rating-label" *ngIf="ratingService.getNote(zone.id) as note">
+              {{ note }}/5 · Ma note
+            </span>
+            <span class="rating-label vide" *ngIf="!ratingService.getNote(zone.id)">
+              {{ zone.debloque ? 'Notez ce lieu' : 'Débloquée pour noter' }}
+            </span>
+          </div>
         </div>
-        <button class="btn-explorer" *ngIf="zone.debloque" (click)="explorer(zone.id)">
-          Explorer →
-        </button>
+
+        <!-- Navigation en direct -->
+        <div class="sheet-nav" *ngIf="distanceZone() !== null">
+          <div class="nav-fleche">{{ flecheVersZone() }}</div>
+          <p class="nav-distance">{{ distanceZone() }} m</p>
+          <p class="nav-temps">{{ tempsMarche() }} min à pied</p>
+        </div>
+
       </div>
+
+      <!-- Bouton fermer -->
+      <button class="btn-close" (click)="fermerFiche()">✕</button>
+
+      <!-- Séparateur -->
+      <div class="sheet-divider"></div>
+
+      <!-- Description courte -->
+      <p class="sheet-desc">{{ zone.description }}</p>
+
+      <!-- Action -->
+      <button class="btn-explorer" (click)="explorer(zone.id)">
+        Explorer ce lieu →
+      </button>
+
     </div>
   </div>
 
   <!-- ── Completion screen: shown when all 5 zones are unlocked ──────────── -->
-  <div class="ecran-completion" *ngIf="journeyService.parcoursTermine() && !journeyService.devMode">
+  <div class="ecran-completion" *ngIf="parcoursComplet()">
     <div class="completion-card">
       <div class="completion-trophee">🏆</div>
       <h2 class="completion-titre">Parcours terminé !</h2>

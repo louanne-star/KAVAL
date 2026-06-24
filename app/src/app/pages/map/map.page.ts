@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
+import { RatingService } from '../../services/rating.service';
+import { FavoriteService } from '../../services/favorite.service';
 
 @Component({
   selector: 'app-map',
@@ -15,6 +17,16 @@ import { BadgeService } from '../../services/badge.service';
 })
 export class MapPage implements AfterViewInit, OnDestroy {
 
+  // ── Meta locale (icône + sous-titre par zone) ─────────────────────────────
+
+  readonly META: Record<string, { icone: string; sousTitre: string }> = {
+    camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
+    vacherie:    { icone: '🌾', sousTitre: 'Agriculture & libérés' },
+    hopital:     { icone: '✝️', sousTitre: 'Soins & chapelle' },
+    penitencier: { icone: '🗝️', sousTitre: 'Cœur du bagne' },
+    ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
+  };
+
   // ── Component state ───────────────────────────────────────────────────────
 
   private mapPret    = signal(false);
@@ -23,6 +35,48 @@ export class MapPage implements AfterViewInit, OnDestroy {
   zoneSelectionnee = computed(() => {
     const id = this.zoneSelectionneeId();
     return id ? (this.journeyService.zones().find(z => z.id === id) ?? null) : null;
+  });
+
+  // ── Progression basée sur les badges ─────────────────────────────────────
+
+  readonly prochaineZoneSansBadge = computed(() =>
+    this.journeyService.zones().find(z => !this.badgeService.badges().has(z.id)) ?? null
+  );
+
+  readonly badgesGagnes = computed(() =>
+    this.journeyService.zones().filter(z => this.badgeService.badges().has(z.id)).length
+  );
+
+  readonly parcoursComplet = computed(() =>
+    this.journeyService.zones().length === 5 &&
+    this.journeyService.zones().every(z => this.badgeService.badges().has(z.id))
+  );
+
+  // ── Distance & direction en direct vers la zone sélectionnée ─────────────
+
+  readonly distanceZone = computed(() => {
+    const zone = this.zoneSelectionnee();
+    const pos  = this.journeyService.positionUtilisateur();
+    if (!zone || !pos) return null;
+    return Math.round(this.journeyService.haversine(
+      pos.coords.latitude, pos.coords.longitude,
+      zone.coords[0], zone.coords[1]
+    ));
+  });
+
+  readonly tempsMarche = computed(() => {
+    const d = this.distanceZone();
+    return d !== null ? Math.max(1, Math.round(d / 83)) : null;
+  });
+
+  readonly flecheVersZone = computed(() => {
+    const zone = this.zoneSelectionnee();
+    const pos  = this.journeyService.positionUtilisateur();
+    if (!zone || !pos) return null;
+    return this.journeyService.getFlecheVers(
+      pos.coords.latitude, pos.coords.longitude,
+      zone.coords[0], zone.coords[1]
+    );
   });
 
   // ── Leaflet handles: zone layer ───────────────────────────────────────────
@@ -43,9 +97,15 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // ── Leaflet handles: user dot ─────────────────────────────────────────────
 
   private marqueurUtilisateur?: L.Marker;
-  private zonesDebloqueesPrecedentes = new Set<string>();
 
-  constructor(readonly journeyService: JourneyService, private ngZone: NgZone, private router: Router, private badgeService: BadgeService) {
+  constructor(
+    readonly journeyService: JourneyService,
+    readonly ratingService: RatingService,
+    readonly favoriteService: FavoriteService,
+    private ngZone: NgZone,
+    private router: Router,
+    readonly badgeService: BadgeService,
+  ) {
 
     // Redraws zone circles, ghost segments and markers when zones or OSRM
     // geometries change. The effect reads both signals so it fires on either.
@@ -106,17 +166,11 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   private mettreAJourCarte(zones: JourneyZone[], itineraires: SegmentItineraire[]) {
     if (zones.length === 0) {
-      this.zonesDebloqueesPrecedentes.clear();
       this.nettoyerTout();
       return;
     }
 
-    const prochainId  = this.journeyService.prochaineZone()?.id ?? null;
-    const nouvelles   = zones.filter(z => z.debloque && !this.zonesDebloqueesPrecedentes.has(z.id));
-    this.zonesDebloqueesPrecedentes = new Set(zones.filter(z => z.debloque).map(z => z.id));
-
-    // When a zone unlocks, reset nav so it recalculates from new position
-    if (nouvelles.length > 0) this.supprimerNavActive();
+    const prochainId = this.prochaineZoneSansBadge()?.id ?? null;
 
     // 1. Territory aura circles (updated in-place for CSS transition)
     zones.forEach(zone => {
@@ -159,7 +213,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
       this.marqueurs.set(zone.id, marqueur);
     });
 
-    nouvelles.forEach(z => this.animerDeblocage(z));
   }
 
   // ── Ghost segments (zone-to-zone background paths) ────────────────────────
@@ -177,14 +230,12 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
       let couleur: string, poids: number, opacite: number, dash: string | undefined;
 
-      if (b.debloque) {
-        // Completed segment → solid gold trail
+      const badges = this.badgeService.badges();
+      if (badges.has(b.id)) {
         couleur = '#c9a84c'; poids = 5; opacite = 0.95; dash = undefined;
-      } else if (a.debloque) {
-        // Next segment → very faint blue ghost (live nav will draw on top)
+      } else if (badges.has(a.id)) {
         couleur = '#3498db'; poids = 2; opacite = 0.25; dash = '6 6';
       } else {
-        // Future locked → faint gray dashes
         couleur = '#bbb'; poids = 2; opacite = 0.4; dash = '4 8';
       }
 
@@ -202,9 +253,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // Falls back silently (keeps the last line) on network error.
 
   private async mettreAJourNavigation(pos: GeolocationPosition) {
-    const prochaine = this.journeyService.prochaineZone();
+    const prochaine = this.prochaineZoneSansBadge();
 
-    if (!prochaine || this.journeyService.parcoursTermine()) {
+    if (!prochaine || this.parcoursComplet()) {
       this.supprimerNavActive();
       return;
     }
@@ -303,23 +354,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
     });
   }
 
-  // ── Unlock ripple animation ───────────────────────────────────────────────
-
-  private animerDeblocage(zone: JourneyZone) {
-    let rayon = 20;
-    const cercle = L.circle(zone.coords, {
-      radius: rayon, fillColor: '#c9a84c', fillOpacity: 0.5,
-      color: '#c9a84c', weight: 3
-    }).addTo(this.map);
-
-    const id = setInterval(() => {
-      rayon += 15;
-      const p = rayon / 250;
-      if (p >= 1) { clearInterval(id); cercle.remove(); }
-      else { cercle.setRadius(rayon); cercle.setStyle({ fillOpacity: 0.5 * (1 - p), opacity: 1 - p }); }
-    }, 40);
-  }
-
   // ── User GPS dot ──────────────────────────────────────────────────────────
 
   private mettreAJourMarqueurUtilisateur(pos: GeolocationPosition) {
@@ -373,11 +407,27 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   fermerFiche() { this.zoneSelectionneeId.set(null); }
 
+  async toggleFavori(zoneId: string) {
+    await this.favoriteService.toggle(zoneId);
+  }
+
+  async noterZone(zoneId: string, note: number) {
+    await this.ratingService.noter(zoneId, note);
+  }
+
+  starsFor(note: number | null): string {
+    if (!note) return '☆☆☆☆☆';
+    const n = Math.round(note);
+    return '★'.repeat(n) + '☆'.repeat(5 - n);
+  }
+
   async recommencer() {
     this.zoneSelectionneeId.set(null);
     await Promise.all([
       this.journeyService.reinitialiser(),
       this.badgeService.reinitialiser(),
+      this.ratingService.reinitialiser(),
+      this.favoriteService.reinitialiser(),
     ]);
   }
 }

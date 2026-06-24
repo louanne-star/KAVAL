@@ -10,142 +10,86 @@ ion-content {
   height: 100vh;
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
+// ── Header style Navios ───────────────────────────────────────────────────────
 
-.header-flottant {
+.header-navios {
   position: absolute;
   top: 12px;
   left: 12px;
   right: 12px;
   z-index: 1000;
-}
-
-.header-inner {
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 20px;
-  padding: 12px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.06);
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo-shell { font-size: 24px; }
-
-.logo-name {
-  font-size: 17px;
-  font-weight: 800;
-  color: #1a2e1e;
-  letter-spacing: 3px;
-  margin: 0;
-}
-
-.logo-sub {
-  font-size: 10px;
-  color: #999;
-  margin: 0;
-  letter-spacing: 0.5px;
-}
-
-.badge-zones {
-  background: #f0f7f2;
-  border: 1px solid #c9a84c;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1a2e1e;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.badge-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #c9a84c;
-  display: inline-block;
-}
-
-// ── Step indicator ────────────────────────────────────────────────────────────
-
-.etapes-wrapper {
-  display: flex;
-  align-items: center;
-  padding: 10px 4px 2px;
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 0 0 20px 20px;
-  margin-top: -4px;
-  padding-left: 16px;
-  padding-right: 16px;
-  padding-bottom: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
-}
-
-.trait-etape {
-  flex: 1;
-  height: 2px;
-  background: #e0e0e0;
-  transition: background 0.4s ease;
-
-  &.actif {
-    background: #c9a84c;
-  }
-}
-
-.etape-pastille {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 2px solid #ddd;
-  background: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 700;
-  color: #bbb;
-  transition: all 0.3s ease;
-
-  &.debloquee {
-    background: #c9a84c;
-    border-color: #8b6914;
-    color: #1a2e1e;
-    box-shadow: 0 2px 8px rgba(201,168,76,0.4);
-  }
-
-  &.prochaine {
-    border-color: #3498db;
-    color: #3498db;
-    background: #fff;
-    animation: pulsationPastille 1.5s ease-in-out infinite;
-  }
-}
-
-.gps-attente {
+.nav-logo {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px 12px;
-  background: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.92);
   backdrop-filter: blur(16px);
-  border-radius: 0 0 20px 20px;
-  margin-top: -4px;
-  font-size: 12px;
-  color: #999;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 50px;
+  padding: 10px 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.logo-shell { font-size: 20px; }
+
+.logo-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a2e1e;
+  letter-spacing: 3px;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 50px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 18px;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover { background: #f5f5f5; }
+  &[disabled] { opacity: 0.4; cursor: default; }
+
+  &.favori-actif {
+    color: #e74c3c;
+    ion-icon { color: #e74c3c; }
+  }
+}
+
+.nav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #888;
+  overflow: hidden;
 }
 
 .attente-dot {
@@ -153,68 +97,15 @@ ion-content {
   height: 8px;
   border-radius: 50%;
   background: #3498db;
-  display: inline-block;
+  flex-shrink: 0;
   animation: clignoter 1.2s ease-in-out infinite;
-}
-
-// ── Direction hint ────────────────────────────────────────────────────────────
-
-.direction-hint {
-  position: absolute;
-  top: 140px;
-  left: 12px;
-  z-index: 999;
-  animation: slideUp 0.3s ease;
-}
-
-.hint-fleche {
-  font-size: 22px;
-  line-height: 1;
-}
-
-.hint-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.direction-hint {
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 14px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  border-left: 3px solid #3498db;
-  max-width: 220px;
-}
-
-.hint-nom {
-  font-size: 12px;
-  font-weight: 700;
-  color: #1a2e1e;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 160px;
-}
-
-.hint-dist {
-  font-size: 11px;
-  color: #3498db;
-  font-weight: 600;
-  margin: 0;
 }
 
 // ── GPS error banner ──────────────────────────────────────────────────────────
 
 .gps-erreur {
   position: absolute;
-  top: 140px;
+  top: 76px;
   left: 12px;
   right: 12px;
   z-index: 999;
@@ -233,7 +124,7 @@ ion-content {
 
 .btn-recentrer {
   position: absolute;
-  bottom: 212px;
+  bottom: 96px;
   right: 16px;
   z-index: 1000;
   width: 44px;
@@ -250,7 +141,7 @@ ion-content {
   justify-content: center;
 }
 
-// ── Bottom sheet ──────────────────────────────────────────────────────────────
+// ── Bottom sheet style Gym Beam ───────────────────────────────────────────────
 
 .bottom-sheet {
   position: absolute;
@@ -265,8 +156,9 @@ ion-content {
 .sheet-card {
   background: #ffffff;
   border-radius: 24px;
-  padding: 16px 20px 20px;
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.08);
+  padding: 14px 20px 20px;
+  box-shadow: 0 -4px 40px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.08);
+  position: relative;
 }
 
 .sheet-handle {
@@ -274,29 +166,13 @@ ion-content {
   height: 4px;
   background: #ebebeb;
   border-radius: 2px;
-  margin: 0 auto 16px;
-}
-
-.sheet-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.sheet-zone-badge {
-  font-size: 11px;
-  font-weight: 700;
-  color: #c9a84c;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  background: #fdf8ee;
-  padding: 4px 12px;
-  border-radius: 20px;
-  border: 1px solid #f0e0b0;
+  margin: 0 auto 14px;
 }
 
 .btn-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -310,39 +186,130 @@ ion-content {
   justify-content: center;
 }
 
+// ── Ligne principale : infos zone + nav ───────────────────────────────────────
+
+.sheet-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sheet-info { flex: 1; min-width: 0; }
+
+.sheet-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.sheet-etape {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c9a84c;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.sheet-statut {
+  font-size: 13px;
+  color: #bbb;
+  &.unlocked { color: #27ae60; }
+}
+
 .sheet-nom {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   color: #1a2e1e;
-  margin: 0 0 8px;
+  margin: 0 0 3px;
   letter-spacing: -0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-type {
+  font-size: 13px;
+  color: #999;
+  margin: 0 0 10px;
+}
+
+// ── Étoiles ───────────────────────────────────────────────────────────────────
+
+.sheet-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stars-row {
+  display: flex;
+  gap: 2px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #ddd;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s, transform 0.1s;
+
+  &.lit { color: #c9a84c; }
+  &:not([disabled]):hover { transform: scale(1.2); }
+  &[disabled] { cursor: default; }
+}
+
+.rating-label {
+  font-size: 12px;
+  color: #888;
+  &.vide { font-style: italic; }
+}
+
+// ── Navigation en direct ──────────────────────────────────────────────────────
+
+.sheet-nav {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav-fleche {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.nav-distance {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a2e1e;
+  margin: 0;
+}
+
+.nav-temps {
+  font-size: 12px;
+  color: #3498db;
+  font-weight: 600;
+  margin: 0;
+}
+
+// ── Séparateur + description + bouton ────────────────────────────────────────
+
+.sheet-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 0 0 12px;
 }
 
 .sheet-desc {
-  font-size: 14px;
+  font-size: 13px;
   color: #888;
   line-height: 1.6;
   margin: 0 0 16px;
-}
-
-.sheet-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.statut-pill {
-  font-size: 13px;
-  font-weight: 600;
-  color: #bbb;
-  background: #f8f8f8;
-  padding: 8px 14px;
-  border-radius: 20px;
-
-  &.unlocked {
-    color: #2d7a4f;
-    background: #f0faf4;
-  }
 }
 
 .btn-explorer {
@@ -350,12 +317,14 @@ ion-content {
   color: #c9a84c;
   border: none;
   border-radius: 14px;
-  padding: 12px 24px;
+  padding: 13px 0;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 16px rgba(26,46,30,0.3);
+  width: 100%;
+  text-align: center;
 }
 
 // ── Completion screen ─────────────────────────────────────────────────────────
@@ -501,10 +470,6 @@ ion-content {
   100% { transform: scale(2.4); opacity: 0;   }
 }
 
-@keyframes pulsationPastille {
-  0%, 100% { box-shadow: 0 0 0 0   rgba(52,152,219,0.5); }
-  50%       { box-shadow: 0 0 0 6px rgba(52,152,219,0);   }
-}
 
 @keyframes pulsationGPS {
   0%   { transform: translate(-50%,-50%) scale(1);   opacity: 0.8; }
