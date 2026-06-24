@@ -1,4 +1,14 @@
 import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './services/auth.service';
+
+const authGuard = async () => {
+  const auth   = inject(AuthService);
+  const router = inject(Router);
+  await auth.waitForSession();
+  return auth.estConnecte() ? true : router.parseUrl('/login');
+};
 
 export const routes: Routes = [
   {
@@ -6,7 +16,12 @@ export const routes: Routes = [
     loadComponent: () => import('./splash/splash.page').then(m => m.SplashPage),
   },
   {
+    path: 'login',
+    loadComponent: () => import('./pages/auth/auth.page').then(m => m.AuthPage),
+  },
+  {
     path: 'tabs',
+    canActivate: [authGuard],
     loadComponent: () => import('./tabs/tabs.page').then(m => m.TabsPage),
     children: [
       {
@@ -17,7 +32,7 @@ export const routes: Routes = [
         path: 'parcours',
         loadComponent: () => import('./pages/parcours/parcours.page').then(m => m.ParcoursPage),
       },
-{
+      {
         path: 'apropos',
         loadComponent: () => import('./pages/apropos/apropos.page').then(m => m.AproposPage),
       },

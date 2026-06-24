@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
+import { SyncService } from './sync.service';
 
 const CLE = 'kaval_ratings_v1';
 
@@ -8,7 +9,7 @@ export class RatingService {
   private _notes = signal<Record<string, number>>({});
   readonly notes = this._notes.asReadonly();
 
-  constructor() {
+  constructor(private sync: SyncService) {
     Preferences.get({ key: CLE }).then(({ value }) => {
       if (value) this._notes.set(JSON.parse(value));
     });
@@ -22,6 +23,13 @@ export class RatingService {
     const all = { ...this._notes(), [zoneId]: note };
     this._notes.set(all);
     await Preferences.set({ key: CLE, value: JSON.stringify(all) });
+    this.sync.pushRating(zoneId, note);
+  }
+
+  async chargerDepuisCloud(ratings: Record<string, number>): Promise<void> {
+    const merged = { ...this._notes(), ...ratings }; // cloud écrase le local
+    this._notes.set(merged);
+    await Preferences.set({ key: CLE, value: JSON.stringify(merged) });
   }
 
   async reinitialiser(): Promise<void> {
