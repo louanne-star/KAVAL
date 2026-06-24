@@ -120,6 +120,134 @@ ion-content {
   animation: slideUp 0.3s ease;
 }
 
+// ── HUD navigation active ─────────────────────────────────────────────────────
+
+.nav-hud {
+  position: absolute;
+  top: 76px;
+  left: 12px;
+  right: 12px;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1a2e1e;
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hud-icone {
+  font-size: 26px;
+  flex-shrink: 0;
+  color: #c9a84c;
+}
+
+.hud-corps {
+  flex: 1;
+  min-width: 0;
+}
+
+.hud-instruction {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud-meta {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud-annuler {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ── Notification d'arrivée ────────────────────────────────────────────────────
+
+.arrivee-notif {
+  position: absolute;
+  bottom: 180px;
+  left: 12px;
+  right: 12px;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  border-left: 4px solid #27ae60;
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.arrivee-icone {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.arrivee-corps {
+  flex: 1;
+  min-width: 0;
+}
+
+.arrivee-titre {
+  font-size: 13px;
+  font-weight: 700;
+  color: #27ae60;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.arrivee-nom {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1a2e1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arrivee-badge {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.arrivee-close {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: none;
+  color: #aaa;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 // ── Recenter button ───────────────────────────────────────────────────────────
 
 .btn-recentrer {
@@ -312,7 +440,34 @@ ion-content {
   margin: 0 0 16px;
 }
 
+.sheet-actions-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-itineraire {
+  flex: 0 0 auto;
+  background: #f0f7f2;
+  border: 1.5px solid #3498db;
+  border-radius: 14px;
+  padding: 13px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  color: #3498db;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+
+  &.actif {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+  }
+}
+
 .btn-explorer {
+  flex: 1;
   background: linear-gradient(135deg, #1a2e1e, #2d5a3d);
   color: #c9a84c;
   border: none;
@@ -323,7 +478,6 @@ ion-content {
   cursor: pointer;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 16px rgba(26,46,30,0.3);
-  width: 100%;
   text-align: center;
 }
 
@@ -463,6 +617,11 @@ ion-content {
 @keyframes slideUp {
   from { transform: translateY(40px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
 }
 
 @keyframes pulsation {
