@@ -104,7 +104,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly favoriteService: FavoriteService,
     private ngZone: NgZone,
     private router: Router,
-    private badgeService: BadgeService,
+    readonly badgeService: BadgeService,
   ) {
 
     // Redraws zone circles, ghost segments and markers when zones or OSRM
