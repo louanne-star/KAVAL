@@ -23,7 +23,7 @@ ion-content { --background: #f7f7f5; }
 
 .compte-header {
   position: relative;
-  background: linear-gradient(160deg, #1a2e1e, #2d5a3d);
+  background: linear-gradient(160deg, #27476e, #3a6190);
   padding: 56px 24px 32px;
   display: flex;
   flex-direction: column;
@@ -38,24 +38,71 @@ ion-content { --background: #f7f7f5; }
   cursor: pointer;
 }
 
-.avatar-img,
+.avatar-emoji,
 .avatar-initiales {
   width: 88px;
   height: 88px;
   border-radius: 50%;
   border: 3px solid #c9a84c;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-emoji {
+  font-size: 42px;
+  background: rgba(255,255,255,0.15);
 }
 
 .avatar-initiales {
   background: #c9a84c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 28px;
   font-weight: 800;
-  color: #1a2e1e;
+  color: #27476e;
+}
+
+// ── Picker emoji ──────────────────────────────────────────────────────────────
+
+.emoji-picker {
+  background: #fff;
+  margin: 0 16px 0;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.picker-titre {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c9a84c;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0 0 12px;
+}
+
+.emoji-grille {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+.emoji-btn {
+  background: #f7f7f5;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 22px;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  line-height: 1;
+
+  &.actif {
+    border-color: #c9a84c;
+    background: #fff8e7;
+  }
+
+  &:active { background: #ebebeb; }
 }
 
 .avatar-edit {
@@ -71,7 +118,7 @@ ion-content { --background: #f7f7f5; }
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  color: #1a2e1e;
+  color: #27476e;
 }
 
 .compte-email {
@@ -115,7 +162,7 @@ ion-content { --background: #f7f7f5; }
   transition: color 0.2s, border-color 0.2s;
 
   &.actif {
-    color: #1a2e1e;
+    color: #27476e;
     border-bottom-color: #c9a84c;
   }
 }
@@ -162,7 +209,7 @@ ion-content { --background: #f7f7f5; }
 .favori-nom {
   font-size: 14px;
   font-weight: 700;
-  color: #1a2e1e;
+  color: #27476e;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -240,7 +287,7 @@ ion-content { --background: #f7f7f5; }
   border-radius: 10px;
   padding: 12px 14px;
   font-size: 15px;
-  color: #1a2e1e;
+  color: #27476e;
   font-family: inherit;
   box-sizing: border-box;
   outline: none;
@@ -250,7 +297,7 @@ ion-content { --background: #f7f7f5; }
 
 .btn-primaire {
   width: 100%;
-  background: linear-gradient(135deg, #1a2e1e, #2d5a3d);
+  background: linear-gradient(135deg, #27476e, #3a6190);
   color: #c9a84c;
   border: none;
   border-radius: 12px;

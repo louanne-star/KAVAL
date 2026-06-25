@@ -6,7 +6,6 @@ import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { JourneyService } from '../../services/journey.service';
-import { SupabaseService } from '../../services/supabase';
 
 type Vue = 'profil' | 'mdp';
 
@@ -27,15 +26,22 @@ export class ComptePage {
     ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
   };
 
-  vue            = signal<Vue>('profil');
-  chargement     = signal(false);
-  erreur         = signal<string | null>(null);
-  succes         = signal<string | null>(null);
-  confirmSuppr   = signal(false);
+  readonly emojis = [
+    '🐺','🦊','🐱','🐶','🐻','🐼','🦁','🐸',
+    '🦋','🌺','🎭','⚡','🔥','⭐','🌙','🌊',
+    '🧭','⚓','🗝️','⛏️','🏴','🗺️','🌴','🦜',
+    '🐙','🦈','🐬','🦅','🦩','🌵','🍀','🎸',
+  ];
 
-  // Modifier mot de passe
-  nouveauMdp     = '';
-  confirmMdp     = '';
+  vue          = signal<Vue>('profil');
+  chargement   = signal(false);
+  erreur       = signal<string | null>(null);
+  succes       = signal<string | null>(null);
+  confirmSuppr = signal(false);
+  voirPicker   = signal(false);
+
+  nouveauMdp = '';
+  confirmMdp = '';
 
   readonly zonesFavorites = computed(() =>
     this.journeyService.zones().filter(z => this.favoriteService.estFavori(z.id))
@@ -45,65 +51,26 @@ export class ComptePage {
     readonly auth:           AuthService,
     readonly favoriteService: FavoriteService,
     readonly journeyService: JourneyService,
-    private supabase:        SupabaseService,
     private router:          Router,
   ) {}
-
-  // ── Avatar ────────────────────────────────────────────────────────────────
 
   retour() {
     this.router.navigate(['/tabs/carte']);
   }
 
-  declencherUpload() {
-    document.getElementById('avatar-input')?.click();
-  }
-
-  async surSelectionPhoto(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file  = input.files?.[0];
-    if (!file || !this.auth.userId) return;
-
+  async choisirEmoji(emoji: string) {
+    this.voirPicker.set(false);
     this.chargement.set(true);
     this.erreur.set(null);
     try {
-      // Redimensionne en 200×200 avant upload
-      const blob     = await this.redimensionner(file, 200);
-      const chemin   = `${this.auth.userId}.jpg`;
-      const { error: upErr } = await this.supabase.client.storage
-        .from('avatars').upload(chemin, blob, { upsert: true, contentType: 'image/jpeg' });
-      if (upErr) throw upErr;
-
-      const { data } = this.supabase.client.storage.from('avatars').getPublicUrl(chemin);
-      await this.auth.mettreAJourAvatar(`${data.publicUrl}?t=${Date.now()}`);
-      this.succes.set('Photo mise à jour !');
+      await this.auth.mettreAJourEmoji(emoji);
+      this.succes.set('Avatar mis à jour !');
       setTimeout(() => this.succes.set(null), 3000);
     } catch {
-      this.erreur.set('Erreur lors de l\'upload. Vérifiez que le bucket "avatars" est public.');
+      this.erreur.set('Erreur lors de la mise à jour.');
     } finally {
       this.chargement.set(false);
     }
-  }
-
-  private redimensionner(file: File, taille: number): Promise<Blob> {
-    return new Promise((resolve, reject) => {
-      const img    = new Image();
-      const url    = URL.createObjectURL(file);
-      img.onload   = () => {
-        const canvas    = document.createElement('canvas');
-        canvas.width    = taille;
-        canvas.height   = taille;
-        const ctx       = canvas.getContext('2d')!;
-        const min       = Math.min(img.width, img.height);
-        const ox        = (img.width  - min) / 2;
-        const oy        = (img.height - min) / 2;
-        ctx.drawImage(img, ox, oy, min, min, 0, 0, taille, taille);
-        URL.revokeObjectURL(url);
-        canvas.toBlob(b => b ? resolve(b) : reject(), 'image/jpeg', 0.85);
-      };
-      img.onerror = reject;
-      img.src     = url;
-    });
   }
 
   // ── Mot de passe ──────────────────────────────────────────────────────────

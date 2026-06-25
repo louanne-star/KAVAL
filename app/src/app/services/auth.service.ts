@@ -67,16 +67,15 @@ export class AuthService {
     this._user.set(null);
   }
 
-  async mettreAJourAvatar(url: string): Promise<void> {
-    const { error } = await this.supabase.client.auth.updateUser({ data: { avatar_url: url } });
+  async mettreAJourEmoji(emoji: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.updateUser({ data: { avatar_emoji: emoji } });
     if (error) throw error;
-    // Rafraîchit le signal avec les nouvelles métadonnées
     const { data } = await this.supabase.client.auth.getUser();
     this._user.set(data.user);
   }
 
-  get avatarUrl(): string | null {
-    return this._user()?.user_metadata?.['avatar_url'] ?? null;
+  get avatarEmoji(): string | null {
+    return this._user()?.user_metadata?.['avatar_emoji'] ?? null;
   }
 
   get emailInitiales(): string {

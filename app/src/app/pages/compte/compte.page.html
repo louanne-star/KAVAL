@@ -4,15 +4,31 @@
     <!-- ── Avatar + email ───────────────────────────────────────────────── -->
     <div class="compte-header">
       <button class="compte-retour" (click)="retour()">‹</button>
-      <div class="avatar-wrapper" (click)="declencherUpload()">
-        <img *ngIf="auth.avatarUrl" [src]="auth.avatarUrl" class="avatar-img" alt="avatar" />
-        <div *ngIf="!auth.avatarUrl" class="avatar-initiales">
-          {{ auth.emailInitiales }}
+
+      <div class="avatar-wrapper" (click)="voirPicker.set(!voirPicker())">
+        <div class="avatar-emoji" *ngIf="auth.avatarEmoji; else initiales">
+          {{ auth.avatarEmoji }}
         </div>
+        <ng-template #initiales>
+          <div class="avatar-initiales">{{ auth.emailInitiales }}</div>
+        </ng-template>
         <div class="avatar-edit">✎</div>
       </div>
-      <input id="avatar-input" type="file" accept="image/*" hidden (change)="surSelectionPhoto($event)" />
+
       <p class="compte-email">{{ auth.user()?.email }}</p>
+    </div>
+
+    <!-- ── Picker emoji ──────────────────────────────────────────────────── -->
+    <div class="emoji-picker" *ngIf="voirPicker()">
+      <p class="picker-titre">Choisis ton avatar</p>
+      <div class="emoji-grille">
+        <button class="emoji-btn"
+                *ngFor="let e of emojis"
+                [class.actif]="auth.avatarEmoji === e"
+                (click)="choisirEmoji(e)">
+          {{ e }}
+        </button>
+      </div>
     </div>
 
     <!-- ── Feedback ─────────────────────────────────────────────────────── -->
