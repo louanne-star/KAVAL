@@ -55,4 +55,32 @@ export class AuthService {
     await this.supabase.client.auth.signOut();
     this._user.set(null);
   }
+
+  async modifierMotDePasse(nouveauMdp: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.updateUser({ password: nouveauMdp });
+    if (error) throw error;
+  }
+
+  async supprimerCompte(): Promise<void> {
+    const { error } = await this.supabase.client.rpc('delete_account');
+    if (error) throw error;
+    this._user.set(null);
+  }
+
+  async mettreAJourAvatar(url: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.updateUser({ data: { avatar_url: url } });
+    if (error) throw error;
+    // Rafraîchit le signal avec les nouvelles métadonnées
+    const { data } = await this.supabase.client.auth.getUser();
+    this._user.set(data.user);
+  }
+
+  get avatarUrl(): string | null {
+    return this._user()?.user_metadata?.['avatar_url'] ?? null;
+  }
+
+  get emailInitiales(): string {
+    const email = this._user()?.email ?? '';
+    return email.slice(0, 2).toUpperCase();
+  }
 }

@@ -1,16 +1,15 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 -- KAVAL — Migration Supabase
--- À coller dans : Supabase Dashboard > SQL Editor > New query
+-- À coller dans : Supabase Dashboard > SQL Editor > New query > Run
 --
--- IMPORTANT : désactive la confirmation email avant de tester le login.
---   Dashboard > Authentication > Providers > Email > Confirm email : OFF
+-- AVANT : Authentication > Settings > Email Auth > "Confirm email" : OFF
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- ── Badges (zones physiquement visitées) ─────────────────────────────────────
 
 create table if not exists user_badges (
-  user_id  uuid references auth.users not null,
-  zone_id  text not null,
+  user_id   uuid references auth.users not null,
+  zone_id   text not null,
   earned_at timestamptz default now(),
   primary key (user_id, zone_id)
 );
@@ -70,3 +69,25 @@ create policy "Chaque utilisateur gère ses favoris"
   on user_favorites for all
   using  (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- ── Suppression de compte (appelée via supabase.rpc) ─────────────────────────
+-- security definer : s'exécute avec les droits admin mais uniquement sur auth.uid()
+
+create or replace function delete_account()
+returns void
+language plpgsql
+security definer
+as $$
+begin
+  delete from user_badges    where user_id = auth.uid();
+  delete from user_ratings   where user_id = auth.uid();
+  delete from user_comments  where user_id = auth.uid();
+  delete from user_favorites where user_id = auth.uid();
+  delete from auth.users     where id      = auth.uid();
+end;
+$$;
+
+-- ── Storage : bucket avatars ──────────────────────────────────────────────────
+-- À faire manuellement dans Dashboard > Storage > New bucket
+--   Nom : avatars
+--   Public : OUI (cocher "Public bucket")
