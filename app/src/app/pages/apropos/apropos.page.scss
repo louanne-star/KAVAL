@@ -213,18 +213,46 @@
 }
 
 // Artisanat
+
 .artisanat-content {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
-.artisanat-img {
-  width: 110px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 12px;
+.artisanat-text {
+  flex: 1;
+}
+
+.artisanat-imgs {
+  position: relative;
+  width: 130px;
+  height: 130px;
   flex-shrink: 0;
+}
+
+.nacre-img {
+  position: absolute;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.nacre1 {
+  width: 150px;
+  height: 100px;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  transform: rotate(-5deg);
+}
+
+.nacre2 {
+  width: 100px;
+  height: 100px;
+  bottom: -30px;
+  right: 0;
+  z-index: 3;
+  transform: rotate(20deg);
 }
 
 // Projet
