@@ -1,0 +1,58 @@
+<ion-content [fullscreen]="true">
+  <div class="recherche-page">
+
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
+    <div class="rech-header">
+      <button class="rech-retour" (click)="retour()">‹</button>
+      <h1 class="rech-titre">Explorer</h1>
+      <div class="rech-barre">
+        <ion-icon name="search-outline" class="rech-icone-search"></ion-icon>
+        <input class="rech-input"
+               type="search"
+               placeholder="Rechercher une zone…"
+               [value]="terme()"
+               (input)="terme.set($any($event.target).value)" />
+        <button class="rech-clear" *ngIf="terme()" (click)="terme.set('')">✕</button>
+      </div>
+    </div>
+
+    <!-- ── Filtres chips ─────────────────────────────────────────────────── -->
+    <div class="rech-filtres">
+      <button class="chip" [class.actif]="filtre() === 'tous'"    (click)="filtre.set('tous')">Tous</button>
+      <button class="chip" [class.actif]="filtre() === 'visites'" (click)="filtre.set('visites')">Visités 🏅</button>
+      <button class="chip" [class.actif]="filtre() === 'favoris'" (click)="filtre.set('favoris')">Favoris ♥</button>
+    </div>
+
+    <!-- ── Résultats ─────────────────────────────────────────────────────── -->
+    <div class="rech-resultats" *ngIf="resultats().length > 0; else aucun">
+      <div class="zone-carte" *ngFor="let z of resultats()">
+
+        <div class="zone-gauche" (click)="allerVersZone(z.id)">
+          <div class="zone-icone">{{ META[z.id]?.icone }}</div>
+          <div class="zone-corps">
+            <div class="zone-entete">
+              <span class="zone-nom">{{ z.nom }}</span>
+              <span class="badge-visu" *ngIf="badgeService.aBadge(z.id)">🏅</span>
+              <span class="fav-visu"   *ngIf="favoriteService.estFavori(z.id)">♥</span>
+            </div>
+            <div class="zone-sous">{{ META[z.id]?.sousTitre }}</div>
+            <div class="zone-stars">{{ starsFor(ratingService.getNote(z.id)) }}</div>
+          </div>
+        </div>
+
+        <button class="zone-carte-btn" (click)="allerVersCarte(z.id)" title="Voir sur la carte">
+          <ion-icon name="map-outline"></ion-icon>
+        </button>
+
+      </div>
+    </div>
+
+    <ng-template #aucun>
+      <div class="aucun-resultat">
+        <div class="aucun-icone">🔍</div>
+        <p>Aucune zone ne correspond à votre recherche.</p>
+      </div>
+    </ng-template>
+
+  </div>
+</ion-content>

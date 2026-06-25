@@ -8,6 +8,7 @@ import { BadgeService } from '../../services/badge.service';
 import { RatingService } from '../../services/rating.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { CommentService } from '../../services/comment.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-map',
@@ -173,6 +174,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly ratingService: RatingService,
     readonly favoriteService: FavoriteService,
     readonly commentService: CommentService,
+    readonly authService: AuthService,
     private ngZone: NgZone,
     private router: Router,
     readonly badgeService: BadgeService,
@@ -518,6 +520,14 @@ export class MapPage implements AfterViewInit, OnDestroy {
     } else {
       this.map.flyTo([-22.2660, 166.4083], 14, { duration: 0.8 });
     }
+  }
+
+  allerVersCompte() {
+    this.router.navigate(['/compte']);
+  }
+
+  allerVersRecherche() {
+    this.router.navigate(['/recherche']);
   }
 
   explorer(zoneId: string) {

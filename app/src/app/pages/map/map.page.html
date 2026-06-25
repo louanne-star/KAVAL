@@ -10,8 +10,8 @@
     </div>
 
     <div class="nav-actions">
-      <button class="nav-btn" (click)="explorer('')" disabled title="Recherche (bientôt)">
-        <ion-icon name="search-outline"></ion-icon>
+      <button class="nav-btn" (click)="allerVersRecherche()" title="Recherche">
+        🔍
       </button>
       <button class="nav-btn"
               [class.favori-actif]="zoneSelectionnee() && favoriteService.estFavori(zoneSelectionnee()!.id)"
@@ -19,9 +19,10 @@
               title="Favoris">
         <ion-icon [name]="zoneSelectionnee() && favoriteService.estFavori(zoneSelectionnee()!.id) ? 'heart' : 'heart-outline'"></ion-icon>
       </button>
-      <div class="nav-avatar" title="Compte (bientôt)">
-        <ion-icon name="person-outline"></ion-icon>
-      </div>
+      <button class="nav-avatar" (click)="allerVersCompte()" title="Mon compte">
+        <img *ngIf="authService.avatarUrl" [src]="authService.avatarUrl" alt="avatar" class="avatar-img">
+        <span *ngIf="!authService.avatarUrl" class="avatar-initiales">{{ authService.emailInitiales }}</span>
+      </button>
     </div>
 
   </div>
