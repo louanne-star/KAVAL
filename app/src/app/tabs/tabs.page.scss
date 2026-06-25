@@ -1,6 +1,121 @@
-ion-tab-bar {
-  --background: #1b3a2a;
-  --color: #c9a84c;
-  --color-selected: #ffffff;
-  border-top: 1px solid #c9a84c;
+// ── Cache l'ion-tab-bar Ionic (routage conservé, visuel supprimé) ─────────────
+
+.ion-tab-bar-cache {
+  display: none !important;
+}
+
+// ── Nav custom positionnée en fixed bas d'écran ───────────────────────────────
+
+.nav-custom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 0 16px 16px;
+  pointer-events: none;
+}
+
+// ── Barre principale ──────────────────────────────────────────────────────────
+
+.nav-bar {
+  background: #27476e;
+  border-radius: 28px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 12px;
+  overflow: visible;
+  pointer-events: all;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+// ── Bouton de tab ─────────────────────────────────────────────────────────────
+
+.nav-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  height: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+// ── Icône active : cercle élevé ───────────────────────────────────────────────
+
+// Cercle parfait élevé contenant icône + label
+.nav-elevated {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #27476e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-shadow: none;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+
+  ion-icon {
+    font-size: 22px;
+    color: #ffffff;
+    flex-shrink: 0;
+  }
+}
+
+.nav-tab.actif .nav-elevated {
+  transform: translateX(-50%) scale(1.05);
+}
+
+.nav-label-actif {
+  font-size: 9px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+// ── Icône inactive : à plat ───────────────────────────────────────────────────
+
+.nav-flat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+
+  ion-icon {
+    font-size: 22px;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.15s;
+  }
+}
+
+.nav-tab:active .nav-flat ion-icon {
+  color: rgba(255,255,255,0.9);
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+// ── Padding bas du contenu pour ne pas être masqué ───────────────────────────
+
+:host ::ng-deep ion-content {
+  --padding-bottom: 96px;
 }

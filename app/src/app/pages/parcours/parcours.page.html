@@ -1,53 +1,134 @@
 <ion-content [fullscreen]="true" class="parcours-content">
 
-  <!-- Header -->
-  <div class="parcours-header">
-    <p class="header-label">KAVAL · ÎLE NOU</p>
-    <h1 class="header-titre">Votre Épopée</h1>
-    <p class="header-sub">{{ zonesVisitees }} zone visitée sur {{ zones.length }}</p>
-    <div class="header-progress">
-      <div class="progress-bar">
-        <div class="progress-fill" [style.width]="(zonesVisitees / zones.length * 100) + '%'"></div>
-      </div>
+  <!-- Badge win overlay -->
+  <div class="badge-overlay" *ngIf="badgeAnimation">
+    <div class="badge-win-card">
+      <div class="badge-emoji">🏅</div>
+      <h2 class="badge-titre">Badge obtenu !</h2>
+      <p class="badge-sous">Tu as traversé la rivière</p>
     </div>
   </div>
 
-  <!-- Timeline -->
-  <div class="timeline">
-    <div class="timeline-item"
-         *ngFor="let zone of zones; let last = last"
-         [class.visite]="zone.statut === 'visite'"
-         [class.actif]="zone.statut === 'actif'"
-         [class.locked]="zone.statut === 'locked'">
+  <!-- ── Vue détail d'une zone ──────────────────────────────────────────── -->
+  <ng-container *ngIf="zoneSelectionnee as zone">
 
-      <!-- Ligne verticale -->
-      <div class="timeline-line" *ngIf="!last"></div>
+    <!-- Iframe mini-jeu en plein écran -->
+    <div class="jeu-container" *ngIf="jeuOuvert">
+      <button class="btn-fermer-jeu" (click)="fermerJeu()">✕ Fermer</button>
+      <iframe [src]="jeuUrl" class="jeu-iframe" allow=""></iframe>
+    </div>
 
-      <!-- Bloc zone -->
-      <div class="zone-bloc">
-        <!-- Check ou lock -->
-        <div class="zone-badge" *ngIf="zone.statut === 'visite'">✓</div>
-        <div class="zone-badge locked-badge" *ngIf="zone.statut === 'locked'">🔒</div>
+    <!-- Détail zone -->
+    <ng-container *ngIf="!jeuOuvert">
 
-        <!-- Icone -->
-        <div class="zone-icone">
-          <span>{{ zone.statut === 'locked' ? zone.iconeLocked : zone.iconeVisite }}</span>
-        </div>
-
-        <!-- Infos -->
-        <div class="zone-infos" *ngIf="zone.statut !== 'locked'">
-          <p class="zone-ordre">Zone {{ zone.ordre }}</p>
-          <h3 class="zone-nom">{{ zone.nom }}</h3>
-          <p class="zone-sous-titre">{{ zone.sousTitre }}</p>
-        </div>
-
-        <div class="zone-infos" *ngIf="zone.statut === 'locked'">
-          <p class="zone-ordre">Zone {{ zone.ordre }}</p>
-          <p class="zone-locked-text">{{ zone.sousTitre }}</p>
-        </div>
+      <div class="detail-header" [style.--couleur]="zone.couleurZone">
+        <button class="btn-retour" (click)="retourListe()">← Retour</button>
+        <div class="detail-icone">{{ META[zone.id]?.icone }}</div>
+        <div class="detail-badge-pill">Zone {{ zone.ordre }}</div>
+        <h1 class="detail-titre">{{ zone.nom }}</h1>
+        <p class="detail-sous-titre">{{ META[zone.id]?.sousTitre }}</p>
+        <p class="detail-desc">{{ zone.description }}</p>
       </div>
 
+      <div class="detail-contenu">
+
+        <!-- Mini-jeu (si disponible pour cette zone) -->
+        <ng-container *ngIf="META[zone.id]?.jeu">
+          <div class="section-titre">Mini-jeu</div>
+          <div class="contenu-card jeu-card" (click)="ouvrirJeu()">
+            <div class="contenu-icone">🎮</div>
+            <div class="contenu-info">
+              <p class="contenu-label">Traverse la Rivière</p>
+              <p class="contenu-sous">
+                {{ badgeService.aBadge(zone.id) ? 'Déjà complété — rejoue !' : 'Saute de rocher en rocher pour gagner un badge' }}
+              </p>
+            </div>
+            <div class="contenu-tag" [class.badge-earned]="badgeService.aBadge(zone.id)">
+              {{ badgeService.aBadge(zone.id) ? '🏅' : 'Jouer →' }}
+            </div>
+          </div>
+        </ng-container>
+
+        <div class="section-titre">Contenu disponible</div>
+
+        <div class="contenu-card">
+          <div class="contenu-icone">🎙</div>
+          <div class="contenu-info">
+            <p class="contenu-label">Audio-guide</p>
+            <p class="contenu-sous">Disponible bientôt</p>
+          </div>
+          <div class="contenu-tag">À venir</div>
+        </div>
+
+        <div class="contenu-card">
+          <div class="contenu-icone">🎬</div>
+          <div class="contenu-info">
+            <p class="contenu-label">Vidéo historique</p>
+            <p class="contenu-sous">Disponible bientôt</p>
+          </div>
+          <div class="contenu-tag">À venir</div>
+        </div>
+
+      </div>
+    </ng-container>
+
+  </ng-container>
+
+  <!-- ── Vue liste (timeline) ───────────────────────────────────────────── -->
+  <ng-container *ngIf="!zoneSelectionnee">
+
+    <div class="parcours-header">
+      <p class="header-label">KAVAL · ÎLE NOU</p>
+      <h1 class="header-titre">Mon Épopée</h1>
+      <p class="header-sub">{{ journeyService.zonesDebloquees() }} / 5 zones explorées</p>
+      <div class="header-progress">
+        <div class="progress-bar">
+          <div class="progress-fill"
+               [style.width.%]="(journeyService.zonesDebloquees() / 5) * 100">
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- Zones pas encore chargées -->
+    <div class="liste-vide" *ngIf="journeyService.zones().length === 0">
+      <div class="vide-icone">🗺️</div>
+      <p>Aucune zone débloquée pour l'instant.</p>
+      <p class="vide-hint">Déplace-toi sur l'Île Nou pour commencer le parcours.</p>
+      <button class="btn-carte" (click)="retourCarte()">Voir la carte →</button>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline" *ngIf="journeyService.zones().length > 0">
+      <div class="timeline-item"
+           *ngFor="let z of journeyService.zones(); let last = last"
+           [class.visite]="getStatut(z) === 'visite'"
+           [class.actif]="getStatut(z) === 'actif'"
+           [class.locked]="getStatut(z) === 'locked'">
+
+        <div class="timeline-line" *ngIf="!last"></div>
+
+        <div class="zone-bloc" (click)="selectZone(z)">
+          <div class="zone-badge" *ngIf="getStatut(z) === 'visite'">✓</div>
+          <div class="zone-badge locked-badge" *ngIf="getStatut(z) === 'locked'">🔒</div>
+
+          <div class="zone-icone"><span>{{ META[z.id]?.icone }}</span></div>
+
+          <div class="zone-infos" *ngIf="getStatut(z) !== 'locked'">
+            <p class="zone-ordre">Zone {{ z.ordre }}</p>
+            <h3 class="zone-nom">{{ z.nom }}</h3>
+            <p class="zone-sous-titre">{{ META[z.id]?.sousTitre }}</p>
+          </div>
+
+          <div class="zone-infos" *ngIf="getStatut(z) === 'locked'">
+            <p class="zone-ordre">Zone {{ z.ordre }}</p>
+            <p class="zone-locked-text">{{ META[z.id]?.sousTitre }}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
 
 </ion-content>

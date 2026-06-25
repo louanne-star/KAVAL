@@ -1,47 +1,216 @@
-<!-- page d'accueil(carte)-->
 <ion-content [fullscreen]="true">
   <div id="map-container"></div>
 
-  <!-- Header -->
-  <div class="header-flottant">
-    <div class="header-inner">
-      <div class="header-left">
-        <span class="logo-shell">🐚</span>
-        <div>
-          <p class="logo-name">KAVAL</p>
-          <p class="logo-sub">Île Nou · Bagne de NC</p>
-        </div>
-      </div>
-      <div class="header-right">
-        <div class="badge-zones">
-          <span class="badge-dot"></span>
-          1/5
-        </div>
-      </div>
+  <!-- ── Header style Navios ─────────────────────────────────────────────── -->
+  <div class="header-navios">
+
+    <div class="nav-logo">
+      <span class="logo-shell">🐚</span>
+      <span class="logo-name">KAVAL</span>
     </div>
+
+    <div class="nav-actions">
+      <button class="nav-btn" (click)="allerVersRecherche()" title="Recherche">
+        🔍
+      </button>
+      <button class="nav-btn" (click)="allerVersFavoris()" title="Favoris">
+        ♥
+      </button>
+      <button class="nav-avatar" (click)="allerVersCompte()" title="Mon compte">
+        <span *ngIf="authService.avatarEmoji" class="avatar-emoji">{{ authService.avatarEmoji }}</span>
+        <span *ngIf="!authService.avatarEmoji" class="avatar-initiales">{{ authService.emailInitiales }}</span>
+      </button>
+    </div>
+
   </div>
 
-  <!-- Bouton recentrer -->
+  <!-- ── GPS error banner ─────────────────────────────────────────────────── -->
+  <div class="gps-erreur" *ngIf="journeyService.erreurGPS()">
+    ⚠ {{ journeyService.erreurGPS() }}
+  </div>
+
+  <!-- ── HUD navigation active (instructions OSRM) ───────────────────────── -->
+  <div class="nav-hud" *ngIf="navCibleId() && instructionNav() as inst">
+    <div class="hud-icone">{{ inst.icone }}</div>
+    <div class="hud-corps">
+      <div class="hud-instruction">{{ inst.texte }}</div>
+      <div class="hud-meta">
+        <span *ngIf="inst.distance > 0">dans {{ inst.distance }} m · </span>
+        <span *ngIf="distanceNavCible() !== null">{{ distanceNavCible() }} m jusqu'à {{ navCibleZone()?.nom }}</span>
+      </div>
+    </div>
+    <button class="hud-annuler" (click)="annulerNav()">✕</button>
+  </div>
+
+  <!-- ── Notification d'arrivée ───────────────────────────────────────────── -->
+  <div class="arrivee-notif" *ngIf="zoneArrivee() as zone">
+    <div class="arrivee-icone">{{ META[zone.id]?.icone }}</div>
+    <div class="arrivee-corps">
+      <div class="arrivee-titre">Vous êtes arrivé !</div>
+      <div class="arrivee-nom">{{ zone.nom }}</div>
+    </div>
+    <div class="arrivee-badge">🏅</div>
+    <button class="arrivee-close" (click)="fermerArrivee()">✕</button>
+  </div>
+
+  <!-- ── Satellite toggle ─────────────────────────────────────────────────── -->
+  <button class="btn-satellite" [class.actif]="modeSatellite()" (click)="toggleModeCarte()">
+    <span class="satellite-icone">{{ modeSatellite() ? '🗺️' : '🛰️' }}</span>
+    <span class="satellite-label">{{ modeSatellite() ? 'Carte' : 'Sat.' }}</span>
+  </button>
+
+  <!-- ── Recenter button ──────────────────────────────────────────────────── -->
   <button class="btn-recentrer" (click)="recentrer()">◎</button>
 
-  <!-- Bottom sheet -->
-  <div class="bottom-sheet" *ngIf="zoneSelectionnee">
+  <!-- ── Bottom sheet style Gym Beam ─────────────────────────────────────── -->
+  <div class="bottom-sheet" *ngIf="zoneSelectionnee() as zone">
     <div class="sheet-card">
+
       <div class="sheet-handle"></div>
-      <div class="sheet-top">
-        <div class="sheet-zone-badge">Zone {{ zoneSelectionnee.ordre }}</div>
-        <button class="btn-close" (click)="fermerFiche()">✕</button>
-      </div>
-      <h2 class="sheet-nom">{{ zoneSelectionnee.nom }}</h2>
-      <p class="sheet-desc">{{ zoneSelectionnee.description }}</p>
-      <div class="sheet-actions">
-        <div class="statut-pill" [class.unlocked]="zoneSelectionnee.debloque">
-          {{ zoneSelectionnee.debloque ? '🔓 Débloquée' : '🔒 Verrouillée' }}
+
+      <!-- Ligne haut : infos zone + nav en direct -->
+      <div class="sheet-main">
+
+        <div class="sheet-info">
+          <div class="sheet-badge-row">
+            <span class="sheet-etape">Étape {{ zone.ordre }}</span>
+            <span class="sheet-statut" *ngIf="badgeService.aBadge(zone.id)">🏅</span>
+          </div>
+          <div class="sheet-nom-row">
+            <h2 class="sheet-nom">{{ zone.nom }}</h2>
+            <button class="sheet-fav-btn"
+                    [class.actif]="favoriteService.estFavori(zone.id)"
+                    (click)="toggleFavori(zone.id)"
+                    title="Favori">
+              {{ favoriteService.estFavori(zone.id) ? '♥' : '♡' }}
+            </button>
+          </div>
+          <p class="sheet-type">{{ META[zone.id]?.sousTitre }}</p>
+
+          <!-- Notes + commentaires communauté -->
+          <div class="sheet-rating">
+            <div class="rating-communaute" *ngIf="ratingService.getMoyenne(zone.id) as m; else aucunAvis">
+              <span class="rating-stars-moy">{{ starsFor(m.moyenne) }}</span>
+              <span class="rating-info">{{ m.moyenne | number:'1.1-1' }} · {{ m.nb }} avis</span>
+            </div>
+            <ng-template #aucunAvis>
+              <span class="rating-info">Aucun avis</span>
+            </ng-template>
+            <div class="ma-note-row">
+              <span class="ma-note-label">Ma note</span>
+              <div class="stars-row">
+                <button *ngFor="let s of [1,2,3,4,5]"
+                        class="star-btn"
+                        [class.lit]="(ratingService.getNote(zone.id) ?? 0) >= s"
+                        (click)="noterZone(zone.id, s)">★</button>
+              </div>
+            </div>
+            <button class="btn-commentaire" (click)="ouvrirCommentaire(zone.id)">
+              💬 Commentaires<span *ngIf="commentService.getCommentairesZone(zone.id).length > 0"> ({{ commentService.getCommentairesZone(zone.id).length }})</span>
+            </button>
+          </div>
         </div>
-        <button class="btn-explorer" *ngIf="zoneSelectionnee.debloque">
+
+        <!-- Navigation en direct -->
+        <div class="sheet-nav" *ngIf="distanceZone() !== null">
+          <div class="nav-fleche">{{ flecheVersZone() }}</div>
+          <p class="nav-distance">{{ distanceZone() }} m</p>
+          <p class="nav-temps">{{ tempsMarche() }} min à pied</p>
+        </div>
+
+      </div>
+
+      <!-- Bouton fermer -->
+      <button class="btn-close" (click)="fermerFiche()">✕</button>
+
+      <!-- Séparateur -->
+      <div class="sheet-divider"></div>
+
+      <!-- Description courte -->
+      <p class="sheet-desc">{{ zone.description }}</p>
+
+      <!-- Actions -->
+      <div class="sheet-actions-row">
+        <button class="btn-itineraire"
+                [class.actif]="navCibleId() === zone.id"
+                (click)="toggleItineraire(zone.id)">
+          {{ navCibleId() === zone.id ? '✕ Annuler' : 'Itinéraire' }}
+        </button>
+        <button class="btn-explorer" (click)="explorer(zone.id)">
           Explorer →
         </button>
       </div>
+
+    </div>
+  </div>
+
+  <!-- ── Modale commentaires communauté ─────────────────────────────────── -->
+  <div class="commentaire-overlay" *ngIf="commentaireOuvert() as zoneId" (click)="fermerCommentaire()">
+    <div class="commentaire-card" (click)="$event.stopPropagation()">
+
+      <div class="commentaire-header">
+        <span class="commentaire-titre">Commentaires</span>
+        <button class="commentaire-close" (click)="fermerCommentaire()">✕</button>
+      </div>
+
+      <!-- Liste communauté -->
+      <div class="comm-liste">
+        <div class="comm-vide" *ngIf="commentService.getCommentairesZone(zoneId).length === 0">
+          Soyez le premier à commenter !
+        </div>
+        <div class="comm-item"
+             *ngFor="let c of commentService.getCommentairesZone(zoneId)"
+             [class.comm-moi]="c.userId === authService.userId">
+          <div class="comm-avatar" [class.comm-avatar-moi]="c.userId === authService.userId">
+            {{ c.initiales }}
+          </div>
+          <div class="comm-corps">
+            <div class="comm-meta">
+              <span class="comm-auteur">{{ c.userId === authService.userId ? 'Moi' : c.initiales }}</span>
+              <span class="comm-date">{{ formatDate(c.date) }}</span>
+            </div>
+            <div class="comm-texte">{{ c.texte }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mon commentaire -->
+      <div class="comm-mon-form">
+        <div class="comm-form-label">
+          {{ commentService.getCommentaire(zoneId) ? 'Modifier mon commentaire' : 'Ajouter un commentaire' }}
+        </div>
+        <textarea class="commentaire-textarea"
+                  rows="3"
+                  placeholder="Décrivez votre expérience…"
+                  [value]="brouillonCommentaire"
+                  (input)="brouillonCommentaire = $any($event.target).value"
+                  maxlength="300">
+        </textarea>
+        <div class="commentaire-actions">
+          <button class="commentaire-annuler" (click)="fermerCommentaire()">Annuler</button>
+          <button class="commentaire-sauver" (click)="sauvegarderCommentaire(zoneId)">Publier</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Completion screen: shown when all 5 zones are unlocked ──────────── -->
+  <div class="ecran-completion" *ngIf="parcoursComplet()">
+    <div class="completion-card">
+      <div class="completion-trophee">🏆</div>
+      <h2 class="completion-titre">Parcours terminé !</h2>
+      <p class="completion-sous-titre">
+        Vous avez exploré les 5 sites historiques de l'Île Nou.
+      </p>
+      <div class="completion-zones">
+        <div class="completion-zone" *ngFor="let z of journeyService.zones()">
+          <span class="zone-coche">✓</span> {{ z.nom }}
+        </div>
+      </div>
+      <button class="btn-recommencer" (click)="recommencer()">
+        Recommencer →
+      </button>
     </div>
   </div>
 

@@ -1,0 +1,125 @@
+<ion-content [fullscreen]="true">
+  <div class="compte-page">
+
+    <!-- ── Avatar + email ───────────────────────────────────────────────── -->
+    <div class="compte-header">
+      <button class="compte-retour" (click)="retour()">‹</button>
+
+      <div class="avatar-wrapper" (click)="voirPicker.set(!voirPicker())">
+        <div class="avatar-emoji" *ngIf="auth.avatarEmoji; else initiales">
+          {{ auth.avatarEmoji }}
+        </div>
+        <ng-template #initiales>
+          <div class="avatar-initiales">{{ auth.emailInitiales }}</div>
+        </ng-template>
+        <div class="avatar-edit">✎</div>
+      </div>
+
+      <p class="compte-email">{{ auth.user()?.email }}</p>
+    </div>
+
+    <!-- ── Picker emoji ──────────────────────────────────────────────────── -->
+    <div class="emoji-picker" *ngIf="voirPicker()">
+      <p class="picker-titre">Choisis ton avatar</p>
+      <div class="emoji-grille">
+        <button class="emoji-btn"
+                *ngFor="let e of emojis"
+                [class.actif]="auth.avatarEmoji === e"
+                (click)="choisirEmoji(e)">
+          {{ e }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Feedback ─────────────────────────────────────────────────────── -->
+    <div class="feedback succes" *ngIf="succes()">✓ {{ succes() }}</div>
+    <div class="feedback erreur" *ngIf="erreur()">⚠ {{ erreur() }}</div>
+
+    <!-- ── Navigation interne ────────────────────────────────────────────── -->
+    <div class="compte-tabs">
+      <button class="compte-tab" [class.actif]="vue() === 'profil'"  (click)="changerVue('profil')">Profil</button>
+      <button class="compte-tab" [class.actif]="vue() === 'mdp'"     (click)="changerVue('mdp')">Mot de passe</button>
+    </div>
+
+    <!-- ════════ VUE PROFIL ════════════════════════════════════════════════ -->
+    <ng-container *ngIf="vue() === 'profil'">
+
+      <!-- Favoris -->
+      <div class="section">
+        <h3 class="section-titre">Mes favoris</h3>
+
+        <div class="favoris-liste" *ngIf="zonesFavorites().length > 0; else pasFavoris">
+          <div class="favori-carte" *ngFor="let z of zonesFavorites()" (click)="allerVersZone(z.id)">
+            <span class="favori-icone">{{ META[z.id]?.icone }}</span>
+            <div class="favori-info">
+              <div class="favori-nom">{{ z.nom }}</div>
+              <div class="favori-sous">{{ META[z.id]?.sousTitre }}</div>
+            </div>
+            <span class="favori-fleche">›</span>
+          </div>
+        </div>
+
+        <ng-template #pasFavoris>
+          <p class="vide-msg">Aucun favori pour l'instant.<br>Explorez la carte pour en ajouter !</p>
+        </ng-template>
+      </div>
+
+      <!-- Actions compte -->
+      <div class="section">
+        <h3 class="section-titre">Mon compte</h3>
+
+        <button class="action-btn danger" (click)="confirmSuppr.set(true)">
+          <ion-icon name="trash-outline"></ion-icon>
+          Supprimer mon compte
+        </button>
+
+        <button class="action-btn deconnexion" (click)="seDeconnecter()">
+          <ion-icon name="log-out-outline"></ion-icon>
+          Se déconnecter
+        </button>
+      </div>
+
+    </ng-container>
+
+    <!-- ════════ VUE MOT DE PASSE ══════════════════════════════════════════ -->
+    <ng-container *ngIf="vue() === 'mdp'">
+      <div class="section">
+        <h3 class="section-titre">Nouveau mot de passe</h3>
+
+        <div class="champ">
+          <label class="champ-label">Nouveau mot de passe</label>
+          <input class="champ-input" type="password" placeholder="••••••"
+                 [(ngModel)]="nouveauMdp" autocomplete="new-password" />
+        </div>
+
+        <div class="champ">
+          <label class="champ-label">Confirmer</label>
+          <input class="champ-input" type="password" placeholder="••••••"
+                 [(ngModel)]="confirmMdp" autocomplete="new-password" />
+        </div>
+
+        <button class="btn-primaire" (click)="modifierMdp()" [disabled]="chargement()">
+          <span *ngIf="!chargement()">Enregistrer</span>
+          <span *ngIf="chargement()" class="loader"></span>
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <!-- ── Modale confirmation suppression ──────────────────────────────── -->
+  <div class="confirm-overlay" *ngIf="confirmSuppr()" (click)="confirmSuppr.set(false)">
+    <div class="confirm-card" (click)="$event.stopPropagation()">
+      <h3 class="confirm-titre">Supprimer le compte ?</h3>
+      <p class="confirm-texte">Toutes vos données (badges, notes, commentaires, favoris) seront supprimées définitivement.</p>
+      <div class="confirm-actions">
+        <button class="confirm-annuler" (click)="confirmSuppr.set(false)">Annuler</button>
+        <button class="confirm-suppr"   (click)="supprimerCompte()" [disabled]="chargement()">
+          <span *ngIf="!chargement()">Supprimer</span>
+          <span *ngIf="chargement()" class="loader"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
