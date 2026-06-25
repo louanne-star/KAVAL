@@ -53,6 +53,12 @@
     <button class="arrivee-close" (click)="fermerArrivee()">✕</button>
   </div>
 
+  <!-- ── Satellite toggle ─────────────────────────────────────────────────── -->
+  <button class="btn-satellite" [class.actif]="modeSatellite()" (click)="toggleModeCarte()">
+    <span class="satellite-icone">{{ modeSatellite() ? '🗺️' : '🛰️' }}</span>
+    <span class="satellite-label">{{ modeSatellite() ? 'Carte' : 'Sat.' }}</span>
+  </button>
+
   <!-- ── Recenter button ──────────────────────────────────────────────────── -->
   <button class="btn-recentrer" (click)="recentrer()">◎</button>
 
