@@ -106,8 +106,6 @@
            [class.actif]="getStatut(z) === 'actif'"
            [class.locked]="getStatut(z) === 'locked'">
 
-        <div class="timeline-line" *ngIf="!last"></div>
-
         <div class="zone-bloc" (click)="selectZone(z)">
           <div class="zone-badge" *ngIf="getStatut(z) === 'visite'">✓</div>
           <div class="zone-badge locked-badge" *ngIf="getStatut(z) === 'locked'">🔒</div>
@@ -125,6 +123,8 @@
             <p class="zone-locked-text">{{ META[z.id]?.sousTitre }}</p>
           </div>
         </div>
+
+        <div class="timeline-line" *ngIf="!last"></div>
 
       </div>
     </div>
