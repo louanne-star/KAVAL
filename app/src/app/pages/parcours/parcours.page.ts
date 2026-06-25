@@ -37,7 +37,6 @@ export class ParcoursPage implements OnInit, OnDestroy {
         await this.badgeService.gagnerBadge(this.zoneSelectionnee!.id);
         clearTimeout(this.badgeAnimTimeout);
         this.badgeAnimation = false;
-        // Passer par false d'abord force *ngIf à recréer l'élément → animation rejoue
         setTimeout(() => {
           this.badgeAnimation = true;
           this.badgeAnimTimeout = setTimeout(() => { this.badgeAnimation = false; }, 3000);
