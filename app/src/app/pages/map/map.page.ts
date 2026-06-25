@@ -105,7 +105,11 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Leaflet handles: zone layer ───────────────────────────────────────────
 
+  modeSatellite = signal(false);
+
   private map!: L.Map;
+  private tileNormale!:   L.TileLayer;
+  private tileSatellite!: L.TileLayer;
   private marqueurs = new Map<string, L.Marker>();
   private overlays  = new Map<string, L.Circle>();
   private segments  = new Map<string, { bg: L.Polyline; fg: L.Polyline }>();
@@ -243,10 +247,15 @@ export class MapPage implements AfterViewInit, OnDestroy {
       zoomControl:  false
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap © CARTO',
-      maxZoom: 19
-    }).addTo(this.map);
+    this.tileNormale = L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      { attribution: '© OpenStreetMap © CARTO', maxZoom: 19 }
+    ).addTo(this.map);
+
+    this.tileSatellite = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { attribution: '© Esri, DigitalGlobe', maxZoom: 19 }
+    );
   }
 
   // ── Zone layer update ─────────────────────────────────────────────────────
@@ -529,6 +538,18 @@ export class MapPage implements AfterViewInit, OnDestroy {
       this.map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { duration: 0.8 });
     } else {
       this.map.flyTo([-22.2660, 166.4083], 14, { duration: 0.8 });
+    }
+  }
+
+  toggleModeCarte() {
+    const satellite = !this.modeSatellite();
+    this.modeSatellite.set(satellite);
+    if (satellite) {
+      this.tileNormale.remove();
+      this.tileSatellite.addTo(this.map);
+    } else {
+      this.tileSatellite.remove();
+      this.tileNormale.addTo(this.map);
     }
   }
 

@@ -267,6 +267,39 @@ ion-content {
 
 // ── Recenter button ───────────────────────────────────────────────────────────
 
+.btn-satellite {
+  position: absolute;
+  bottom: 152px;
+  right: 16px;
+  z-index: 1000;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: transform 0.15s, background 0.2s;
+  &:active { transform: scale(0.93); }
+  &.actif { background: #1a2e1e; }
+}
+
+.satellite-icone { font-size: 20px; line-height: 1; }
+
+.satellite-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  .actif & { color: #c9a84c; }
+}
+
 .btn-recentrer {
   position: absolute;
   bottom: 96px;
