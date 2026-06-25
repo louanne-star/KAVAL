@@ -3,6 +3,7 @@
 
     <!-- ── Avatar + email ───────────────────────────────────────────────── -->
     <div class="compte-header">
+      <button class="compte-retour" (click)="retour()">‹</button>
       <div class="avatar-wrapper" (click)="declencherUpload()">
         <img *ngIf="auth.avatarUrl" [src]="auth.avatarUrl" class="avatar-img" alt="avatar" />
         <div *ngIf="!auth.avatarUrl" class="avatar-initiales">

@@ -51,6 +51,10 @@ export class ComptePage {
 
   // ── Avatar ────────────────────────────────────────────────────────────────
 
+  retour() {
+    this.router.navigate(['/tabs/carte']);
+  }
+
   declencherUpload() {
     document.getElementById('avatar-input')?.click();
   }
