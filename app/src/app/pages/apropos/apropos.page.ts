@@ -35,9 +35,9 @@ export class AproposPage {
   ];
 
   credits = [
-    { role: 'Développement & Design', nom: 'Ondine Taukolo' },
-    { role: 'Développement Front', nom: 'Louanne Grosjean' },
+    { role: 'Équipe Développement web', nom: 'Ondine Taukolo & Lou-Anne Grosjean' },
+    { role: 'Équipe Stratégie & UX', nom: 'Marie-Loane Diemene, Graig Moury & Anaelle Watanabe' },
     { role: 'Encadrement', nom: 'Université de la Nouvelle-Calédonie' },
-    { role: 'Sources historiques', nom: 'Archives de Nouvelle-Calédonie' },
+    { role: 'Sources historiques', nom: 'Association Témoignage d\'Un Passé' },
   ];
 }
