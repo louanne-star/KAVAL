@@ -81,19 +81,26 @@
           </div>
           <p class="sheet-type">{{ META[zone.id]?.sousTitre }}</p>
 
-          <!-- Étoiles + commentaire -->
+          <!-- Notes + commentaires communauté -->
           <div class="sheet-rating">
-            <div class="stars-row">
-              <button *ngFor="let s of [1,2,3,4,5]"
-                      class="star-btn"
-                      [class.lit]="(ratingService.getNote(zone.id) ?? 0) >= s"
-                      [disabled]="!zone.debloque"
-                      (click)="noterZone(zone.id, s)">★</button>
+            <div class="rating-communaute" *ngIf="ratingService.getMoyenne(zone.id) as m; else aucunAvis">
+              <span class="rating-stars-moy">{{ starsFor(m.moyenne) }}</span>
+              <span class="rating-info">{{ m.moyenne | number:'1.1-1' }} · {{ m.nb }} avis</span>
             </div>
-            <button class="btn-commentaire"
-                    [class.avec-commentaire]="commentService.getCommentaire(zone.id)"
-                    (click)="ouvrirCommentaire(zone.id)">
-              {{ commentService.getCommentaire(zone.id) ? 'Commentaire ✎' : 'Commentaire' }}
+            <ng-template #aucunAvis>
+              <span class="rating-info">Aucun avis</span>
+            </ng-template>
+            <div class="ma-note-row">
+              <span class="ma-note-label">Ma note</span>
+              <div class="stars-row">
+                <button *ngFor="let s of [1,2,3,4,5]"
+                        class="star-btn"
+                        [class.lit]="(ratingService.getNote(zone.id) ?? 0) >= s"
+                        (click)="noterZone(zone.id, s)">★</button>
+              </div>
+            </div>
+            <button class="btn-commentaire" (click)="ouvrirCommentaire(zone.id)">
+              💬 Commentaires<span *ngIf="commentService.getCommentairesZone(zone.id).length > 0"> ({{ commentService.getCommentairesZone(zone.id).length }})</span>
             </button>
           </div>
         </div>
@@ -131,24 +138,54 @@
     </div>
   </div>
 
-  <!-- ── Modale commentaire ──────────────────────────────────────────────── -->
+  <!-- ── Modale commentaires communauté ─────────────────────────────────── -->
   <div class="commentaire-overlay" *ngIf="commentaireOuvert() as zoneId" (click)="fermerCommentaire()">
     <div class="commentaire-card" (click)="$event.stopPropagation()">
+
       <div class="commentaire-header">
-        <span class="commentaire-titre">Mon commentaire</span>
+        <span class="commentaire-titre">Commentaires</span>
         <button class="commentaire-close" (click)="fermerCommentaire()">✕</button>
       </div>
-      <textarea class="commentaire-textarea"
-                rows="4"
-                placeholder="Décrivez votre expérience sur ce lieu…"
-                [value]="brouillonCommentaire"
-                (input)="brouillonCommentaire = $any($event.target).value"
-                maxlength="300">
-      </textarea>
-      <div class="commentaire-actions">
-        <button class="commentaire-annuler" (click)="fermerCommentaire()">Annuler</button>
-        <button class="commentaire-sauver" (click)="sauvegarderCommentaire(zoneId)">Enregistrer</button>
+
+      <!-- Liste communauté -->
+      <div class="comm-liste">
+        <div class="comm-vide" *ngIf="commentService.getCommentairesZone(zoneId).length === 0">
+          Soyez le premier à commenter !
+        </div>
+        <div class="comm-item"
+             *ngFor="let c of commentService.getCommentairesZone(zoneId)"
+             [class.comm-moi]="c.userId === authService.userId">
+          <div class="comm-avatar" [class.comm-avatar-moi]="c.userId === authService.userId">
+            {{ c.initiales }}
+          </div>
+          <div class="comm-corps">
+            <div class="comm-meta">
+              <span class="comm-auteur">{{ c.userId === authService.userId ? 'Moi' : c.initiales }}</span>
+              <span class="comm-date">{{ formatDate(c.date) }}</span>
+            </div>
+            <div class="comm-texte">{{ c.texte }}</div>
+          </div>
+        </div>
       </div>
+
+      <!-- Mon commentaire -->
+      <div class="comm-mon-form">
+        <div class="comm-form-label">
+          {{ commentService.getCommentaire(zoneId) ? 'Modifier mon commentaire' : 'Ajouter un commentaire' }}
+        </div>
+        <textarea class="commentaire-textarea"
+                  rows="3"
+                  placeholder="Décrivez votre expérience…"
+                  [value]="brouillonCommentaire"
+                  (input)="brouillonCommentaire = $any($event.target).value"
+                  maxlength="300">
+        </textarea>
+        <div class="commentaire-actions">
+          <button class="commentaire-annuler" (click)="fermerCommentaire()">Annuler</button>
+          <button class="commentaire-sauver" (click)="sauvegarderCommentaire(zoneId)">Publier</button>
+        </div>
+      </div>
+
     </div>
   </div>
 

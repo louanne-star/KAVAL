@@ -158,6 +158,15 @@ export class MapPage implements AfterViewInit, OnDestroy {
   ouvrirCommentaire(zoneId: string) {
     this.brouillonCommentaire = this.commentService.getCommentaire(zoneId) ?? '';
     this.commentaireOuvert.set(zoneId);
+    this.commentService.chargerCommentairesZone(zoneId);
+  }
+
+  formatDate(iso: string): string {
+    const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (diff < 60)    return 'à l\'instant';
+    if (diff < 3600)  return `il y a ${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
+    return `il y a ${Math.floor(diff / 86400)} j`;
   }
 
   fermerCommentaire() {
@@ -213,6 +222,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
       this.initMap();
       this.mapPret.set(true);
       await this.journeyService.initialiser();
+      this.ratingService.chargerMoyennes();
     }, 200);
   }
 
