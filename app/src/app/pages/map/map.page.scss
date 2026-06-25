@@ -403,12 +403,41 @@ ion-content {
   margin: 0 0 10px;
 }
 
-// ── Étoiles ───────────────────────────────────────────────────────────────────
+// ── Notes + communauté ────────────────────────────────────────────────────────
 
 .sheet-rating {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rating-communaute {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rating-stars-moy {
+  font-size: 13px;
+  color: #c9a84c;
+  letter-spacing: 1px;
+}
+
+.rating-info {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.ma-note-row {
+  display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.ma-note-label {
+  font-size: 12px;
+  color: #aaa;
+  flex-shrink: 0;
 }
 
 .stars-row {
@@ -466,6 +495,9 @@ ion-content {
   border-radius: 24px 24px 0 0;
   padding: 20px 20px 24px;
   width: 100%;
+  max-height: 72vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
   animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -544,6 +576,86 @@ ion-content {
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(26,46,30,0.25);
+}
+
+// ── Liste commentaires communauté ─────────────────────────────────────────────
+
+.comm-liste {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 220px;
+  margin-bottom: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comm-vide {
+  text-align: center;
+  color: #ccc;
+  font-size: 13px;
+  padding: 20px 0;
+}
+
+.comm-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f8f8f8;
+  &:last-child { border-bottom: none; }
+  &.comm-moi { background: #fafff8; border-radius: 10px; padding: 10px 8px; margin: 2px 0; }
+}
+
+.comm-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  flex-shrink: 0;
+  &.comm-avatar-moi { background: #1a2e1e; color: #c9a84c; }
+}
+
+.comm-corps { flex: 1; min-width: 0; }
+
+.comm-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+.comm-auteur {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+}
+
+.comm-date {
+  font-size: 11px;
+  color: #bbb;
+}
+
+.comm-texte {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.comm-mon-form { flex-shrink: 0; }
+
+.comm-form-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
 }
 
 // ── Navigation en direct ──────────────────────────────────────────────────────

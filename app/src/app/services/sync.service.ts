@@ -70,6 +70,7 @@ export class SyncService {
     try {
       await this.db.from('user_comments').upsert({
         user_id: uid, zone_id: zoneId, comment,
+        initiales: this.auth.emailInitiales,
         updated_at: new Date().toISOString()
       });
     } catch {}
