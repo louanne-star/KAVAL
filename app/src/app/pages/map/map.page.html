@@ -13,11 +13,8 @@
       <button class="nav-btn" (click)="allerVersRecherche()" title="Recherche">
         🔍
       </button>
-      <button class="nav-btn"
-              [class.favori-actif]="zoneSelectionnee() && favoriteService.estFavori(zoneSelectionnee()!.id)"
-              (click)="zoneSelectionnee() && toggleFavori(zoneSelectionnee()!.id)"
-              title="Favoris">
-        <ion-icon [name]="zoneSelectionnee() && favoriteService.estFavori(zoneSelectionnee()!.id) ? 'heart' : 'heart-outline'"></ion-icon>
+      <button class="nav-btn" (click)="allerVersFavoris()" title="Favoris">
+        ♥
       </button>
       <button class="nav-avatar" (click)="allerVersCompte()" title="Mon compte">
         <img *ngIf="authService.avatarUrl" [src]="authService.avatarUrl" alt="avatar" class="avatar-img">
@@ -73,7 +70,15 @@
             <span class="sheet-etape">Étape {{ zone.ordre }}</span>
             <span class="sheet-statut" *ngIf="badgeService.aBadge(zone.id)">🏅</span>
           </div>
-          <h2 class="sheet-nom">{{ zone.nom }}</h2>
+          <div class="sheet-nom-row">
+            <h2 class="sheet-nom">{{ zone.nom }}</h2>
+            <button class="sheet-fav-btn"
+                    [class.actif]="favoriteService.estFavori(zone.id)"
+                    (click)="toggleFavori(zone.id)"
+                    title="Favori">
+              {{ favoriteService.estFavori(zone.id) ? '♥' : '♡' }}
+            </button>
+          </div>
           <p class="sheet-type">{{ META[zone.id]?.sousTitre }}</p>
 
           <!-- Étoiles + commentaire -->
