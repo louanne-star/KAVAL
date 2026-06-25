@@ -530,6 +530,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.router.navigate(['/recherche']);
   }
 
+  allerVersFavoris() {
+    this.router.navigate(['/favoris']);
+  }
+
   explorer(zoneId: string) {
     this.fermerFiche();
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
