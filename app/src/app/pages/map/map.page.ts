@@ -2,7 +2,7 @@ import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracke
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { earthOutline, mapOutline } from 'ionicons/icons';
+import { earthOutline, mapOutline, searchOutline, heartOutline } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
@@ -194,7 +194,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     private router: Router,
     readonly badgeService: BadgeService,
   ) {
-    addIcons({ earthOutline, mapOutline });
+    addIcons({ earthOutline, mapOutline, searchOutline, heartOutline });
 
     // Redessine les cercles, segments et marqueurs quand les zones ou l'itinéraire changent.
     effect(() => {
@@ -462,39 +462,70 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Marker icon factory ───────────────────────────────────────────────────
 
-  private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
-    let fond: string, bordure: string, couleurNum: string, anneau: string;
+  private readonly ICONE_SVG: Record<string, string> = {
+    camp_est: `
+      <line x1="4" y1="16" x2="16" y2="4" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M11 5L17 5L13 9Z" fill="white"/>
+      <path d="M3 11L3 17L7 13Z" fill="white"/>`,
+    vacherie: `
+      <line x1="10" y1="17" x2="10" y2="6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M10 10C8 8 5 9 5 6C8 6 10 8 10 10Z" fill="white"/>
+      <path d="M10 7C12 5 15 6 15 3C12 3 10 5 10 7Z" fill="white"/>`,
+    hopital: `
+      <rect x="8.5" y="3" width="3" height="14" rx="1.5" fill="white"/>
+      <rect x="3" y="8.5" width="14" height="3" rx="1.5" fill="white"/>`,
+    penitencier: `
+      <circle cx="7" cy="10" r="4" stroke="white" stroke-width="2" fill="none"/>
+      <line x1="11" y1="10" x2="17" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="15" y1="10" x2="15" y2="13.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="17" y1="10" x2="17" y2="12.5" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
+    ferme_nord: `
+      <circle cx="10" cy="4" r="2" stroke="white" stroke-width="1.8" fill="none"/>
+      <line x1="10" y1="6" x2="10" y2="16" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="4" y1="9" x2="16" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M4 16C5 18 10 19 10 19C10 19 15 18 16 16" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>`,
+  };
 
-    if (zone.debloque) {
-      fond = '#c9a84c'; bordure = '#8b6914'; couleurNum = '#1a2e1e'; anneau = '';
-    } else if (estProchain) {
-      fond = '#ffffff'; bordure = '#3498db'; couleurNum = '#3498db';
-      anneau = `<div style="
-        position:absolute;top:-8px;left:-8px;right:-8px;bottom:-8px;
-        border-radius:50%;border:2px solid rgba(52,152,219,0.6);
-        animation:pulsation 1.5s ease-out infinite;pointer-events:none;
-      "></div>`;
-    } else {
-      fond = '#ffffff'; bordure = '#ddd'; couleurNum = '#bbb'; anneau = '';
+  private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
+    const visite = zone.debloque && this.badgeService.badges().has(zone.id);
+
+    const couleur = visite          ? '#C0553C'
+      : estProchain                 ? '#C0553C'
+      : zone.debloque               ? '#C87A6A'
+      :                               '#BEBEBE';
+
+    const opacity = !zone.debloque && !estProchain ? 'opacity:0.45;' : '';
+
+    const iconeContenu = visite
+      ? `<svg x="12" y="10" width="20" height="20" viewBox="0 0 20 20">
+           <path d="M3.5 10L8 14.5L16.5 5.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+         </svg>`
+      : (zone.debloque || estProchain)
+        ? `<svg x="12" y="10" width="20" height="20" viewBox="0 0 20 20">${this.ICONE_SVG[zone.id] ?? ''}</svg>`
+        : '';
+
+    const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 54" width="44" height="54"
+        style="${opacity}filter:drop-shadow(0 3px 8px rgba(0,0,0,0.22))">
+      <path d="M22 2C12 2 4 10 4 20C4 32 22 52 22 52C22 52 40 32 40 20C40 10 32 2 22 2Z" fill="${couleur}"/>
+      ${iconeContenu}
+    </svg>`;
+
+    if (estProchain && !visite) {
+      return L.divIcon({
+        className: '',
+        html: `<div style="position:relative;">
+          <div style="position:absolute;width:56px;height:56px;border-radius:50%;top:-6px;left:-6px;
+            border:2px solid rgba(192,85,60,0.4);animation:pulsation 1.8s ease-out infinite;pointer-events:none;"></div>
+          ${pinSvg}
+        </div>`,
+        iconSize: [44, 54], iconAnchor: [22, 54]
+      });
     }
 
     return L.divIcon({
       className: '',
-      html: `<div style="position:relative;display:inline-block;">
-        ${anneau}
-        <div style="
-          width:42px;height:42px;
-          border-radius:50% 50% 50% 0;transform:rotate(-45deg);
-          background:${fond};border:3px solid ${bordure};
-          box-shadow:0 4px 16px rgba(0,0,0,0.2);
-          display:flex;align-items:center;justify-content:center;">
-          <span style="transform:rotate(45deg);font-size:15px;font-weight:800;color:${couleurNum};">
-            ${zone.ordre}
-          </span>
-        </div>
-      </div>`,
-      iconSize:   [42, 42],
-      iconAnchor: [21, 42]
+      html: pinSvg,
+      iconSize: [44, 54], iconAnchor: [22, 54]
     });
   }
 
