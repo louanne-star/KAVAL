@@ -464,26 +464,38 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   private readonly ICONE_SVG: Record<string, string> = {
     camp_est: `
-      <line x1="4" y1="16" x2="16" y2="4" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <path d="M11 5L17 5L13 9Z" fill="white"/>
-      <path d="M3 11L3 17L7 13Z" fill="white"/>`,
+      <ellipse cx="5" cy="15" rx="2.5" ry="4.5" stroke="white" stroke-width="2" fill="none" transform="rotate(-45 5 15)"/>
+      <ellipse cx="10" cy="10" rx="2.5" ry="4.5" stroke="white" stroke-width="2" fill="none" transform="rotate(-45 10 10)"/>
+      <ellipse cx="15" cy="5" rx="2.5" ry="4.5" stroke="white" stroke-width="2" fill="none" transform="rotate(-45 15 5)"/>`,
     vacherie: `
-      <line x1="10" y1="17" x2="10" y2="6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M10 10C8 8 5 9 5 6C8 6 10 8 10 10Z" fill="white"/>
-      <path d="M10 7C12 5 15 6 15 3C12 3 10 5 10 7Z" fill="white"/>`,
+      <circle cx="10" cy="11" r="7" stroke="white" stroke-width="1.8" fill="none"/>
+      <circle cx="2.5" cy="9" r="2" stroke="white" stroke-width="1.5" fill="none"/>
+      <circle cx="17.5" cy="9" r="2" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M5 5L3 2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <path d="M15 5L17 2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="7.5" cy="9.5" r="1.2" fill="white"/>
+      <circle cx="12.5" cy="9.5" r="1.2" fill="white"/>
+      <circle cx="8.5" cy="14" r="1.2" fill="white"/>
+      <circle cx="11.5" cy="14" r="1.2" fill="white"/>`,
     hopital: `
-      <rect x="8.5" y="3" width="3" height="14" rx="1.5" fill="white"/>
-      <rect x="3" y="8.5" width="14" height="3" rx="1.5" fill="white"/>`,
+      <line x1="5" y1="2" x2="5" y2="5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="15" y1="2" x2="15" y2="5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <path d="M5 5C5 9 8 9 10 9C12 9 15 9 15 5" stroke="white" stroke-width="2" fill="none"/>
+      <line x1="10" y1="9" x2="10" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="10" cy="16.5" r="3" stroke="white" stroke-width="2" fill="none"/>`,
     penitencier: `
-      <circle cx="7" cy="10" r="4" stroke="white" stroke-width="2" fill="none"/>
-      <line x1="11" y1="10" x2="17" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <line x1="15" y1="10" x2="15" y2="13.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <line x1="17" y1="10" x2="17" y2="12.5" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
+      <line x1="5" y1="3" x2="5" y2="17" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="10" y1="3" x2="10" y2="17" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="15" y1="3" x2="15" y2="17" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="3.5" y1="4.5" x2="16.5" y2="4.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="3.5" y1="15.5" x2="16.5" y2="15.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>`,
     ferme_nord: `
-      <circle cx="10" cy="4" r="2" stroke="white" stroke-width="1.8" fill="none"/>
-      <line x1="10" y1="6" x2="10" y2="16" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="4" y1="9" x2="16" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M4 16C5 18 10 19 10 19C10 19 15 18 16 16" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>`,
+      <line x1="10" y1="2" x2="10" y2="9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="3" y1="9" x2="17" y2="9" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="5" y1="9" x2="5" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="8.5" y1="9" x2="8.5" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="12" y1="9" x2="12" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="15.5" y1="9" x2="15.5" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
   };
 
   private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
