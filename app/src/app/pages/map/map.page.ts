@@ -1,6 +1,8 @@
 import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracked, NgZone } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { addIcons } from 'ionicons';
+import { earthOutline, mapOutline } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
@@ -192,6 +194,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     private router: Router,
     readonly badgeService: BadgeService,
   ) {
+    addIcons({ earthOutline, mapOutline });
 
     // Redessine les cercles, segments et marqueurs quand les zones ou l'itinéraire changent.
     effect(() => {

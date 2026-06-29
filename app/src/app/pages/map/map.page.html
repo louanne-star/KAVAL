@@ -55,8 +55,7 @@
 
   <!-- ── Satellite toggle ─────────────────────────────────────────────────── -->
   <button class="btn-satellite" [class.actif]="modeSatellite()" (click)="toggleModeCarte()">
-    <span class="satellite-icone">{{ modeSatellite() ? '🗺️' : '🛰️' }}</span>
-    <span class="satellite-label">{{ modeSatellite() ? 'Carte' : 'Sat.' }}</span>
+    <ion-icon [name]="modeSatellite() ? 'map-outline' : 'earth-outline'" class="satellite-ion-icon"></ion-icon>
   </button>
 
   <!-- ── Recenter button ──────────────────────────────────────────────────── -->
