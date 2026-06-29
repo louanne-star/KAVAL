@@ -11,10 +11,10 @@
 
     <div class="nav-actions">
       <button class="nav-btn" (click)="allerVersRecherche()" title="Recherche">
-        🔍
+        <ion-icon name="search-outline"></ion-icon>
       </button>
       <button class="nav-btn" (click)="allerVersFavoris()" title="Favoris">
-        ♥
+        <ion-icon name="heart-outline"></ion-icon>
       </button>
       <button class="nav-avatar" (click)="allerVersCompte()" title="Mon compte">
         <span *ngIf="authService.avatarEmoji" class="avatar-emoji">{{ authService.avatarEmoji }}</span>
