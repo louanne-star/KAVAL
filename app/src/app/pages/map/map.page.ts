@@ -462,40 +462,12 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Marker icon factory ───────────────────────────────────────────────────
 
-  private readonly ICONE_SVG: Record<string, string> = {
-    camp_est: `
-      <ellipse cx="5" cy="15" rx="2.5" ry="4.5" stroke="white" stroke-width="2" fill="none" transform="rotate(-45 5 15)"/>
-      <ellipse cx="10" cy="10" rx="2.5" ry="4.5" stroke="white" stroke-width="2" fill="none" transform="rotate(-45 10 10)"/>
-      <ellipse cx="15" cy="5" rx="2.5" ry="4.5" stroke="white" stroke-width="2" fill="none" transform="rotate(-45 15 5)"/>`,
-    vacherie: `
-      <circle cx="10" cy="11" r="7" stroke="white" stroke-width="1.8" fill="none"/>
-      <circle cx="2.5" cy="9" r="2" stroke="white" stroke-width="1.5" fill="none"/>
-      <circle cx="17.5" cy="9" r="2" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M5 5L3 2" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <path d="M15 5L17 2" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="7.5" cy="9.5" r="1.2" fill="white"/>
-      <circle cx="12.5" cy="9.5" r="1.2" fill="white"/>
-      <circle cx="8.5" cy="14" r="1.2" fill="white"/>
-      <circle cx="11.5" cy="14" r="1.2" fill="white"/>`,
-    hopital: `
-      <line x1="5" y1="2" x2="5" y2="5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <line x1="15" y1="2" x2="15" y2="5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <path d="M5 5C5 9 8 9 10 9C12 9 15 9 15 5" stroke="white" stroke-width="2" fill="none"/>
-      <line x1="10" y1="9" x2="10" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="10" cy="16.5" r="3" stroke="white" stroke-width="2" fill="none"/>`,
-    penitencier: `
-      <line x1="5" y1="3" x2="5" y2="17" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="10" y1="3" x2="10" y2="17" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="15" y1="3" x2="15" y2="17" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="3.5" y1="4.5" x2="16.5" y2="4.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="3.5" y1="15.5" x2="16.5" y2="15.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>`,
-    ferme_nord: `
-      <line x1="10" y1="2" x2="10" y2="9" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <line x1="3" y1="9" x2="17" y2="9" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="5" y1="9" x2="5" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <line x1="8.5" y1="9" x2="8.5" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <line x1="12" y1="9" x2="12" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      <line x1="15.5" y1="9" x2="15.5" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
+  private readonly ICONE_IMG: Record<string, string> = {
+    camp_est:    'assets/icon/chain.png',
+    vacherie:    'assets/icon/cow.png',
+    hopital:     'assets/icon/hospital.png',
+    penitencier: 'assets/icon/prison.png',
+    ferme_nord:  'assets/icon/farm.png',
   };
 
   private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
@@ -508,16 +480,23 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
     const opacity = !zone.debloque && !estProchain ? 'opacity:0.45;' : '';
 
+    const imgSrc = this.ICONE_IMG[zone.id] ?? '';
+
     const iconeContenu = visite
       ? `<svg x="12" y="10" width="20" height="20" viewBox="0 0 20 20">
            <path d="M3.5 10L8 14.5L16.5 5.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
          </svg>`
       : (zone.debloque || estProchain)
-        ? `<svg x="12" y="10" width="20" height="20" viewBox="0 0 20 20">${this.ICONE_SVG[zone.id] ?? ''}</svg>`
+        ? `<image href="${imgSrc}" xlink:href="${imgSrc}" x="10" y="8" width="24" height="24" filter="url(#towhite)"/>`
         : '';
 
-    const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 54" width="44" height="54"
+    const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 44 54" width="44" height="54"
         style="${opacity}filter:drop-shadow(0 3px 8px rgba(0,0,0,0.22))">
+      <defs>
+        <filter id="towhite" color-interpolation-filters="sRGB">
+          <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/>
+        </filter>
+      </defs>
       <path d="M22 2C12 2 4 10 4 20C4 32 22 52 22 52C22 52 40 32 40 20C40 10 32 2 22 2Z" fill="${couleur}"/>
       ${iconeContenu}
     </svg>`;
