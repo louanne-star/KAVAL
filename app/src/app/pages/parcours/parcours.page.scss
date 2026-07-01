@@ -92,6 +92,13 @@ ion-content.parcours-content {
   color: #fff;
 }
 
+// Photo de fond spécifique à chaque zone
+.detail-header.zone-camp_est {
+  background-image: url('/assets/images/Photo%20camp-est.jpg');
+  background-size: cover;
+  background-position: center 20%;
+}
+
 .btn-retour {
   background: rgba(255,255,255,0.15);
   border: none;
