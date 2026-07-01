@@ -21,7 +21,7 @@
     <!-- Détail zone -->
     <ng-container *ngIf="!jeuOuvert">
 
-      <div class="detail-header" [style.--couleur]="zone.couleurZone">
+      <div class="detail-header" [class]="'detail-header zone-' + zone.id" [style.--couleur]="zone.couleurZone">
         <button class="btn-retour" (click)="retourListe()">← Retour</button>
         <div class="detail-icone">{{ META[zone.id]?.icone }}</div>
         <div class="detail-badge-pill">Zone {{ zone.ordre }}</div>
