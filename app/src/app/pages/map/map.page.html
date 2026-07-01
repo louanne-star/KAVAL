@@ -38,6 +38,9 @@
         <span *ngIf="distanceNavCible() !== null">{{ distanceNavCible() }} m jusqu'à {{ navCibleZone()?.nom }}</span>
       </div>
     </div>
+    <div class="hud-mode">
+      <ion-icon [name]="modeTransport() === 'foot' ? 'walk-outline' : 'car-outline'"></ion-icon>
+    </div>
     <button class="hud-annuler" (click)="annulerNav()">✕</button>
   </div>
 
@@ -59,6 +62,14 @@
 
   <!-- ── Recenter button ──────────────────────────────────────────────────── -->
   <button class="btn-recentrer" (click)="recentrer()">◎</button>
+
+  <!-- ── Transport mode toggle ─────────────────────────────────────────────── -->
+  <button class="btn-mode-transport"
+          [class.voiture]="modeTransport() === 'driving'"
+          (click)="toggleModeTransport()"
+          [title]="modeTransport() === 'foot' ? 'Mode à pied' : 'Mode voiture'">
+    <ion-icon [name]="modeTransport() === 'foot' ? 'walk-outline' : 'car-outline'" class="transport-ion-icon"></ion-icon>
+  </button>
 
   <!-- ── Bottom sheet style Gym Beam ─────────────────────────────────────── -->
   <div class="bottom-sheet" *ngIf="zoneSelectionnee() as zone">
@@ -127,6 +138,17 @@
       <!-- Description courte -->
       <p class="sheet-desc">{{ zone.description }}</p>
 
+      <!-- Points clés de la zone (visibles si badge obtenu) -->
+      <div class="zone-mini-row" *ngIf="badgeService.aBadge(zone.id)">
+        <button class="btn-points-cles"
+                [class.actif]="miniPointsVisibles().has(zone.id)"
+                (click)="toggleMiniPoints(zone.id)">
+          <span>📍 Points clés</span>
+          <span class="mini-count">{{ getMiniPoints(zone.id).length }}</span>
+          <span class="mini-chevron">{{ miniPointsVisibles().has(zone.id) ? '▲' : '▼' }}</span>
+        </button>
+      </div>
+
       <!-- Actions -->
       <div class="sheet-actions-row">
         <button class="btn-itineraire"
@@ -140,6 +162,16 @@
       </div>
 
     </div>
+  </div>
+
+  <!-- ── Mini-point popup ─────────────────────────────────────────────────── -->
+  <div class="mini-popup-card" *ngIf="miniPointSelectionne() as mp">
+    <div class="mini-popup-icone">{{ mp.icone }}</div>
+    <div class="mini-popup-corps">
+      <div class="mini-popup-nom">{{ mp.nom }}</div>
+      <div class="mini-popup-desc">{{ mp.description }}</div>
+    </div>
+    <button class="mini-popup-close" (click)="fermerMiniPoint()">✕</button>
   </div>
 
   <!-- ── Modale commentaires communauté ─────────────────────────────────── -->

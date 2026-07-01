@@ -2,7 +2,7 @@ import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracke
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { earthOutline, mapOutline, searchOutline, heartOutline } from 'ionicons/icons';
+import { earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
@@ -11,6 +11,15 @@ import { RatingService } from '../../services/rating.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { CommentService } from '../../services/comment.service';
 import { AuthService } from '../../services/auth.service';
+
+interface MiniPoint {
+  id: string;
+  zoneId: string;
+  nom: string;
+  icone: string;
+  coords: [number, number];
+  description: string;
+}
 
 @Component({
   selector: 'app-map',
@@ -107,14 +116,18 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Leaflet handles: zone layer ───────────────────────────────────────────
 
-  modeSatellite = signal(false);
+  modeSatellite        = signal(false);
+  modeTransport        = signal<'foot' | 'driving'>('foot');
+  miniPointsVisibles   = signal<Set<string>>(new Set());
+  miniPointSelectionne = signal<MiniPoint | null>(null);
 
   private map!: L.Map;
   private tileNormale!:   L.TileLayer;
   private tileSatellite!: L.TileLayer;
   private marqueurs = new Map<string, L.Marker>();
   private overlays  = new Map<string, L.Circle>();
-  private segments  = new Map<string, { bg: L.Polyline; fg: L.Polyline }>();
+  private segments     = new Map<string, { bg: L.Polyline; fg: L.Polyline }>();
+  private miniMarqueurs = new Map<string, L.Marker[]>();
 
   // ── Leaflet handles: live navigation (user → next zone) ───────────────────
 
@@ -194,12 +207,13 @@ export class MapPage implements AfterViewInit, OnDestroy {
     private router: Router,
     readonly badgeService: BadgeService,
   ) {
-    addIcons({ earthOutline, mapOutline, searchOutline, heartOutline });
+    addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline });
 
-    // Redessine les cercles, segments et marqueurs quand les zones ou l'itinéraire changent.
+    // Redessine les cercles, segments et marqueurs quand les zones, l'itinéraire ou la cible nav changent.
     effect(() => {
       const zones    = this.journeyService.zones();
       const segments = this.journeyService.segmentsItineraire();
+      this.navCibleId(); // masque/affiche les segments selon l'état nav
       if (this.mapPret()) this.mettreAJourCarte(zones, segments);
     });
 
@@ -219,6 +233,16 @@ export class MapPage implements AfterViewInit, OnDestroy {
       this.navDernierePosition = null;
       const pos = this.journeyService.positionUtilisateur();
       if (this.mapPret() && pos) this.mettreAJourNavigation(pos);
+    });
+
+    // Refetch nav avec le nouveau profil quand le mode transport change.
+    effect(() => {
+      this.modeTransport(); // subscribe
+      if (!untracked(() => this.mapPret())) return;
+      this.supprimerNavActive();
+      this.navDernierePosition = null;
+      const pos = untracked(() => this.journeyService.positionUtilisateur());
+      if (pos) this.mettreAJourNavigation(pos);
     });
   }
 
@@ -316,6 +340,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.segments.forEach(s => { s.bg.remove(); s.fg.remove(); });
     this.segments.clear();
 
+    // Pendant la navigation active, on n'affiche que le tracé OSRM live
+    if (untracked(() => this.navCibleId())) return;
+
     for (let i = 0; i < zones.length - 1; i++) {
       const a = zones[i];
       const b = zones[i + 1];
@@ -323,19 +350,22 @@ export class MapPage implements AfterViewInit, OnDestroy {
         ? itineraires[i].coordonnees
         : [a.coords, b.coords];
 
-      let couleur: string, poids: number, opacite: number, dash: string | undefined;
+      let couleur: string, poidsCore: number, poidsBord: number, opacite: number, dash: string | undefined, className: string | undefined;
 
       const badges = this.badgeService.badges();
       if (badges.has(b.id)) {
-        couleur = '#c9a84c'; poids = 5; opacite = 0.95; dash = undefined;
+        // Segment complété : navy plein bien visible
+        couleur = '#27476e'; poidsCore = 6; poidsBord = 12; opacite = 0.95; dash = undefined; className = undefined;
       } else if (badges.has(a.id)) {
-        couleur = '#3498db'; poids = 2; opacite = 0.25; dash = '6 6';
+        // Segment prochain : bleu animé
+        couleur = '#3498db'; poidsCore = 4; poidsBord = 10; opacite = 0.9; dash = '12 7'; className = 'seg-prochain';
       } else {
-        couleur = '#bbb'; poids = 2; opacite = 0.4; dash = '4 8';
+        // Segments futurs : très discrets
+        couleur = '#aab'; poidsCore = 2; poidsBord = 6; opacite = 0.18; dash = '4 8'; className = undefined;
       }
 
-      const bg = L.polyline(coords, { weight: poids + 4, color: '#ffffff', opacity: opacite * 0.8 }).addTo(this.map);
-      const fg = L.polyline(coords, { weight: poids, color: couleur, opacity: opacite, dashArray: dash }).addTo(this.map);
+      const bg = L.polyline(coords, { weight: poidsBord, color: '#ffffff', opacity: opacite }).addTo(this.map);
+      const fg = L.polyline(coords, { weight: poidsCore, color: couleur, opacity: opacite, dashArray: dash, className }).addTo(this.map);
       this.segments.set(String(i), { bg, fg });
     }
   }
@@ -367,7 +397,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
     const signal = this.navAbortCtrl.signal;
 
     try {
-      const url = `https://router.project-osrm.org/route/v1/foot/${lng},${lat};${prochaine.coords[1]},${prochaine.coords[0]}?overview=full&geometries=geojson&steps=true`;
+      const profil = untracked(() => this.modeTransport());
+      const url = `https://router.project-osrm.org/route/v1/${profil}/${lng},${lat};${prochaine.coords[1]},${prochaine.coords[0]}?overview=full&geometries=geojson&steps=true`;
       const resp = await fetch(url, { signal });
       if (!resp.ok || signal.aborted) return;
 
@@ -408,14 +439,22 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   private dessinerNavActive(coords: L.LatLngExpression[]) {
+    const estVoiture  = untracked(() => this.modeTransport()) === 'driving';
+    const couleur     = estVoiture ? '#E07B39' : '#2980b9';
+    const dash        = estVoiture ? undefined  : '14 6';
+    const poidsCore   = estVoiture ? 8          : 7;
+    const poidsBord   = 16;
+
     if (this.navLigne) {
       this.navLigne.bg.setLatLngs(coords);
       this.navLigne.fg.setLatLngs(coords);
+      this.navLigne.fg.setStyle({ color: couleur, dashArray: dash, weight: poidsCore });
     } else {
-      const bg = L.polyline(coords, { weight: 10, color: '#ffffff', opacity: 0.85 }).addTo(this.map);
+      const bg = L.polyline(coords, { weight: poidsBord, color: '#ffffff', opacity: 0.95 }).addTo(this.map);
       const fg = L.polyline(coords, {
-        weight: 5, color: '#3498db', opacity: 1,
-        dashArray: '10 5', className: 'seg-prochain'
+        weight: poidsCore, color: couleur, opacity: 1,
+        dashArray: dash,
+        className: estVoiture ? '' : 'seg-prochain'
       }).addTo(this.map);
       this.navLigne = { bg, fg };
     }
@@ -448,6 +487,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
         this.ngZone.run(() => {
           // Si la zone arrivée était la cible nav active, on la réinitialise
           if (this.navCibleId() === zone.id) this.navCibleId.set(null);
+
+          // Révèle les mini-points de la zone
+          this.afficherMiniPoints(zone.id);
 
           // Affiche la notification d'arrivée
           this.zoneArrivee.set(zone);
@@ -541,16 +583,99 @@ export class MapPage implements AfterViewInit, OnDestroy {
     }
   }
 
+  // ── Mini-points dans les zones ────────────────────────────────────────────
+
+  readonly MINI_POINTS: MiniPoint[] = [
+    { id: 'camp_est_1',    zoneId: 'camp_est',    nom: 'Bâtiment principal',   icone: '🏛️', coords: [-22.2714, 166.4268], description: 'Ancien bâtiment administratif du camp colonial.' },
+    { id: 'camp_est_2',    zoneId: 'camp_est',    nom: 'Tour de surveillance', icone: '🔭', coords: [-22.2706, 166.4252], description: 'Poste de garde avec vue sur le détroit de Woodin.' },
+    { id: 'camp_est_3',    zoneId: 'camp_est',    nom: 'Citerne historique',   icone: '💧', coords: [-22.2718, 166.4249], description: 'Réservoir d\'eau construit par les bagnards vers 1870.' },
+    { id: 'vacherie_1',    zoneId: 'vacherie',    nom: 'Étable principale',    icone: '🐄', coords: [-22.2674, 166.4138], description: 'Logement des bovins et animaux de trait.' },
+    { id: 'vacherie_2',    zoneId: 'vacherie',    nom: 'Enclos des libérés',   icone: '🌿', coords: [-22.2664, 166.4122], description: 'Parcelles cultivées par les forçats en liberté conditionnelle.' },
+    { id: 'hopital_1',     zoneId: 'hopital',     nom: 'Salle des malades',    icone: '🏥', coords: [-22.2671, 166.3983], description: 'Principale salle de soins du bagne, fondée en 1867.' },
+    { id: 'hopital_2',     zoneId: 'hopital',     nom: 'Chapelle',             icone: '✝️', coords: [-22.2663, 166.3968], description: 'Lieu de culte pour les détenus et le personnel soignant.' },
+    { id: 'hopital_3',     zoneId: 'hopital',     nom: 'Jardin thérapeutique', icone: '🌱', coords: [-22.2674, 166.3967], description: 'Potager cultivé à des fins médicales par les bagnards.' },
+    { id: 'penitencier_1', zoneId: 'penitencier', nom: 'Bloc cellulaire',      icone: '🔒', coords: [-22.2621, 166.4041], description: 'Quartier des cellules individuelles au régime strict.' },
+    { id: 'penitencier_2', zoneId: 'penitencier', nom: 'Cour centrale',        icone: '☀️', coords: [-22.2612, 166.4026], description: 'Espace de rassemblement quotidien des détenus.' },
+    { id: 'penitencier_3', zoneId: 'penitencier', nom: 'Atelier de forge',     icone: '⚒️', coords: [-22.2624, 166.4024], description: 'Atelier où travaillaient les forçats, production d\'outils.' },
+    { id: 'ferme_nord_1',  zoneId: 'ferme_nord',  nom: 'Grange',               icone: '🌾', coords: [-22.2611, 166.3916], description: 'Entrepôt agricole principal de la ferme du nord.' },
+    { id: 'ferme_nord_2',  zoneId: 'ferme_nord',  nom: 'Verger historique',    icone: '🍃', coords: [-22.2600, 166.3902], description: 'Plantations fruitières exploitées depuis le XIXe siècle.' },
+  ];
+
+  getMiniPoints(zoneId: string): MiniPoint[] {
+    return this.MINI_POINTS.filter(p => p.zoneId === zoneId);
+  }
+
+  toggleMiniPoints(zoneId: string) {
+    if (this.miniPointsVisibles().has(zoneId)) {
+      this.masquerMiniPoints(zoneId);
+    } else {
+      this.afficherMiniPoints(zoneId);
+    }
+  }
+
+  private afficherMiniPoints(zoneId: string) {
+    this.masquerMiniPoints(zoneId);
+    const marqueurs: L.Marker[] = [];
+    for (const point of this.getMiniPoints(zoneId)) {
+      const m = L.marker(point.coords, { icon: this.creerMiniMarqueur(point), zIndexOffset: 200 })
+        .addTo(this.map)
+        .on('click', () => this.ngZone.run(() => {
+          this.zoneSelectionneeId.set(null);
+          this.miniPointSelectionne.set(point);
+          this.map.flyTo(point.coords, 17, { duration: 0.6 });
+        }));
+      marqueurs.push(m);
+    }
+    this.miniMarqueurs.set(zoneId, marqueurs);
+    const visible = new Set(this.miniPointsVisibles());
+    visible.add(zoneId);
+    this.miniPointsVisibles.set(visible);
+  }
+
+  private masquerMiniPoints(zoneId: string) {
+    this.miniMarqueurs.get(zoneId)?.forEach(m => m.remove());
+    this.miniMarqueurs.delete(zoneId);
+    const visible = new Set(this.miniPointsVisibles());
+    visible.delete(zoneId);
+    this.miniPointsVisibles.set(visible);
+  }
+
+  private creerMiniMarqueur(point: MiniPoint): L.DivIcon {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:30px;height:30px;border-radius:50%;
+        background:#C0553C;border:2.5px solid #fff;
+        box-shadow:0 2px 8px rgba(0,0,0,0.25);
+        display:flex;align-items:center;justify-content:center;
+        font-size:14px;cursor:pointer;
+        animation:miniAppear 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+      ">${point.icone}</div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+  }
+
+  fermerMiniPoint() {
+    this.miniPointSelectionne.set(null);
+  }
+
+  toggleModeTransport() {
+    this.modeTransport.set(this.modeTransport() === 'foot' ? 'driving' : 'foot');
+  }
+
   // ── Cleanup ───────────────────────────────────────────────────────────────
 
   private nettoyerTout() {
     this.marqueurs.forEach(m => m.remove());
     this.overlays.forEach(o => o.remove());
     this.segments.forEach(s => { s.bg.remove(); s.fg.remove(); });
+    this.miniMarqueurs.forEach(ms => ms.forEach(m => m.remove()));
     this.supprimerNavActive();
     this.marqueurs.clear();
     this.overlays.clear();
     this.segments.clear();
+    this.miniMarqueurs.clear();
     this.marqueurUtilisateur?.remove();
     this.marqueurUtilisateur = undefined;
   }
@@ -645,6 +770,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.zoneSelectionneeId.set(null);
     this.arriveeDejaTraitee.clear();
     this.zoneArrivee.set(null);
+    this.miniPointSelectionne.set(null);
+    this.miniMarqueurs.forEach(ms => ms.forEach(m => m.remove()));
+    this.miniMarqueurs.clear();
+    this.miniPointsVisibles.set(new Set());
     clearTimeout(this.arriveeTimeout);
     await Promise.all([
       this.journeyService.reinitialiser(),
