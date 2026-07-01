@@ -29,6 +29,14 @@ export class ParcoursPage implements OnInit, OnDestroy {
     ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
   };
 
+  readonly TEMOIGNAGES: Record<string, { titre: string; auteur: string; texte: string }> = {
+    camp_est: {
+      titre:  'L\'Enfer du Camp Est',
+      auteur: 'Lucien Jossevel, forçat suisse',
+      texte:  'Dépouillés de toute dignité, vêtus de simples toiles de sac et entravés par de lourds fers aux pieds, les condamnés subissent un châtiment impitoyable. Du lever au coucher du soleil, affamés par des rations de survie diminuées de moitié, ils sont forcés de marcher en rond dans une salle à une cadence effrénée, tels des chevaux de manège. Mais l\'horreur culmine lors des courtes minutes de répit. Ce soi-disant repos est une véritable torture psychologique et physique : obligés de s\'asseoir dans un silence de mort sur des billots de bois verticaux atrocement étroits, la douleur est telle que le bagnard avoue qu\'on « ferait mieux de les empaler ». Une descente aux enfers où la pause devient un supplice encore pire que l\'effort.',
+    },
+  };
+
   private paramSub?: Subscription;
   private readonly onMessage = (e: MessageEvent) => {
     if (e.data?.type === 'jeuTermine' && this.zoneSelectionnee) {
