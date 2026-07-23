@@ -1,0 +1,78 @@
+<ion-content [fullscreen]="true">
+  <div class="auth-container">
+
+    <!-- Logo -->
+    <div class="auth-logo">
+      <span class="logo-shell">🐚</span>
+      <span class="logo-name">KAVAL</span>
+    </div>
+
+    <p class="auth-accroche">Île Nou · Nouvelle-Calédonie</p>
+
+    <!-- Card -->
+    <div class="auth-card">
+
+      <!-- Onglets -->
+      <div class="auth-tabs">
+        <button class="auth-tab"
+                [class.actif]="onglet === 'connexion'"
+                (click)="basculerOnglet('connexion')">
+          Connexion
+        </button>
+        <button class="auth-tab"
+                [class.actif]="onglet === 'inscription'"
+                (click)="basculerOnglet('inscription')">
+          Inscription
+        </button>
+      </div>
+
+      <!-- Formulaire -->
+      <form (ngSubmit)="soumettre()" #form="ngForm">
+
+        <div class="auth-champ">
+          <label class="auth-label">Email</label>
+          <input class="auth-input"
+                 type="email"
+                 placeholder="votre@email.com"
+                 [(ngModel)]="email"
+                 name="email"
+                 autocomplete="email"
+                 required />
+        </div>
+
+        <div class="auth-champ">
+          <label class="auth-label">Mot de passe</label>
+          <input class="auth-input"
+                 type="password"
+                 placeholder="••••••"
+                 [(ngModel)]="motDePasse"
+                 name="motDePasse"
+                 autocomplete="current-password"
+                 required />
+        </div>
+
+        <!-- Erreur -->
+        <div class="auth-erreur" *ngIf="erreur()">
+          ⚠ {{ erreur() }}
+        </div>
+
+        <!-- Bouton -->
+        <button class="auth-btn" type="submit" [disabled]="chargement()">
+          <span *ngIf="!chargement()">
+            {{ onglet === 'connexion' ? 'Se connecter' : 'Créer mon compte' }}
+          </span>
+          <span *ngIf="chargement()" class="auth-loader"></span>
+        </button>
+
+      </form>
+
+    </div>
+
+    <!-- Note offline -->
+    <p class="auth-note">
+      La connexion n'est requise qu'au premier lancement.<br>
+      L'application fonctionne ensuite sans internet.
+    </p>
+
+  </div>
+</ion-content>

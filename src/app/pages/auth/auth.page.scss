@@ -1,0 +1,171 @@
+ion-content {
+  --background: #27476e;
+}
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 20px 40px;
+  box-sizing: border-box;
+}
+
+// ── Logo ──────────────────────────────────────────────────────────────────────
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.logo-shell { font-size: 32px; }
+
+.logo-name {
+  font-size: 28px;
+  font-weight: 800;
+  color: #c9a84c;
+  letter-spacing: 5px;
+}
+
+.auth-accroche {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 1px;
+  margin: 0 0 36px;
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────────
+
+.auth-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px 24px 28px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+}
+
+// ── Onglets ───────────────────────────────────────────────────────────────────
+
+.auth-tabs {
+  display: flex;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 3px;
+  margin-bottom: 24px;
+  gap: 3px;
+}
+
+.auth-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #aaa;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &.actif {
+    background: #ffffff;
+    color: #27476e;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+}
+
+// ── Champs ────────────────────────────────────────────────────────────────────
+
+.auth-champ {
+  margin-bottom: 16px;
+}
+
+.auth-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+
+.auth-input {
+  width: 100%;
+  background: #f9f9f9;
+  border: 1.5px solid #ebebeb;
+  border-radius: 12px;
+  padding: 13px 14px;
+  font-size: 15px;
+  color: #27476e;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus { border-color: #c9a84c; }
+  &::placeholder { color: #ccc; }
+}
+
+// ── Erreur ────────────────────────────────────────────────────────────────────
+
+.auth-erreur {
+  background: #fff0f0;
+  border: 1px solid #ffcccc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #c0392b;
+  margin-bottom: 16px;
+}
+
+// ── Bouton ────────────────────────────────────────────────────────────────────
+
+.auth-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #27476e, #3a6190);
+  color: #c9a84c;
+  border: none;
+  border-radius: 14px;
+  padding: 15px 0;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 20px rgba(39,71,110,0.4);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+
+  &[disabled] { opacity: 0.6; cursor: default; }
+}
+
+.auth-loader {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(201,168,76,0.3);
+  border-top-color: #c9a84c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+// ── Note offline ─────────────────────────────────────────────────────────────
+
+.auth-note {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 28px;
+  max-width: 280px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
