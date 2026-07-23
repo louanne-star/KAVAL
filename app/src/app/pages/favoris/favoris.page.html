@@ -1,42 +1,70 @@
 <ion-content [fullscreen]="true">
-  <div class="favoris-page">
+  <div class="page">
 
-    <!-- ── Header ─────────────────────────────────────────────────────────── -->
-    <div class="fav-header">
-      <button class="fav-retour" (click)="retour()">‹</button>
-      <h1 class="fav-titre">Favoris</h1>
-      <p class="fav-sous-titre">{{ zonesFavorites().length }} zone{{ zonesFavorites().length > 1 ? 's' : '' }} sauvegardée{{ zonesFavorites().length > 1 ? 's' : '' }}</p>
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
+    <div class="fv-header">
+      <div class="fv-orb fv-orb--1" aria-hidden="true"></div>
+      <div class="fv-orb fv-orb--2" aria-hidden="true"></div>
+
+      <button class="fv-back" (click)="retour()">‹</button>
+
+      <div class="fv-title-row">
+        <div>
+          <p class="fv-eyebrow">Ma collection</p>
+          <h1 class="fv-title">Favoris</h1>
+        </div>
+        <div class="fv-count-badge">
+          <span class="fv-count-num">{{ zonesFavorites().length }}</span>
+          <span class="fv-count-lbl">zone{{ zonesFavorites().length > 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+
+      <!-- Wave SVG -->
+      <div class="fv-wave" aria-hidden="true">
+        <svg class="wave-bg" viewBox="0 0 390 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,35 C70,88 160,5 240,52 C300,82 355,18 390,38 L390,100 L0,100 Z" fill="rgba(255,255,255,0.22)"/>
+        </svg>
+        <svg class="wave-main" viewBox="0 0 390 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,58 C90,100 195,28 305,70 C348,86 374,52 390,62 L390,100 L0,100 Z" fill="#f0f4fb"/>
+        </svg>
+      </div>
     </div>
 
-    <!-- ── Liste ──────────────────────────────────────────────────────────── -->
-    <div class="fav-liste" *ngIf="zonesFavorites().length > 0; else aucun">
-      <div class="zone-carte" *ngFor="let z of zonesFavorites()">
+    <!-- ── Liste ────────────────────────────────────────────────────────── -->
+    <div class="fv-content">
 
-        <div class="zone-gauche" (click)="allerVersCarte(z.id)">
-          <div class="zone-icone">{{ META[z.id]?.icone }}</div>
-          <div class="zone-corps">
-            <div class="zone-entete">
-              <span class="zone-nom">{{ z.nom }}</span>
-              <span class="badge-visu" *ngIf="badgeService.aBadge(z.id)">🏅</span>
+      <ng-container *ngIf="zonesFavorites().length > 0; else aucun">
+        <div class="zone-list">
+          <div class="zone-item" *ngFor="let z of zonesFavorites(); let i = index"
+               [style.animation-delay]="i * 70 + 'ms'"
+               (click)="allerVersCarte(z.id)">
+
+            <div class="zi-ico" [ngClass]="'ico-' + z.id">{{ META[z.id]?.icone }}</div>
+
+            <div class="zi-info">
+              <div class="zi-name">{{ z.nom }}</div>
+              <div class="zi-sub">{{ META[z.id]?.sousTitre }}</div>
+              <div class="zi-meta">
+                <span class="zi-stars">{{ starsFor(ratingService.getNote(z.id)) }}</span>
+                <span class="zi-badge" *ngIf="badgeService.aBadge(z.id)">🏅</span>
+              </div>
             </div>
-            <div class="zone-sous">{{ META[z.id]?.sousTitre }}</div>
-            <div class="zone-stars">{{ starsFor(ratingService.getNote(z.id)) }}</div>
+
+            <button class="zi-heart" (click)="toggleFavori(z.id); $event.stopPropagation()"
+                    aria-label="Retirer des favoris">♡</button>
+
           </div>
         </div>
+      </ng-container>
 
-        <button class="btn-coeur actif" (click)="toggleFavori(z.id)" title="Retirer des favoris">
-          ♥
-        </button>
+      <ng-template #aucun>
+        <div class="fv-empty">
+          <div class="fv-empty-ico">♡</div>
+          <h2 class="fv-empty-h">Aucun favori</h2>
+          <p class="fv-empty-p">Explorez la carte et appuyez sur ♡ pour sauvegarder vos zones préférées.</p>
+        </div>
+      </ng-template>
 
-      </div>
     </div>
-
-    <ng-template #aucun>
-      <div class="aucun-resultat">
-        <div class="aucun-icone">♡</div>
-        <p>Aucun favori pour l'instant.<br>Appuyez sur ♥ dans une fiche de zone pour en ajouter.</p>
-      </div>
-    </ng-template>
-
   </div>
 </ion-content>
