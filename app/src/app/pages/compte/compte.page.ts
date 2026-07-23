@@ -6,8 +6,11 @@ import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { JourneyService } from '../../services/journey.service';
+import { BadgeService } from '../../services/badge.service';
 
-type Vue = 'profil' | 'mdp';
+type Vue    = 'profil' | 'mdp';
+type Theme  = 'dark' | 'light';
+type Langue = 'fr' | 'en';
 
 @Component({
   selector: 'app-compte',
@@ -33,6 +36,7 @@ export class ComptePage {
     '🐙','🦈','🐬','🦅','🦩','🌵','🍀','🎸',
   ];
 
+  // Navigation
   vue          = signal<Vue>('profil');
   chargement   = signal(false);
   erreur       = signal<string | null>(null);
@@ -40,6 +44,16 @@ export class ComptePage {
   confirmSuppr = signal(false);
   voirPicker   = signal(false);
 
+  // Identité
+  username        = signal<string>(localStorage.getItem('kaval_username') ?? '');
+  editingUsername = signal(false);
+  usernameTemp    = '';
+
+  // Préférences
+  theme  = signal<Theme>((localStorage.getItem('kaval_theme') as Theme) ?? 'dark');
+  langue = signal<Langue>((localStorage.getItem('kaval_langue') as Langue) ?? 'fr');
+
+  // MDP
   nouveauMdp = '';
   confirmMdp = '';
 
@@ -47,16 +61,31 @@ export class ComptePage {
     this.journeyService.zones().filter(z => this.favoriteService.estFavori(z.id))
   );
 
-  constructor(
-    readonly auth:           AuthService,
-    readonly favoriteService: FavoriteService,
-    readonly journeyService: JourneyService,
-    private router:          Router,
-  ) {}
+  readonly nombreZonesVisitees = computed(() =>
+    this.journeyService.zones().filter(z => this.badgeService.aBadge(z.id)).length
+  );
 
-  retour() {
-    this.router.navigate(['/tabs/carte']);
+  readonly totalZones = computed(() => this.journeyService.zones().length);
+
+  constructor(
+    readonly auth:            AuthService,
+    readonly favoriteService: FavoriteService,
+    readonly journeyService:  JourneyService,
+    readonly badgeService:    BadgeService,
+    private router:           Router,
+  ) {
+    document.body.classList.toggle('theme-light', this.theme() === 'light');
   }
+
+  retour() { this.router.navigate(['/tabs/carte']); }
+
+  changerVue(v: Vue) {
+    this.vue.set(v);
+    this.erreur.set(null);
+    this.succes.set(null);
+  }
+
+  // ── Avatar ──────────────────────────────────────────────────────────────────
 
   async choisirEmoji(emoji: string) {
     this.voirPicker.set(false);
@@ -73,7 +102,37 @@ export class ComptePage {
     }
   }
 
-  // ── Mot de passe ──────────────────────────────────────────────────────────
+  // ── Username ─────────────────────────────────────────────────────────────────
+
+  commencerEditUsername() {
+    this.usernameTemp = this.username();
+    this.editingUsername.set(true);
+  }
+
+  sauvegarderUsername() {
+    const val = this.usernameTemp.trim();
+    this.username.set(val);
+    localStorage.setItem('kaval_username', val);
+    this.editingUsername.set(false);
+    this.succes.set('Pseudonyme mis à jour !');
+    setTimeout(() => this.succes.set(null), 3000);
+  }
+
+  // ── Préférences ───────────────────────────────────────────────────────────────
+
+  toggleTheme() {
+    const next: Theme = this.theme() === 'dark' ? 'light' : 'dark';
+    this.theme.set(next);
+    localStorage.setItem('kaval_theme', next);
+    document.body.classList.toggle('theme-light', next === 'light');
+  }
+
+  changerLangue(l: Langue) {
+    this.langue.set(l);
+    localStorage.setItem('kaval_langue', l);
+  }
+
+  // ── MDP ──────────────────────────────────────────────────────────────────────
 
   async modifierMdp() {
     if (!this.nouveauMdp || this.nouveauMdp !== this.confirmMdp) {
@@ -99,7 +158,7 @@ export class ComptePage {
     }
   }
 
-  // ── Suppression ───────────────────────────────────────────────────────────
+  // ── Compte ────────────────────────────────────────────────────────────────────
 
   async supprimerCompte() {
     this.chargement.set(true);
@@ -112,22 +171,12 @@ export class ComptePage {
     }
   }
 
-  // ── Déconnexion ───────────────────────────────────────────────────────────
-
   async seDeconnecter() {
     await this.auth.seDeconnecter();
     this.router.navigate(['/login'], { replaceUrl: true });
   }
 
-  // ── Navigation ────────────────────────────────────────────────────────────
-
   allerVersZone(zoneId: string) {
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
-  }
-
-  changerVue(v: Vue) {
-    this.vue.set(v);
-    this.erreur.set(null);
-    this.succes.set(null);
   }
 }
