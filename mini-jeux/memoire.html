@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mémoire du Bagne · KAVAL</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#f5f0e8;
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; overflow:hidden; touch-action:manipulation;
+}
+canvas { display:block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const W = Math.min(window.innerWidth,  420);
+const H = Math.min(window.innerHeight, 720);
+canvas.width = W; canvas.height = H;
+
+// ── Palette KAVAL ─────────────────────────────────────────────────────────────
+const COL = {
+  bg:     '#f5f0e8',
+  green:  '#2d4a35',
+  greenL: '#3d6a45',
+  gold:   '#c9a84c',
+  goldD:  '#8b6914',
+  cream:  '#ede5cc',
+  text:   '#1a2e1e',
+  grey:   '#888',
+};
+
+// ── 6 paires thématiques Île Nou ──────────────────────────────────────────────
+const PAIRS = [
+  { id:0, label:'Nacre',       emoji:'🐚', accent:'#8b6914' },
+  { id:1, label:'Ancre',       emoji:'⚓',  accent:'#2d3a4a' },
+  { id:2, label:'Palmier',     emoji:'🌴', accent:'#1a5a2d' },
+  { id:3, label:'Clé',         emoji:'🗝️', accent:'#5a3a1a' },
+  { id:4, label:'Pénitencier', emoji:'🏛️', accent:'#4a3520' },
+  { id:5, label:'Océan',       emoji:'🌊', accent:'#1a3a5c' },
+];
+
+// ── Mise en page ──────────────────────────────────────────────────────────────
+const COLS_G = 4, ROWS_G = 3;
+const PAD  = Math.floor(W * 0.035);
+const GAP  = 8;
+const HDR  = Math.floor(H * 0.14);
+const FTR  = Math.floor(H * 0.10);
+
+const C_W     = Math.floor((W - PAD*2 - GAP*(COLS_G-1)) / COLS_G);
+const C_H_max = Math.floor((H - HDR - FTR - GAP*(ROWS_G-1) - PAD) / ROWS_G);
+const C_H     = Math.min(C_H_max, Math.floor(C_W * 1.5));
+const GRID_H  = ROWS_G * C_H + (ROWS_G-1) * GAP;
+const GX      = PAD;
+const GY      = HDR + Math.floor((H - HDR - FTR - GRID_H) / 2);
+
+// ── État ──────────────────────────────────────────────────────────────────────
+let cards, flipped, moves, pairsFound, state, startTime;
+
+function shuffle(arr) {
+  for (let i=arr.length-1; i>0; i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function init() {
+  const deck = [];
+  PAIRS.forEach(p => {
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#0f0'});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#0f0'});
+  });
+  shuffle(deck);
+  cards      = deck;
+  flipped    = [];
+  moves      = 0;
+  pairsFound = 0;
+  state      = 'play';
+  startTime  = Date.now();
+}
+init();
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function cardPos(i) {
+  const col = i % COLS_G, row = Math.floor(i / COLS_G);
+  return { x: GX + col*(C_W+GAP), y: GY + row*(C_H+GAP) };
+}
+
+function hitCard(tx, ty) {
+  for (let i=0; i<cards.length; i++) {
+    const {x,y} = cardPos(i);
+    if (tx>=x && tx<x+C_W && ty>=y && ty<y+C_H) return i;
+  }
+  return -1;
+}
+
+// ── Interaction ───────────────────────────────────────────────────────────────
+function onTap(tx, ty) {
+  if (state === 'win') { init(); return; }
+  if (state !== 'play') return;
+
+  const i = hitCard(tx, ty);
+  if (i < 0) return;
+  const c = cards[i];
+  if (c.faceUp || c.matched || flipped.includes(i) || flipped.length >= 2) return;
+
+  c.faceUp = true;
+  flipped.push(i);
+
+  if (flipped.length === 2) {
+    moves++;
+    state = 'check';
+    const [a, b] = flipped;
+    setTimeout(() => {
+      if (cards[a].id === cards[b].id) {
+        cards[a].matched = cards[b].matched = true;
+        cards[a].flash = cards[b].flash = 45;
+        cards[a].flashColor = cards[b].flashColor = '#27ae60';
+        pairsFound++;
+        flipped = [];
+        state = 'play';
+        if (pairsFound === PAIRS.length) setTimeout(() => state = 'win', 900);
+      } else {
+        cards[a].flash = cards[b].flash = 35;
+        cards[a].flashColor = cards[b].flashColor = '#c0392b';
+        setTimeout(() => {
+          cards[a].faceUp = cards[b].faceUp = false;
+          flipped = [];
+          state = 'play';
+        }, 550);
+      }
+    }, 750);
+  }
+}
+
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect();
+  onTap(e.clientX-r.left, e.clientY-r.top);
+});
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  const t = e.changedTouches[0];
+  onTap(t.clientX-r.left, t.clientY-r.top);
+}, { passive:false });
+
+// ── Rendu cartes ──────────────────────────────────────────────────────────────
+function drawBack(x, y, w, h) {
+  // Fond vert
+  ctx.fillStyle = COL.green;
+  ctx.beginPath(); ctx.roundRect(x,y,w,h,8); ctx.fill();
+  // Bordure or
+  ctx.strokeStyle = COL.gold; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(x+3,y+3,w-6,h-6,6); ctx.stroke();
+  // Motif discret
+  ctx.strokeStyle = 'rgba(201,168,76,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(x+7,y+7,w-14,h-14,4); ctx.stroke();
+  // Shell
+  ctx.font = `${Math.floor(w*0.42)}px serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('🐚', x+w/2, y+h/2);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawFace(x, y, w, h, card) {
+  // Fond crème
+  ctx.fillStyle = COL.cream;
+  ctx.beginPath(); ctx.roundRect(x,y,w,h,8); ctx.fill();
+  // Bordure colorée
+  ctx.strokeStyle = card.accent; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(x+2,y+2,w-4,h-4,7); ctx.stroke();
+  // Emoji
+  ctx.font = `${Math.floor(w*0.46)}px serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(card.emoji, x+w/2, y+h*0.42);
+  // Label
+  ctx.fillStyle = card.accent;
+  ctx.font = `bold ${Math.floor(w*0.17)}px Georgia, serif`;
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(card.label, x+w/2, y+h-7);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawCard(i) {
+  const c = cards[i];
+  const {x, y} = cardPos(i);
+
+  // Ombre portée
+  ctx.fillStyle = 'rgba(0,0,0,0.10)';
+  ctx.beginPath(); ctx.roundRect(x+3,y+4,C_W,C_H,8); ctx.fill();
+
+  if (c.faceUp || c.matched) {
+    drawFace(x,y,C_W,C_H,c);
+    if (c.matched) {
+      ctx.fillStyle = 'rgba(39,174,96,0.18)';
+      ctx.beginPath(); ctx.roundRect(x,y,C_W,C_H,8); ctx.fill();
+    }
+  } else {
+    drawBack(x,y,C_W,C_H);
+  }
+
+  // Flash retour visuel
+  if (c.flash > 0) {
+    ctx.globalAlpha = (c.flash / 45) * 0.42;
+    ctx.fillStyle   = c.flashColor;
+    ctx.beginPath(); ctx.roundRect(x,y,C_W,C_H,8); ctx.fill();
+    ctx.globalAlpha = 1;
+    c.flash--;
+  }
+}
+
+// ── HUD ───────────────────────────────────────────────────────────────────────
+function drawHUD() {
+  // Titre
+  ctx.fillStyle = COL.text;
+  ctx.font = `bold ${Math.floor(W*0.056)}px Georgia, serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('Mémoire du Bagne', W/2, H*0.054);
+
+  // Sous-titre
+  ctx.fillStyle = COL.goldD;
+  ctx.font = `${Math.floor(W*0.036)}px Georgia, serif`;
+  ctx.fillText('🐚 Île Nou · Bagne de Nouvelle-Calédonie', W/2, H*0.103);
+
+  // Barre stats
+  const sy = GY + GRID_H + Math.floor(FTR * 0.45);
+  ctx.fillStyle = COL.grey;
+  ctx.font = `${Math.floor(W*0.040)}px Georgia, serif`;
+  ctx.textAlign = 'left';  ctx.textBaseline = 'middle';
+  ctx.fillText(`Essais : ${moves}`, PAD, sy);
+  ctx.textAlign = 'right';
+  ctx.fillText(`Paires : ${pairsFound}/6`, W-PAD, sy);
+
+  // Instruction discrète (tant qu'aucun essai)
+  if (moves === 0) {
+    ctx.fillStyle = 'rgba(45,74,53,0.4)';
+    ctx.font = `${Math.floor(W*0.033)}px Georgia, serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('Touche 2 cartes identiques pour former une paire', W/2, sy + Math.floor(FTR*0.42));
+  }
+
+  ctx.textBaseline = 'alphabetic';
+}
+
+// ── Écran victoire ────────────────────────────────────────────────────────────
+function drawWin() {
+  // Fond semi-opaque
+  ctx.fillStyle = 'rgba(245,240,232,0.97)';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.textAlign = 'center';
+
+  // Emoji trophée
+  ctx.font = '52px serif'; ctx.textBaseline = 'middle';
+  ctx.fillText('🐚', W/2, H*0.35);
+
+  // Titre
+  ctx.fillStyle = COL.text;
+  ctx.font = `bold ${Math.floor(W*0.065)}px Georgia, serif`;
+  ctx.fillText('Bravo !', W/2, H*0.46);
+
+  // Étoiles
+  const elapsed = Math.floor((Date.now()-startTime)/1000);
+  const stars = moves<=10 ? 3 : moves<=16 ? 2 : 1;
+  ctx.font = '30px serif';
+  ctx.fillText('⭐'.repeat(stars)+'☆'.repeat(3-stars), W/2, H*0.535);
+
+  // Stats
+  ctx.fillStyle = COL.grey;
+  ctx.font = `${Math.floor(W*0.040)}px Georgia, serif`;
+  ctx.fillText(`${moves} essais · ${elapsed}s`, W/2, H*0.595);
+
+  // Bouton rejouer
+  const bx=W/2-90, by=H*0.645;
+  ctx.fillStyle = COL.green;
+  ctx.beginPath(); ctx.roundRect(bx,by,180,52,12); ctx.fill();
+  ctx.strokeStyle = COL.gold; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.roundRect(bx,by,180,52,12); ctx.stroke();
+  ctx.fillStyle = COL.gold;
+  ctx.font = `bold ${Math.floor(W*0.046)}px Georgia, serif`;
+  ctx.fillText('▶ Rejouer', W/2, by+34);
+
+  ctx.textBaseline = 'alphabetic';
+}
+
+// ── Boucle ────────────────────────────────────────────────────────────────────
+function loop() {
+  ctx.fillStyle = COL.bg;
+  ctx.fillRect(0,0,W,H);
+  drawHUD();
+  for (let i=0; i<cards.length; i++) drawCard(i);
+  if (state === 'win') drawWin();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
