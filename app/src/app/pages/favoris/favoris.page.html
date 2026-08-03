@@ -13,13 +13,13 @@
       <div class="zone-carte" *ngFor="let z of zonesFavorites()">
 
         <div class="zone-gauche" (click)="allerVersCarte(z.id)">
-          <div class="zone-icone">{{ META[z.id]?.icone }}</div>
+          <div class="zone-icone">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
           <div class="zone-corps">
             <div class="zone-entete">
               <span class="zone-nom">{{ z.nom }}</span>
               <span class="badge-visu" *ngIf="badgeService.aBadge(z.id)">🏅</span>
             </div>
-            <div class="zone-sous">{{ META[z.id]?.sousTitre }}</div>
+            <div class="zone-sous">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</div>
             <div class="zone-stars">{{ starsFor(ratingService.getNote(z.id)) }}</div>
           </div>
         </div>

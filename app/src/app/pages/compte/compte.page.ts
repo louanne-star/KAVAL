@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { JourneyService } from '../../services/journey.service';
+import { PointsService } from '../../services/points.service';
 
 type Vue = 'profil' | 'mdp';
 
@@ -17,14 +18,6 @@ type Vue = 'profil' | 'mdp';
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class ComptePage {
-
-  readonly META: Record<string, { icone: string; sousTitre: string }> = {
-    camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
-    vacherie:    { icone: '🌾', sousTitre: 'Agriculture & libérés' },
-    hopital:     { icone: '✝️', sousTitre: 'Soins & chapelle' },
-    penitencier: { icone: '🗝️', sousTitre: 'Cœur du bagne' },
-    ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
-  };
 
   readonly emojis = [
     '🐺','🦊','🐱','🐶','🐻','🐼','🦁','🐸',
@@ -51,6 +44,7 @@ export class ComptePage {
     readonly auth:           AuthService,
     readonly favoriteService: FavoriteService,
     readonly journeyService: JourneyService,
+    readonly pointsService:  PointsService,
     private router:          Router,
   ) {}
 

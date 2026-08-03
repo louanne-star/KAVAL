@@ -46,7 +46,7 @@
 
   <!-- ── Notification d'arrivée ───────────────────────────────────────────── -->
   <div class="arrivee-notif" *ngIf="zoneArrivee() as zone">
-    <div class="arrivee-icone">{{ META[zone.id]?.icone }}</div>
+    <div class="arrivee-icone">{{ iconeZone(zone.zoneId) }}</div>
     <div class="arrivee-corps">
       <div class="arrivee-titre">Vous êtes arrivé !</div>
       <div class="arrivee-nom">{{ zone.nom }}</div>
@@ -94,7 +94,7 @@
               {{ favoriteService.estFavori(zone.id) ? '♥' : '♡' }}
             </button>
           </div>
-          <p class="sheet-type">{{ META[zone.id]?.sousTitre }}</p>
+          <p class="sheet-type">{{ nomZone(zone.zoneId) }} · {{ sousTitreZone(zone.zoneId) }}</p>
 
           <!-- Notes + commentaires communauté -->
           <div class="sheet-rating">
@@ -138,17 +138,6 @@
       <!-- Description courte -->
       <p class="sheet-desc">{{ zone.description }}</p>
 
-      <!-- Points clés de la zone (visibles si badge obtenu) -->
-      <div class="zone-mini-row" *ngIf="badgeService.aBadge(zone.id)">
-        <button class="btn-points-cles"
-                [class.actif]="miniPointsVisibles().has(zone.id)"
-                (click)="toggleMiniPoints(zone.id)">
-          <span>📍 Points clés</span>
-          <span class="mini-count">{{ getMiniPoints(zone.id).length }}</span>
-          <span class="mini-chevron">{{ miniPointsVisibles().has(zone.id) ? '▲' : '▼' }}</span>
-        </button>
-      </div>
-
       <!-- Actions -->
       <div class="sheet-actions-row">
         <button class="btn-itineraire"
@@ -165,9 +154,10 @@
   </div>
 
   <!-- ── Mini-point popup ─────────────────────────────────────────────────── -->
-  <div class="mini-popup-card" *ngIf="miniPointSelectionne() as mp">
+  <div class="mini-popup-card" *ngIf="miniPointSelectionne() as mp" [style.--couleur-zone]="pointsService.metaDe(mp.zoneId)?.couleur">
     <div class="mini-popup-icone">{{ mp.icone }}</div>
     <div class="mini-popup-corps">
+      <div class="mini-popup-zone">{{ iconeZone(mp.zoneId) }} {{ nomZone(mp.zoneId) }}</div>
       <div class="mini-popup-nom">{{ mp.nom }}</div>
       <div class="mini-popup-desc">{{ mp.description }}</div>
     </div>
@@ -225,13 +215,13 @@
     </div>
   </div>
 
-  <!-- ── Completion screen: shown when all 5 zones are unlocked ──────────── -->
+  <!-- ── Completion screen: shown when all points are unlocked ───────────── -->
   <div class="ecran-completion" *ngIf="parcoursComplet()">
     <div class="completion-card">
       <div class="completion-trophee">🏆</div>
       <h2 class="completion-titre">Parcours terminé !</h2>
       <p class="completion-sous-titre">
-        Vous avez exploré les 5 sites historiques de l'Île Nou.
+        Vous avez exploré les {{ journeyService.zones().length }} sites historiques de l'Île Nou.
       </p>
       <div class="completion-zones">
         <div class="completion-zone" *ngFor="let z of journeyService.zones()">

@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { IonContent } from '@ionic/angular/standalone';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
+import { PointsService } from '../../services/points.service';
 
 @Component({
   selector: 'app-parcours',
@@ -21,16 +22,13 @@ export class ParcoursPage implements OnInit, OnDestroy {
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
 
-  readonly META: Record<string, { icone: string; sousTitre: string; jeu?: string }> = {
-    camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
-    vacherie:    { icone: '🌾', sousTitre: 'Agriculture & libérés' },
-    hopital:     { icone: '✝️', sousTitre: 'Soins & chapelle' },
-    penitencier: { icone: '🗝️', sousTitre: 'Cœur du bagne', jeu: 'assets/mini-jeux/river_jump.html' },
-    ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
+  // Mini-jeu disponible pour tous les vrai points d'une zone visuelle donnée
+  readonly JEUX: Record<string, string> = {
+    penitencier: 'assets/mini-jeux/river_jump.html',
   };
 
   readonly TEMOIGNAGES: Record<string, { titre: string; auteur: string; texte: string }> = {
-    camp_est: {
+    camp_est_principal: {
       titre:  'L\'Enfer du Camp Est',
       auteur: 'Lucien Jossevel, forçat suisse',
       texte:  'Dépouillés de toute dignité, vêtus de simples toiles de sac et entravés par de lourds fers aux pieds, les condamnés subissent un châtiment impitoyable. Du lever au coucher du soleil, affamés par des rations de survie diminuées de moitié, ils sont forcés de marcher en rond dans une salle à une cadence effrénée, tels des chevaux de manège. Mais l\'horreur culmine lors des courtes minutes de répit. Ce soi-disant repos est une véritable torture psychologique et physique : obligés de s\'asseoir dans un silence de mort sur des billots de bois verticaux atrocement étroits, la douleur est telle que le bagnard avoue qu\'on « ferait mieux de les empaler ». Une descente aux enfers où la pause devient un supplice encore pire que l\'effort.',
@@ -60,6 +58,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
     private ngZone: NgZone,
     readonly journeyService: JourneyService,
     readonly badgeService: BadgeService,
+    readonly pointsService: PointsService,
   ) {}
 
   ngOnInit() {
@@ -80,7 +79,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   }
 
   get jeuUrl(): SafeResourceUrl | null {
-    const jeu = this.zoneSelectionnee ? this.META[this.zoneSelectionnee.id]?.jeu : null;
+    const jeu = this.zoneSelectionnee ? this.JEUX[this.zoneSelectionnee.zoneId] : null;
     return jeu ? this.sanitizer.bypassSecurityTrustResourceUrl(jeu) : null;
   }
 

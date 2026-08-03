@@ -50,10 +50,10 @@
 
         <div class="favoris-liste" *ngIf="zonesFavorites().length > 0; else pasFavoris">
           <div class="favori-carte" *ngFor="let z of zonesFavorites()" (click)="allerVersZone(z.id)">
-            <span class="favori-icone">{{ META[z.id]?.icone }}</span>
+            <span class="favori-icone">{{ pointsService.metaDe(z.zoneId)?.icone }}</span>
             <div class="favori-info">
               <div class="favori-nom">{{ z.nom }}</div>
-              <div class="favori-sous">{{ META[z.id]?.sousTitre }}</div>
+              <div class="favori-sous">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</div>
             </div>
             <span class="favori-fleche">›</span>
           </div>
