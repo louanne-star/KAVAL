@@ -329,8 +329,11 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.segments.forEach(s => { s.bg.remove(); s.fg.remove(); });
     this.segments.clear();
 
-    // Pendant la navigation active, on n'affiche que le tracé OSRM live
-    if (untracked(() => this.navCibleId())) return;
+    // Pendant la navigation active, on n'affiche que le tracé OSRM live —
+    // sauf si on n'a pas de position réelle, auquel cas ce tracé live ne peut
+    // jamais se dessiner : on garde alors le tracé fantôme pour ne pas laisser
+    // la carte sans aucune ligne.
+    if (untracked(() => this.navCibleId()) && untracked(() => this.journeyService.positionUtilisateur())) return;
 
     for (let i = 0; i < zones.length - 1; i++) {
       const a = zones[i];
