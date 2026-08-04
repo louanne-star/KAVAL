@@ -27,6 +27,8 @@ export interface SegmentItineraire {
 
 const CLE_PERSISTANCE = 'kaval_journey_v1';
 const OSRM_BASE       = 'https://router.project-osrm.org/route/v1/foot';
+// Position de secours utilisée quand le GPS échoue/est refusé : IUT de Nouvelle-Calédonie, Nouville.
+const POSITION_DEPART_IUT: [number, number] = [-22.26889, 166.41944];
 const DIRECTION_NOMS  = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
 const DIRECTION_FLECHES: Record<string, string> = {
   N: '↑', NE: '↗', E: '→', SE: '↘', S: '↓', SO: '↙', O: '←', NO: '↖'
@@ -69,7 +71,8 @@ export class JourneyService {
     this.zones.set([]);
     this.segmentsItineraire.set([]);
     const pos = this.positionUtilisateur();
-    if (pos) this.construireRoute(pos);
+    if (pos) this.construireRoute(pos.coords.latitude, pos.coords.longitude);
+    else this.demarrerAvecPositionDefaut();
   }
 
   dispose() {
@@ -145,11 +148,15 @@ export class JourneyService {
   private demarrerGPS() {
     if (!navigator.geolocation) {
       this.erreurGPS.set("Géolocalisation non disponible sur cet appareil.");
+      this.demarrerAvecPositionDefaut();
       return;
     }
     this.gpsWatchId = navigator.geolocation.watchPosition(
       pos => this.surPositionObtenue(pos),
-      err => this.erreurGPS.set(this.messageErreurGPS(err)),
+      err => {
+        this.erreurGPS.set(this.messageErreurGPS(err));
+        this.demarrerAvecPositionDefaut();
+      },
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
     );
   }
@@ -158,14 +165,20 @@ export class JourneyService {
     this.positionUtilisateur.set(position);
     this.erreurGPS.set(null);
     if (this.zones().length === 0) {
-      this.construireRoute(position);
+      this.construireRoute(position.coords.latitude, position.coords.longitude);
     }
+  }
+
+  // Utilise la position de l'IUT pour construire le parcours quand le GPS n'a jamais répondu.
+  private demarrerAvecPositionDefaut() {
+    if (this.zones().length > 0) return;
+    const [lat, lng] = POSITION_DEPART_IUT;
+    this.construireRoute(lat, lng);
   }
 
   // ── Route construction (nearest-neighbor TSP) ─────────────────────────────
 
-  private construireRoute(position: GeolocationPosition) {
-    const { latitude: lat, longitude: lng } = position.coords;
+  private construireRoute(lat: number, lng: number) {
     const source = this.sourcePoints();
     const ordered = this.voisinLePlusProche(lat, lng, source);
 
