@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -15,7 +15,7 @@ import { PointsService } from '../../services/points.service';
   standalone: true,
   imports: [IonicModule, CommonModule]
 })
-export class FavorisPage {
+export class FavorisPage implements OnInit {
 
   readonly zonesFavorites = computed(() =>
     this.journeyService.zones().filter(z => this.favoriteService.estFavori(z.id))
@@ -29,6 +29,10 @@ export class FavorisPage {
     readonly pointsService:   PointsService,
     private router:           Router,
   ) {}
+
+  ngOnInit() {
+    this.ratingService.chargerMoyennes();
+  }
 
   retour() {
     this.router.navigate(['/tabs/carte']);

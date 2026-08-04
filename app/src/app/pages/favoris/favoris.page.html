@@ -45,7 +45,7 @@
               <div class="zi-name">{{ z.nom }}</div>
               <div class="zi-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</div>
               <div class="zi-meta">
-                <span class="zi-stars">{{ starsFor(ratingService.getNote(z.id)) }}</span>
+                <span class="zi-stars">{{ starsFor(ratingService.getMoyenne(z.id)?.moyenne ?? null) }}</span>
                 <span class="zi-badge" *ngIf="badgeService.aBadge(z.id)">🏅</span>
               </div>
             </div>

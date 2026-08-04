@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,7 +18,7 @@ type Filtre = 'tous' | 'visites' | 'favoris';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule]
 })
-export class RecherchePage {
+export class RecherchePage implements OnInit {
 
   terme   = signal('');
   filtre  = signal<Filtre>('tous');
@@ -43,6 +43,10 @@ export class RecherchePage {
     readonly pointsService:   PointsService,
     private router:           Router,
   ) {}
+
+  ngOnInit() {
+    this.ratingService.chargerMoyennes();
+  }
 
   retour() {
     this.router.navigate(['/tabs/carte']);

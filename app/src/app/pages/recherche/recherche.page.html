@@ -68,7 +68,7 @@
           <div class="zc-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</div>
 
           <div class="zc-footer">
-            <span class="zc-stars">{{ starsFor(ratingService.getNote(z.id)) }}</span>
+            <span class="zc-stars">{{ starsFor(ratingService.getMoyenne(z.id)?.moyenne ?? null) }}</span>
             <button class="zc-map" (click)="allerVersCarte(z.id); $event.stopPropagation()"
                     aria-label="Voir sur la carte">
               <ion-icon name="map-outline"></ion-icon>
