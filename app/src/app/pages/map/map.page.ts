@@ -352,8 +352,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
         // Segment prochain : bleu animé
         couleur = '#3498db'; poidsCore = 4; poidsBord = 10; opacite = 0.9; dash = '12 7'; className = 'seg-prochain';
       } else {
-        // Segments futurs : très discrets
-        couleur = '#aab'; poidsCore = 2; poidsBord = 6; opacite = 0.18; dash = '4 8'; className = undefined;
+        // Segments futurs : discrets mais lisibles sur le fond de carte clair
+        couleur = '#8a93a6'; poidsCore = 3; poidsBord = 7; opacite = 0.55; dash = '4 8'; className = undefined;
       }
 
       const bg = L.polyline(coords, { weight: poidsBord, color: '#ffffff', opacity: opacite }).addTo(this.map);
