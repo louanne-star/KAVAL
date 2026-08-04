@@ -49,6 +49,15 @@ export class SplashPage implements OnInit {
 
   private async syncEnArrierePlan() {
     try {
+      if (await this.sync.estNouveauCompte()) {
+        await Promise.all([
+          this.badges.reinitialiser(),
+          this.ratings.reinitialiser(),
+          this.comments.reinitialiser(),
+          this.favoris.reinitialiser(),
+        ]);
+      }
+
       const data = await this.sync.syncAll();
       if (!data) return;
       await Promise.all([

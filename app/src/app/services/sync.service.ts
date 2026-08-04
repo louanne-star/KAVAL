@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
+import { Preferences } from '@capacitor/preferences';
 import { SupabaseService } from './supabase';
 import { AuthService } from './auth.service';
+
+const CLE_DERNIER_UID = 'kaval_dernier_uid';
 
 export interface DonneesCloud {
   badges:   string[];
@@ -19,6 +22,20 @@ export class SyncService {
 
   private get db()  { return this.supabase.client; }
   private get uid() { return this.auth.userId; }
+
+  // ── Détection de changement de compte sur cet appareil ─────────────────────
+  // Les caches locaux (badges, notes, commentaires, favoris) ne sont pas
+  // scopés par utilisateur : sans ça, se connecter avec un autre compte sur
+  // le même appareil hérite silencieusement des données du compte précédent
+  // tant que le cloud ne les a pas toutes écrasées (merge, pas remplacement).
+
+  async estNouveauCompte(): Promise<boolean> {
+    const uid = this.uid;
+    if (!uid) return false;
+    const { value } = await Preferences.get({ key: CLE_DERNIER_UID });
+    await Preferences.set({ key: CLE_DERNIER_UID, value: uid });
+    return value !== null && value !== uid;
+  }
 
   // ── Pull : récupère toutes les données cloud de l'utilisateur ─────────────
 
