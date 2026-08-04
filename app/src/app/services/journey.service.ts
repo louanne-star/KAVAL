@@ -51,6 +51,7 @@ export class JourneyService {
   );
 
   private gpsWatchId = -1;
+  private erreurGPSTimeout?: ReturnType<typeof setTimeout>;
 
   constructor(private pointsService: PointsService) {}
 
@@ -147,7 +148,7 @@ export class JourneyService {
 
   private demarrerGPS() {
     if (!navigator.geolocation) {
-      this.erreurGPS.set("Géolocalisation non disponible sur cet appareil.");
+      this.afficherErreurGPS("Géolocalisation non disponible sur cet appareil.");
       this.demarrerAvecPositionDefaut();
       return;
     }
@@ -165,16 +166,25 @@ export class JourneyService {
       },
       err => {
         clearTimeout(delaiSecours);
-        this.erreurGPS.set(this.messageErreurGPS(err));
+        this.afficherErreurGPS(this.messageErreurGPS(err));
         this.demarrerAvecPositionDefaut();
       },
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
     );
   }
 
+  // Affiche le bandeau d'erreur GPS et l'efface automatiquement après 5 minutes
+  // pour ne pas laisser un avertissement obsolète affiché indéfiniment.
+  private afficherErreurGPS(message: string) {
+    this.erreurGPS.set(message);
+    clearTimeout(this.erreurGPSTimeout);
+    this.erreurGPSTimeout = setTimeout(() => this.erreurGPS.set(null), 5 * 60 * 1000);
+  }
+
   private surPositionObtenue(position: GeolocationPosition) {
     this.positionUtilisateur.set(position);
     this.erreurGPS.set(null);
+    clearTimeout(this.erreurGPSTimeout);
     if (this.zones().length === 0) {
       this.construireRoute(position.coords.latitude, position.coords.longitude);
     }

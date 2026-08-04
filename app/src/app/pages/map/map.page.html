@@ -154,7 +154,11 @@
   </div>
 
   <!-- ── Mini-point popup ─────────────────────────────────────────────────── -->
-  <div class="mini-popup-card" *ngIf="miniPointSelectionne() as mp" [style.--couleur-zone]="pointsService.metaDe(mp.zoneId)?.couleur">
+  <div class="mini-popup-card" *ngIf="miniPointSelectionne() as mp"
+       [style.--couleur-zone]="pointsService.metaDe(mp.zoneId)?.couleur"
+       [style.left.px]="miniPopupPos()?.x ?? 0"
+       [style.top.px]="miniPopupPos()?.y ?? 0"
+       [class.mini-popup-card--pret]="miniPopupPos()">
     <div class="mini-popup-icone">{{ mp.icone }}</div>
     <div class="mini-popup-corps">
       <div class="mini-popup-zone">{{ iconeZone(mp.zoneId) }} {{ nomZone(mp.zoneId) }}</div>

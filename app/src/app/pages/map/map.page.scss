@@ -1031,19 +1031,47 @@ ion-content {
 
 .mini-popup-card {
   position: absolute;
-  bottom: 80px;
-  left: 12px;
-  right: 12px;
   z-index: 1003;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 10px;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 32px));
   background: #ffffff;
-  border-radius: 18px;
-  padding: 14px 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
   border-left: 4px solid var(--couleur-zone, #C0553C);
-  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translate(-50%, calc(-100% - 16px));
+  transform-origin: 50% 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #ffffff;
+    filter: drop-shadow(0 2px 1px rgba(0,0,0,0.06));
+  }
+}
+
+.mini-popup-card--pret {
+  opacity: 1;
+  pointer-events: auto;
+  animation: miniPopupPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes miniPopupPop {
+  from { opacity: 0; transform: translate(-50%, calc(-100% - 16px)) scale(0.85); }
+  to   { opacity: 1; transform: translate(-50%, calc(-100% - 16px)) scale(1); }
 }
 
 .mini-popup-icone {
@@ -1079,6 +1107,10 @@ ion-content {
   font-size: 12px;
   color: #999;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .mini-popup-close {

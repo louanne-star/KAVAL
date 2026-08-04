@@ -101,6 +101,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   modeSatellite        = signal(false);
   modeTransport        = signal<'foot' | 'driving'>('foot');
   miniPointSelectionne = signal<PointPopup | null>(null);
+  miniPopupPos         = signal<{ x: number; y: number } | null>(null);
 
   private map!: L.Map;
   private tileNormale!:   L.TileLayer;
@@ -271,6 +272,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       { attribution: '© Esri, DigitalGlobe', maxZoom: 19 }
     );
+
+    // Garde la bulle du mini-point collée à son marqueur pendant les pans/zooms.
+    this.map.on('move', () => this.ngZone.run(() => this.mettreAJourPositionMiniPopup()));
   }
 
   // ── Zone layer update ─────────────────────────────────────────────────────
@@ -316,6 +320,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
         .addTo(this.map)
         .on('click', () => this.ngZone.run(() => {
           this.miniPointSelectionne.set(null);
+          this.miniPopupPos.set(null);
           this.zoneSelectionneeId.set(zone.id);
           this.map.flyTo(zone.coords, 15, { duration: 0.8 });
         }));
@@ -594,9 +599,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
         .on('click', () => this.ngZone.run(() => {
           this.zoneSelectionneeId.set(null);
           this.miniPointSelectionne.set(point);
+          this.mettreAJourPositionMiniPopup();
           this.map.flyTo(point.coords, 17, { duration: 0.6 });
         }))
     );
+  }
+
+  // Projette le point sélectionné en pixels écran pour coller la bulle à son marqueur.
+  private mettreAJourPositionMiniPopup() {
+    const point = this.miniPointSelectionne();
+    if (!point) { this.miniPopupPos.set(null); return; }
+    const { x, y } = this.map.latLngToContainerPoint(point.coords as L.LatLngExpression);
+    const marge = 90; // demi-largeur approx. de la bulle, pour éviter qu'elle sorte de l'écran
+    const xBorne = Math.min(Math.max(x, marge), window.innerWidth - marge);
+    this.miniPopupPos.set({ x: xBorne, y });
   }
 
   private creerMiniMarqueur(point: PointPopup): L.DivIcon {
@@ -618,6 +634,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   fermerMiniPoint() {
     this.miniPointSelectionne.set(null);
+    this.miniPopupPos.set(null);
   }
 
   toggleModeTransport() {
@@ -729,6 +746,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.arriveeDejaTraitee.clear();
     this.zoneArrivee.set(null);
     this.miniPointSelectionne.set(null);
+    this.miniPopupPos.set(null);
     clearTimeout(this.arriveeTimeout);
     await Promise.all([
       this.journeyService.reinitialiser(),
