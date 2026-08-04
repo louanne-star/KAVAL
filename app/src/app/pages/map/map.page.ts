@@ -157,7 +157,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   brouillonCommentaire = '';
 
   ouvrirCommentaire(zoneId: string) {
-    this.brouillonCommentaire = this.commentService.getCommentaire(zoneId) ?? '';
+    this.brouillonCommentaire = '';
     this.commentaireOuvert.set(zoneId);
     this.commentService.chargerCommentairesZone(zoneId);
   }
@@ -175,8 +175,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   async sauvegarderCommentaire(zoneId: string) {
-    await this.commentService.commenter(zoneId, this.brouillonCommentaire.trim());
-    this.commentaireOuvert.set(null);
+    const texte = this.brouillonCommentaire.trim();
+    if (!texte) return;
+    this.brouillonCommentaire = '';
+    await this.commentService.commenter(zoneId, texte);
   }
 
   constructor(

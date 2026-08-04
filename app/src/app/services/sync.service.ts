@@ -8,7 +8,6 @@ const CLE_DERNIER_UID = 'kaval_dernier_uid';
 export interface DonneesCloud {
   badges:   string[];
   ratings:  Record<string, number>;
-  comments: Record<string, string>;
   favoris:  string[];
 }
 
@@ -43,16 +42,14 @@ export class SyncService {
     const uid = this.uid;
     if (!uid) return null;
     try {
-      const [b, r, c, f] = await Promise.all([
+      const [b, r, f] = await Promise.all([
         this.db.from('user_badges')   .select('zone_id')         .eq('user_id', uid),
         this.db.from('user_ratings')  .select('zone_id,rating')  .eq('user_id', uid),
-        this.db.from('user_comments') .select('zone_id,comment') .eq('user_id', uid),
         this.db.from('user_favorites').select('zone_id')         .eq('user_id', uid),
       ]);
       return {
         badges:   (b.data ?? []).map((row: any) => row.zone_id as string),
         ratings:  (r.data ?? []).reduce((acc: Record<string, number>,  row: any) => { acc[row.zone_id] = row.rating;  return acc; }, {}),
-        comments: (c.data ?? []).reduce((acc: Record<string, string>,  row: any) => { acc[row.zone_id] = row.comment; return acc; }, {}),
         favoris:  (f.data ?? []).map((row: any) => row.zone_id as string),
       };
     } catch {
@@ -81,11 +78,13 @@ export class SyncService {
     } catch {}
   }
 
+  // Chaque appel crée une nouvelle ligne (un utilisateur peut laisser
+  // plusieurs commentaires sur le même point) — voir migrations_comments_multiples.sql.
   async pushComment(zoneId: string, comment: string): Promise<void> {
     const uid = this.uid;
     if (!uid) return;
     try {
-      await this.db.from('user_comments').upsert({
+      await this.db.from('user_comments').insert({
         user_id: uid, zone_id: zoneId, comment,
         initiales: this.auth.emailInitiales,
         updated_at: new Date().toISOString()

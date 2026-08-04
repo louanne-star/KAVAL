@@ -73,7 +73,6 @@ export class AuthPage {
         await Promise.all([
           this.badges.chargerDepuisCloud(data.badges),
           this.ratings.chargerDepuisCloud(data.ratings),
-          this.comments.chargerDepuisCloud(data.comments),
           this.favoris.chargerDepuisCloud(data.favoris),
         ]);
       }

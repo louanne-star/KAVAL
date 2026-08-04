@@ -198,11 +198,9 @@
         </div>
       </div>
 
-      <!-- Mon commentaire -->
+      <!-- Ajouter un commentaire -->
       <div class="comm-mon-form">
-        <div class="comm-form-label">
-          {{ commentService.getCommentaire(zoneId) ? 'Modifier mon commentaire' : 'Ajouter un commentaire' }}
-        </div>
+        <div class="comm-form-label">Ajouter un commentaire</div>
         <textarea class="commentaire-textarea"
                   rows="3"
                   placeholder="Décrivez votre expérience…"
@@ -211,8 +209,8 @@
                   maxlength="300">
         </textarea>
         <div class="commentaire-actions">
-          <button class="commentaire-annuler" (click)="fermerCommentaire()">Annuler</button>
-          <button class="commentaire-sauver" (click)="sauvegarderCommentaire(zoneId)">Publier</button>
+          <button class="commentaire-annuler" (click)="fermerCommentaire()">Fermer</button>
+          <button class="commentaire-sauver" [disabled]="!brouillonCommentaire.trim()" (click)="sauvegarderCommentaire(zoneId)">Publier</button>
         </div>
       </div>
 
