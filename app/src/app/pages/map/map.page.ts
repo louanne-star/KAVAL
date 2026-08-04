@@ -702,11 +702,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   toggleItineraire(zoneId: string) {
     const actif = this.navCibleId() === zoneId;
+    const pos   = this.journeyService.positionUtilisateur();
+
+    // La navigation live suit la position réelle : sans elle, impossible de
+    // tracer un itinéraire "depuis ici". On prévient plutôt que de laisser
+    // le bouton s'activer sans rien afficher.
+    if (!actif && !pos) {
+      this.journeyService.signalerPositionRequise();
+      return;
+    }
+
     this.navCibleId.set(actif ? null : zoneId);
     if (!actif) {
       this.zoneSelectionneeId.set(null);
       const zone = this.journeyService.zones().find(z => z.id === zoneId);
-      const pos  = this.journeyService.positionUtilisateur();
       if (zone && pos) {
         const bounds = L.latLngBounds(
           [pos.coords.latitude, pos.coords.longitude],

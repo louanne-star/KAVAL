@@ -67,6 +67,11 @@ export class JourneyService {
     return this.pointsService.metaDe(zoneId);
   }
 
+  /** Affiche un avertissement quand une action nécessite une position réelle indisponible. */
+  signalerPositionRequise() {
+    this.afficherErreurGPS("Active ta position pour lancer la navigation guidée.");
+  }
+
   async reinitialiser() {
     await Preferences.remove({ key: CLE_PERSISTANCE });
     this.zones.set([]);
