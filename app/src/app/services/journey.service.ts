@@ -151,9 +151,20 @@ export class JourneyService {
       this.demarrerAvecPositionDefaut();
       return;
     }
+
+    // Filet de sécurité : sur certains appareils, watchPosition ne rappelle
+    // jamais (ni succès ni erreur) quand le GPS n'arrive pas à capter de
+    // signal — le "timeout" de l'API n'est alors pas fiable. On force donc
+    // le repli sur l'IUT si rien n'est arrivé après 10s.
+    const delaiSecours = setTimeout(() => this.demarrerAvecPositionDefaut(), 10000);
+
     this.gpsWatchId = navigator.geolocation.watchPosition(
-      pos => this.surPositionObtenue(pos),
+      pos => {
+        clearTimeout(delaiSecours);
+        this.surPositionObtenue(pos);
+      },
       err => {
+        clearTimeout(delaiSecours);
         this.erreurGPS.set(this.messageErreurGPS(err));
         this.demarrerAvecPositionDefaut();
       },
