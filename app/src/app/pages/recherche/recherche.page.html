@@ -57,7 +57,7 @@
              (click)="allerVersZone(z.id)">
 
           <div class="zc-top">
-            <div class="zc-ico" [ngClass]="'ico-' + z.id">{{ META[z.id]?.icone }}</div>
+            <div class="zc-ico" [ngClass]="'ico-' + z.id">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
             <div class="zc-badges">
               <span *ngIf="badgeService.aBadge(z.id)">🏅</span>
               <span class="zc-heart" *ngIf="favoriteService.estFavori(z.id)">♡</span>
@@ -65,7 +65,7 @@
           </div>
 
           <div class="zc-name">{{ z.nom }}</div>
-          <div class="zc-sub">{{ META[z.id]?.sousTitre }}</div>
+          <div class="zc-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</div>
 
           <div class="zc-footer">
             <span class="zc-stars">{{ starsFor(ratingService.getNote(z.id)) }}</span>

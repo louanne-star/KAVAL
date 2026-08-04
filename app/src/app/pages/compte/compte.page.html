@@ -92,10 +92,10 @@
             <button class="list-row" *ngFor="let z of zonesFavorites(); let last = last"
                     [class.list-row--last]="last"
                     (click)="allerVersZone(z.id)">
-              <div class="list-ico" [ngClass]="'ico-' + z.id">{{ META[z.id]?.icone }}</div>
+              <div class="list-ico" [ngClass]="'ico-' + z.id">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
               <div class="list-txt">
                 <span class="list-name">{{ z.nom }}</span>
-                <span class="list-sub">{{ META[z.id]?.sousTitre }}</span>
+                <span class="list-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</span>
               </div>
               <span class="list-arrow">›</span>
             </button>

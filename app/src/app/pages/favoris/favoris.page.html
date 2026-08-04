@@ -39,11 +39,11 @@
                [style.animation-delay]="i * 70 + 'ms'"
                (click)="allerVersCarte(z.id)">
 
-            <div class="zi-ico" [ngClass]="'ico-' + z.id">{{ META[z.id]?.icone }}</div>
+            <div class="zi-ico" [ngClass]="'ico-' + z.id">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
 
             <div class="zi-info">
               <div class="zi-name">{{ z.nom }}</div>
-              <div class="zi-sub">{{ META[z.id]?.sousTitre }}</div>
+              <div class="zi-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</div>
               <div class="zi-meta">
                 <span class="zi-stars">{{ starsFor(ratingService.getNote(z.id)) }}</span>
                 <span class="zi-badge" *ngIf="badgeService.aBadge(z.id)">🏅</span>

@@ -11,15 +11,7 @@ import { RatingService } from '../../services/rating.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { CommentService } from '../../services/comment.service';
 import { AuthService } from '../../services/auth.service';
-
-interface MiniPoint {
-  id: string;
-  zoneId: string;
-  nom: string;
-  icone: string;
-  coords: [number, number];
-  description: string;
-}
+import { PointsService, PointPopup } from '../../services/points.service';
 
 @Component({
   selector: 'app-map',
@@ -29,16 +21,6 @@ interface MiniPoint {
   imports: [IonicModule, CommonModule]
 })
 export class MapPage implements AfterViewInit, OnDestroy {
-
-  // ── Meta locale (icône + sous-titre par zone) ─────────────────────────────
-
-  readonly META: Record<string, { icone: string; sousTitre: string }> = {
-    camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
-    vacherie:    { icone: '🌾', sousTitre: 'Agriculture & libérés' },
-    hopital:     { icone: '✝️', sousTitre: 'Soins & chapelle' },
-    penitencier: { icone: '🗝️', sousTitre: 'Cœur du bagne' },
-    ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
-  };
 
   // ── Component state ───────────────────────────────────────────────────────
 
@@ -62,7 +44,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   );
 
   readonly parcoursComplet = computed(() =>
-    this.journeyService.zones().length === 5 &&
+    this.journeyService.zones().length > 0 &&
     this.journeyService.zones().every(z => this.badgeService.badges().has(z.id))
   );
 
@@ -118,8 +100,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   modeSatellite        = signal(false);
   modeTransport        = signal<'foot' | 'driving'>('foot');
-  miniPointsVisibles   = signal<Set<string>>(new Set());
-  miniPointSelectionne = signal<MiniPoint | null>(null);
+  miniPointSelectionne = signal<PointPopup | null>(null);
 
   private map!: L.Map;
   private tileNormale!:   L.TileLayer;
@@ -127,7 +108,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   private marqueurs = new Map<string, L.Marker>();
   private overlays  = new Map<string, L.Circle>();
   private segments     = new Map<string, { bg: L.Polyline; fg: L.Polyline }>();
-  private miniMarqueurs = new Map<string, L.Marker[]>();
+  private popupMarqueurs: L.Marker[] = [];
 
   // ── Leaflet handles: live navigation (user → next zone) ───────────────────
 
@@ -203,6 +184,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly favoriteService: FavoriteService,
     readonly commentService: CommentService,
     readonly authService: AuthService,
+    readonly pointsService: PointsService,
     private ngZone: NgZone,
     private router: Router,
     readonly badgeService: BadgeService,
@@ -215,6 +197,12 @@ export class MapPage implements AfterViewInit, OnDestroy {
       const segments = this.journeyService.segmentsItineraire();
       this.navCibleId(); // masque/affiche les segments selon l'état nav
       if (this.mapPret()) this.mettreAJourCarte(zones, segments);
+    });
+
+    // Affiche tous les points popup dès que le contenu est chargé — indépendant des badges/itinéraire.
+    effect(() => {
+      const popups = this.pointsService.pointsPopup();
+      if (this.mapPret()) this.dessinerPopups(popups);
     });
 
     // Déplace le point GPS, met à jour la navigation live et vérifie les arrivées.
@@ -327,6 +315,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
       })
         .addTo(this.map)
         .on('click', () => this.ngZone.run(() => {
+          this.miniPointSelectionne.set(null);
           this.zoneSelectionneeId.set(zone.id);
           this.map.flyTo(zone.coords, 15, { duration: 0.8 });
         }));
@@ -488,9 +477,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
           // Si la zone arrivée était la cible nav active, on la réinitialise
           if (this.navCibleId() === zone.id) this.navCibleId.set(null);
 
-          // Révèle les mini-points de la zone
-          this.afficherMiniPoints(zone.id);
-
           // Affiche la notification d'arrivée
           this.zoneArrivee.set(zone);
           clearTimeout(this.arriveeTimeout);
@@ -522,7 +508,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
     const opacity = !zone.debloque && !estProchain ? 'opacity:0.45;' : '';
 
-    const imgSrc = this.ICONE_IMG[zone.id] ?? '';
+    const imgSrc = this.ICONE_IMG[zone.zoneId] ?? '';
 
     const iconeContenu = visite
       ? `<svg x="12" y="10" width="20" height="20" viewBox="0 0 20 20">
@@ -583,69 +569,40 @@ export class MapPage implements AfterViewInit, OnDestroy {
     }
   }
 
-  // ── Mini-points dans les zones ────────────────────────────────────────────
+  // ── Popups (infos au clic, hors itinéraire/badges — toujours affichés) ────
 
-  readonly MINI_POINTS: MiniPoint[] = [
-    { id: 'camp_est_1',    zoneId: 'camp_est',    nom: 'Bâtiment principal',   icone: '🏛️', coords: [-22.2714, 166.4268], description: 'Ancien bâtiment administratif du camp colonial.' },
-    { id: 'camp_est_2',    zoneId: 'camp_est',    nom: 'Tour de surveillance', icone: '🔭', coords: [-22.2706, 166.4252], description: 'Poste de garde avec vue sur le détroit de Woodin.' },
-    { id: 'camp_est_3',    zoneId: 'camp_est',    nom: 'Citerne historique',   icone: '💧', coords: [-22.2718, 166.4249], description: 'Réservoir d\'eau construit par les bagnards vers 1870.' },
-    { id: 'vacherie_1',    zoneId: 'vacherie',    nom: 'Étable principale',    icone: '🐄', coords: [-22.2674, 166.4138], description: 'Logement des bovins et animaux de trait.' },
-    { id: 'vacherie_2',    zoneId: 'vacherie',    nom: 'Enclos des libérés',   icone: '🌿', coords: [-22.2664, 166.4122], description: 'Parcelles cultivées par les forçats en liberté conditionnelle.' },
-    { id: 'hopital_1',     zoneId: 'hopital',     nom: 'Salle des malades',    icone: '🏥', coords: [-22.2671, 166.3983], description: 'Principale salle de soins du bagne, fondée en 1867.' },
-    { id: 'hopital_2',     zoneId: 'hopital',     nom: 'Chapelle',             icone: '✝️', coords: [-22.2663, 166.3968], description: 'Lieu de culte pour les détenus et le personnel soignant.' },
-    { id: 'hopital_3',     zoneId: 'hopital',     nom: 'Jardin thérapeutique', icone: '🌱', coords: [-22.2674, 166.3967], description: 'Potager cultivé à des fins médicales par les bagnards.' },
-    { id: 'penitencier_1', zoneId: 'penitencier', nom: 'Bloc cellulaire',      icone: '🔒', coords: [-22.2621, 166.4041], description: 'Quartier des cellules individuelles au régime strict.' },
-    { id: 'penitencier_2', zoneId: 'penitencier', nom: 'Cour centrale',        icone: '☀️', coords: [-22.2612, 166.4026], description: 'Espace de rassemblement quotidien des détenus.' },
-    { id: 'penitencier_3', zoneId: 'penitencier', nom: 'Atelier de forge',     icone: '⚒️', coords: [-22.2624, 166.4024], description: 'Atelier où travaillaient les forçats, production d\'outils.' },
-    { id: 'ferme_nord_1',  zoneId: 'ferme_nord',  nom: 'Grange',               icone: '🌾', coords: [-22.2611, 166.3916], description: 'Entrepôt agricole principal de la ferme du nord.' },
-    { id: 'ferme_nord_2',  zoneId: 'ferme_nord',  nom: 'Verger historique',    icone: '🍃', coords: [-22.2600, 166.3902], description: 'Plantations fruitières exploitées depuis le XIXe siècle.' },
-  ];
-
-  getMiniPoints(zoneId: string): MiniPoint[] {
-    return this.MINI_POINTS.filter(p => p.zoneId === zoneId);
+  iconeZone(zoneId: string): string {
+    return this.pointsService.metaDe(zoneId)?.icone ?? '📍';
   }
 
-  toggleMiniPoints(zoneId: string) {
-    if (this.miniPointsVisibles().has(zoneId)) {
-      this.masquerMiniPoints(zoneId);
-    } else {
-      this.afficherMiniPoints(zoneId);
-    }
+  sousTitreZone(zoneId: string): string {
+    return this.pointsService.metaDe(zoneId)?.sousTitre ?? '';
   }
 
-  private afficherMiniPoints(zoneId: string) {
-    this.masquerMiniPoints(zoneId);
-    const marqueurs: L.Marker[] = [];
-    for (const point of this.getMiniPoints(zoneId)) {
-      const m = L.marker(point.coords, { icon: this.creerMiniMarqueur(point), zIndexOffset: 200 })
+  nomZone(zoneId: string): string {
+    return this.pointsService.metaDe(zoneId)?.nom ?? '';
+  }
+
+  private dessinerPopups(popups: PointPopup[]) {
+    this.popupMarqueurs.forEach(m => m.remove());
+    this.popupMarqueurs = popups.map(point =>
+      L.marker(point.coords, { icon: this.creerMiniMarqueur(point), zIndexOffset: 200 })
         .addTo(this.map)
         .on('click', () => this.ngZone.run(() => {
           this.zoneSelectionneeId.set(null);
           this.miniPointSelectionne.set(point);
           this.map.flyTo(point.coords, 17, { duration: 0.6 });
-        }));
-      marqueurs.push(m);
-    }
-    this.miniMarqueurs.set(zoneId, marqueurs);
-    const visible = new Set(this.miniPointsVisibles());
-    visible.add(zoneId);
-    this.miniPointsVisibles.set(visible);
+        }))
+    );
   }
 
-  private masquerMiniPoints(zoneId: string) {
-    this.miniMarqueurs.get(zoneId)?.forEach(m => m.remove());
-    this.miniMarqueurs.delete(zoneId);
-    const visible = new Set(this.miniPointsVisibles());
-    visible.delete(zoneId);
-    this.miniPointsVisibles.set(visible);
-  }
-
-  private creerMiniMarqueur(point: MiniPoint): L.DivIcon {
+  private creerMiniMarqueur(point: PointPopup): L.DivIcon {
+    const couleur = this.pointsService.metaDe(point.zoneId)?.couleur ?? '#C0553C';
     return L.divIcon({
       className: '',
       html: `<div style="
         width:30px;height:30px;border-radius:50%;
-        background:#C0553C;border:2.5px solid #fff;
+        background:${couleur};border:2.5px solid #fff;
         box-shadow:0 2px 8px rgba(0,0,0,0.25);
         display:flex;align-items:center;justify-content:center;
         font-size:14px;cursor:pointer;
@@ -670,12 +627,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.marqueurs.forEach(m => m.remove());
     this.overlays.forEach(o => o.remove());
     this.segments.forEach(s => { s.bg.remove(); s.fg.remove(); });
-    this.miniMarqueurs.forEach(ms => ms.forEach(m => m.remove()));
     this.supprimerNavActive();
     this.marqueurs.clear();
     this.overlays.clear();
     this.segments.clear();
-    this.miniMarqueurs.clear();
     this.marqueurUtilisateur?.remove();
     this.marqueurUtilisateur = undefined;
   }
@@ -771,9 +726,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.arriveeDejaTraitee.clear();
     this.zoneArrivee.set(null);
     this.miniPointSelectionne.set(null);
-    this.miniMarqueurs.forEach(ms => ms.forEach(m => m.remove()));
-    this.miniMarqueurs.clear();
-    this.miniPointsVisibles.set(new Set());
     clearTimeout(this.arriveeTimeout);
     await Promise.all([
       this.journeyService.reinitialiser(),

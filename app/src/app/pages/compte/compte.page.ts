@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { JourneyService } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
+import { PointsService } from '../../services/points.service';
 
 type Vue    = 'profil' | 'mdp';
 type Theme  = 'dark' | 'light';
@@ -20,14 +21,6 @@ type Langue = 'fr' | 'en';
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class ComptePage {
-
-  readonly META: Record<string, { icone: string; sousTitre: string }> = {
-    camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
-    vacherie:    { icone: '🌾', sousTitre: 'Agriculture & libérés' },
-    hopital:     { icone: '✝️', sousTitre: 'Soins & chapelle' },
-    penitencier: { icone: '🗝️', sousTitre: 'Cœur du bagne' },
-    ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
-  };
 
   readonly emojis = [
     '🐺','🦊','🐱','🐶','🐻','🐼','🦁','🐸',
@@ -72,6 +65,7 @@ export class ComptePage {
     readonly favoriteService: FavoriteService,
     readonly journeyService:  JourneyService,
     readonly badgeService:    BadgeService,
+    readonly pointsService:   PointsService,
     private router:           Router,
   ) {
     document.body.classList.toggle('theme-light', this.theme() === 'light');

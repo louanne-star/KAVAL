@@ -7,6 +7,7 @@ import { JourneyService } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { RatingService } from '../../services/rating.service';
+import { PointsService } from '../../services/points.service';
 
 type Filtre = 'tous' | 'visites' | 'favoris';
 
@@ -19,14 +20,6 @@ type Filtre = 'tous' | 'visites' | 'favoris';
 })
 export class RecherchePage {
 
-  readonly META: Record<string, { icone: string; sousTitre: string }> = {
-    camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
-    vacherie:    { icone: '🌾', sousTitre: 'Agriculture & libérés' },
-    hopital:     { icone: '✝️', sousTitre: 'Soins & chapelle' },
-    penitencier: { icone: '🗝️', sousTitre: 'Cœur du bagne' },
-    ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
-  };
-
   terme   = signal('');
   filtre  = signal<Filtre>('tous');
 
@@ -34,7 +27,7 @@ export class RecherchePage {
     const t = this.terme().toLowerCase().trim();
     const f = this.filtre();
     return this.journeyService.zones().filter(zone => {
-      const texte = `${zone.nom} ${this.META[zone.id]?.sousTitre ?? ''}`.toLowerCase();
+      const texte = `${zone.nom} ${this.pointsService.metaDe(zone.zoneId)?.sousTitre ?? ''}`.toLowerCase();
       if (t && !texte.includes(t)) return false;
       if (f === 'visites') return this.badgeService.aBadge(zone.id);
       if (f === 'favoris') return this.favoriteService.estFavori(zone.id);
@@ -47,6 +40,7 @@ export class RecherchePage {
     readonly badgeService:    BadgeService,
     readonly favoriteService: FavoriteService,
     readonly ratingService:   RatingService,
+    readonly pointsService:   PointsService,
     private router:           Router,
   ) {}
 
