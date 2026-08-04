@@ -7,7 +7,7 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
-  background:#f5f0e8;
+  background:#0B1F3A;
   display:flex; align-items:center; justify-content:center;
   min-height:100vh; overflow:hidden; touch-action:manipulation;
 }
@@ -20,52 +20,109 @@ canvas { display:block; }
 const canvas = document.getElementById('c');
 const ctx    = canvas.getContext('2d');
 const W = Math.min(window.innerWidth,  420);
-const H = Math.min(window.innerHeight, 720);
+const H = Math.min(window.innerHeight, 896);
 canvas.width = W; canvas.height = H;
 
-// ── Palette KAVAL ─────────────────────────────────────────────────────────────
+// ── Palette bleue ─────────────────────────────────────────────────────────────
 const COL = {
-  bg:     '#f5f0e8',
-  green:  '#2d4a35',
-  greenL: '#3d6a45',
-  gold:   '#c9a84c',
-  goldD:  '#8b6914',
-  cream:  '#ede5cc',
-  text:   '#1a2e1e',
-  grey:   '#888',
+  bg:      '#D6E4F2',          // fond canevas bleu pâle
+  hdrBg:   '#0B1F3A',          // header bleu marine profond
+  blue1:   '#0B1F3A',
+  blue2:   '#1B3E70',
+  blue3:   '#2E6BAB',
+  blue4:   '#5B9FDB',
+  accent:  '#F2EDE4',          // crème (remplace gold)
+  accentD: 'rgba(242,237,228,0.55)',
+  text:    '#0A1E35',
+  grey:    '#4A6080',
 };
 
-// ── 6 paires thématiques Île Nou ──────────────────────────────────────────────
+// ── 5 paires avec images ──────────────────────────────────────────────────────
 const PAIRS = [
-  { id:0, label:'Nacre',       emoji:'🐚', accent:'#8b6914' },
-  { id:1, label:'Ancre',       emoji:'⚓',  accent:'#2d3a4a' },
-  { id:2, label:'Palmier',     emoji:'🌴', accent:'#1a5a2d' },
-  { id:3, label:'Clé',         emoji:'🗝️', accent:'#5a3a1a' },
-  { id:4, label:'Pénitencier', emoji:'🏛️', accent:'#4a3520' },
-  { id:5, label:'Océan',       emoji:'🌊', accent:'#1a3a5c' },
+  { id:0, key:'nacre',    label:'Nacre'    },
+  { id:1, key:'chaine',   label:'Chaîne'   },
+  { id:2, key:'brique',   label:'Brique'   },
+  { id:3, key:'chapelle', label:'Chapelle' },
+  { id:4, key:'lampe',    label:'Lampe'    },
 ];
 
-// ── Mise en page ──────────────────────────────────────────────────────────────
-const COLS_G = 4, ROWS_G = 3;
-const PAD  = Math.floor(W * 0.035);
-const GAP  = 8;
-const HDR  = Math.floor(H * 0.14);
-const FTR  = Math.floor(H * 0.10);
+// ── Chargement images ─────────────────────────────────────────────────────────
+const IMG = {};
+const IMG_KEYS = ['verso', 'fond', ...PAIRS.map(p => p.key)];
 
-const C_W     = Math.floor((W - PAD*2 - GAP*(COLS_G-1)) / COLS_G);
-const C_H_max = Math.floor((H - HDR - FTR - GAP*(ROWS_G-1) - PAD) / ROWS_G);
-const C_H     = Math.min(C_H_max, Math.floor(C_W * 1.5));
-const GRID_H  = ROWS_G * C_H + (ROWS_G-1) * GAP;
-const GX      = PAD;
-const GY      = HDR + Math.floor((H - HDR - FTR - GRID_H) / 2);
+// Canvas offscreen pré-floutée pour le fond
+let fondBlur = null;
+
+function buildBlurredBg(img) {
+  const oc = document.createElement('canvas');
+  oc.width = W; oc.height = H;
+  const octx = oc.getContext('2d');
+  // Cover-fit
+  const ir = img.naturalWidth / img.naturalHeight;
+  const cr = W / H;
+  let sx, sy, sw, sh;
+  if (ir > cr) {
+    sh = img.naturalHeight; sw = sh * cr; sx = (img.naturalWidth - sw) / 2; sy = 0;
+  } else {
+    sw = img.naturalWidth; sh = sw / cr; sx = 0; sy = (img.naturalHeight - sh) / 2;
+  }
+  octx.filter = 'blur(1px)';
+  octx.drawImage(img, sx, sy, sw, sh, -24, -24, W + 48, H + 48);
+  octx.filter = 'none';
+  // assombrir légèrement pour le contraste
+  octx.fillStyle = 'rgba(10,20,50,0.38)';
+  octx.fillRect(0, 0, W, H);
+  fondBlur = oc;
+}
+
+function loadImages(cb) {
+  let loaded = 0;
+  IMG_KEYS.forEach(key => {
+    const img = new Image();
+    img.onload  = () => {
+      if (key === 'fond') buildBlurredBg(img);
+      if (++loaded === IMG_KEYS.length) cb();
+    };
+    img.onerror = () => { if (++loaded === IMG_KEYS.length) cb(); };
+    img.src = `img_memo/${key}.png`;
+    IMG[key] = img;
+  });
+}
+
+// ── Mise en page ──────────────────────────────────────────────────────────────
+// Disposition 3+2+2+3 = 10 cartes (comme la capture)
+const COLS_G    = 3;
+const CARD_ROWS = 4;
+const PAD  = Math.floor(W * 0.038);
+const GAP  = Math.floor(W * 0.030);
+const HDR  = Math.floor(H * 0.120);
+const FTR  = Math.floor(H * 0.080);
+
+const C_W_max = Math.floor((W - PAD*2 - GAP*(COLS_G-1)) / COLS_G);
+const C_H_max = Math.floor((H - HDR - FTR - GAP*(CARD_ROWS-1) - PAD*0.6) / CARD_ROWS);
+const C_S     = Math.min(C_W_max, C_H_max);   // carré
+
+const GRID_W = COLS_G * C_S + (COLS_G-1) * GAP;
+const GRID_H = CARD_ROWS * C_S + (CARD_ROWS-1) * GAP;
+const GX     = Math.floor((W - GRID_W) / 2);
+const GY     = HDR + Math.floor((H - HDR - FTR - GRID_H) / 2);
+
+// Positions explicites : rangées 1&4 ont 3 cartes, rangées 2&3 ont 2 cartes
+// (colonnes 0 et 2, la colonne centrale est vide comme sur la capture)
+const POSITIONS = [
+  {col:0,row:0},{col:1,row:0},{col:2,row:0},  // rangée 1 : 3 cartes
+  {col:0,row:1},{col:2,row:1},                 // rangée 2 : cols 0 et 2
+  {col:0,row:2},{col:2,row:2},                 // rangée 3 : cols 0 et 2
+  {col:0,row:3},{col:1,row:3},{col:2,row:3},  // rangée 4 : 3 cartes
+];
 
 // ── État ──────────────────────────────────────────────────────────────────────
 let cards, flipped, moves, pairsFound, state, startTime;
 
 function shuffle(arr) {
   for (let i=arr.length-1; i>0; i--) {
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
 }
@@ -73,8 +130,8 @@ function shuffle(arr) {
 function init() {
   const deck = [];
   PAIRS.forEach(p => {
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#0f0'});
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#0f0'});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#27ae60'});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#27ae60'});
   });
   shuffle(deck);
   cards      = deck;
@@ -84,20 +141,39 @@ function init() {
   state      = 'play';
   startTime  = Date.now();
 }
-init();
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function cardPos(i) {
-  const col = i % COLS_G, row = Math.floor(i / COLS_G);
-  return { x: GX + col*(C_W+GAP), y: GY + row*(C_H+GAP) };
+  const p = POSITIONS[i];
+  return { x: GX + p.col*(C_S+GAP), y: GY + p.row*(C_S+GAP) };
 }
 
 function hitCard(tx, ty) {
   for (let i=0; i<cards.length; i++) {
     const {x,y} = cardPos(i);
-    if (tx>=x && tx<x+C_W && ty>=y && ty<y+C_H) return i;
+    if (tx>=x && tx<x+C_S && ty>=y && ty<y+C_S) return i;
   }
   return -1;
+}
+
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+function clip(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.clip(); }
+
+function imgCover(img, x, y, w, h) {
+  const ir = img.naturalWidth / img.naturalHeight;
+  const cr = w / h;
+  let sx, sy, sw, sh;
+  if (ir > cr) {
+    sh = img.naturalHeight; sw = sh * cr; sx = (img.naturalWidth-sw)/2; sy = 0;
+  } else {
+    sw = img.naturalWidth; sh = sw/cr; sx = 0; sy = (img.naturalHeight-sh)/2;
+  }
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+
+function imgOk(key) {
+  const im = IMG[key];
+  return im && im.complete && im.naturalWidth > 0;
 }
 
 // ── Interaction ───────────────────────────────────────────────────────────────
@@ -125,7 +201,7 @@ function onTap(tx, ty) {
         pairsFound++;
         flipped = [];
         state = 'play';
-        if (pairsFound === PAIRS.length) setTimeout(() => state = 'win', 900);
+        if (pairsFound === PAIRS.length) setTimeout(() => { state = 'win'; }, 900);
       } else {
         cards[a].flash = cards[b].flash = 35;
         cards[a].flashColor = cards[b].flashColor = '#c0392b';
@@ -133,172 +209,218 @@ function onTap(tx, ty) {
           cards[a].faceUp = cards[b].faceUp = false;
           flipped = [];
           state = 'play';
-        }, 550);
+        }, 650);
       }
-    }, 750);
+    }, 800);
   }
 }
 
 canvas.addEventListener('click', e => {
   const r = canvas.getBoundingClientRect();
-  onTap(e.clientX-r.left, e.clientY-r.top);
+  onTap(e.clientX - r.left, e.clientY - r.top);
 });
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   const r = canvas.getBoundingClientRect();
   const t = e.changedTouches[0];
-  onTap(t.clientX-r.left, t.clientY-r.top);
+  onTap(t.clientX - r.left, t.clientY - r.top);
 }, { passive:false });
 
 // ── Rendu cartes ──────────────────────────────────────────────────────────────
-function drawBack(x, y, w, h) {
-  // Fond vert
-  ctx.fillStyle = COL.green;
-  ctx.beginPath(); ctx.roundRect(x,y,w,h,8); ctx.fill();
-  // Bordure or
-  ctx.strokeStyle = COL.gold; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(x+3,y+3,w-6,h-6,6); ctx.stroke();
-  // Motif discret
-  ctx.strokeStyle = 'rgba(201,168,76,0.15)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.roundRect(x+7,y+7,w-14,h-14,4); ctx.stroke();
-  // Shell
-  ctx.font = `${Math.floor(w*0.42)}px serif`;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('🐚', x+w/2, y+h/2);
-  ctx.textBaseline = 'alphabetic';
+function drawBack(x, y, s) {
+  ctx.save();
+  clip(x, y, s, s, 12);
+  if (imgOk('verso')) {
+    imgCover(IMG['verso'], x, y, s, s);
+  } else {
+    ctx.fillStyle = COL.blue2; ctx.fillRect(x, y, s, s);
+    ctx.strokeStyle = COL.accent; ctx.lineWidth = 2;
+    ctx.strokeRect(x+5, y+5, s-10, s-10);
+  }
+  ctx.restore();
 }
 
-function drawFace(x, y, w, h, card) {
-  // Fond crème
-  ctx.fillStyle = COL.cream;
-  ctx.beginPath(); ctx.roundRect(x,y,w,h,8); ctx.fill();
-  // Bordure colorée
-  ctx.strokeStyle = card.accent; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.roundRect(x+2,y+2,w-4,h-4,7); ctx.stroke();
-  // Emoji
-  ctx.font = `${Math.floor(w*0.46)}px serif`;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(card.emoji, x+w/2, y+h*0.42);
-  // Label
-  ctx.fillStyle = card.accent;
-  ctx.font = `bold ${Math.floor(w*0.17)}px Georgia, serif`;
-  ctx.textBaseline = 'bottom';
-  ctx.fillText(card.label, x+w/2, y+h-7);
-  ctx.textBaseline = 'alphabetic';
+function drawFace(x, y, s, card) {
+  ctx.save();
+  clip(x, y, s, s, 12);
+  if (imgOk(card.key)) {
+    imgCover(IMG[card.key], x, y, s, s);
+  } else {
+    ctx.fillStyle = '#c8daf0'; ctx.fillRect(x, y, s, s);
+    ctx.fillStyle = COL.text;
+    ctx.font = `bold ${Math.floor(s*0.15)}px Georgia, serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(card.label, x+s/2, y+s/2);
+  }
+  ctx.restore();
+  ctx.strokeStyle = COL.accent; ctx.lineWidth = 2.5;
+  rr(x+1.5, y+1.5, s-3, s-3, 11); ctx.stroke();
 }
 
 function drawCard(i) {
   const c = cards[i];
   const {x, y} = cardPos(i);
 
-  // Ombre portée
-  ctx.fillStyle = 'rgba(0,0,0,0.10)';
-  ctx.beginPath(); ctx.roundRect(x+3,y+4,C_W,C_H,8); ctx.fill();
+  ctx.fillStyle = 'rgba(11,31,58,0.22)';
+  rr(x+3, y+6, C_S, C_S, 13); ctx.fill();
 
   if (c.faceUp || c.matched) {
-    drawFace(x,y,C_W,C_H,c);
+    drawFace(x, y, C_S, c);
     if (c.matched) {
-      ctx.fillStyle = 'rgba(39,174,96,0.18)';
-      ctx.beginPath(); ctx.roundRect(x,y,C_W,C_H,8); ctx.fill();
+      ctx.save();
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = '#27ae60';
+      rr(x, y, C_S, C_S, 12); ctx.fill();
+      ctx.restore();
+      const ck = Math.floor(C_S * 0.28);
+      ctx.fillStyle = '#F2EDE4';
+      ctx.font = `bold ${ck}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('✓', x + C_S - ck*0.62, y + ck*0.62);
+      ctx.textBaseline = 'alphabetic';
     }
   } else {
-    drawBack(x,y,C_W,C_H);
+    drawBack(x, y, C_S);
   }
 
-  // Flash retour visuel
   if (c.flash > 0) {
-    ctx.globalAlpha = (c.flash / 45) * 0.42;
+    ctx.globalAlpha = (c.flash / 45) * 0.50;
     ctx.fillStyle   = c.flashColor;
-    ctx.beginPath(); ctx.roundRect(x,y,C_W,C_H,8); ctx.fill();
+    rr(x, y, C_S, C_S, 12); ctx.fill();
     ctx.globalAlpha = 1;
     c.flash--;
   }
 }
 
-// ── HUD ───────────────────────────────────────────────────────────────────────
+// ── HUD header & footer ───────────────────────────────────────────────────────
+function shadow(blur, color) {
+  ctx.shadowBlur  = blur;
+  ctx.shadowColor = color;
+}
+function noShadow() { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
+
 function drawHUD() {
-  // Titre
-  ctx.fillStyle = COL.text;
-  ctx.font = `bold ${Math.floor(W*0.056)}px Georgia, serif`;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('Mémoire du Bagne', W/2, H*0.054);
+  // Titre principal
+  ctx.fillStyle   = '#FFFFFF';
+  ctx.font        = `bold ${Math.floor(W*0.060)}px Georgia, serif`;
+  ctx.textAlign   = 'center';
+  ctx.textBaseline = 'middle';
+  shadow(14, 'rgba(0,0,0,0.85)');
+  ctx.fillText('Mémoire du Bagne', W/2, HDR * 0.38);
 
   // Sous-titre
-  ctx.fillStyle = COL.goldD;
-  ctx.font = `${Math.floor(W*0.036)}px Georgia, serif`;
-  ctx.fillText('🐚 Île Nou · Bagne de Nouvelle-Calédonie', W/2, H*0.103);
+  ctx.fillStyle = COL.accent;
+  ctx.font      = `bold ${Math.floor(W*0.033)}px Georgia, serif`;
+  shadow(10, 'rgba(0,0,0,0.80)');
+  ctx.fillText('Île Nou · Nouvelle-Calédonie', W/2, HDR * 0.72);
 
-  // Barre stats
-  const sy = GY + GRID_H + Math.floor(FTR * 0.45);
-  ctx.fillStyle = COL.grey;
-  ctx.font = `${Math.floor(W*0.040)}px Georgia, serif`;
-  ctx.textAlign = 'left';  ctx.textBaseline = 'middle';
+  noShadow();
+
+  // Compteurs (footer)
+  const sy = GY + GRID_H + Math.floor(FTR * 0.46);
+  ctx.fillStyle   = '#FFFFFF';
+  ctx.font        = `bold ${Math.floor(W*0.040)}px Georgia, serif`;
+  ctx.textBaseline = 'middle';
+  shadow(10, 'rgba(0,0,0,0.80)');
+  ctx.textAlign = 'left';
   ctx.fillText(`Essais : ${moves}`, PAD, sy);
   ctx.textAlign = 'right';
-  ctx.fillText(`Paires : ${pairsFound}/6`, W-PAD, sy);
+  ctx.fillText(`Paires : ${pairsFound} / 5`, W - PAD, sy);
 
-  // Instruction discrète (tant qu'aucun essai)
   if (moves === 0) {
-    ctx.fillStyle = 'rgba(45,74,53,0.4)';
-    ctx.font = `${Math.floor(W*0.033)}px Georgia, serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.82)';
+    ctx.font      = `bold ${Math.floor(W*0.030)}px Georgia, serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('Touche 2 cartes identiques pour former une paire', W/2, sy + Math.floor(FTR*0.42));
+    shadow(8, 'rgba(0,0,0,0.75)');
+    ctx.fillText('Retrouvez les 5 paires d\'objets du bagne', W/2, sy + Math.floor(FTR*0.46));
   }
 
+  noShadow();
   ctx.textBaseline = 'alphabetic';
 }
 
 // ── Écran victoire ────────────────────────────────────────────────────────────
 function drawWin() {
-  // Fond semi-opaque
-  ctx.fillStyle = 'rgba(245,240,232,0.97)';
-  ctx.fillRect(0,0,W,H);
+  if (fondBlur) {
+    ctx.drawImage(fondBlur, 0, 0);
+    ctx.fillStyle = 'rgba(10,20,50,0.45)';
+    ctx.fillRect(0, 0, W, H);
+  } else {
+    ctx.fillStyle = 'rgba(214,228,242,0.97)';
+    ctx.fillRect(0, 0, W, H);
+  }
 
   ctx.textAlign = 'center';
 
-  // Emoji trophée
-  ctx.font = '52px serif'; ctx.textBaseline = 'middle';
-  ctx.fillText('🐚', W/2, H*0.35);
+  const tS = Math.floor(W * 0.28);
+  const tx = W/2 - tS/2, ty = H * 0.18;
+  if (imgOk('nacre')) {
+    ctx.save(); clip(tx, ty, tS, tS, 14);
+    imgCover(IMG['nacre'], tx, ty, tS, tS);
+    ctx.restore();
+    ctx.strokeStyle = COL.blue3; ctx.lineWidth = 2.5;
+    rr(tx+1, ty+1, tS-2, tS-2, 13); ctx.stroke();
+  }
 
-  // Titre
-  ctx.fillStyle = COL.text;
-  ctx.font = `bold ${Math.floor(W*0.065)}px Georgia, serif`;
-  ctx.fillText('Bravo !', W/2, H*0.46);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = `bold ${Math.floor(W*0.068)}px Georgia, serif`;
+  ctx.textBaseline = 'middle';
+  shadow(16, 'rgba(0,0,0,0.85)');
+  ctx.fillText('Félicitations !', W/2, H * 0.46);
 
-  // Étoiles
-  const elapsed = Math.floor((Date.now()-startTime)/1000);
-  const stars = moves<=10 ? 3 : moves<=16 ? 2 : 1;
-  ctx.font = '30px serif';
-  ctx.fillText('⭐'.repeat(stars)+'☆'.repeat(3-stars), W/2, H*0.535);
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const stars = moves <= 8 ? 3 : moves <= 13 ? 2 : 1;
+  noShadow();
+  ctx.font = `${Math.floor(W*0.075)}px serif`;
+  ctx.fillText('⭐'.repeat(stars) + '☆'.repeat(3-stars), W/2, H * 0.535);
 
-  // Stats
-  ctx.fillStyle = COL.grey;
-  ctx.font = `${Math.floor(W*0.040)}px Georgia, serif`;
-  ctx.fillText(`${moves} essais · ${elapsed}s`, W/2, H*0.595);
+  ctx.fillStyle = COL.accent;
+  ctx.font = `bold ${Math.floor(W*0.040)}px Georgia, serif`;
+  shadow(10, 'rgba(0,0,0,0.80)');
+  ctx.fillText(`${moves} essais  ·  ${elapsed} s`, W/2, H * 0.595);
+  noShadow();
 
-  // Bouton rejouer
-  const bx=W/2-90, by=H*0.645;
-  ctx.fillStyle = COL.green;
-  ctx.beginPath(); ctx.roundRect(bx,by,180,52,12); ctx.fill();
-  ctx.strokeStyle = COL.gold; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.roundRect(bx,by,180,52,12); ctx.stroke();
-  ctx.fillStyle = COL.gold;
+  const bW = Math.floor(W * 0.56), bH = 54;
+  const bx = W/2 - bW/2, by = H * 0.648;
+  ctx.fillStyle = COL.blue2;
+  rr(bx, by, bW, bH, 14); ctx.fill();
+  ctx.strokeStyle = COL.accent; ctx.lineWidth = 2;
+  rr(bx, by, bW, bH, 14); ctx.stroke();
+  ctx.fillStyle = COL.accent;
   ctx.font = `bold ${Math.floor(W*0.046)}px Georgia, serif`;
-  ctx.fillText('▶ Rejouer', W/2, by+34);
+  ctx.fillText('▶  Rejouer', W/2, by + bH/2 + 1);
 
   ctx.textBaseline = 'alphabetic';
 }
 
+// ── Chargement ────────────────────────────────────────────────────────────────
+function drawLoading() {
+  ctx.fillStyle = COL.hdrBg;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = `bold ${Math.floor(W*0.045)}px Georgia, serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(0,0,0,0.7)';
+  ctx.fillText('Chargement…', W/2, H/2);
+  ctx.shadowBlur = 0;
+}
+
 // ── Boucle ────────────────────────────────────────────────────────────────────
 function loop() {
-  ctx.fillStyle = COL.bg;
-  ctx.fillRect(0,0,W,H);
+  if (fondBlur) {
+    ctx.drawImage(fondBlur, 0, 0);
+  } else {
+    ctx.fillStyle = COL.bg;
+    ctx.fillRect(0, 0, W, H);
+  }
   drawHUD();
   for (let i=0; i<cards.length; i++) drawCard(i);
   if (state === 'win') drawWin();
   requestAnimationFrame(loop);
 }
-loop();
+
+drawLoading();
+loadImages(() => { init(); loop(); });
 </script>
 </body>
 </html>

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Le Tribunal du Bagne</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#f5f0e8;
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; overflow:hidden; touch-action:none;
+  font-family: Georgia, serif;
+}
+canvas { display:block; }
+
+#modal {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.65);
+  z-index:100; align-items:center; justify-content:center;
+}
+#modal.open { display:flex; }
+#modal-box {
+  background:#fdf8ef;
+  border:1.5px solid #c9a84c;
+  border-radius:18px;
+  padding:28px 24px;
+  width:88%; max-width:370px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);
+}
+#modal-box h2 {
+  font-size:17px; color:#1a2e1e;
+  text-align:center; margin-bottom:18px;
+  padding-bottom:10px;
+  border-bottom:1px solid #e0d0a0;
+  font-family:Georgia,serif;
+}
+.def-item {
+  margin-bottom:14px; padding:12px 14px;
+  background:#fff; border-radius:10px;
+  border-left:4px solid #c9a84c;
+}
+.def-item:nth-child(2){border-left-color:#2d6b2d;}
+.def-item:nth-child(3){border-left-color:#1a4a8a;}
+.def-item:nth-child(4){border-left-color:#7a3a10;}
+.def-titre {
+  font-size:13px; font-weight:bold; color:#1a2e1e;
+  letter-spacing:1.5px; text-transform:uppercase;
+  margin-bottom:5px; font-family:Georgia,serif;
+}
+.def-texte { font-size:13px; color:#444; line-height:1.65; font-family:Georgia,serif; }
+#modal-close {
+  display:block; margin:18px auto 0;
+  background:#1a2e1e; color:#c9a84c;
+  border:none; border-radius:12px;
+  padding:12px 36px; font-size:15px;
+  font-weight:bold; cursor:pointer;
+  font-family:Georgia,serif; letter-spacing:1px;
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="modal">
+  <div id="modal-box">
+    <h2>⚖️ Les peines du bagne</h2>
+    <div class="def-item">
+      <div class="def-titre">🟢 Transporté</div>
+      <div class="def-texte">Crime politique ou de rébellion. Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.</div>
+    </div>
+    <div class="def-item">
+      <div class="def-titre">🔵 Déporté</div>
+      <div class="def-texte">Crime grave (meurtre, espionnage, actes violents). Banni définitivement dans une enceinte fortifiée, sans retour possible.</div>
+    </div>
+    <div class="def-item">
+      <div class="def-titre">🟠 Relégué</div>
+      <div class="def-texte">Récidiviste de crimes mineurs (vol, vagabondage). Éloignement permanent aux colonies pour protéger la société française.</div>
+    </div>
+    <button id="modal-close">Fermer</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = Math.min(window.innerWidth, 420);
+const H = Math.min(window.innerHeight, 720);
+canvas.width = W; canvas.height = H;
+
+// ── TAMPONS ───────────────────────────────────────────────────────
+const TAMPONS = {};
+const TAMPON_URLS = {
+  'TRANSPORTÉ': 'https://VOTRE_URL/transporte.png',
+  'DEPORTÉ':    'https://VOTRE_URL/deporte.png',
+  'RELÉGUÉ':    'https://VOTRE_URL/relegue.png',
+};
+Object.entries(TAMPON_URLS).forEach(([key, url]) => {
+  const img = new Image();
+  img.src = url;
+  TAMPONS[key] = img;
+});
+
+// ── DONNÉES ───────────────────────────────────────────────────────
+const DETENUS = [
+  {
+    matricule:'#4021', nom:'Pierre VASSEUR', age:34,
+    accusation:'A publié et diffusé des textes appelant à la rébellion armée contre le gouvernement.',
+    bonne_reponse:'DEPORTÉ',
+    explication:'La diffusion de textes séditieux était un crime politique grave, puni de déportation dans une enceinte fortifiée.'
+  },
+  {
+    matricule:'#1872', nom:'Jean-Baptiste MOREAU', age:28,
+    accusation:'Reconnu coupable de meurtre avec préméditation sur un officier de gendarmerie.',
+    bonne_reponse:'DEPORTÉ',
+    explication:'Le meurtre d\'un représentant de l\'ordre entraînait la déportation définitive dans une enceinte fortifiée.'
+  },
+  {
+    matricule:'#3304', nom:'Auguste LEFÈVRE', age:45,
+    accusation:'Condamné pour vol avec effraction. C\'est sa 4e condamnation pour des faits similaires.',
+    bonne_reponse:'RELÉGUÉ',
+    explication:'La récidive répétée de crimes mineurs comme le vol entraînait la relégation aux colonies.'
+  },
+  {
+    matricule:'#5519', nom:'Henri DUBOIS', age:22,
+    accusation:'A participé activement aux combats de l\'insurrection de la Commune de Paris en 1871.',
+    bonne_reponse:'TRANSPORTÉ',
+    explication:'Les communards étaient transportés en Nouvelle-Calédonie — ils pouvaient rentrer après avoir purgé leur peine.'
+  },
+  {
+    matricule:'#2087', nom:'Louise MARTIN', age:31,
+    accusation:'A mis le feu à plusieurs bâtiments publics lors des émeutes de 1871 à Paris.',
+    bonne_reponse:'DEPORTÉ',
+    explication:'L\'incendie volontaire de biens publics était un acte grave puni de déportation définitive.'
+  },
+  {
+    matricule:'#6643', nom:'Marcel BERNARD', age:19,
+    accusation:'Arrêté pour la 5e fois pour vagabondage et mendicité agressive sur la voie publique.',
+    bonne_reponse:'RELÉGUÉ',
+    explication:'Le vagabondage chronique et la mendicité répétée menaient à la relégation pour éloigner les indésirables.'
+  },
+  {
+    matricule:'#0934', nom:'Émile ROUSSEAU', age:52,
+    accusation:'Reconnu coupable d\'avoir transmis des secrets militaires à une puissance étrangère.',
+    bonne_reponse:'DEPORTÉ',
+    explication:'L\'espionnage était un crime politique très grave, systématiquement puni de déportation.'
+  },
+  {
+    matricule:'#7751', nom:'François PETIT', age:37,
+    accusation:'A falsifié à plusieurs reprises des documents officiels pour escroquer des citoyens.',
+    bonne_reponse:'RELÉGUÉ',
+    explication:'La falsification de documents sans violence, en cas de récidive, menait généralement à la relégation.'
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────────────────
+let state, currentIdx, score, showResult, lastCorrect, particles, animT, selectedBtn;
+let stampAnim = { active:false, progress:0, scale:0, opacity:0, phase:'in' };
+
+function resetGame() {
+  state='intro'; currentIdx=0; score=0;
+  showResult=false; lastCorrect=null;
+  particles=[]; animT=0; selectedBtn=null;
+  stampAnim = { active:false, progress:0, scale:0, opacity:0, phase:'in' };
+}
+resetGame();
+
+// ── LAYOUT ────────────────────────────────────────────────────────
+const BTN_Y   = H * 0.778;
+const BTN_H   = Math.floor(H * 0.080);
+const BTN_W   = Math.floor(W * 0.265);
+const BTN_GAP = Math.floor(W * 0.026);
+const TOTAL_BTN_W = BTN_W*3 + BTN_GAP*2;
+const BTN_START_X = (W - TOTAL_BTN_W) / 2;
+
+const BTNS = [
+  { label:'TRANSPORTÉ', color:'#2d6b2d', light:'#3d8b3d', rep:'TRANSPORTÉ', dot:'#5cb85c' },
+  { label:'DÉPORTÉ',    color:'#1a4a8a', light:'#2a6aaa', rep:'DEPORTÉ',    dot:'#4a90d9' },
+  { label:'RELÉGUÉ',    color:'#7a3a10', light:'#9a5a20', rep:'RELÉGUÉ',    dot:'#d4783a' },
+];
+function getBtnRect(i) {
+  return { x:BTN_START_X+i*(BTN_W+BTN_GAP), y:BTN_Y-BTN_H/2, w:BTN_W, h:BTN_H };
+}
+
+const HELP_R = Math.floor(W*0.058);
+const HELP_X = W - HELP_R - 10;
+const HELP_Y = BTN_Y + BTN_H/2 + HELP_R + 8;
+
+const VAL_Y = H * 0.908;
+const VAL_H = Math.floor(H * 0.066);
+function getValRect() {
+  return { x:W*0.08, y:VAL_Y-VAL_H/2, w:W*0.84, h:VAL_H };
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────
+const modal = document.getElementById('modal');
+document.getElementById('modal-close').onclick = () => modal.classList.remove('open');
+modal.onclick = e => { if(e.target===modal) modal.classList.remove('open'); };
+
+// ── PARTICULES ────────────────────────────────────────────────────
+function spawnParticles(x, y, color, n) {
+  for (let i=0; i<n; i++) {
+    const a=Math.random()*Math.PI*2, s=2+Math.random()*5;
+    particles.push({ x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s-3,
+      life:1, decay:0.02+Math.random()*0.02, r:3+Math.random()*5, color });
+  }
+}
+
+// ── INPUT ─────────────────────────────────────────────────────────
+function handleTap(cx, cy) {
+  if (state==='intro') { state='play'; return; }
+  if (state==='fin')   { resetGame(); return; }
+  if (state!=='play')  return;
+  if (stampAnim.active) return; // bloquer pendant animation
+
+  if (showResult) {
+    showResult=false; selectedBtn=null; currentIdx++;
+    if (currentIdx>=DETENUS.length) state='fin';
+    return;
+  }
+
+  if (Math.hypot(cx-HELP_X, cy-HELP_Y) < HELP_R+10) {
+    modal.classList.add('open'); return;
+  }
+
+  for (let i=0; i<BTNS.length; i++) {
+    const r=getBtnRect(i);
+    if (cx>=r.x&&cx<=r.x+r.w&&cy>=r.y&&cy<=r.y+r.h) { selectedBtn=i; return; }
+  }
+
+  if (selectedBtn!==null) {
+    const vr=getValRect();
+    if (cx>=vr.x&&cx<=vr.x+vr.w&&cy>=vr.y&&cy<=vr.y+vr.h) valider();
+  }
+}
+
+function valider() {
+  if (selectedBtn===null) return;
+  const detenu=DETENUS[currentIdx];
+  lastCorrect=(BTNS[selectedBtn].rep===detenu.bonne_reponse);
+  if (lastCorrect) {
+    score++;
+    spawnParticles(W/2, H*0.50, '#c9a84c', 22);
+    stampAnim = { active:true, progress:0, scale:0, opacity:0, phase:'in' };
+  } else {
+    spawnParticles(W/2, H*0.35, '#cc4422', 14);
+    showResult=true;
+  }
+}
+
+canvas.addEventListener('touchstart', e=>{
+  e.preventDefault();
+  const r=canvas.getBoundingClientRect(), t=e.changedTouches[0];
+  handleTap(t.clientX-r.left, t.clientY-r.top);
+}, {passive:false});
+canvas.addEventListener('click', e=>{
+  const r=canvas.getBoundingClientRect();
+  handleTap(e.clientX-r.left, e.clientY-r.top);
+});
+
+// ── UTILITAIRES ───────────────────────────────────────────────────
+function wrapTextCenter(text, cx, y, maxW, lh) {
+  const words=text.split(' '); let line='';
+  for (const w of words) {
+    const test=line+w+' ';
+    if (ctx.measureText(test).width>maxW&&line!=='') {
+      ctx.fillText(line.trim(),cx,y); y+=lh; line=w+' ';
+    } else line=test;
+  }
+  if (line) ctx.fillText(line.trim(),cx,y);
+}
+
+function wrapTextLeft(text, x, y, maxW, lh) {
+  const words=text.split(' '); let line='';
+  for (const w of words) {
+    const test=line+w+' ';
+    if (ctx.measureText(test).width>maxW&&line!=='') {
+      ctx.fillText(line.trim(),x,y); y+=lh; line=w+' ';
+    } else line=test;
+  }
+  if (line) ctx.fillText(line.trim(),x,y);
+}
+
+function rr(x,y,w,h,r) { ctx.beginPath(); ctx.roundRect(x,y,w,h,r); }
+
+function drawTampon(key, cx, cy, size) {
+  const img=TAMPONS[key];
+  if (img&&img.complete&&img.naturalWidth>0) {
+    ctx.drawImage(img, cx-size/2, cy-size/2, size, size);
+  } else {
+    const colors={'TRANSPORTÉ':'#2d6b2d','DEPORTÉ':'#1a4a8a','RELÉGUÉ':'#7a3a10'};
+    const c=colors[key]||'#555';
+    ctx.save(); ctx.globalAlpha *= 0.85;
+    ctx.strokeStyle=c; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.arc(cx,cy,size/2,0,Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx,cy,size/2-7,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle=c;
+    ctx.font=`bold ${Math.floor(size*0.20)}px Georgia,serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(key,cx,cy);
+    ctx.textBaseline='alphabetic';
+    ctx.restore();
+  }
+}
+
+// ── FOND ──────────────────────────────────────────────────────────
+function drawPageBG() {
+  ctx.fillStyle='#f5f0e8'; ctx.fillRect(0,0,W,H);
+  for (let i=0;i<H;i+=4) {
+    ctx.fillStyle=`rgba(180,140,80,${0.012+Math.sin(i*0.4)*0.006})`;
+    ctx.fillRect(0,i,W,1);
+  }
+}
+
+// ── HEADER ────────────────────────────────────────────────────────
+function drawHeader() {
+  const hh=Math.floor(H*0.085);
+  ctx.fillStyle='#1a2e1e'; ctx.fillRect(0,0,W,hh);
+  ctx.fillStyle='#c9a84c';
+  ctx.font=`bold ${Math.floor(W*0.040)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText('⚖️  LE TRIBUNAL DU BAGNE', W/2, Math.floor(hh*0.65));
+  ctx.fillStyle='rgba(201,168,76,0.75)';
+  ctx.font=`${Math.floor(W*0.028)}px sans-serif`;
+  ctx.textAlign='left';
+  ctx.fillText(`Dossier ${currentIdx+1}/8`, 14, Math.floor(hh*0.65));
+  ctx.textAlign='right';
+  ctx.fillStyle='#fff';
+  ctx.font=`bold ${Math.floor(W*0.032)}px sans-serif`;
+  ctx.fillText(`${score}/${currentIdx} ✓`, W-14, Math.floor(hh*0.65));
+}
+
+// ── PORTRAIT ──────────────────────────────────────────────────────
+function drawPortrait() {
+  const fw=W*0.66, fh=H*0.285;
+  const fx=(W-fw)/2, fy=H*0.095;
+
+  ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fillRect(fx+5,fy+5,fw,fh);
+
+  const sky=ctx.createLinearGradient(fx,fy,fx,fy+fh*0.65);
+  sky.addColorStop(0,'#e8c88a'); sky.addColorStop(1,'#d4a855');
+  ctx.fillStyle=sky; ctx.fillRect(fx,fy,fw,fh);
+
+  ctx.fillStyle='#f5dfa0';
+  ctx.beginPath(); ctx.arc(fx+fw*0.5,fy+fh*0.22,fh*0.14,0,Math.PI*2); ctx.fill();
+
+  ctx.fillStyle='#4a7a9a'; ctx.fillRect(fx,fy+fh*0.62,fw,fh*0.38);
+  ctx.fillStyle='rgba(120,190,220,0.22)';
+  ctx.beginPath(); ctx.moveTo(fx,fy+fh*0.66);
+  for (let x=0;x<=fw;x+=6) ctx.lineTo(fx+x,fy+fh*0.66+Math.sin(x*0.09+animT*0.03)*4);
+  ctx.lineTo(fx+fw,fy+fh); ctx.lineTo(fx,fy+fh); ctx.closePath(); ctx.fill();
+
+  ctx.fillStyle='#2a3a4a';
+  ctx.fillRect(fx+fw*0.72,fy+fh*0.56,fw*0.1,fh*0.07);
+  ctx.fillRect(fx+fw*0.755,fy+fh*0.40,2.5,fh*0.17);
+
+  const sx=fx+fw/2, sy=fy+fh*0.50;
+  ctx.fillStyle='#2a1a0a';
+  ctx.beginPath(); ctx.ellipse(sx,sy+8,24,34,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(200,180,140,0.35)'; ctx.lineWidth=3.5;
+  for (let i=-2;i<=2;i++) {
+    ctx.beginPath(); ctx.moveTo(sx+i*9,sy-20); ctx.lineTo(sx+i*9,sy+42); ctx.stroke();
+  }
+  ctx.fillStyle='#5a3820';
+  ctx.beginPath(); ctx.arc(sx,sy-26,20,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(220,200,160,0.5)';
+  ctx.beginPath(); ctx.ellipse(sx,sy-8,10,5,0,0,Math.PI*2); ctx.fill();
+
+  ctx.strokeStyle='#5a3010'; ctx.lineWidth=7;
+  ctx.strokeRect(fx,fy,fw,fh);
+  ctx.strokeStyle='#8b5a20'; ctx.lineWidth=2;
+  ctx.strokeRect(fx+3.5,fy+3.5,fw-7,fh-7);
+}
+
+// ── FICHE ─────────────────────────────────────────────────────────
+function drawFiche() {
+  const detenu=DETENUS[currentIdx];
+  const fy=H*0.390, fh=H*0.345;
+  const fx=W*0.04, fw=W*0.92;
+  const lh=Math.floor(H*0.0275);
+
+  const grad=ctx.createLinearGradient(fx,fy,fx,fy+fh);
+  grad.addColorStop(0,'#fdf8ee'); grad.addColorStop(1,'#f0e4c0');
+  ctx.fillStyle=grad; rr(fx,fy,fw,fh,6); ctx.fill();
+  ctx.strokeStyle='#8b6914'; ctx.lineWidth=1.5; rr(fx,fy,fw,fh,6); ctx.stroke();
+  ctx.strokeStyle='rgba(139,105,20,0.35)'; ctx.lineWidth=0.7;
+  rr(fx+5,fy+5,fw-10,fh-10,4); ctx.stroke();
+
+  // Filigrane CONDAMNÉ
+  ctx.save(); ctx.globalAlpha=0.07;
+  ctx.font=`bold ${Math.floor(W*0.085)}px Georgia,serif`;
+  ctx.fillStyle='#8a1a1a'; ctx.textAlign='center';
+  ctx.translate(fx+fw*0.68,fy+fh*0.55); ctx.rotate(-0.28);
+  ctx.fillText('CONDAMNÉ',0,0); ctx.restore();
+
+  const px=fx+14; let py=fy+18;
+
+  ctx.fillStyle='#1a0a00';
+  ctx.font=`bold ${Math.floor(W*0.023)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText('ADMINISTRATION PÉNITENTIAIRE DE L\'ÎLE NOU', fx+fw/2, py);
+  py+=lh*0.6;
+
+  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(fx+8,py); ctx.lineTo(fx+fw-8,py); ctx.stroke();
+  py+=lh*0.65;
+
+  ctx.font=`bold ${Math.floor(W*0.034)}px Georgia,serif`;
+  ctx.fillStyle='#1a0a00'; ctx.textAlign='left';
+  ctx.fillText(`MATRICULE : ${detenu.matricule}`, px, py); py+=lh*0.95;
+
+  ctx.font=`${Math.floor(W*0.030)}px Georgia,serif`;
+  ctx.fillText(`NOM : ${detenu.nom}  (${detenu.age} ans)`, px, py); py+=lh*1.15;
+
+  ctx.strokeStyle='rgba(139,105,20,0.25)'; ctx.lineWidth=0.6;
+  ctx.beginPath(); ctx.moveTo(fx+8,py-3); ctx.lineTo(fx+fw-8,py-3); ctx.stroke();
+
+  ctx.font=`bold ${Math.floor(W*0.026)}px Georgia,serif`;
+  ctx.fillStyle='#4a1a00';
+  ctx.fillText('MOTIF DE CONDAMNATION :', px, py); py+=lh*0.9;
+
+  ctx.font=`italic ${Math.floor(W*0.028)}px Georgia,serif`;
+  ctx.fillStyle='#2a1a0a'; ctx.textAlign='left';
+  wrapTextLeft(detenu.accusation, px, py, fw-28, lh*0.85);
+
+  ctx.font=`${Math.floor(W*0.021)}px Georgia,serif`;
+  ctx.fillStyle='#6b4914'; ctx.textAlign='center';
+  ctx.fillText('— CHOISISSEZ LA PEINE CI-DESSOUS —', fx+fw/2, fy+fh-11);
+}
+
+// ── BOUTONS ───────────────────────────────────────────────────────
+function drawButtons() {
+  BTNS.forEach((b,i)=>{
+    const r=getBtnRect(i), sel=selectedBtn===i;
+    ctx.fillStyle='rgba(0,0,0,0.16)'; rr(r.x+2,r.y+4,r.w,r.h,10); ctx.fill();
+    ctx.fillStyle=sel?b.light:b.color; rr(r.x,r.y,r.w,r.h,10); ctx.fill();
+    if (sel) { ctx.strokeStyle='#FFD700'; ctx.lineWidth=3; rr(r.x,r.y,r.w,r.h,10); ctx.stroke(); }
+    ctx.fillStyle=b.dot;
+    ctx.beginPath(); ctx.arc(r.x+r.w/2,r.y+14,7,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(r.x+r.w/2,r.y+14,7,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='#fff';
+    ctx.font=`bold ${Math.floor(W*0.025)}px sans-serif`;
+    ctx.textAlign='center';
+    ctx.fillText(b.label, r.x+r.w/2, r.y+r.h-11);
+  });
+
+  // Bouton ?
+  ctx.fillStyle='#1a2e1e';
+  ctx.beginPath(); ctx.arc(HELP_X,HELP_Y,HELP_R,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(HELP_X,HELP_Y,HELP_R,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle='#c9a84c';
+  ctx.font=`bold ${Math.floor(HELP_R*1.25)}px Georgia,serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('?',HELP_X,HELP_Y+1); ctx.textBaseline='alphabetic';
+
+  // Bouton VALIDER
+  const vr=getValRect();
+  if (selectedBtn!==null) {
+    ctx.fillStyle='rgba(0,0,0,0.12)'; rr(vr.x+2,vr.y+3,vr.w,vr.h,12); ctx.fill();
+    ctx.fillStyle='#1a2e1e'; rr(vr.x,vr.y,vr.w,vr.h,12); ctx.fill();
+    ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2; rr(vr.x,vr.y,vr.w,vr.h,12); ctx.stroke();
+    ctx.fillStyle='#c9a84c';
+    ctx.font=`bold ${Math.floor(W*0.042)}px Georgia,serif`;
+    ctx.textAlign='center';
+    ctx.fillText('VALIDER', W/2, vr.y+vr.h*0.65);
+  } else {
+    ctx.fillStyle='rgba(26,46,30,0.10)'; rr(vr.x,vr.y,vr.w,vr.h,12); ctx.fill();
+    ctx.strokeStyle='rgba(26,46,30,0.15)'; ctx.lineWidth=1; rr(vr.x,vr.y,vr.w,vr.h,12); ctx.stroke();
+    ctx.fillStyle='rgba(26,46,30,0.40)';
+    ctx.font=`italic ${Math.floor(W*0.030)}px Georgia,serif`;
+    ctx.textAlign='center';
+    ctx.fillText('Choisissez une peine ci-dessus', W/2, vr.y+vr.h*0.65);
+  }
+}
+
+// ── ANIMATION TAMPON ──────────────────────────────────────────────
+function drawStampAnim() {
+  if (!stampAnim.active) return;
+  const detenu=DETENUS[currentIdx];
+  const cx=W/2, cy=H*0.50;
+  const size=Math.floor(W*0.54);
+
+  ctx.save();
+  ctx.globalAlpha=stampAnim.opacity;
+
+  // Flash blanc à l'impact
+  if (stampAnim.phase==='in' && stampAnim.scale>0.85) {
+    ctx.fillStyle=`rgba(255,255,255,${(1-stampAnim.scale)*1.5})`;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  // Vibration à l'impact
+  let sx=0, sy=0;
+  if (stampAnim.phase==='in' && stampAnim.scale>0.88) {
+    sx=(Math.random()-0.5)*7;
+    sy=(Math.random()-0.5)*7;
+  }
+
+  ctx.translate(cx+sx, cy+sy);
+  ctx.scale(stampAnim.scale, stampAnim.scale);
+
+  // Ombre portée
+  ctx.shadowColor='rgba(0,0,0,0.45)';
+  ctx.shadowBlur=24;
+  ctx.shadowOffsetY=10;
+
+  drawTampon(detenu.bonne_reponse, 0, 0, size);
+  ctx.restore();
+
+  // Cercle de choc à l'impact
+  if (stampAnim.phase==='hold') {
+    const t=stampAnim.progress-0.4;
+    if (t>0 && t<0.5) {
+      const r=t*size*1.8;
+      const alpha=Math.max(0, 0.5-t*1.5);
+      ctx.strokeStyle=`rgba(26,46,30,${alpha})`;
+      ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+      ctx.strokeStyle=`rgba(201,168,76,${alpha*0.6})`;
+      ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(cx,cy,r*0.7,0,Math.PI*2); ctx.stroke();
+    }
+  }
+}
+
+// ── RÉSULTAT ──────────────────────────────────────────────────────
+function drawResult() {
+  const detenu=DETENUS[currentIdx];
+  const choixRep=selectedBtn!==null?BTNS[selectedBtn].rep:'';
+
+  ctx.fillStyle=lastCorrect?'#f2faf2':'#fdf2f0';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.fillStyle=lastCorrect?'#1a5c1a':'#8a2a10';
+  ctx.fillRect(0,0,W,Math.floor(H*0.090));
+  ctx.fillStyle='#fff';
+  ctx.font=`bold ${Math.floor(W*0.042)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText(lastCorrect?'✓  BONNE RÉPONSE !':'✗  MAUVAISE RÉPONSE', W/2, Math.floor(H*0.061));
+
+  if (lastCorrect) {
+    drawTampon(detenu.bonne_reponse, W/2, H*0.245, Math.floor(W*0.38));
+
+    ctx.strokeStyle='rgba(0,0,0,0.08)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(W*0.08,H*0.43); ctx.lineTo(W*0.92,H*0.43); ctx.stroke();
+
+    ctx.fillStyle='#1a2e1e';
+    ctx.font=`bold ${Math.floor(W*0.034)}px Georgia,serif`;
+    ctx.textAlign='center';
+    ctx.fillText(`Peine : ${detenu.bonne_reponse}`, W/2, H*0.475);
+
+    ctx.fillStyle='#444';
+    ctx.font=`italic ${Math.floor(W*0.030)}px Georgia,serif`;
+    wrapTextCenter(detenu.explication, W/2, H*0.515, W*0.84, Math.floor(H*0.038));
+
+  } else {
+    const ts=Math.floor(W*0.29);
+    const lx=W*0.27, rx=W*0.73, ty=H*0.235;
+
+    ctx.save(); ctx.globalAlpha=0.45;
+    drawTampon(choixRep, lx, ty, ts); ctx.globalAlpha=1;
+    ctx.strokeStyle='#cc2020'; ctx.lineWidth=5; ctx.lineCap='round';
+    const cr=ts*0.34;
+    ctx.beginPath(); ctx.moveTo(lx-cr,ty-cr); ctx.lineTo(lx+cr,ty+cr); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(lx+cr,ty-cr); ctx.lineTo(lx-cr,ty+cr); ctx.stroke();
+    ctx.restore();
+
+    drawTampon(detenu.bonne_reponse, rx, ty, ts);
+
+    ctx.font=`${Math.floor(W*0.025)}px Georgia,serif`;
+    ctx.textAlign='center';
+    ctx.fillStyle='#cc2020'; ctx.fillText('Votre choix', lx, H*0.380);
+    ctx.fillStyle='#1a5c1a'; ctx.fillText('Bonne réponse', rx, H*0.380);
+
+    ctx.strokeStyle='rgba(0,0,0,0.08)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(W*0.08,H*0.405); ctx.lineTo(W*0.92,H*0.405); ctx.stroke();
+
+    ctx.fillStyle='#1a2e1e';
+    ctx.font=`bold ${Math.floor(W*0.032)}px Georgia,serif`;
+    ctx.textAlign='center';
+    ctx.fillText(`Bonne réponse : ${detenu.bonne_reponse}`, W/2, H*0.448);
+
+    ctx.fillStyle='#444';
+    ctx.font=`italic ${Math.floor(W*0.028)}px Georgia,serif`;
+    wrapTextCenter(detenu.explication, W/2, H*0.486, W*0.84, Math.floor(H*0.036));
+  }
+
+  // Score
+  const sy=H*0.715;
+  ctx.fillStyle='rgba(26,46,30,0.07)'; rr(W*0.08,sy,W*0.84,Math.floor(H*0.060),12); ctx.fill();
+  ctx.strokeStyle='rgba(26,46,30,0.10)'; ctx.lineWidth=1; rr(W*0.08,sy,W*0.84,Math.floor(H*0.060),12); ctx.stroke();
+  ctx.fillStyle='#1a2e1e';
+  ctx.font=`bold ${Math.floor(W*0.036)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText(`Score : ${score} / ${currentIdx+1}`, W/2, sy+Math.floor(H*0.038));
+
+  // Bouton suivant
+  const by=H*0.845;
+  ctx.fillStyle='#1a2e1e'; rr(W*0.08,by,W*0.84,Math.floor(H*0.066),14); ctx.fill();
+  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2; rr(W*0.08,by,W*0.84,Math.floor(H*0.066),14); ctx.stroke();
+  ctx.fillStyle='#c9a84c';
+  ctx.font=`bold ${Math.floor(W*0.040)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText(
+    currentIdx<DETENUS.length-1?'DOSSIER SUIVANT →':'VOIR MON RÉSULTAT →',
+    W/2, by+Math.floor(H*0.043)
+  );
+}
+
+// ── INTRO ─────────────────────────────────────────────────────────
+function drawIntro() {
+  drawPageBG();
+  ctx.fillStyle='#1a2e1e'; ctx.fillRect(0,0,W,Math.floor(H*0.090));
+  ctx.fillStyle='#c9a84c';
+  ctx.font=`bold ${Math.floor(W*0.046)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText('⚖️  LE TRIBUNAL', W/2, Math.floor(H*0.063));
+
+  ctx.fillStyle='#8b6914';
+  ctx.font=`italic ${Math.floor(W*0.032)}px Georgia,serif`;
+  ctx.fillText('Bagne de l\'Île Nou · Nouvelle-Calédonie', W/2, H*0.158);
+
+  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(W*0.15,H*0.185); ctx.lineTo(W*0.85,H*0.185); ctx.stroke();
+
+  const grad=ctx.createLinearGradient(W*0.06,H*0.20,W*0.06,H*0.67);
+  grad.addColorStop(0,'#fdf8ee'); grad.addColorStop(1,'#f0e4c0');
+  ctx.fillStyle=grad; rr(W*0.06,H*0.20,W*0.88,H*0.47,8); ctx.fill();
+  ctx.strokeStyle='#8b6914'; ctx.lineWidth=1; rr(W*0.06,H*0.20,W*0.88,H*0.47,8); ctx.stroke();
+
+  ctx.fillStyle='#1a0a00';
+  ctx.font=`bold ${Math.floor(W*0.034)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText('VOTRE MISSION', W/2, H*0.258);
+
+  const lines=[
+    ['Vous êtes juge au tribunal','normal'],
+    ['du bagne de l\'Île Nou.','normal'],
+    ['',''],
+    ['8 dossiers vous attendent.','bold'],
+    ['Pour chaque détenu, choisissez','normal'],
+    ['la bonne peine parmi :','normal'],
+    ['',''],
+    ['🟢 TRANSPORTÉ  —  Crime politique','color'],
+    ['🔵 DÉPORTÉ  —  Crime grave','color'],
+    ['🟠 RELÉGUÉ  —  Récidiviste mineur','color'],
+    ['',''],
+    ['Appuyez sur ? pour les définitions.','italic'],
+    ['6 bonnes réponses = VICTOIRE !','bold'],
+  ];
+  let py=H*0.298;
+  const lh=Math.floor(H*0.040);
+  lines.forEach(([txt,style])=>{
+    if (!txt) { py+=lh*0.4; return; }
+    if (style==='bold') { ctx.font=`bold ${Math.floor(W*0.031)}px Georgia,serif`; ctx.fillStyle='#1a2e1e'; }
+    else if (style==='color') { ctx.font=`bold ${Math.floor(W*0.029)}px Georgia,serif`; ctx.fillStyle='#4a2a00'; }
+    else if (style==='italic') { ctx.font=`italic ${Math.floor(W*0.028)}px Georgia,serif`; ctx.fillStyle='#6b4914'; }
+    else { ctx.font=`${Math.floor(W*0.029)}px Georgia,serif`; ctx.fillStyle='#2a1a0a'; }
+    ctx.fillText(txt, W/2, py); py+=lh;
+  });
+
+  const by=H*0.855;
+  ctx.fillStyle='#1a2e1e'; rr(W*0.10,by,W*0.80,Math.floor(H*0.068),12); ctx.fill();
+  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2; rr(W*0.10,by,W*0.80,Math.floor(H*0.068),12); ctx.stroke();
+  ctx.fillStyle='#c9a84c';
+  ctx.font=`bold ${Math.floor(W*0.042)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText('COMMENCER ▶', W/2, by+Math.floor(H*0.045));
+}
+
+// ── FIN ───────────────────────────────────────────────────────────
+function drawFin() {
+  drawPageBG();
+  const victoire=score>=6;
+
+  ctx.fillStyle=victoire?'#1a5c1a':'#8a2a10';
+  ctx.fillRect(0,0,W,Math.floor(H*0.090));
+  ctx.fillStyle='#fff';
+  ctx.font=`bold ${Math.floor(W*0.046)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText(victoire?'🏆  VICTOIRE !':'⚖️  RÉSULTAT FINAL', W/2, Math.floor(H*0.063));
+
+  ctx.fillStyle='#1a2e1e';
+  ctx.font=`bold ${Math.floor(W*0.068)}px Georgia,serif`;
+  ctx.fillText(`${score} / ${DETENUS.length}`, W/2, H*0.24);
+
+  ctx.fillStyle='#8b6914';
+  ctx.font=`italic ${Math.floor(W*0.034)}px Georgia,serif`;
+  ctx.fillText(victoire?'Juge exemplaire !':'Il fallait 6 bonnes réponses', W/2, H*0.31);
+
+  const bx=W*0.10, by2=H*0.36, bw=W*0.80, bh=18;
+  ctx.fillStyle='rgba(0,0,0,0.08)'; rr(bx,by2,bw,bh,9); ctx.fill();
+  ctx.fillStyle=victoire?'#2d8a2d':'#cc5533';
+  rr(bx,by2,bw*(score/DETENUS.length),bh,9); ctx.fill();
+
+  for (let i=0;i<8;i++) {
+    ctx.fillStyle=i<score?'#c9a84c':'rgba(0,0,0,0.12)';
+    ctx.font=`${Math.floor(W*0.055)}px serif`;
+    ctx.textAlign='center';
+    ctx.fillText('★', W*0.095+i*(W*0.815/7.5), H*0.46);
+  }
+
+  ctx.fillStyle='#333';
+  ctx.font=`${Math.floor(W*0.030)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText(
+    victoire?'Félicitations, Monsieur le Juge !':'Encore un peu d\'étude sur le bagne...',
+    W/2, H*0.545
+  );
+
+  const by3=H*0.855;
+  ctx.fillStyle='#1a2e1e'; rr(W*0.10,by3,W*0.80,Math.floor(H*0.068),12); ctx.fill();
+  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2; rr(W*0.10,by3,W*0.80,Math.floor(H*0.068),12); ctx.stroke();
+  ctx.fillStyle='#c9a84c';
+  ctx.font=`bold ${Math.floor(W*0.042)}px Georgia,serif`;
+  ctx.fillText('▶ REJOUER', W/2, by3+Math.floor(H*0.045));
+}
+
+// ── PARTICULES ────────────────────────────────────────────────────
+function drawParticles() {
+  particles.forEach(p=>{
+    ctx.globalAlpha=p.life; ctx.fillStyle=p.color;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha=1;
+}
+
+// ── UPDATE ────────────────────────────────────────────────────────
+function update() {
+  animT++;
+
+  // Animation tampon
+  if (stampAnim.active) {
+    stampAnim.progress += 0.055;
+    if (stampAnim.phase==='in') {
+      // Écrasement rapide depuis le haut
+      stampAnim.scale   = Math.min(1.0, stampAnim.progress*2.8);
+      stampAnim.opacity = Math.min(1, stampAnim.progress*5);
+      if (stampAnim.progress>=0.38) stampAnim.phase='hold';
+    } else if (stampAnim.phase==='hold') {
+      stampAnim.scale  =1.0;
+      stampAnim.opacity=1.0;
+      if (stampAnim.progress>=1.3) stampAnim.phase='out';
+    } else if (stampAnim.phase==='out') {
+      stampAnim.opacity=Math.max(0, 1-(stampAnim.progress-1.3)*2.5);
+      if (stampAnim.progress>=1.75) {
+        stampAnim.active=false;
+        showResult=true;
+      }
+    }
+  }
+
+  particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.life-=p.decay; });
+  particles=particles.filter(p=>p.life>0);
+}
+
+// ── LOOP ──────────────────────────────────────────────────────────
+function loop() {
+  ctx.clearRect(0,0,W,H);
+  update();
+
+  if (state==='intro') drawIntro();
+  else if (state==='fin') drawFin();
+  else if (state==='play') {
+    if (showResult) {
+      drawResult();
+    } else {
+      drawPageBG();
+      drawPortrait();
+      drawFiche();
+      drawButtons();
+      drawHeader();
+      drawStampAnim();
+      drawParticles();
+    }
+  }
+
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
