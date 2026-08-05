@@ -59,9 +59,9 @@
 
   /* ── Scène / portrait ────────────────────────────────────────────────── */
   .scene-cadre {
-    position:relative; margin:14px 16px 0; height:34vh; min-height:200px; max-height:280px;
-    border-radius:16px; overflow:hidden;
-    border:9px solid var(--brun-cadre);
+    position:relative; margin:8px 16px 0; height:19vh; min-height:110px; max-height:170px;
+    border-radius:16px; overflow:hidden; flex-shrink:0;
+    border:8px solid var(--brun-cadre);
     box-shadow:0 10px 24px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(201,168,76,0.35);
   }
   .scene-sky {
@@ -108,27 +108,27 @@
   .scene-photo-wrap.img-err .scene-photo-fallback { display:flex; }
 
   /* ── Dossier ─────────────────────────────────────────────────────────── */
-  .dossier-zone { flex:1; padding:16px; display:flex; flex-direction:column; gap:14px; min-height:0; }
+  .dossier-zone { flex:1; padding:12px 16px; display:flex; flex-direction:column; gap:10px; min-height:0; }
   .dossier-carte {
-    position:relative; background:var(--creme); border-radius:10px; padding:16px 16px 14px;
+    position:relative; background:var(--creme); border-radius:10px; padding:12px 14px 11px;
     border:2px dashed var(--creme-bord);
     box-shadow:0 4px 14px rgba(0,0,0,0.25);
   }
   .dossier-entete {
-    font-family:Georgia, 'Times New Roman', serif; font-weight:700; font-size:12.5px;
+    font-family:Georgia, 'Times New Roman', serif; font-weight:700; font-size:12px;
     letter-spacing:0.4px; text-align:center; color:var(--texte-fonce);
-    padding-bottom:8px; margin-bottom:10px; border-bottom:1px solid rgba(36,24,17,0.18);
+    padding-bottom:6px; margin-bottom:7px; border-bottom:1px solid rgba(36,24,17,0.18);
   }
-  .dossier-ligne { font-size:14px; color:var(--texte-fonce); margin-bottom:5px; }
+  .dossier-ligne { font-size:13.5px; color:var(--texte-fonce); margin-bottom:4px; }
   .dossier-ligne b { font-weight:700; }
   .dossier-label-accusation {
-    font-weight:700; font-size:12.5px; color:var(--rouge); letter-spacing:0.3px;
-    margin-top:8px; margin-bottom:4px;
+    font-weight:700; font-size:12px; color:var(--rouge); letter-spacing:0.3px;
+    margin-top:6px; margin-bottom:3px;
   }
-  .dossier-accusation { font-size:13.5px; color:#5a2418; line-height:1.5; padding-right:64px; }
+  .dossier-accusation { font-size:13px; color:#5a2418; line-height:1.42; padding-right:60px; }
 
   .stamp-condamne {
-    position:absolute; top:64px; right:10px; width:64px; height:64px;
+    position:absolute; top:80px; right:8px; width:56px; height:56px;
     transform:rotate(-14deg); pointer-events:none;
   }
   .stamp-condamne img { width:100%; height:100%; object-fit:contain; }
@@ -188,8 +188,9 @@
   .btn-valider:not(:disabled):active { transform:scale(0.98); }
 
   .btn-aide {
-    position:absolute; right:16px; bottom:16px; width:44px; height:44px; border-radius:50%;
+    position:fixed; right:14px; top:60px; width:38px; height:38px; border-radius:50%; z-index:5;
     border:none; padding:0; overflow:hidden; background:transparent; cursor:pointer;
+    box-shadow:0 3px 10px rgba(0,0,0,0.35);
   }
   .btn-aide img { width:100%; height:100%; object-fit:contain; border-radius:50%; }
   .btn-aide .btn-fallback-texte {
