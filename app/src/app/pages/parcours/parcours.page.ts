@@ -7,6 +7,7 @@ import { IonContent } from '@ionic/angular/standalone';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { PointsService } from '../../services/points.service';
+import { UiStateService } from '../../services/ui-state.service';
 
 @Component({
   selector: 'app-parcours',
@@ -40,7 +41,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   private readonly onMessage = (e: MessageEvent) => {
     if (e.data?.type === 'jeuTermine' && this.zoneSelectionnee) {
       this.ngZone.run(async () => {
-        this.jeuOuvert = false;
+        this.setJeuOuvert(false);
         await this.badgeService.gagnerBadge(this.zoneSelectionnee!.id);
         clearTimeout(this.badgeAnimTimeout);
         this.badgeAnimation = false;
@@ -60,6 +61,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
     readonly journeyService: JourneyService,
     readonly badgeService: BadgeService,
     readonly pointsService: PointsService,
+    private uiState: UiStateService,
   ) {}
 
   ngOnInit() {
@@ -68,7 +70,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
       this.zoneSelectionnee = zoneId
         ? (this.journeyService.zones().find(z => z.id === zoneId) ?? null)
         : null;
-      this.jeuOuvert = false;
+      this.setJeuOuvert(false);
     });
     window.addEventListener('message', this.onMessage);
   }
@@ -77,6 +79,12 @@ export class ParcoursPage implements OnInit, OnDestroy {
     this.paramSub?.unsubscribe();
     window.removeEventListener('message', this.onMessage);
     clearTimeout(this.badgeAnimTimeout);
+    this.uiState.navMasquee.set(false); // filet de sécurité si on quitte pendant que le jeu est ouvert
+  }
+
+  private setJeuOuvert(v: boolean) {
+    this.jeuOuvert = v;
+    this.uiState.navMasquee.set(v);
   }
 
   get jeuUrl(): SafeResourceUrl | null {
@@ -96,18 +104,18 @@ export class ParcoursPage implements OnInit, OnDestroy {
   selectZone(zone: JourneyZone) {
     if (this.getStatut(zone) === 'locked') return;
     this.zoneSelectionnee = zone;
-    this.jeuOuvert = false;
+    this.setJeuOuvert(false);
   }
 
   retourListe() {
     this.zoneSelectionnee = null;
-    this.jeuOuvert = false;
+    this.setJeuOuvert(false);
   }
 
   retourCarte() {
     this.router.navigate(['/tabs/carte']);
   }
 
-  ouvrirJeu() { this.jeuOuvert = true; }
-  fermerJeu() { this.jeuOuvert = false; }
+  ouvrirJeu() { this.setJeuOuvert(true); }
+  fermerJeu() { this.setJeuOuvert(false); }
 }
