@@ -65,33 +65,35 @@
     box-shadow:0 10px 24px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(201,168,76,0.35);
   }
   .scene-sky {
-    position:absolute; inset:0;
-    background:radial-gradient(circle at 50% 34%, #f6dfa8 0%, #eecb84 38%, #d9a75c 72%, #c98f4a 100%);
+    position:absolute; inset:0; background:#dbab6d;
   }
   .scene-sun {
-    position:absolute; top:6%; left:50%; width:58%; padding-top:58%;
+    position:absolute; top:-38%; left:50%; width:120%; padding-top:120%;
     transform:translateX(-50%); border-radius:50%;
-    background:radial-gradient(circle, rgba(255,247,222,0.95) 0%, rgba(255,231,170,0.55) 45%, rgba(255,231,170,0) 72%);
-    animation:respirer 5s ease-in-out infinite;
+    background:radial-gradient(circle, #f4e3b8 0%, #f0dcac 70%, #ecd49a 100%);
+    animation:respirer 6s ease-in-out infinite;
   }
   @keyframes respirer {
-    0%,100% { opacity:0.75; transform:translateX(-50%) scale(1); }
-    50%     { opacity:1;    transform:translateX(-50%) scale(1.06); }
+    0%,100% { opacity:0.92; }
+    50%     { opacity:1; }
   }
-  .scene-mer {
-    position:absolute; left:0; right:0; bottom:0; height:34%;
-    background:linear-gradient(180deg, #3f6f82 0%, #294f61 55%, #1c3944 100%);
+  .scene-collines { position:absolute; inset:0; }
+  .colline {
+    position:absolute; left:0; bottom:0; width:200%; height:60%;
   }
-  .scene-mer svg { position:absolute; top:-16px; left:0; width:200%; height:24px; animation:vague 7s linear infinite; }
-  .scene-mer svg.vague2 { top:-8px; opacity:0.5; animation-duration:11s; animation-direction:reverse; }
-  @keyframes vague { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  .colline path { fill: var(--c); }
+  .colline-1 { bottom:30%; height:34%; --c:#5c7f8c; animation:vagueA 10s linear infinite; }
+  .colline-2 { bottom:16%; height:38%; --c:#33586a; animation:vagueB 15s linear infinite; opacity:0.96; }
+  .colline-3 { bottom:0;   height:40%; --c:#17323d; animation:vagueA 20s linear infinite reverse; }
+  @keyframes vagueA { from { transform:translateX(0); }    to { transform:translateX(-50%); } }
+  @keyframes vagueB { from { transform:translateX(-50%); } to { transform:translateX(0); } }
   .scene-bateau {
-    position:absolute; right:8%; bottom:32%; width:15%; opacity:0.5;
+    position:absolute; right:11%; bottom:22%; width:17%; opacity:0.94;
     animation:tanguer 4.5s ease-in-out infinite;
   }
   @keyframes tanguer {
     0%,100% { transform:translateY(0) rotate(0deg); }
-    50%     { transform:translateY(-3px) rotate(-1.5deg); }
+    50%     { transform:translateY(-2.5px) rotate(-1deg); }
   }
   .scene-photo-wrap {
     position:absolute; left:0; right:0; bottom:0; top:2%;
@@ -320,11 +322,24 @@
     <div class="scene-cadre">
       <div class="scene-sky"></div>
       <div class="scene-sun"></div>
-      <div class="scene-mer">
-        <svg class="vague1" viewBox="0 0 400 24" preserveAspectRatio="none"><path d="M0,12 C50,24 100,0 150,12 C200,24 250,0 300,12 C350,24 380,6 400,12 L400,24 L0,24 Z" fill="rgba(255,255,255,0.10)"/></svg>
-        <svg class="vague2" viewBox="0 0 400 24" preserveAspectRatio="none"><path d="M0,10 C60,22 110,2 160,10 C220,20 260,4 320,12 C360,18 380,8 400,10 L400,24 L0,24 Z" fill="rgba(255,255,255,0.14)"/></svg>
+      <div class="scene-collines">
+        <svg class="colline colline-1" viewBox="0 0 400 100" preserveAspectRatio="none">
+          <path d="M0,50 Q50,35 100,50 Q150,65 200,50 Q250,35 300,50 Q350,65 400,50 L400,100 L0,100 Z"/>
+        </svg>
+        <svg class="colline colline-2" viewBox="0 0 400 100" preserveAspectRatio="none">
+          <path d="M0,42 Q50,60 100,42 Q150,24 200,42 Q250,60 300,42 Q350,24 400,42 L400,100 L0,100 Z"/>
+        </svg>
+        <svg class="colline colline-3" viewBox="0 0 400 100" preserveAspectRatio="none">
+          <path d="M0,55 Q50,38 100,55 Q150,72 200,55 Q250,38 300,55 Q350,72 400,55 L400,100 L0,100 Z"/>
+        </svg>
       </div>
-      <svg class="scene-bateau" viewBox="0 0 60 30"><path d="M4,20 L56,20 L48,28 L12,28 Z" fill="#16232a"/><rect x="27" y="4" width="2" height="18" fill="#16232a"/><path d="M29,6 L44,18 L29,18 Z" fill="#16232a"/></svg>
+      <svg class="scene-bateau" viewBox="0 0 70 40">
+        <path d="M6,26 L64,26 L56,35 L14,35 Z" fill="#141b1f"/>
+        <rect x="20" y="14" width="4" height="14" fill="#141b1f"/>
+        <rect x="34" y="10" width="4" height="18" fill="#141b1f"/>
+        <rect x="35" y="10" width="2" height="6" fill="#e0693a"/>
+        <path d="M6,26 L64,26 L60,22 L10,22 Z" fill="#1e2a30"/>
+      </svg>
       <div class="scene-photo-wrap" id="photo-wrap">
         <img id="photo-img" alt="Portrait du détenu" />
         <div class="scene-photo-fallback">
