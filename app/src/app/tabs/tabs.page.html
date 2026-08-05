@@ -1,25 +1,34 @@
 <ion-tabs>
-  <ion-tab-bar slot="bottom">
-
-    <ion-tab-button tab="carte" href="/tabs/carte">
-      <ion-icon name="map"></ion-icon>
-      <ion-label>Carte</ion-label>
-    </ion-tab-button>
-
-    <ion-tab-button tab="parcours" href="/tabs/parcours">
-      <ion-icon name="list"></ion-icon>
-      <ion-label>Parcours</ion-label>
-    </ion-tab-button>
-
-    <ion-tab-button tab="inventaire" href="/tabs/inventaire">
-      <ion-icon name="diamond"></ion-icon>
-      <ion-label>Inventaire</ion-label>
-    </ion-tab-button>
-
-    <ion-tab-button tab="apropos" href="/tabs/apropos">
-      <ion-icon name="information-circle"></ion-icon>
-      <ion-label>À propos</ion-label>
-    </ion-tab-button>
-
+  <!-- Ion-tab-bar cachée — conserve le routage Ionic -->
+  <ion-tab-bar slot="bottom" class="ion-tab-bar-cache">
+    <ion-tab-button tab="carte"    href="/tabs/carte"></ion-tab-button>
+    <ion-tab-button tab="parcours" href="/tabs/parcours"></ion-tab-button>
+    <ion-tab-button tab="apropos"  href="/tabs/apropos"></ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
+
+<!-- Navigation visuelle custom -->
+<nav class="nav-custom" *ngIf="!uiState.navMasquee()">
+  <div class="nav-bar">
+
+    <button class="nav-tab"
+            *ngFor="let o of onglets"
+            [class.actif]="ongletActif() === o.id"
+            (click)="navTo(o.id)">
+
+      <!-- Icône active : cercle élevé avec icône + label à l'intérieur -->
+      <div class="nav-elevated" *ngIf="ongletActif() === o.id">
+        <ion-icon [name]="o.icone"></ion-icon>
+        <span class="nav-label-actif">{{ o.label }}</span>
+      </div>
+
+      <!-- Icône inactive : à plat dans la barre -->
+      <div class="nav-flat" *ngIf="ongletActif() !== o.id">
+        <ion-icon [name]="o.icone"></ion-icon>
+        <span class="nav-label">{{ o.label }}</span>
+      </div>
+
+    </button>
+
+  </div>
+</nav>

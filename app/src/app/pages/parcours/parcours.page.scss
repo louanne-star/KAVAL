@@ -1,16 +1,296 @@
-.parcours-content {
-  --background: #0a0a0a;
+ion-content.parcours-content {
+  --background: #f7f7f5;
 }
 
-// Header
+// ── Badge win overlay ─────────────────────────────────────────────────────────
+
+.badge-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  background: rgba(0,0,0,0.5);
+  animation: fonduEntree 0.3s ease;
+}
+
+.badge-win-card {
+  background: #fff;
+  border: 2px solid #27476e;
+  border-radius: 28px;
+  padding: 48px 40px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+  box-shadow: 0 0 60px rgba(39,71,110,0.2);
+}
+
+.badge-emoji {
+  font-size: 72px;
+  display: block;
+  animation: badgePop 0.7s ease 0.15s both;
+}
+
+.badge-titre {
+  font-size: 24px;
+  font-weight: 900;
+  color: #27476e;
+  margin: 16px 0 8px;
+}
+
+.badge-sous {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+}
+
+@keyframes fonduEntree { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0 }
+  to   { transform: translateY(0);    opacity: 1 }
+}
+@keyframes badgePop {
+  0%   { transform: scale(0) rotate(-20deg) }
+  60%  { transform: scale(1.2) rotate(8deg) }
+  100% { transform: scale(1) rotate(0) }
+}
+
+// ── Mini-jeu iframe ───────────────────────────────────────────────────────────
+
+.jeu-container {
+  position: fixed;
+  inset: 0;
+  // Au-dessus de la nav custom du shell (tabs.page.scss, z-index: 9999),
+  // sinon elle reste visible par-dessus et recouvre le bas du jeu (bouton VALIDER).
+  z-index: 10000;
+  background: #0b1929;
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-fermer-jeu {
+  background: rgba(0,0,0,0.4);
+  color: rgba(255,255,255,0.8);
+  border: none;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.jeu-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+}
+
+// ── Détail zone ───────────────────────────────────────────────────────────────
+
+.detail-header {
+  background: linear-gradient(160deg, #27476e 0%, #3a6190 100%);
+  padding: 56px 24px 32px;
+  color: #fff;
+}
+
+// Photo de fond spécifique à chaque zone
+.detail-header.zone-camp_est {
+  background-image: url('/assets/images/Photo%20camp-est.jpg');
+  background-size: cover;
+  background-position: center 20%;
+}
+
+.btn-retour {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: rgba(255,255,255,0.9);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.detail-icone { font-size: 56px; margin-bottom: 12px; display: block; }
+
+.detail-badge-pill {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 6px;
+}
+
+.detail-titre {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+.detail-sous-titre {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+  margin: 0 0 12px;
+}
+
+.detail-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.75);
+  margin: 0;
+}
+
+.detail-contenu { padding: 24px 16px 100px; }
+
+.section-titre {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #27476e;
+  margin: 0 0 12px;
+}
+
+.contenu-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  border: 1px solid #ebebeb;
+}
+
+.jeu-card {
+  cursor: pointer;
+  border-color: rgba(39,71,110,0.2);
+  &:active { opacity: 0.8; }
+}
+
+.contenu-icone {
+  font-size: 28px;
+  width: 48px; height: 48px;
+  background: #f0f4f9;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.contenu-info { flex: 1; }
+
+.contenu-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #27476e;
+  margin: 0 0 2px;
+}
+
+.contenu-sous { font-size: 12px; color: #aaa; margin: 0; }
+
+.contenu-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #aaa;
+  background: #f5f5f5;
+  padding: 4px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.badge-earned {
+  background: rgba(39,71,110,0.1);
+  color: #27476e;
+}
+
+// ── Témoignage historique ─────────────────────────────────────────────────────
+
+.temoignage-card {
+  background: #fdf8f0;
+  border-radius: 16px;
+  padding: 20px 20px 16px;
+  margin-bottom: 10px;
+  border: 1px solid #e8dfc8;
+  position: relative;
+  overflow: hidden;
+}
+
+.temoignage-guillemet {
+  font-size: 72px;
+  line-height: 0.6;
+  color: #c9a84c;
+  font-family: Georgia, serif;
+  opacity: 0.35;
+  margin-bottom: 8px;
+  display: block;
+  user-select: none;
+}
+
+.temoignage-titre {
+  font-size: 16px;
+  font-weight: 800;
+  color: #27476e;
+  margin: 0 0 10px;
+  letter-spacing: -0.2px;
+}
+
+.temoignage-texte {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.75;
+  margin: 0 0 14px;
+  font-style: italic;
+}
+
+.temoignage-auteur {
+  font-size: 12px;
+  font-weight: 700;
+  color: #c9a84c;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+// ── État vide ─────────────────────────────────────────────────────────────────
+
+.liste-vide {
+  text-align: center;
+  padding: 80px 24px;
+}
+
+.vide-icone { font-size: 48px; margin-bottom: 16px; }
+.liste-vide p { margin: 0 0 8px; font-size: 15px; color: #bbb; }
+.vide-hint { font-size: 13px !important; color: #ccc !important; }
+
+.btn-carte {
+  margin-top: 24px;
+  background: #27476e;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+// ── Header timeline ───────────────────────────────────────────────────────────
+
 .parcours-header {
+  background: linear-gradient(160deg, #27476e, #3a6190);
   padding: 60px 24px 32px;
   text-align: center;
 }
 
 .header-label {
   font-size: 10px;
-  color: rgba(201, 168, 76, 0.7);
+  color: rgba(255,255,255,0.5);
   letter-spacing: 3px;
   text-transform: uppercase;
   margin: 0 0 8px;
@@ -19,44 +299,39 @@
 .header-titre {
   font-size: 36px;
   font-weight: 900;
-  color: #ffffff;
+  color: #fff;
   margin: 0 0 8px;
   letter-spacing: -0.5px;
 }
 
 .header-sub {
   font-size: 13px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.55);
   margin: 0 0 20px;
 }
 
-.header-progress {
-  max-width: 200px;
-  margin: 0 auto;
-}
+.header-progress { max-width: 200px; margin: 0 auto; }
 
 .progress-bar {
-  width: 100%;
-  height: 3px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 2px;
-  overflow: hidden;
+  width: 100%; height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px; overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #c9a84c, #f0d080);
+  background: #fff;
   border-radius: 2px;
   transition: width 0.8s ease;
 }
 
-// Timeline
+// ── Timeline ──────────────────────────────────────────────────────────────────
+
 .timeline {
-  padding: 0 32px 100px;
+  padding: 24px 32px 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
 }
 
 .timeline-item {
@@ -64,117 +339,93 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  position: relative;
 }
 
 .timeline-line {
-  width: 2px;
-  height: 40px;
-  background: rgba(255,255,255,0.1);
+  width: 2px; height: 40px;
+  background: rgba(39,71,110,0.12);
 }
 
-.timeline-item.visite .timeline-line {
-  background: rgba(201, 168, 76, 0.4);
-}
+.timeline-item.visite .timeline-line { background: rgba(39,71,110,0.4); }
+.timeline-item.actif  .timeline-line { background: rgba(39,71,110,0.3); }
 
-// Bloc zone
 .zone-bloc {
-  width: 100%;
-  max-width: 280px;
-  background: #1a1a1a;
+  width: 100%; max-width: 240px;
+  background: #fff;
   border-radius: 24px;
   padding: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
   position: relative;
-  border: 1px solid rgba(255,255,255,0.05);
-  transition: all 0.3s ease;
+  border: 1.5px solid #ebebeb;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: max-width 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
 }
 
 .timeline-item.visite .zone-bloc {
-  background: #1e1a0f;
-  border-color: rgba(201, 168, 76, 0.3);
+  max-width: 300px;
+  border-color: rgba(39,71,110,0.3);
+  background: #f0f4f9;
+  box-shadow: 0 6px 24px rgba(39,71,110,0.12);
+  cursor: pointer;
 }
 
 .timeline-item.actif .zone-bloc {
-  background: #1e1a0f;
-  border-color: rgba(201, 168, 76, 0.6);
-  transform: scale(1.05);
-  box-shadow: 0 8px 40px rgba(201, 168, 76, 0.2);
-  max-width: 300px;
+  max-width: 265px;
+  border-color: #27476e;
+  border-width: 2px;
+  box-shadow: 0 4px 16px rgba(39,71,110,0.14);
+  cursor: pointer;
 }
 
 .timeline-item.locked .zone-bloc {
-  background: #111;
-  border-color: rgba(255,255,255,0.03);
+  max-width: 220px;
+  background: #f7f7f5;
+  border-color: #e8e8e8;
+  box-shadow: none;
   opacity: 0.5;
 }
 
-// Badge check/lock
 .zone-badge {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 28px;
-  height: 28px;
+  top: -10px; right: -10px;
+  width: 28px; height: 28px;
   border-radius: 50%;
-  background: #c9a84c;
-  color: #1a1a1a;
-  font-size: 13px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(201, 168, 76, 0.4);
+  background: #27476e;
+  color: #fff;
+  font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(39,71,110,0.4);
 }
 
 .locked-badge {
-  background: #2a2a2a;
+  background: #ddd;
+  color: #aaa;
   font-size: 12px;
 }
 
-// Icone
 .zone-icone {
-  font-size: 56px;
-  line-height: 1;
-  filter: drop-shadow(0 4px 12px rgba(201, 168, 76, 0.3));
+  font-size: 56px; line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(39,71,110,0.15));
 }
 
 .timeline-item.locked .zone-icone {
-  filter: grayscale(1) opacity(0.3);
+  filter: grayscale(1) opacity(0.35);
   font-size: 40px;
 }
 
-// Infos
-.zone-infos {
-  text-align: center;
-}
+.zone-infos { text-align: center; }
 
 .zone-ordre {
   font-size: 10px;
-  color: rgba(201, 168, 76, 0.7);
+  color: #27476e;
+  opacity: 0.6;
   letter-spacing: 2px;
   text-transform: uppercase;
   margin: 0 0 4px;
 }
 
-.zone-nom {
-  font-size: 18px;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0 0 4px;
-}
-
-.zone-sous-titre {
-  font-size: 12px;
-  color: rgba(255,255,255,0.4);
-  margin: 0;
-}
-
-.zone-locked-text {
-  font-size: 12px;
-  color: rgba(255,255,255,0.2);
-  margin: 0;
-}
+.zone-nom { font-size: 18px; font-weight: 800; color: #27476e; margin: 0 0 4px; }
+.zone-sous-titre { font-size: 12px; color: #999; margin: 0; }
+.zone-locked-text { font-size: 12px; color: #bbb; margin: 0; }
