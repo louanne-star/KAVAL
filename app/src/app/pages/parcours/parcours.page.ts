@@ -25,6 +25,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   // Mini-jeu disponible pour tous les vrai points d'une zone visuelle donnée
   readonly JEUX: Record<string, string> = {
     penitencier: 'assets/mini-jeux/river_jump.html',
+    camp_est:    'assets/mini-jeux/tribunal.html',
   };
 
   readonly TEMOIGNAGES: Record<string, { titre: string; auteur: string; texte: string }> = {
