@@ -127,9 +127,17 @@
 
   .stamp-condamne {
     position:absolute; top:10px; right:10px; width:64px; height:64px;
-    color:var(--rouge); opacity:0.9; transform:rotate(-14deg);
-    pointer-events:none;
+    transform:rotate(-14deg); pointer-events:none;
   }
+  .stamp-condamne img { width:100%; height:100%; object-fit:contain; }
+  .stamp-condamne .stamp-fallback {
+    display:none; width:100%; height:100%; border-radius:50%;
+    border:2.5px dashed var(--rouge); color:var(--rouge); opacity:0.9;
+    align-items:center; justify-content:center; text-align:center;
+    font-weight:800; font-size:9px; letter-spacing:0.5px;
+  }
+  .stamp-condamne.img-err img { display:none; }
+  .stamp-condamne.img-err .stamp-fallback { display:flex; }
 
   .choix-label {
     text-align:center; color:rgba(255,255,255,0.85); font-weight:700; font-size:12.5px;
@@ -160,21 +168,35 @@
   }
 
   .btn-valider {
-    margin-top:auto; width:100%; border:none; border-radius:14px; padding:16px;
-    font-size:17px; font-weight:800; letter-spacing:0.3px; color:#fff; cursor:pointer;
-    background:linear-gradient(180deg, var(--vert) 0%, var(--vert-fonce) 100%);
-    box-shadow:0 6px 16px rgba(47,122,73,0.45);
+    margin-top:auto; width:100%; border:none; border-radius:14px; padding:0;
+    min-height:56px; position:relative; overflow:hidden;
+    background:transparent; cursor:pointer;
     transition:opacity 0.15s ease, transform 0.1s ease;
   }
-  .btn-valider:disabled { opacity:0.35; box-shadow:none; cursor:default; }
+  .btn-valider img { display:block; width:100%; height:auto; }
+  .btn-valider .btn-fallback-texte {
+    display:none; width:100%; padding:16px; text-align:center; border-radius:14px;
+    font-size:17px; font-weight:800; letter-spacing:0.3px; color:#fff;
+    background:linear-gradient(180deg, var(--vert) 0%, var(--vert-fonce) 100%);
+    box-shadow:0 6px 16px rgba(47,122,73,0.45);
+  }
+  .btn-valider.img-err img { display:none; }
+  .btn-valider.img-err .btn-fallback-texte { display:block; }
+  .btn-valider:disabled { opacity:0.35; cursor:default; }
   .btn-valider:not(:disabled):active { transform:scale(0.98); }
 
   .btn-aide {
-    position:absolute; right:16px; bottom:16px; width:40px; height:40px; border-radius:50%;
-    background:var(--brun-fonce); border:2px solid var(--or); color:var(--or);
-    font-weight:800; font-size:18px; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; font-family:Georgia,serif;
+    position:absolute; right:16px; bottom:16px; width:44px; height:44px; border-radius:50%;
+    border:none; padding:0; overflow:hidden; background:transparent; cursor:pointer;
   }
+  .btn-aide img { width:100%; height:100%; object-fit:contain; border-radius:50%; }
+  .btn-aide .btn-fallback-texte {
+    display:none; width:100%; height:100%; border-radius:50%; align-items:center; justify-content:center;
+    background:var(--brun-fonce); border:2px solid var(--or); color:var(--or);
+    font-weight:800; font-size:18px; font-family:Georgia,serif;
+  }
+  .btn-aide.img-err img { display:none; }
+  .btn-aide.img-err .btn-fallback-texte { display:flex; }
 
   /* ── Résultat round ──────────────────────────────────────────────────── */
   #ecran-resultat { padding:0; }
@@ -319,13 +341,10 @@
         <div class="dossier-label-accusation">DOSSIER D'ACCUSATION :</div>
         <div class="dossier-accusation" id="d-accusation"></div>
 
-        <svg class="stamp-condamne" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 3"/>
-          <circle cx="50" cy="50" r="31" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <text x="50" y="41" font-size="8" font-weight="700" fill="currentColor" text-anchor="middle">★</text>
-          <text x="50" y="55" font-size="9.5" font-weight="800" fill="currentColor" text-anchor="middle" letter-spacing="0.4">CONDAMNÉ</text>
-          <text x="50" y="66" font-size="8" font-weight="700" fill="currentColor" text-anchor="middle">★</text>
-        </svg>
+        <div class="stamp-condamne">
+          <img alt="Tampon Condamné" />
+          <div class="stamp-fallback">★ CONDAMNÉ ★</div>
+        </div>
       </div>
 
       <div class="choix-label">CHOISISSEZ UN TAMPON CI-DESSOUS</div>
@@ -348,10 +367,16 @@
         </button>
       </div>
 
-      <button class="btn-valider" id="btn-valider" disabled>VALIDER</button>
+      <button class="btn-valider" id="btn-valider" disabled>
+        <img alt="Valider" />
+        <span class="btn-fallback-texte">VALIDER</span>
+      </button>
     </div>
 
-    <button class="btn-aide" id="btn-aide">?</button>
+    <button class="btn-aide" id="btn-aide">
+      <img alt="Aide" />
+      <span class="btn-fallback-texte">?</span>
+    </button>
   </div>
 
   <!-- ── Résultat d'un round ───────────────────────────────────────────── -->
@@ -408,6 +433,11 @@ const TAMPON_URLS = {
   'TRANSPORTÉ': `${BUCKET_URL}/tampons/transporte.png`,
   'DEPORTÉ':    `${BUCKET_URL}/tampons/deporte.png`,
   'RELÉGUÉ':    `${BUCKET_URL}/tampons/relegue.png`,
+};
+const UI_IMG = {
+  valider:  `${BUCKET_URL}/btn-valider.png`,
+  infos:    `${BUCKET_URL}/btn-infos.png`,
+  condamne: `${BUCKET_URL}/badge-condamne.png`,
 };
 
 const NB_ROUNDS      = 3;
@@ -624,6 +654,11 @@ const modal = $('#modal');
 $('#btn-aide').addEventListener('click', () => modal.classList.add('open'));
 $('#modal-close').addEventListener('click', () => modal.classList.remove('open'));
 modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+// ── Éléments d'interface fixes (ne dépendent pas d'un round) ────────────
+chargerImage($('#btn-valider').querySelector('img'), UI_IMG.valider, $('#btn-valider'));
+chargerImage($('#btn-aide').querySelector('img'), UI_IMG.infos, $('#btn-aide'));
+chargerImage($('.stamp-condamne').querySelector('img'), UI_IMG.condamne, $('.stamp-condamne'));
 
 // ── Démarrage ─────────────────────────────────────────────────────────────
 chargerDossiers();

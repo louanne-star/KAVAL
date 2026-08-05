@@ -12,11 +12,14 @@
 -- Storage public "tribunal" (à créer manuellement : Dashboard > Storage >
 -- New bucket > nom "tribunal", Public bucket : OUI). Cette table stocke
 -- uniquement le chemin du fichier dans ce bucket (ex: 'vasseur.png'), le jeu
--- reconstruit l'URL publique complète. Les 3 images de tampons
--- (TRANSPORTÉ/DÉPORTÉ/RELÉGUÉ) sont fixes et attendues dans le même bucket,
--- sous-dossier "tampons/" (tampons/transporte.png, tampons/deporte.png,
--- tampons/relegue.png) — elles ne changent pas d'un dossier à l'autre donc
--- ne sont pas dans cette table.
+-- reconstruit l'URL publique complète.
+--
+-- Fichiers fixes attendus dans ce bucket (ne changent pas d'un dossier à
+-- l'autre, donc pas stockés dans cette table) :
+--   tampons/transporte.png, tampons/deporte.png, tampons/relegue.png
+--   btn-valider.png, btn-infos.png, badge-condamne.png
+-- Tant qu'un fichier manque, le jeu affiche un repli visuel (silhouette,
+-- tampon texte, bouton CSS) — il reste jouable sans eux.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 create table if not exists tribunal_dossiers (
