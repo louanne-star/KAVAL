@@ -60,7 +60,9 @@ ion-content.parcours-content {
 .jeu-container {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  // Au-dessus de la nav custom du shell (tabs.page.scss, z-index: 9999),
+  // sinon elle reste visible par-dessus et recouvre le bas du jeu (bouton VALIDER).
+  z-index: 10000;
   background: #0b1929;
   display: flex;
   flex-direction: column;
