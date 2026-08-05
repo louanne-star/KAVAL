@@ -5,63 +5,379 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Le Tribunal du Bagne</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background:#f5f0e8;
-  display:flex; align-items:center; justify-content:center;
-  min-height:100vh; overflow:hidden; touch-action:none;
-  font-family: Georgia, serif;
-}
-canvas { display:block; }
+  :root {
+    --brun-fonce:    #241811;
+    --brun-panneau:  #2b1d14;
+    --brun-cadre:    #3d2a1a;
+    --or:            #c9a84c;
+    --creme:         #f6ecd9;
+    --creme-bord:    #c9a45c;
+    --rouge:         #9a2a1a;
+    --vert:          #4caf6d;
+    --vert-fonce:    #2f7a49;
+    --texte-fonce:   #241811;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body {
+    height:100%; background:var(--brun-fonce);
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overflow:hidden; touch-action:manipulation;
+  }
+  #jeu {
+    position:relative; width:100%; height:100%;
+    max-width:420px; margin:0 auto;
+    display:flex; flex-direction:column;
+    background:var(--brun-panneau);
+  }
+  .ecran { position:absolute; inset:0; display:none; flex-direction:column; overflow-y:auto; }
+  .ecran.actif { display:flex; }
 
-#modal {
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,0.65);
-  z-index:100; align-items:center; justify-content:center;
-}
-#modal.open { display:flex; }
-#modal-box {
-  background:#fdf8ef;
-  border:1.5px solid #c9a84c;
-  border-radius:18px;
-  padding:28px 24px;
-  width:88%; max-width:370px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.25);
-}
-#modal-box h2 {
-  font-size:17px; color:#1a2e1e;
-  text-align:center; margin-bottom:18px;
-  padding-bottom:10px;
-  border-bottom:1px solid #e0d0a0;
-  font-family:Georgia,serif;
-}
-.def-item {
-  margin-bottom:14px; padding:12px 14px;
-  background:#fff; border-radius:10px;
-  border-left:4px solid #c9a84c;
-}
-.def-item:nth-child(2){border-left-color:#2d6b2d;}
-.def-item:nth-child(3){border-left-color:#1a4a8a;}
-.def-item:nth-child(4){border-left-color:#7a3a10;}
-.def-titre {
-  font-size:13px; font-weight:bold; color:#1a2e1e;
-  letter-spacing:1.5px; text-transform:uppercase;
-  margin-bottom:5px; font-family:Georgia,serif;
-}
-.def-texte { font-size:13px; color:#444; line-height:1.65; font-family:Georgia,serif; }
-#modal-close {
-  display:block; margin:18px auto 0;
-  background:#1a2e1e; color:#c9a84c;
-  border:none; border-radius:12px;
-  padding:12px 36px; font-size:15px;
-  font-weight:bold; cursor:pointer;
-  font-family:Georgia,serif; letter-spacing:1px;
-}
+  /* ── Écrans chargement / erreur ─────────────────────────────────────── */
+  #ecran-chargement, #ecran-erreur {
+    align-items:center; justify-content:center; text-align:center; gap:14px; padding:32px;
+    color:var(--creme);
+  }
+  .spinner {
+    width:38px; height:38px; border-radius:50%;
+    border:4px solid rgba(201,168,76,0.25); border-top-color:var(--or);
+    animation:tourner 0.9s linear infinite;
+  }
+  @keyframes tourner { to { transform:rotate(360deg); } }
+  .btn-reessayer {
+    margin-top:6px; background:var(--or); color:var(--brun-fonce); border:none;
+    border-radius:12px; padding:12px 28px; font-weight:700; font-size:15px; cursor:pointer;
+  }
+
+  /* ── Header commun ───────────────────────────────────────────────────── */
+  .entete {
+    background:#1a1108; padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+    border-bottom:2px solid var(--or);
+  }
+  .entete-titre { color:var(--or); font-weight:800; font-size:15px; letter-spacing:0.3px; }
+  .entete-info { color:rgba(255,255,255,0.55); font-size:12px; }
+  .entete-score { color:#fff; font-weight:700; font-size:13px; }
+
+  /* ── Scène / portrait ────────────────────────────────────────────────── */
+  .scene-cadre {
+    position:relative; margin:14px 16px 0; height:34vh; min-height:200px; max-height:280px;
+    border-radius:16px; overflow:hidden;
+    border:9px solid var(--brun-cadre);
+    box-shadow:0 10px 24px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(201,168,76,0.35);
+  }
+  .scene-sky {
+    position:absolute; inset:0;
+    background:radial-gradient(circle at 50% 34%, #f6dfa8 0%, #eecb84 38%, #d9a75c 72%, #c98f4a 100%);
+  }
+  .scene-sun {
+    position:absolute; top:6%; left:50%; width:58%; padding-top:58%;
+    transform:translateX(-50%); border-radius:50%;
+    background:radial-gradient(circle, rgba(255,247,222,0.95) 0%, rgba(255,231,170,0.55) 45%, rgba(255,231,170,0) 72%);
+    animation:respirer 5s ease-in-out infinite;
+  }
+  @keyframes respirer {
+    0%,100% { opacity:0.75; transform:translateX(-50%) scale(1); }
+    50%     { opacity:1;    transform:translateX(-50%) scale(1.06); }
+  }
+  .scene-mer {
+    position:absolute; left:0; right:0; bottom:0; height:34%;
+    background:linear-gradient(180deg, #3f6f82 0%, #294f61 55%, #1c3944 100%);
+  }
+  .scene-mer svg { position:absolute; top:-16px; left:0; width:200%; height:24px; animation:vague 7s linear infinite; }
+  .scene-mer svg.vague2 { top:-8px; opacity:0.5; animation-duration:11s; animation-direction:reverse; }
+  @keyframes vague { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  .scene-bateau {
+    position:absolute; right:8%; bottom:32%; width:15%; opacity:0.5;
+    animation:tanguer 4.5s ease-in-out infinite;
+  }
+  @keyframes tanguer {
+    0%,100% { transform:translateY(0) rotate(0deg); }
+    50%     { transform:translateY(-3px) rotate(-1.5deg); }
+  }
+  .scene-photo-wrap {
+    position:absolute; left:0; right:0; bottom:0; top:14%;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .scene-photo-wrap img { max-width:78%; max-height:100%; object-fit:contain; filter:drop-shadow(0 6px 10px rgba(0,0,0,0.35)); }
+  .scene-photo-fallback {
+    display:none; align-items:flex-end; justify-content:center; width:60%; height:82%;
+    color:rgba(36,24,17,0.4);
+  }
+  .scene-photo-wrap.img-err img { display:none; }
+  .scene-photo-wrap.img-err .scene-photo-fallback { display:flex; }
+
+  /* ── Dossier ─────────────────────────────────────────────────────────── */
+  .dossier-zone { flex:1; padding:16px; display:flex; flex-direction:column; gap:14px; min-height:0; }
+  .dossier-carte {
+    position:relative; background:var(--creme); border-radius:10px; padding:16px 16px 14px;
+    border:2px dashed var(--creme-bord);
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .dossier-entete {
+    font-family:Georgia, 'Times New Roman', serif; font-weight:700; font-size:12.5px;
+    letter-spacing:0.4px; text-align:center; color:var(--texte-fonce);
+    padding-bottom:8px; margin-bottom:10px; border-bottom:1px solid rgba(36,24,17,0.18);
+  }
+  .dossier-ligne { font-size:14px; color:var(--texte-fonce); margin-bottom:5px; }
+  .dossier-ligne b { font-weight:700; }
+  .dossier-label-accusation {
+    font-weight:700; font-size:12.5px; color:var(--rouge); letter-spacing:0.3px;
+    margin-top:8px; margin-bottom:4px;
+  }
+  .dossier-accusation { font-size:13.5px; color:#5a2418; line-height:1.5; padding-right:64px; }
+
+  .stamp-condamne {
+    position:absolute; top:10px; right:10px; width:64px; height:64px;
+    color:var(--rouge); opacity:0.9; transform:rotate(-14deg);
+    pointer-events:none;
+  }
+
+  .choix-label {
+    text-align:center; color:rgba(255,255,255,0.85); font-weight:700; font-size:12.5px;
+    letter-spacing:0.5px;
+  }
+
+  .stamps-row { display:flex; gap:8px; }
+  .stamp-btn {
+    flex:1; background:var(--creme); border:2.5px solid transparent; border-radius:12px;
+    padding:8px 4px 10px; display:flex; flex-direction:column; align-items:center; gap:4px;
+    cursor:pointer; transition:transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .stamp-btn img { width:100%; max-width:82px; aspect-ratio:1; object-fit:contain; }
+  .stamp-btn .stamp-fallback {
+    display:none; width:100%; aspect-ratio:1; border-radius:50%;
+    border:3px solid currentColor; align-items:center; justify-content:center;
+    font-weight:800; font-size:10px; text-align:center; padding:4px;
+  }
+  .stamp-btn.img-err img { display:none; }
+  .stamp-btn.img-err .stamp-fallback { display:flex; }
+  .stamp-btn[data-peine="TRANSPORTÉ"] .stamp-fallback { color:#2d6b2d; }
+  .stamp-btn[data-peine="DEPORTÉ"]    .stamp-fallback { color:#1a4a8a; }
+  .stamp-btn[data-peine="RELÉGUÉ"]    .stamp-fallback { color:#8a4a10; }
+  .stamp-btn .stamp-nom { font-size:11px; font-weight:700; color:var(--texte-fonce); letter-spacing:0.2px; }
+  .stamp-btn.selectionne {
+    border-color:var(--or); transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.3);
+  }
+
+  .btn-valider {
+    margin-top:auto; width:100%; border:none; border-radius:14px; padding:16px;
+    font-size:17px; font-weight:800; letter-spacing:0.3px; color:#fff; cursor:pointer;
+    background:linear-gradient(180deg, var(--vert) 0%, var(--vert-fonce) 100%);
+    box-shadow:0 6px 16px rgba(47,122,73,0.45);
+    transition:opacity 0.15s ease, transform 0.1s ease;
+  }
+  .btn-valider:disabled { opacity:0.35; box-shadow:none; cursor:default; }
+  .btn-valider:not(:disabled):active { transform:scale(0.98); }
+
+  .btn-aide {
+    position:absolute; right:16px; bottom:16px; width:40px; height:40px; border-radius:50%;
+    background:var(--brun-fonce); border:2px solid var(--or); color:var(--or);
+    font-weight:800; font-size:18px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-family:Georgia,serif;
+  }
+
+  /* ── Résultat round ──────────────────────────────────────────────────── */
+  #ecran-resultat { padding:0; }
+  .resultat-bandeau {
+    padding:16px; text-align:center; font-weight:800; font-size:17px; color:#fff;
+  }
+  .resultat-bandeau.correct   { background:#1a5c1a; }
+  .resultat-bandeau.incorrect { background:#8a2a10; }
+  .resultat-corps { padding:20px 20px 0; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .resultat-tampons { display:flex; gap:18px; align-items:center; }
+  .resultat-tampon-bloc { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .resultat-tampon-bloc img, .resultat-tampon-bloc .stamp-fallback { width:88px; height:88px; }
+  .resultat-tampon-bloc .stamp-fallback {
+    display:none; border-radius:50%; border:3px solid currentColor;
+    align-items:center; justify-content:center; font-weight:800; font-size:11px; text-align:center; padding:4px;
+  }
+  .resultat-tampon-bloc.img-err img { display:none; }
+  .resultat-tampon-bloc.img-err .stamp-fallback { display:flex; }
+  .resultat-tampon-bloc.rate img { opacity:0.4; }
+  .resultat-tampon-croix {
+    position:relative;
+  }
+  .resultat-tampon-croix::before, .resultat-tampon-croix::after {
+    content:''; position:absolute; left:6px; right:6px; top:50%; height:4px; background:#cc2020;
+    border-radius:4px;
+  }
+  .resultat-tampon-croix::before { transform:rotate(45deg); }
+  .resultat-tampon-croix::after  { transform:rotate(-45deg); }
+  .resultat-tampon-label { font-size:12px; font-weight:700; }
+  .resultat-verdict { font-weight:800; font-size:15px; color:var(--texte-fonce); margin-top:2px; }
+  .resultat-explication {
+    font-size:13.5px; color:#444; line-height:1.55; text-align:center; padding:0 6px;
+    font-style:italic;
+  }
+  .resultat-score {
+    margin:16px 20px 0; background:rgba(0,0,0,0.06); border-radius:12px; padding:12px;
+    text-align:center; font-weight:700; color:var(--texte-fonce);
+  }
+  .btn-suivant {
+    margin:16px 20px 20px; border:none; border-radius:14px; padding:16px;
+    background:var(--brun-fonce); color:var(--or); font-weight:800; font-size:15px;
+    border:2px solid var(--or); cursor:pointer;
+  }
+  #ecran-resultat.actif { background:#fdf8ee; }
+
+  /* ── Intro / fin ─────────────────────────────────────────────────────── */
+  .ecran-centre {
+    align-items:center; justify-content:center; text-align:center; padding:28px; gap:16px;
+    color:var(--creme);
+  }
+  .titre-scale { font-size:26px; font-weight:800; color:var(--or); }
+  .sous-titre { font-size:14px; color:rgba(246,236,217,0.75); font-style:italic; }
+  .regles-carte {
+    background:var(--creme); color:var(--texte-fonce); border-radius:12px; padding:18px;
+    text-align:left; font-size:14px; line-height:1.65; width:100%;
+  }
+  .regles-carte b { color:var(--rouge); }
+  .peine-ligne { font-weight:700; margin:2px 0; }
+  .btn-principal {
+    width:100%; border:none; border-radius:14px; padding:16px; font-weight:800; font-size:16px;
+    background:var(--or); color:var(--brun-fonce); cursor:pointer;
+  }
+  .score-final { font-size:52px; font-weight:800; color:var(--or); }
+  .etoiles { font-size:26px; letter-spacing:4px; }
+  .etoile-off { opacity:0.25; }
+
+  /* ── Modale définitions ──────────────────────────────────────────────── */
+  #modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:100; align-items:center; justify-content:center; }
+  #modal.open { display:flex; }
+  #modal-box { background:#fdf8ef; border:1.5px solid var(--or); border-radius:18px; padding:28px 24px; width:88%; max-width:370px; box-shadow:0 8px 32px rgba(0,0,0,0.25); }
+  #modal-box h2 { font-size:17px; color:#1a2e1e; text-align:center; margin-bottom:18px; padding-bottom:10px; border-bottom:1px solid #e0d0a0; }
+  .def-item { margin-bottom:14px; padding:12px 14px; background:#fff; border-radius:10px; border-left:4px solid var(--or); }
+  .def-item:nth-child(2){ border-left-color:#2d6b2d; }
+  .def-item:nth-child(3){ border-left-color:#1a4a8a; }
+  .def-item:nth-child(4){ border-left-color:#7a3a10; }
+  .def-titre { font-size:13px; font-weight:bold; color:#1a2e1e; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
+  .def-texte { font-size:13px; color:#444; line-height:1.6; }
+  #modal-close { display:block; margin:18px auto 0; background:#1a2e1e; color:var(--or); border:none; border-radius:12px; padding:12px 36px; font-size:15px; font-weight:bold; cursor:pointer; }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
 
+<div id="jeu">
+
+  <!-- ── Chargement ─────────────────────────────────────────────────────── -->
+  <div id="ecran-chargement" class="ecran actif">
+    <div class="spinner"></div>
+    <p>Ouverture des dossiers du bagne…</p>
+  </div>
+
+  <!-- ── Erreur ─────────────────────────────────────────────────────────── -->
+  <div id="ecran-erreur" class="ecran">
+    <p>⚠ Impossible de charger les dossiers du tribunal.</p>
+    <button class="btn-reessayer" id="btn-reessayer">Réessayer</button>
+  </div>
+
+  <!-- ── Intro ──────────────────────────────────────────────────────────── -->
+  <div id="ecran-intro" class="ecran ecran-centre">
+    <div class="titre-scale">⚖️ LE TRIBUNAL</div>
+    <div class="sous-titre">Bagne de l'Île Nou · Nouvelle-Calédonie</div>
+    <div class="regles-carte">
+      <p><b>Vous êtes juge au tribunal du bagne.</b></p>
+      <p style="margin-top:8px;">3 dossiers vous attendent. Pour chaque détenu, choisissez la bonne peine :</p>
+      <p class="peine-ligne" style="margin-top:10px;">🟢 TRANSPORTÉ — Crime politique</p>
+      <p class="peine-ligne">🔵 DÉPORTÉ — Crime grave</p>
+      <p class="peine-ligne">🟠 RELÉGUÉ — Récidiviste mineur</p>
+      <p style="margin-top:10px; font-style:italic;">Appuyez sur ? pour les définitions.</p>
+      <p style="margin-top:4px;"><b>2 bonnes réponses sur 3 = VICTOIRE !</b></p>
+    </div>
+    <button class="btn-principal" id="btn-commencer">COMMENCER ▶</button>
+  </div>
+
+  <!-- ── Jeu (un round) ─────────────────────────────────────────────────── -->
+  <div id="ecran-jeu" class="ecran">
+    <div class="entete">
+      <span class="entete-titre">⚖️ LE TRIBUNAL DU BAGNE</span>
+      <span class="entete-info" id="info-round">Dossier 1/3</span>
+      <span class="entete-score" id="info-score">0/0 ✓</span>
+    </div>
+
+    <div class="scene-cadre">
+      <div class="scene-sky"></div>
+      <div class="scene-sun"></div>
+      <div class="scene-mer">
+        <svg class="vague1" viewBox="0 0 400 24" preserveAspectRatio="none"><path d="M0,12 C50,24 100,0 150,12 C200,24 250,0 300,12 C350,24 380,6 400,12 L400,24 L0,24 Z" fill="rgba(255,255,255,0.10)"/></svg>
+        <svg class="vague2" viewBox="0 0 400 24" preserveAspectRatio="none"><path d="M0,10 C60,22 110,2 160,10 C220,20 260,4 320,12 C360,18 380,8 400,10 L400,24 L0,24 Z" fill="rgba(255,255,255,0.14)"/></svg>
+      </div>
+      <svg class="scene-bateau" viewBox="0 0 60 30"><path d="M4,20 L56,20 L48,28 L12,28 Z" fill="#16232a"/><rect x="27" y="4" width="2" height="18" fill="#16232a"/><path d="M29,6 L44,18 L29,18 Z" fill="#16232a"/></svg>
+      <div class="scene-photo-wrap" id="photo-wrap">
+        <img id="photo-img" alt="Portrait du détenu" />
+        <div class="scene-photo-fallback">
+          <svg width="72" height="90" viewBox="0 0 72 90" fill="none"><circle cx="36" cy="26" r="20" fill="currentColor"/><path d="M6,90 C6,60 20,48 36,48 C52,48 66,60 66,90 Z" fill="currentColor"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="dossier-zone">
+      <div class="dossier-carte">
+        <div class="dossier-entete">ADMINISTRATION PÉNITENTIAIRE DE L'ÎLE NOU</div>
+        <div class="dossier-ligne"><b>MATRICULE : <span id="d-matricule"></span></b></div>
+        <div class="dossier-ligne">NOM : <span id="d-nom"></span> (<span id="d-age"></span> ans)</div>
+        <div class="dossier-label-accusation">DOSSIER D'ACCUSATION :</div>
+        <div class="dossier-accusation" id="d-accusation"></div>
+
+        <svg class="stamp-condamne" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 3"/>
+          <circle cx="50" cy="50" r="31" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <text x="50" y="41" font-size="8" font-weight="700" fill="currentColor" text-anchor="middle">★</text>
+          <text x="50" y="55" font-size="9.5" font-weight="800" fill="currentColor" text-anchor="middle" letter-spacing="0.4">CONDAMNÉ</text>
+          <text x="50" y="66" font-size="8" font-weight="700" fill="currentColor" text-anchor="middle">★</text>
+        </svg>
+      </div>
+
+      <div class="choix-label">CHOISISSEZ UN TAMPON CI-DESSOUS</div>
+
+      <div class="stamps-row" id="stamps-row">
+        <button class="stamp-btn" data-peine="TRANSPORTÉ">
+          <img alt="Tampon Transporté" />
+          <div class="stamp-fallback">TRANS­PORTÉ</div>
+          <span class="stamp-nom">TRANSPORTÉ</span>
+        </button>
+        <button class="stamp-btn" data-peine="DEPORTÉ">
+          <img alt="Tampon Déporté" />
+          <div class="stamp-fallback">DÉPORTÉ</div>
+          <span class="stamp-nom">DÉPORTÉ</span>
+        </button>
+        <button class="stamp-btn" data-peine="RELÉGUÉ">
+          <img alt="Tampon Relégué" />
+          <div class="stamp-fallback">RELÉGUÉ</div>
+          <span class="stamp-nom">RELÉGUÉ</span>
+        </button>
+      </div>
+
+      <button class="btn-valider" id="btn-valider" disabled>VALIDER</button>
+    </div>
+
+    <button class="btn-aide" id="btn-aide">?</button>
+  </div>
+
+  <!-- ── Résultat d'un round ───────────────────────────────────────────── -->
+  <div id="ecran-resultat" class="ecran">
+    <div class="resultat-bandeau" id="resultat-bandeau"></div>
+    <div class="resultat-corps">
+      <div class="resultat-tampons" id="resultat-tampons"></div>
+      <div class="resultat-verdict" id="resultat-verdict"></div>
+      <div class="resultat-explication" id="resultat-explication"></div>
+    </div>
+    <div class="resultat-score" id="resultat-score"></div>
+    <button class="btn-suivant" id="btn-suivant">DOSSIER SUIVANT →</button>
+  </div>
+
+  <!-- ── Fin de partie ──────────────────────────────────────────────────── -->
+  <div id="ecran-fin" class="ecran ecran-centre">
+    <div id="fin-titre" class="titre-scale"></div>
+    <div class="score-final" id="fin-score"></div>
+    <div class="etoiles" id="fin-etoiles"></div>
+    <div class="sous-titre" id="fin-message"></div>
+    <button class="btn-principal" id="btn-rejouer">▶ REJOUER</button>
+  </div>
+
+</div>
+
+<!-- ── Modale définitions ──────────────────────────────────────────────── -->
 <div id="modal">
   <div id="modal-box">
     <h2>⚖️ Les peines du bagne</h2>
@@ -82,704 +398,235 @@ canvas { display:block; }
 </div>
 
 <script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const W = Math.min(window.innerWidth, 420);
-const H = Math.min(window.innerHeight, 720);
-canvas.width = W; canvas.height = H;
-
-// ── TAMPONS ───────────────────────────────────────────────────────
-const TAMPONS = {};
+// ─────────────────────────────────────────────────────────────────────────
+// Config Supabase (clé publique anon — lecture seule, RLS "using (true)")
+// ─────────────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://onuavovmdbfigwfbagtd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9udWF2b3ZtZGJmaWd3ZmJhZ3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNzc4NzQsImV4cCI6MjA5Nzg1Mzg3NH0.J3FL0tb9S0xjIobkCo3Q833bg1GAFqUnxsj3nkptDNI';
+const BUCKET_URL = `${SUPABASE_URL}/storage/v1/object/public/tribunal`;
 const TAMPON_URLS = {
-  'TRANSPORTÉ': 'https://VOTRE_URL/transporte.png',
-  'DEPORTÉ':    'https://VOTRE_URL/deporte.png',
-  'RELÉGUÉ':    'https://VOTRE_URL/relegue.png',
+  'TRANSPORTÉ': `${BUCKET_URL}/tampons/transporte.png`,
+  'DEPORTÉ':    `${BUCKET_URL}/tampons/deporte.png`,
+  'RELÉGUÉ':    `${BUCKET_URL}/tampons/relegue.png`,
 };
-Object.entries(TAMPON_URLS).forEach(([key, url]) => {
-  const img = new Image();
-  img.src = url;
-  TAMPONS[key] = img;
+
+const NB_ROUNDS      = 3;
+const SEUIL_VICTOIRE = 2;
+
+const EXPLICATIONS = {
+  'TRANSPORTÉ': 'Crime politique ou de rébellion : transporté en Nouvelle-Calédonie, avec possibilité de retour.',
+  'DEPORTÉ':    'Crime grave : déporté définitivement dans une enceinte fortifiée, sans retour possible.',
+  'RELÉGUÉ':    'Récidiviste de crimes mineurs : relégué aux colonies pour éloigner les indésirables.',
+};
+
+// ── State ───────────────────────────────────────────────────────────────
+let dossiers = [];
+let currentIdx = 0;
+let score = 0;
+let selection = null;
+
+// ── DOM refs ────────────────────────────────────────────────────────────
+const $ = sel => document.querySelector(sel);
+const ecrans = {
+  chargement: $('#ecran-chargement'),
+  erreur:     $('#ecran-erreur'),
+  intro:      $('#ecran-intro'),
+  jeu:        $('#ecran-jeu'),
+  resultat:   $('#ecran-resultat'),
+  fin:        $('#ecran-fin'),
+};
+function afficherEcran(nom) {
+  Object.values(ecrans).forEach(e => e.classList.remove('actif'));
+  ecrans[nom].classList.add('actif');
+}
+
+// ── Chargement des dossiers depuis Supabase ────────────────────────────
+async function chargerDossiers() {
+  afficherEcran('chargement');
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/tribunal_dossiers?select=*&actif=eq.true`,
+      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+    );
+    if (!resp.ok) throw new Error('http ' + resp.status);
+    const tous = await resp.json();
+    if (!Array.isArray(tous) || tous.length === 0) throw new Error('vide');
+
+    dossiers = melanger(tous).slice(0, NB_ROUNDS);
+    afficherEcran('intro');
+  } catch {
+    afficherEcran('erreur');
+  }
+}
+
+function melanger(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── Helpers image avec repli gracieux ──────────────────────────────────
+function chargerImage(imgEl, url, wrapperEl) {
+  // Affiche le repli tant que l'image n'a pas fini de charger (pas seulement
+  // en cas d'échec) pour éviter un trou visuel pendant la requête réseau.
+  wrapperEl.classList.add('img-err');
+  if (!url) return;
+  imgEl.onload  = () => wrapperEl.classList.remove('img-err');
+  imgEl.onerror = () => wrapperEl.classList.add('img-err');
+  imgEl.src = url;
+}
+
+// ── Rendu d'un round ────────────────────────────────────────────────────
+function afficherRound() {
+  selection = null;
+  const d = dossiers[currentIdx];
+
+  $('#info-round').textContent = `Dossier ${currentIdx + 1}/${NB_ROUNDS}`;
+  $('#info-score').textContent = `${score}/${currentIdx} ✓`;
+
+  $('#d-matricule').textContent  = d.matricule;
+  $('#d-nom').textContent        = d.nom;
+  $('#d-age').textContent        = d.age;
+  $('#d-accusation').textContent = d.accusation;
+
+  const photoWrap = $('#photo-wrap');
+  const photoUrl  = d.photo ? `${BUCKET_URL}/${d.photo}` : null;
+  chargerImage($('#photo-img'), photoUrl, photoWrap);
+
+  document.querySelectorAll('.stamp-btn').forEach(btn => {
+    btn.classList.remove('selectionne', 'img-err');
+    const peine = btn.dataset.peine;
+    chargerImage(btn.querySelector('img'), TAMPON_URLS[peine], btn);
+  });
+
+  $('#btn-valider').disabled = true;
+  afficherEcran('jeu');
+}
+
+// ── Sélection d'un tampon ───────────────────────────────────────────────
+document.querySelectorAll('.stamp-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.stamp-btn').forEach(b => b.classList.remove('selectionne'));
+    btn.classList.add('selectionne');
+    selection = btn.dataset.peine;
+    $('#btn-valider').disabled = false;
+  });
 });
 
-// ── DONNÉES ───────────────────────────────────────────────────────
-const DETENUS = [
-  {
-    matricule:'#4021', nom:'Pierre VASSEUR', age:34,
-    accusation:'A publié et diffusé des textes appelant à la rébellion armée contre le gouvernement.',
-    bonne_reponse:'DEPORTÉ',
-    explication:'La diffusion de textes séditieux était un crime politique grave, puni de déportation dans une enceinte fortifiée.'
-  },
-  {
-    matricule:'#1872', nom:'Jean-Baptiste MOREAU', age:28,
-    accusation:'Reconnu coupable de meurtre avec préméditation sur un officier de gendarmerie.',
-    bonne_reponse:'DEPORTÉ',
-    explication:'Le meurtre d\'un représentant de l\'ordre entraînait la déportation définitive dans une enceinte fortifiée.'
-  },
-  {
-    matricule:'#3304', nom:'Auguste LEFÈVRE', age:45,
-    accusation:'Condamné pour vol avec effraction. C\'est sa 4e condamnation pour des faits similaires.',
-    bonne_reponse:'RELÉGUÉ',
-    explication:'La récidive répétée de crimes mineurs comme le vol entraînait la relégation aux colonies.'
-  },
-  {
-    matricule:'#5519', nom:'Henri DUBOIS', age:22,
-    accusation:'A participé activement aux combats de l\'insurrection de la Commune de Paris en 1871.',
-    bonne_reponse:'TRANSPORTÉ',
-    explication:'Les communards étaient transportés en Nouvelle-Calédonie — ils pouvaient rentrer après avoir purgé leur peine.'
-  },
-  {
-    matricule:'#2087', nom:'Louise MARTIN', age:31,
-    accusation:'A mis le feu à plusieurs bâtiments publics lors des émeutes de 1871 à Paris.',
-    bonne_reponse:'DEPORTÉ',
-    explication:'L\'incendie volontaire de biens publics était un acte grave puni de déportation définitive.'
-  },
-  {
-    matricule:'#6643', nom:'Marcel BERNARD', age:19,
-    accusation:'Arrêté pour la 5e fois pour vagabondage et mendicité agressive sur la voie publique.',
-    bonne_reponse:'RELÉGUÉ',
-    explication:'Le vagabondage chronique et la mendicité répétée menaient à la relégation pour éloigner les indésirables.'
-  },
-  {
-    matricule:'#0934', nom:'Émile ROUSSEAU', age:52,
-    accusation:'Reconnu coupable d\'avoir transmis des secrets militaires à une puissance étrangère.',
-    bonne_reponse:'DEPORTÉ',
-    explication:'L\'espionnage était un crime politique très grave, systématiquement puni de déportation.'
-  },
-  {
-    matricule:'#7751', nom:'François PETIT', age:37,
-    accusation:'A falsifié à plusieurs reprises des documents officiels pour escroquer des citoyens.',
-    bonne_reponse:'RELÉGUÉ',
-    explication:'La falsification de documents sans violence, en cas de récidive, menait généralement à la relégation.'
+// ── Validation ──────────────────────────────────────────────────────────
+$('#btn-valider').addEventListener('click', () => {
+  if (!selection) return;
+  const d = dossiers[currentIdx];
+  const correct = selection === d.bonne_reponse;
+  if (correct) score++;
+
+  $('#resultat-bandeau').className = 'resultat-bandeau ' + (correct ? 'correct' : 'incorrect');
+  $('#resultat-bandeau').textContent = correct ? '✓  BONNE RÉPONSE !' : '✗  MAUVAISE RÉPONSE';
+
+  const tamponsWrap = $('#resultat-tampons');
+  tamponsWrap.innerHTML = '';
+
+  if (!correct) {
+    tamponsWrap.appendChild(creerBlocTampon(selection, true, 'Votre choix'));
   }
-];
+  tamponsWrap.appendChild(creerBlocTampon(d.bonne_reponse, false, correct ? null : 'Bonne réponse'));
 
-// ── STATE ─────────────────────────────────────────────────────────
-let state, currentIdx, score, showResult, lastCorrect, particles, animT, selectedBtn;
-let stampAnim = { active:false, progress:0, scale:0, opacity:0, phase:'in' };
+  $('#resultat-verdict').textContent      = correct ? `Peine : ${labelPeine(d.bonne_reponse)}` : `Bonne réponse : ${labelPeine(d.bonne_reponse)}`;
+  $('#resultat-explication').textContent  = d.explication || EXPLICATIONS[d.bonne_reponse] || '';
+  $('#resultat-score').textContent        = `Score : ${score} / ${currentIdx + 1}`;
+  $('#btn-suivant').textContent           = currentIdx < dossiers.length - 1 ? 'DOSSIER SUIVANT →' : 'VOIR MON RÉSULTAT →';
 
-function resetGame() {
-  state='intro'; currentIdx=0; score=0;
-  showResult=false; lastCorrect=null;
-  particles=[]; animT=0; selectedBtn=null;
-  stampAnim = { active:false, progress:0, scale:0, opacity:0, phase:'in' };
-}
-resetGame();
-
-// ── LAYOUT ────────────────────────────────────────────────────────
-const BTN_Y   = H * 0.778;
-const BTN_H   = Math.floor(H * 0.080);
-const BTN_W   = Math.floor(W * 0.265);
-const BTN_GAP = Math.floor(W * 0.026);
-const TOTAL_BTN_W = BTN_W*3 + BTN_GAP*2;
-const BTN_START_X = (W - TOTAL_BTN_W) / 2;
-
-const BTNS = [
-  { label:'TRANSPORTÉ', color:'#2d6b2d', light:'#3d8b3d', rep:'TRANSPORTÉ', dot:'#5cb85c' },
-  { label:'DÉPORTÉ',    color:'#1a4a8a', light:'#2a6aaa', rep:'DEPORTÉ',    dot:'#4a90d9' },
-  { label:'RELÉGUÉ',    color:'#7a3a10', light:'#9a5a20', rep:'RELÉGUÉ',    dot:'#d4783a' },
-];
-function getBtnRect(i) {
-  return { x:BTN_START_X+i*(BTN_W+BTN_GAP), y:BTN_Y-BTN_H/2, w:BTN_W, h:BTN_H };
-}
-
-const HELP_R = Math.floor(W*0.058);
-const HELP_X = W - HELP_R - 10;
-const HELP_Y = BTN_Y + BTN_H/2 + HELP_R + 8;
-
-const VAL_Y = H * 0.908;
-const VAL_H = Math.floor(H * 0.066);
-function getValRect() {
-  return { x:W*0.08, y:VAL_Y-VAL_H/2, w:W*0.84, h:VAL_H };
-}
-
-// ── MODAL ─────────────────────────────────────────────────────────
-const modal = document.getElementById('modal');
-document.getElementById('modal-close').onclick = () => modal.classList.remove('open');
-modal.onclick = e => { if(e.target===modal) modal.classList.remove('open'); };
-
-// ── PARTICULES ────────────────────────────────────────────────────
-function spawnParticles(x, y, color, n) {
-  for (let i=0; i<n; i++) {
-    const a=Math.random()*Math.PI*2, s=2+Math.random()*5;
-    particles.push({ x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s-3,
-      life:1, decay:0.02+Math.random()*0.02, r:3+Math.random()*5, color });
-  }
-}
-
-// ── INPUT ─────────────────────────────────────────────────────────
-function handleTap(cx, cy) {
-  if (state==='intro') { state='play'; return; }
-  if (state==='fin')   { resetGame(); return; }
-  if (state!=='play')  return;
-  if (stampAnim.active) return; // bloquer pendant animation
-
-  if (showResult) {
-    showResult=false; selectedBtn=null; currentIdx++;
-    if (currentIdx>=DETENUS.length) state='fin';
-    return;
-  }
-
-  if (Math.hypot(cx-HELP_X, cy-HELP_Y) < HELP_R+10) {
-    modal.classList.add('open'); return;
-  }
-
-  for (let i=0; i<BTNS.length; i++) {
-    const r=getBtnRect(i);
-    if (cx>=r.x&&cx<=r.x+r.w&&cy>=r.y&&cy<=r.y+r.h) { selectedBtn=i; return; }
-  }
-
-  if (selectedBtn!==null) {
-    const vr=getValRect();
-    if (cx>=vr.x&&cx<=vr.x+vr.w&&cy>=vr.y&&cy<=vr.y+vr.h) valider();
-  }
-}
-
-function valider() {
-  if (selectedBtn===null) return;
-  const detenu=DETENUS[currentIdx];
-  lastCorrect=(BTNS[selectedBtn].rep===detenu.bonne_reponse);
-  if (lastCorrect) {
-    score++;
-    spawnParticles(W/2, H*0.50, '#c9a84c', 22);
-    stampAnim = { active:true, progress:0, scale:0, opacity:0, phase:'in' };
-  } else {
-    spawnParticles(W/2, H*0.35, '#cc4422', 14);
-    showResult=true;
-  }
-}
-
-canvas.addEventListener('touchstart', e=>{
-  e.preventDefault();
-  const r=canvas.getBoundingClientRect(), t=e.changedTouches[0];
-  handleTap(t.clientX-r.left, t.clientY-r.top);
-}, {passive:false});
-canvas.addEventListener('click', e=>{
-  const r=canvas.getBoundingClientRect();
-  handleTap(e.clientX-r.left, e.clientY-r.top);
+  afficherEcran('resultat');
 });
 
-// ── UTILITAIRES ───────────────────────────────────────────────────
-function wrapTextCenter(text, cx, y, maxW, lh) {
-  const words=text.split(' '); let line='';
-  for (const w of words) {
-    const test=line+w+' ';
-    if (ctx.measureText(test).width>maxW&&line!=='') {
-      ctx.fillText(line.trim(),cx,y); y+=lh; line=w+' ';
-    } else line=test;
+function labelPeine(p) { return p === 'DEPORTÉ' ? 'DÉPORTÉ' : p; }
+
+function creerBlocTampon(peine, rate, label) {
+  const bloc = document.createElement('div');
+  bloc.className = 'resultat-tampon-bloc' + (rate ? ' rate' : '');
+
+  const imgWrap = document.createElement('div');
+  imgWrap.className = rate ? 'resultat-tampon-croix' : '';
+  const img = document.createElement('img');
+  img.alt = peine;
+  imgWrap.appendChild(img);
+  const fallback = document.createElement('div');
+  fallback.className = 'stamp-fallback';
+  fallback.style.color = peine === 'TRANSPORTÉ' ? '#2d6b2d' : peine === 'DEPORTÉ' ? '#1a4a8a' : '#8a4a10';
+  fallback.textContent = labelPeine(peine);
+  imgWrap.appendChild(fallback);
+  bloc.appendChild(imgWrap);
+  chargerImage(img, TAMPON_URLS[peine], bloc);
+
+  if (label) {
+    const lbl = document.createElement('div');
+    lbl.className = 'resultat-tampon-label';
+    lbl.style.color = rate ? '#cc2020' : '#1a5c1a';
+    lbl.textContent = label;
+    bloc.appendChild(lbl);
   }
-  if (line) ctx.fillText(line.trim(),cx,y);
+  return bloc;
 }
 
-function wrapTextLeft(text, x, y, maxW, lh) {
-  const words=text.split(' '); let line='';
-  for (const w of words) {
-    const test=line+w+' ';
-    if (ctx.measureText(test).width>maxW&&line!=='') {
-      ctx.fillText(line.trim(),x,y); y+=lh; line=w+' ';
-    } else line=test;
-  }
-  if (line) ctx.fillText(line.trim(),x,y);
-}
-
-function rr(x,y,w,h,r) { ctx.beginPath(); ctx.roundRect(x,y,w,h,r); }
-
-function drawTampon(key, cx, cy, size) {
-  const img=TAMPONS[key];
-  if (img&&img.complete&&img.naturalWidth>0) {
-    ctx.drawImage(img, cx-size/2, cy-size/2, size, size);
+// ── Navigation round suivant / fin ──────────────────────────────────────
+$('#btn-suivant').addEventListener('click', () => {
+  currentIdx++;
+  if (currentIdx >= dossiers.length) {
+    afficherFin();
   } else {
-    const colors={'TRANSPORTÉ':'#2d6b2d','DEPORTÉ':'#1a4a8a','RELÉGUÉ':'#7a3a10'};
-    const c=colors[key]||'#555';
-    ctx.save(); ctx.globalAlpha *= 0.85;
-    ctx.strokeStyle=c; ctx.lineWidth=4;
-    ctx.beginPath(); ctx.arc(cx,cy,size/2,0,Math.PI*2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(cx,cy,size/2-7,0,Math.PI*2); ctx.stroke();
-    ctx.fillStyle=c;
-    ctx.font=`bold ${Math.floor(size*0.20)}px Georgia,serif`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(key,cx,cy);
-    ctx.textBaseline='alphabetic';
-    ctx.restore();
+    afficherRound();
+  }
+});
+
+function afficherFin() {
+  const victoire = score >= SEUIL_VICTOIRE;
+  $('#fin-titre').textContent   = victoire ? '🏆 VICTOIRE !' : '⚖️ RÉSULTAT FINAL';
+  $('#fin-titre').style.color   = victoire ? '#5cd485' : 'var(--or)';
+  $('#fin-score').textContent   = `${score} / ${dossiers.length}`;
+  $('#fin-message').textContent = victoire ? 'Juge exemplaire !' : `Il fallait ${SEUIL_VICTOIRE} bonnes réponses sur ${dossiers.length}.`;
+
+  const etoiles = $('#fin-etoiles');
+  etoiles.innerHTML = '';
+  for (let i = 0; i < dossiers.length; i++) {
+    const s = document.createElement('span');
+    s.textContent = '★';
+    if (i >= score) s.classList.add('etoile-off');
+    etoiles.appendChild(s);
+  }
+
+  afficherEcran('fin');
+
+  // Prévient l'app hôte (parcours.page.ts écoute ce message) qu'une partie
+  // vient de se terminer, uniquement en cas de victoire.
+  if (victoire) {
+    window.parent?.postMessage({ type: 'jeuTermine' }, '*');
   }
 }
 
-// ── FOND ──────────────────────────────────────────────────────────
-function drawPageBG() {
-  ctx.fillStyle='#f5f0e8'; ctx.fillRect(0,0,W,H);
-  for (let i=0;i<H;i+=4) {
-    ctx.fillStyle=`rgba(180,140,80,${0.012+Math.sin(i*0.4)*0.006})`;
-    ctx.fillRect(0,i,W,1);
-  }
-}
-
-// ── HEADER ────────────────────────────────────────────────────────
-function drawHeader() {
-  const hh=Math.floor(H*0.085);
-  ctx.fillStyle='#1a2e1e'; ctx.fillRect(0,0,W,hh);
-  ctx.fillStyle='#c9a84c';
-  ctx.font=`bold ${Math.floor(W*0.040)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText('⚖️  LE TRIBUNAL DU BAGNE', W/2, Math.floor(hh*0.65));
-  ctx.fillStyle='rgba(201,168,76,0.75)';
-  ctx.font=`${Math.floor(W*0.028)}px sans-serif`;
-  ctx.textAlign='left';
-  ctx.fillText(`Dossier ${currentIdx+1}/8`, 14, Math.floor(hh*0.65));
-  ctx.textAlign='right';
-  ctx.fillStyle='#fff';
-  ctx.font=`bold ${Math.floor(W*0.032)}px sans-serif`;
-  ctx.fillText(`${score}/${currentIdx} ✓`, W-14, Math.floor(hh*0.65));
-}
-
-// ── PORTRAIT ──────────────────────────────────────────────────────
-function drawPortrait() {
-  const fw=W*0.66, fh=H*0.285;
-  const fx=(W-fw)/2, fy=H*0.095;
-
-  ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fillRect(fx+5,fy+5,fw,fh);
-
-  const sky=ctx.createLinearGradient(fx,fy,fx,fy+fh*0.65);
-  sky.addColorStop(0,'#e8c88a'); sky.addColorStop(1,'#d4a855');
-  ctx.fillStyle=sky; ctx.fillRect(fx,fy,fw,fh);
-
-  ctx.fillStyle='#f5dfa0';
-  ctx.beginPath(); ctx.arc(fx+fw*0.5,fy+fh*0.22,fh*0.14,0,Math.PI*2); ctx.fill();
-
-  ctx.fillStyle='#4a7a9a'; ctx.fillRect(fx,fy+fh*0.62,fw,fh*0.38);
-  ctx.fillStyle='rgba(120,190,220,0.22)';
-  ctx.beginPath(); ctx.moveTo(fx,fy+fh*0.66);
-  for (let x=0;x<=fw;x+=6) ctx.lineTo(fx+x,fy+fh*0.66+Math.sin(x*0.09+animT*0.03)*4);
-  ctx.lineTo(fx+fw,fy+fh); ctx.lineTo(fx,fy+fh); ctx.closePath(); ctx.fill();
-
-  ctx.fillStyle='#2a3a4a';
-  ctx.fillRect(fx+fw*0.72,fy+fh*0.56,fw*0.1,fh*0.07);
-  ctx.fillRect(fx+fw*0.755,fy+fh*0.40,2.5,fh*0.17);
-
-  const sx=fx+fw/2, sy=fy+fh*0.50;
-  ctx.fillStyle='#2a1a0a';
-  ctx.beginPath(); ctx.ellipse(sx,sy+8,24,34,0,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='rgba(200,180,140,0.35)'; ctx.lineWidth=3.5;
-  for (let i=-2;i<=2;i++) {
-    ctx.beginPath(); ctx.moveTo(sx+i*9,sy-20); ctx.lineTo(sx+i*9,sy+42); ctx.stroke();
-  }
-  ctx.fillStyle='#5a3820';
-  ctx.beginPath(); ctx.arc(sx,sy-26,20,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='rgba(220,200,160,0.5)';
-  ctx.beginPath(); ctx.ellipse(sx,sy-8,10,5,0,0,Math.PI*2); ctx.fill();
-
-  ctx.strokeStyle='#5a3010'; ctx.lineWidth=7;
-  ctx.strokeRect(fx,fy,fw,fh);
-  ctx.strokeStyle='#8b5a20'; ctx.lineWidth=2;
-  ctx.strokeRect(fx+3.5,fy+3.5,fw-7,fh-7);
-}
-
-// ── FICHE ─────────────────────────────────────────────────────────
-function drawFiche() {
-  const detenu=DETENUS[currentIdx];
-  const fy=H*0.390, fh=H*0.345;
-  const fx=W*0.04, fw=W*0.92;
-  const lh=Math.floor(H*0.0275);
-
-  const grad=ctx.createLinearGradient(fx,fy,fx,fy+fh);
-  grad.addColorStop(0,'#fdf8ee'); grad.addColorStop(1,'#f0e4c0');
-  ctx.fillStyle=grad; rr(fx,fy,fw,fh,6); ctx.fill();
-  ctx.strokeStyle='#8b6914'; ctx.lineWidth=1.5; rr(fx,fy,fw,fh,6); ctx.stroke();
-  ctx.strokeStyle='rgba(139,105,20,0.35)'; ctx.lineWidth=0.7;
-  rr(fx+5,fy+5,fw-10,fh-10,4); ctx.stroke();
-
-  // Filigrane CONDAMNÉ
-  ctx.save(); ctx.globalAlpha=0.07;
-  ctx.font=`bold ${Math.floor(W*0.085)}px Georgia,serif`;
-  ctx.fillStyle='#8a1a1a'; ctx.textAlign='center';
-  ctx.translate(fx+fw*0.68,fy+fh*0.55); ctx.rotate(-0.28);
-  ctx.fillText('CONDAMNÉ',0,0); ctx.restore();
-
-  const px=fx+14; let py=fy+18;
-
-  ctx.fillStyle='#1a0a00';
-  ctx.font=`bold ${Math.floor(W*0.023)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText('ADMINISTRATION PÉNITENTIAIRE DE L\'ÎLE NOU', fx+fw/2, py);
-  py+=lh*0.6;
-
-  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=0.8;
-  ctx.beginPath(); ctx.moveTo(fx+8,py); ctx.lineTo(fx+fw-8,py); ctx.stroke();
-  py+=lh*0.65;
-
-  ctx.font=`bold ${Math.floor(W*0.034)}px Georgia,serif`;
-  ctx.fillStyle='#1a0a00'; ctx.textAlign='left';
-  ctx.fillText(`MATRICULE : ${detenu.matricule}`, px, py); py+=lh*0.95;
-
-  ctx.font=`${Math.floor(W*0.030)}px Georgia,serif`;
-  ctx.fillText(`NOM : ${detenu.nom}  (${detenu.age} ans)`, px, py); py+=lh*1.15;
-
-  ctx.strokeStyle='rgba(139,105,20,0.25)'; ctx.lineWidth=0.6;
-  ctx.beginPath(); ctx.moveTo(fx+8,py-3); ctx.lineTo(fx+fw-8,py-3); ctx.stroke();
-
-  ctx.font=`bold ${Math.floor(W*0.026)}px Georgia,serif`;
-  ctx.fillStyle='#4a1a00';
-  ctx.fillText('MOTIF DE CONDAMNATION :', px, py); py+=lh*0.9;
-
-  ctx.font=`italic ${Math.floor(W*0.028)}px Georgia,serif`;
-  ctx.fillStyle='#2a1a0a'; ctx.textAlign='left';
-  wrapTextLeft(detenu.accusation, px, py, fw-28, lh*0.85);
-
-  ctx.font=`${Math.floor(W*0.021)}px Georgia,serif`;
-  ctx.fillStyle='#6b4914'; ctx.textAlign='center';
-  ctx.fillText('— CHOISISSEZ LA PEINE CI-DESSOUS —', fx+fw/2, fy+fh-11);
-}
-
-// ── BOUTONS ───────────────────────────────────────────────────────
-function drawButtons() {
-  BTNS.forEach((b,i)=>{
-    const r=getBtnRect(i), sel=selectedBtn===i;
-    ctx.fillStyle='rgba(0,0,0,0.16)'; rr(r.x+2,r.y+4,r.w,r.h,10); ctx.fill();
-    ctx.fillStyle=sel?b.light:b.color; rr(r.x,r.y,r.w,r.h,10); ctx.fill();
-    if (sel) { ctx.strokeStyle='#FFD700'; ctx.lineWidth=3; rr(r.x,r.y,r.w,r.h,10); ctx.stroke(); }
-    ctx.fillStyle=b.dot;
-    ctx.beginPath(); ctx.arc(r.x+r.w/2,r.y+14,7,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.arc(r.x+r.w/2,r.y+14,7,0,Math.PI*2); ctx.stroke();
-    ctx.fillStyle='#fff';
-    ctx.font=`bold ${Math.floor(W*0.025)}px sans-serif`;
-    ctx.textAlign='center';
-    ctx.fillText(b.label, r.x+r.w/2, r.y+r.h-11);
-  });
-
-  // Bouton ?
-  ctx.fillStyle='#1a2e1e';
-  ctx.beginPath(); ctx.arc(HELP_X,HELP_Y,HELP_R,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.arc(HELP_X,HELP_Y,HELP_R,0,Math.PI*2); ctx.stroke();
-  ctx.fillStyle='#c9a84c';
-  ctx.font=`bold ${Math.floor(HELP_R*1.25)}px Georgia,serif`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('?',HELP_X,HELP_Y+1); ctx.textBaseline='alphabetic';
-
-  // Bouton VALIDER
-  const vr=getValRect();
-  if (selectedBtn!==null) {
-    ctx.fillStyle='rgba(0,0,0,0.12)'; rr(vr.x+2,vr.y+3,vr.w,vr.h,12); ctx.fill();
-    ctx.fillStyle='#1a2e1e'; rr(vr.x,vr.y,vr.w,vr.h,12); ctx.fill();
-    ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2; rr(vr.x,vr.y,vr.w,vr.h,12); ctx.stroke();
-    ctx.fillStyle='#c9a84c';
-    ctx.font=`bold ${Math.floor(W*0.042)}px Georgia,serif`;
-    ctx.textAlign='center';
-    ctx.fillText('VALIDER', W/2, vr.y+vr.h*0.65);
-  } else {
-    ctx.fillStyle='rgba(26,46,30,0.10)'; rr(vr.x,vr.y,vr.w,vr.h,12); ctx.fill();
-    ctx.strokeStyle='rgba(26,46,30,0.15)'; ctx.lineWidth=1; rr(vr.x,vr.y,vr.w,vr.h,12); ctx.stroke();
-    ctx.fillStyle='rgba(26,46,30,0.40)';
-    ctx.font=`italic ${Math.floor(W*0.030)}px Georgia,serif`;
-    ctx.textAlign='center';
-    ctx.fillText('Choisissez une peine ci-dessus', W/2, vr.y+vr.h*0.65);
-  }
-}
-
-// ── ANIMATION TAMPON ──────────────────────────────────────────────
-function drawStampAnim() {
-  if (!stampAnim.active) return;
-  const detenu=DETENUS[currentIdx];
-  const cx=W/2, cy=H*0.50;
-  const size=Math.floor(W*0.54);
-
-  ctx.save();
-  ctx.globalAlpha=stampAnim.opacity;
-
-  // Flash blanc à l'impact
-  if (stampAnim.phase==='in' && stampAnim.scale>0.85) {
-    ctx.fillStyle=`rgba(255,255,255,${(1-stampAnim.scale)*1.5})`;
-    ctx.fillRect(0,0,W,H);
-  }
-
-  // Vibration à l'impact
-  let sx=0, sy=0;
-  if (stampAnim.phase==='in' && stampAnim.scale>0.88) {
-    sx=(Math.random()-0.5)*7;
-    sy=(Math.random()-0.5)*7;
-  }
-
-  ctx.translate(cx+sx, cy+sy);
-  ctx.scale(stampAnim.scale, stampAnim.scale);
-
-  // Ombre portée
-  ctx.shadowColor='rgba(0,0,0,0.45)';
-  ctx.shadowBlur=24;
-  ctx.shadowOffsetY=10;
-
-  drawTampon(detenu.bonne_reponse, 0, 0, size);
-  ctx.restore();
-
-  // Cercle de choc à l'impact
-  if (stampAnim.phase==='hold') {
-    const t=stampAnim.progress-0.4;
-    if (t>0 && t<0.5) {
-      const r=t*size*1.8;
-      const alpha=Math.max(0, 0.5-t*1.5);
-      ctx.strokeStyle=`rgba(26,46,30,${alpha})`;
-      ctx.lineWidth=3;
-      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
-      ctx.strokeStyle=`rgba(201,168,76,${alpha*0.6})`;
-      ctx.lineWidth=1.5;
-      ctx.beginPath(); ctx.arc(cx,cy,r*0.7,0,Math.PI*2); ctx.stroke();
-    }
-  }
-}
-
-// ── RÉSULTAT ──────────────────────────────────────────────────────
-function drawResult() {
-  const detenu=DETENUS[currentIdx];
-  const choixRep=selectedBtn!==null?BTNS[selectedBtn].rep:'';
-
-  ctx.fillStyle=lastCorrect?'#f2faf2':'#fdf2f0';
-  ctx.fillRect(0,0,W,H);
-
-  ctx.fillStyle=lastCorrect?'#1a5c1a':'#8a2a10';
-  ctx.fillRect(0,0,W,Math.floor(H*0.090));
-  ctx.fillStyle='#fff';
-  ctx.font=`bold ${Math.floor(W*0.042)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText(lastCorrect?'✓  BONNE RÉPONSE !':'✗  MAUVAISE RÉPONSE', W/2, Math.floor(H*0.061));
-
-  if (lastCorrect) {
-    drawTampon(detenu.bonne_reponse, W/2, H*0.245, Math.floor(W*0.38));
-
-    ctx.strokeStyle='rgba(0,0,0,0.08)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(W*0.08,H*0.43); ctx.lineTo(W*0.92,H*0.43); ctx.stroke();
-
-    ctx.fillStyle='#1a2e1e';
-    ctx.font=`bold ${Math.floor(W*0.034)}px Georgia,serif`;
-    ctx.textAlign='center';
-    ctx.fillText(`Peine : ${detenu.bonne_reponse}`, W/2, H*0.475);
-
-    ctx.fillStyle='#444';
-    ctx.font=`italic ${Math.floor(W*0.030)}px Georgia,serif`;
-    wrapTextCenter(detenu.explication, W/2, H*0.515, W*0.84, Math.floor(H*0.038));
-
-  } else {
-    const ts=Math.floor(W*0.29);
-    const lx=W*0.27, rx=W*0.73, ty=H*0.235;
-
-    ctx.save(); ctx.globalAlpha=0.45;
-    drawTampon(choixRep, lx, ty, ts); ctx.globalAlpha=1;
-    ctx.strokeStyle='#cc2020'; ctx.lineWidth=5; ctx.lineCap='round';
-    const cr=ts*0.34;
-    ctx.beginPath(); ctx.moveTo(lx-cr,ty-cr); ctx.lineTo(lx+cr,ty+cr); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(lx+cr,ty-cr); ctx.lineTo(lx-cr,ty+cr); ctx.stroke();
-    ctx.restore();
-
-    drawTampon(detenu.bonne_reponse, rx, ty, ts);
-
-    ctx.font=`${Math.floor(W*0.025)}px Georgia,serif`;
-    ctx.textAlign='center';
-    ctx.fillStyle='#cc2020'; ctx.fillText('Votre choix', lx, H*0.380);
-    ctx.fillStyle='#1a5c1a'; ctx.fillText('Bonne réponse', rx, H*0.380);
-
-    ctx.strokeStyle='rgba(0,0,0,0.08)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(W*0.08,H*0.405); ctx.lineTo(W*0.92,H*0.405); ctx.stroke();
-
-    ctx.fillStyle='#1a2e1e';
-    ctx.font=`bold ${Math.floor(W*0.032)}px Georgia,serif`;
-    ctx.textAlign='center';
-    ctx.fillText(`Bonne réponse : ${detenu.bonne_reponse}`, W/2, H*0.448);
-
-    ctx.fillStyle='#444';
-    ctx.font=`italic ${Math.floor(W*0.028)}px Georgia,serif`;
-    wrapTextCenter(detenu.explication, W/2, H*0.486, W*0.84, Math.floor(H*0.036));
-  }
-
-  // Score
-  const sy=H*0.715;
-  ctx.fillStyle='rgba(26,46,30,0.07)'; rr(W*0.08,sy,W*0.84,Math.floor(H*0.060),12); ctx.fill();
-  ctx.strokeStyle='rgba(26,46,30,0.10)'; ctx.lineWidth=1; rr(W*0.08,sy,W*0.84,Math.floor(H*0.060),12); ctx.stroke();
-  ctx.fillStyle='#1a2e1e';
-  ctx.font=`bold ${Math.floor(W*0.036)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText(`Score : ${score} / ${currentIdx+1}`, W/2, sy+Math.floor(H*0.038));
-
-  // Bouton suivant
-  const by=H*0.845;
-  ctx.fillStyle='#1a2e1e'; rr(W*0.08,by,W*0.84,Math.floor(H*0.066),14); ctx.fill();
-  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2; rr(W*0.08,by,W*0.84,Math.floor(H*0.066),14); ctx.stroke();
-  ctx.fillStyle='#c9a84c';
-  ctx.font=`bold ${Math.floor(W*0.040)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText(
-    currentIdx<DETENUS.length-1?'DOSSIER SUIVANT →':'VOIR MON RÉSULTAT →',
-    W/2, by+Math.floor(H*0.043)
-  );
-}
-
-// ── INTRO ─────────────────────────────────────────────────────────
-function drawIntro() {
-  drawPageBG();
-  ctx.fillStyle='#1a2e1e'; ctx.fillRect(0,0,W,Math.floor(H*0.090));
-  ctx.fillStyle='#c9a84c';
-  ctx.font=`bold ${Math.floor(W*0.046)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText('⚖️  LE TRIBUNAL', W/2, Math.floor(H*0.063));
-
-  ctx.fillStyle='#8b6914';
-  ctx.font=`italic ${Math.floor(W*0.032)}px Georgia,serif`;
-  ctx.fillText('Bagne de l\'Île Nou · Nouvelle-Calédonie', W/2, H*0.158);
-
-  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(W*0.15,H*0.185); ctx.lineTo(W*0.85,H*0.185); ctx.stroke();
-
-  const grad=ctx.createLinearGradient(W*0.06,H*0.20,W*0.06,H*0.67);
-  grad.addColorStop(0,'#fdf8ee'); grad.addColorStop(1,'#f0e4c0');
-  ctx.fillStyle=grad; rr(W*0.06,H*0.20,W*0.88,H*0.47,8); ctx.fill();
-  ctx.strokeStyle='#8b6914'; ctx.lineWidth=1; rr(W*0.06,H*0.20,W*0.88,H*0.47,8); ctx.stroke();
-
-  ctx.fillStyle='#1a0a00';
-  ctx.font=`bold ${Math.floor(W*0.034)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText('VOTRE MISSION', W/2, H*0.258);
-
-  const lines=[
-    ['Vous êtes juge au tribunal','normal'],
-    ['du bagne de l\'Île Nou.','normal'],
-    ['',''],
-    ['8 dossiers vous attendent.','bold'],
-    ['Pour chaque détenu, choisissez','normal'],
-    ['la bonne peine parmi :','normal'],
-    ['',''],
-    ['🟢 TRANSPORTÉ  —  Crime politique','color'],
-    ['🔵 DÉPORTÉ  —  Crime grave','color'],
-    ['🟠 RELÉGUÉ  —  Récidiviste mineur','color'],
-    ['',''],
-    ['Appuyez sur ? pour les définitions.','italic'],
-    ['6 bonnes réponses = VICTOIRE !','bold'],
-  ];
-  let py=H*0.298;
-  const lh=Math.floor(H*0.040);
-  lines.forEach(([txt,style])=>{
-    if (!txt) { py+=lh*0.4; return; }
-    if (style==='bold') { ctx.font=`bold ${Math.floor(W*0.031)}px Georgia,serif`; ctx.fillStyle='#1a2e1e'; }
-    else if (style==='color') { ctx.font=`bold ${Math.floor(W*0.029)}px Georgia,serif`; ctx.fillStyle='#4a2a00'; }
-    else if (style==='italic') { ctx.font=`italic ${Math.floor(W*0.028)}px Georgia,serif`; ctx.fillStyle='#6b4914'; }
-    else { ctx.font=`${Math.floor(W*0.029)}px Georgia,serif`; ctx.fillStyle='#2a1a0a'; }
-    ctx.fillText(txt, W/2, py); py+=lh;
-  });
-
-  const by=H*0.855;
-  ctx.fillStyle='#1a2e1e'; rr(W*0.10,by,W*0.80,Math.floor(H*0.068),12); ctx.fill();
-  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2; rr(W*0.10,by,W*0.80,Math.floor(H*0.068),12); ctx.stroke();
-  ctx.fillStyle='#c9a84c';
-  ctx.font=`bold ${Math.floor(W*0.042)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText('COMMENCER ▶', W/2, by+Math.floor(H*0.045));
-}
-
-// ── FIN ───────────────────────────────────────────────────────────
-function drawFin() {
-  drawPageBG();
-  const victoire=score>=6;
-
-  ctx.fillStyle=victoire?'#1a5c1a':'#8a2a10';
-  ctx.fillRect(0,0,W,Math.floor(H*0.090));
-  ctx.fillStyle='#fff';
-  ctx.font=`bold ${Math.floor(W*0.046)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText(victoire?'🏆  VICTOIRE !':'⚖️  RÉSULTAT FINAL', W/2, Math.floor(H*0.063));
-
-  ctx.fillStyle='#1a2e1e';
-  ctx.font=`bold ${Math.floor(W*0.068)}px Georgia,serif`;
-  ctx.fillText(`${score} / ${DETENUS.length}`, W/2, H*0.24);
-
-  ctx.fillStyle='#8b6914';
-  ctx.font=`italic ${Math.floor(W*0.034)}px Georgia,serif`;
-  ctx.fillText(victoire?'Juge exemplaire !':'Il fallait 6 bonnes réponses', W/2, H*0.31);
-
-  const bx=W*0.10, by2=H*0.36, bw=W*0.80, bh=18;
-  ctx.fillStyle='rgba(0,0,0,0.08)'; rr(bx,by2,bw,bh,9); ctx.fill();
-  ctx.fillStyle=victoire?'#2d8a2d':'#cc5533';
-  rr(bx,by2,bw*(score/DETENUS.length),bh,9); ctx.fill();
-
-  for (let i=0;i<8;i++) {
-    ctx.fillStyle=i<score?'#c9a84c':'rgba(0,0,0,0.12)';
-    ctx.font=`${Math.floor(W*0.055)}px serif`;
-    ctx.textAlign='center';
-    ctx.fillText('★', W*0.095+i*(W*0.815/7.5), H*0.46);
-  }
-
-  ctx.fillStyle='#333';
-  ctx.font=`${Math.floor(W*0.030)}px Georgia,serif`;
-  ctx.textAlign='center';
-  ctx.fillText(
-    victoire?'Félicitations, Monsieur le Juge !':'Encore un peu d\'étude sur le bagne...',
-    W/2, H*0.545
-  );
-
-  const by3=H*0.855;
-  ctx.fillStyle='#1a2e1e'; rr(W*0.10,by3,W*0.80,Math.floor(H*0.068),12); ctx.fill();
-  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=2; rr(W*0.10,by3,W*0.80,Math.floor(H*0.068),12); ctx.stroke();
-  ctx.fillStyle='#c9a84c';
-  ctx.font=`bold ${Math.floor(W*0.042)}px Georgia,serif`;
-  ctx.fillText('▶ REJOUER', W/2, by3+Math.floor(H*0.045));
-}
-
-// ── PARTICULES ────────────────────────────────────────────────────
-function drawParticles() {
-  particles.forEach(p=>{
-    ctx.globalAlpha=p.life; ctx.fillStyle=p.color;
-    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
-  });
-  ctx.globalAlpha=1;
-}
-
-// ── UPDATE ────────────────────────────────────────────────────────
-function update() {
-  animT++;
-
-  // Animation tampon
-  if (stampAnim.active) {
-    stampAnim.progress += 0.055;
-    if (stampAnim.phase==='in') {
-      // Écrasement rapide depuis le haut
-      stampAnim.scale   = Math.min(1.0, stampAnim.progress*2.8);
-      stampAnim.opacity = Math.min(1, stampAnim.progress*5);
-      if (stampAnim.progress>=0.38) stampAnim.phase='hold';
-    } else if (stampAnim.phase==='hold') {
-      stampAnim.scale  =1.0;
-      stampAnim.opacity=1.0;
-      if (stampAnim.progress>=1.3) stampAnim.phase='out';
-    } else if (stampAnim.phase==='out') {
-      stampAnim.opacity=Math.max(0, 1-(stampAnim.progress-1.3)*2.5);
-      if (stampAnim.progress>=1.75) {
-        stampAnim.active=false;
-        showResult=true;
-      }
-    }
-  }
-
-  particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.life-=p.decay; });
-  particles=particles.filter(p=>p.life>0);
-}
-
-// ── LOOP ──────────────────────────────────────────────────────────
-function loop() {
-  ctx.clearRect(0,0,W,H);
-  update();
-
-  if (state==='intro') drawIntro();
-  else if (state==='fin') drawFin();
-  else if (state==='play') {
-    if (showResult) {
-      drawResult();
-    } else {
-      drawPageBG();
-      drawPortrait();
-      drawFiche();
-      drawButtons();
-      drawHeader();
-      drawStampAnim();
-      drawParticles();
-    }
-  }
-
-  requestAnimationFrame(loop);
-}
-loop();
+// ── Rejouer / réessayer ─────────────────────────────────────────────────
+$('#btn-rejouer').addEventListener('click', () => {
+  currentIdx = 0; score = 0;
+  chargerDossiers();
+});
+$('#btn-reessayer').addEventListener('click', chargerDossiers);
+
+// ── Intro → jeu ──────────────────────────────────────────────────────────
+$('#btn-commencer').addEventListener('click', () => {
+  currentIdx = 0; score = 0;
+  afficherRound();
+});
+
+// ── Modale définitions ──────────────────────────────────────────────────
+const modal = $('#modal');
+$('#btn-aide').addEventListener('click', () => modal.classList.add('open'));
+$('#modal-close').addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+// ── Démarrage ─────────────────────────────────────────────────────────────
+chargerDossiers();
 </script>
 </body>
 </html>
