@@ -500,61 +500,31 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Marker icon factory ───────────────────────────────────────────────────
 
-  private readonly ICONE_IMG: Record<string, string> = {
-    camp_est:    'assets/icon/chain.png',
-    vacherie:    'assets/icon/cow.png',
-    hopital:     'assets/icon/hospital.png',
-    penitencier: 'assets/icon/prison.png',
-    ferme_nord:  'assets/icon/farm.png',
-  };
-
   private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
-    const visite = zone.debloque && this.badgeService.badges().has(zone.id);
-
-    const couleur = visite          ? '#C0553C'
-      : estProchain                 ? '#C0553C'
-      : zone.debloque               ? '#C87A6A'
-      :                               '#BEBEBE';
-
+    const couleur = zone.debloque || estProchain ? '#c0553c' : '#BEBEBE';
     const opacity = !zone.debloque && !estProchain ? 'opacity:0.45;' : '';
 
-    const imgSrc = this.ICONE_IMG[zone.zoneId] ?? '';
-
-    const iconeContenu = visite
-      ? `<svg x="12" y="10" width="20" height="20" viewBox="0 0 20 20">
-           <path d="M3.5 10L8 14.5L16.5 5.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-         </svg>`
-      : (zone.debloque || estProchain)
-        ? `<image href="${imgSrc}" xlink:href="${imgSrc}" x="10" y="8" width="24" height="24" filter="url(#towhite)"/>`
-        : '';
-
-    const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 44 54" width="44" height="54"
-        style="${opacity}filter:drop-shadow(0 3px 8px rgba(0,0,0,0.22))">
-      <defs>
-        <filter id="towhite" color-interpolation-filters="sRGB">
-          <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/>
-        </filter>
-      </defs>
-      <path d="M22 2C12 2 4 10 4 20C4 32 22 52 22 52C22 52 40 32 40 20C40 10 32 2 22 2Z" fill="${couleur}"/>
-      ${iconeContenu}
+    const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 46" width="32" height="46"
+        style="${opacity}filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
+      <path d="M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z" fill="${couleur}"/>
     </svg>`;
 
-    if (estProchain && !visite) {
+    if (estProchain) {
       return L.divIcon({
         className: '',
         html: `<div style="position:relative;">
-          <div style="position:absolute;width:56px;height:56px;border-radius:50%;top:-6px;left:-6px;
+          <div style="position:absolute;width:46px;height:46px;border-radius:50%;top:-7px;left:-7px;
             border:2px solid rgba(192,85,60,0.4);animation:pulsation 1.8s ease-out infinite;pointer-events:none;"></div>
           ${pinSvg}
         </div>`,
-        iconSize: [44, 54], iconAnchor: [22, 54]
+        iconSize: [32, 46], iconAnchor: [16, 46]
       });
     }
 
     return L.divIcon({
       className: '',
       html: pinSvg,
-      iconSize: [44, 54], iconAnchor: [22, 54]
+      iconSize: [32, 46], iconAnchor: [16, 46]
     });
   }
 
@@ -617,20 +587,17 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.miniPopupPos.set({ x: xBorne, y });
   }
 
-  private creerMiniMarqueur(point: PointPopup): L.DivIcon {
-    const couleur = this.pointsService.metaDe(point.zoneId)?.couleur ?? '#C0553C';
+  private creerMiniMarqueur(_point: PointPopup): L.DivIcon {
     return L.divIcon({
       className: '',
       html: `<div style="
-        width:30px;height:30px;border-radius:50%;
-        background:${couleur};border:2.5px solid #fff;
-        box-shadow:0 2px 8px rgba(0,0,0,0.25);
-        display:flex;align-items:center;justify-content:center;
-        font-size:14px;cursor:pointer;
+        width:22px;height:22px;border-radius:50%;
+        background:#d06248;border:1.5px solid rgba(255,255,255,0.75);
+        box-shadow:0 2px 8px rgba(0,0,0,0.25);cursor:pointer;
         animation:miniAppear 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
-      ">${point.icone}</div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
+      "></div>`,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11]
     });
   }
 

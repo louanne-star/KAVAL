@@ -63,14 +63,6 @@
   <!-- ── Recenter button ──────────────────────────────────────────────────── -->
   <button class="btn-recentrer" (click)="recentrer()">◎</button>
 
-  <!-- ── Transport mode toggle ─────────────────────────────────────────────── -->
-  <button class="btn-mode-transport"
-          [class.voiture]="modeTransport() === 'driving'"
-          (click)="toggleModeTransport()"
-          [title]="modeTransport() === 'foot' ? 'Mode à pied' : 'Mode voiture'">
-    <ion-icon [name]="modeTransport() === 'foot' ? 'walk-outline' : 'car-outline'" class="transport-ion-icon"></ion-icon>
-  </button>
-
   <!-- ── Bottom sheet style Gym Beam ─────────────────────────────────────── -->
   <div class="bottom-sheet" *ngIf="zoneSelectionnee() as zone">
     <div class="sheet-card">
