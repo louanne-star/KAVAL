@@ -61,17 +61,34 @@
         </ng-container>
 
         <!-- Quiz (si disponible) -->
-        <ng-container *ngIf="pointsService.quizDe(zone.id) as questions">
-          <ng-container *ngIf="questions.length > 0">
-            <div class="section-titre">Quiz</div>
-            <div class="quiz-card" *ngFor="let q of questions">
-              <p class="quiz-question">{{ q.question }}</p>
-              <button class="quiz-toggle" (click)="toggleReponse(q.id)">
-                {{ estRevele(q.id) ? 'Masquer la réponse' : 'Voir la réponse' }}
+        <ng-container *ngIf="zoneQuiz.length > 0">
+          <div class="section-titre">Quiz</div>
+
+          <div class="quiz-bloc" *ngIf="!quizTermine">
+            <div class="quiz-progress">Question {{ quizIndex + 1 }} / {{ zoneQuiz.length }}</div>
+            <p class="quiz-question">{{ zoneQuiz[quizIndex].question }}</p>
+
+            <div class="quiz-choix">
+              <button class="quiz-choix-btn"
+                      *ngFor="let choix of quizChoixActuels"
+                      [class.correct]="quizReponseChoisie && choix === zoneQuiz[quizIndex].bonneReponse"
+                      [class.incorrect]="quizReponseChoisie === choix && choix !== zoneQuiz[quizIndex].bonneReponse"
+                      [disabled]="!!quizReponseChoisie"
+                      (click)="choisirReponse(choix)">
+                {{ choix }}
               </button>
-              <p class="quiz-reponse" *ngIf="estRevele(q.id)">{{ q.reponse }}</p>
             </div>
-          </ng-container>
+
+            <button class="quiz-suivant" *ngIf="quizReponseChoisie" (click)="questionSuivante()">
+              {{ quizIndex < zoneQuiz.length - 1 ? 'Question suivante →' : 'Voir le résultat →' }}
+            </button>
+          </div>
+
+          <div class="quiz-bloc quiz-resultat" *ngIf="quizTermine">
+            <p class="quiz-resultat-score">{{ quizScore }} / {{ zoneQuiz.length }}</p>
+            <p class="quiz-resultat-texte">{{ quizScore === zoneQuiz.length ? 'Sans faute !' : 'Bien joué !' }}</p>
+            <button class="quiz-suivant" (click)="recommencerQuiz()">↺ Recommencer</button>
+          </div>
         </ng-container>
 
         <div class="section-titre">Contenu disponible</div>

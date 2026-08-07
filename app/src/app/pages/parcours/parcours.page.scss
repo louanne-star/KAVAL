@@ -259,44 +259,91 @@ ion-content.parcours-content {
 
 // ── Quiz ─────────────────────────────────────────────────────────────────────
 
-.quiz-card {
+.quiz-bloc {
   background: #fff;
   border-radius: 16px;
-  padding: 16px;
+  padding: 18px 16px;
   margin-bottom: 10px;
   border: 1px solid #ebebeb;
   box-shadow: 0 2px 10px rgba(0,0,0,0.06);
 }
 
-.quiz-question {
-  font-size: 14.5px;
+.quiz-progress {
+  font-size: 11px;
   font-weight: 700;
-  color: #27476e;
-  line-height: 1.5;
-  margin: 0 0 10px;
+  letter-spacing: 0.5px;
+  color: #999;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
-.quiz-toggle {
-  border: 1.5px solid #27476e;
-  background: transparent;
+.quiz-question {
+  font-size: 16px;
+  font-weight: 800;
   color: #27476e;
-  font-size: 12px;
+  line-height: 1.45;
+  margin: 0 0 16px;
+}
+
+.quiz-choix { display: flex; flex-direction: column; gap: 10px; }
+
+.quiz-choix-btn {
+  text-align: left;
+  border: 1.5px solid #e0e0e0;
+  background: #fafafa;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.quiz-choix-btn:active:not(:disabled) { opacity: 0.75; }
+.quiz-choix-btn:disabled { cursor: default; }
+
+.quiz-choix-btn.correct {
+  border-color: #2f7a49;
+  background: rgba(76,175,109,0.12);
+  color: #1a5c1a;
+}
+
+.quiz-choix-btn.incorrect {
+  border-color: #9a2a1a;
+  background: rgba(154,42,26,0.08);
+  color: #9a2a1a;
+}
+
+.quiz-suivant {
+  width: 100%;
+  margin-top: 16px;
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  background: #27476e;
+  color: #fff;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.3px;
-  border-radius: 10px;
-  padding: 7px 14px;
   cursor: pointer;
 }
 
-.quiz-toggle:active { opacity: 0.7; }
+.quiz-suivant:active { opacity: 0.85; }
 
-.quiz-reponse {
+.quiz-resultat { text-align: center; }
+
+.quiz-resultat-score {
+  font-size: 40px;
+  font-weight: 800;
+  color: #27476e;
+  margin: 4px 0 0;
+}
+
+.quiz-resultat-texte {
   font-size: 14px;
-  color: #555;
-  line-height: 1.6;
-  margin: 12px 0 0;
-  padding-top: 12px;
-  border-top: 1px dashed #e5e5e5;
+  color: #999;
+  margin: 4px 0 4px;
 }
 
 // ── État vide ─────────────────────────────────────────────────────────────────

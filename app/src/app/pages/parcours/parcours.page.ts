@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { IonContent } from '@ionic/angular/standalone';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
-import { PointsService } from '../../services/points.service';
+import { PointsService, QuizQuestion } from '../../services/points.service';
 import { UiStateService } from '../../services/ui-state.service';
 
 @Component({
@@ -22,7 +22,14 @@ export class ParcoursPage implements OnInit, OnDestroy {
   jeuOuvert = false;
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
-  private readonly quizReveles = new Set<string>();
+
+  // Quiz : une question à la fois, 3 choix mélangés (2 fausses + 1 vraie réponse)
+  zoneQuiz: QuizQuestion[] = [];
+  quizIndex = 0;
+  quizChoixActuels: string[] = [];
+  quizReponseChoisie: string | null = null;
+  quizScore = 0;
+  quizTermine = false;
 
   // Mini-jeu disponible pour tous les vrai points d'une zone visuelle donnée
   readonly JEUX: Record<string, string> = {
@@ -64,7 +71,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
         ? (this.journeyService.zones().find(z => z.id === zoneId) ?? null)
         : null;
       this.setJeuOuvert(false);
-      this.quizReveles.clear();
+      this.initQuiz();
     });
     window.addEventListener('message', this.onMessage);
   }
@@ -99,22 +106,57 @@ export class ParcoursPage implements OnInit, OnDestroy {
     if (this.getStatut(zone) === 'locked') return;
     this.zoneSelectionnee = zone;
     this.setJeuOuvert(false);
-    this.quizReveles.clear();
+    this.initQuiz();
   }
 
   retourListe() {
     this.zoneSelectionnee = null;
     this.setJeuOuvert(false);
-    this.quizReveles.clear();
+    this.initQuiz();
   }
 
-  toggleReponse(questionId: string) {
-    if (this.quizReveles.has(questionId)) this.quizReveles.delete(questionId);
-    else this.quizReveles.add(questionId);
+  private initQuiz() {
+    this.zoneQuiz = this.zoneSelectionnee ? this.pointsService.quizDe(this.zoneSelectionnee.id) : [];
+    this.quizIndex = 0;
+    this.quizScore = 0;
+    this.quizTermine = false;
+    this.quizReponseChoisie = null;
+    this.melangerChoixActuels();
   }
 
-  estRevele(questionId: string): boolean {
-    return this.quizReveles.has(questionId);
+  private melangerChoixActuels() {
+    const q = this.zoneQuiz[this.quizIndex];
+    if (!q) { this.quizChoixActuels = []; return; }
+    const choix = [q.bonneReponse, q.mauvaiseReponse1, q.mauvaiseReponse2];
+    for (let i = choix.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [choix[i], choix[j]] = [choix[j], choix[i]];
+    }
+    this.quizChoixActuels = choix;
+  }
+
+  choisirReponse(choix: string) {
+    if (this.quizReponseChoisie) return;
+    this.quizReponseChoisie = choix;
+    if (choix === this.zoneQuiz[this.quizIndex].bonneReponse) this.quizScore++;
+  }
+
+  questionSuivante() {
+    if (this.quizIndex < this.zoneQuiz.length - 1) {
+      this.quizIndex++;
+      this.quizReponseChoisie = null;
+      this.melangerChoixActuels();
+    } else {
+      this.quizTermine = true;
+    }
+  }
+
+  recommencerQuiz() {
+    this.quizIndex = 0;
+    this.quizScore = 0;
+    this.quizTermine = false;
+    this.quizReponseChoisie = null;
+    this.melangerChoixActuels();
   }
 
   retourCarte() {

@@ -43,7 +43,9 @@ export interface QuizQuestion {
   id: string;
   pointId: string;
   question: string;
-  reponse: string;
+  bonneReponse: string;
+  mauvaiseReponse1: string;
+  mauvaiseReponse2: string;
   ordre: number;
 }
 
@@ -121,7 +123,9 @@ export class PointsService {
         pointId: r.point_id, titre: r.titre, auteur: r.auteur, texte: r.texte
       }));
       const quiz: QuizQuestion[] = q.map((r: any) => ({
-        id: r.id, pointId: r.point_id, question: r.question, reponse: r.reponse, ordre: r.ordre
+        id: r.id, pointId: r.point_id, question: r.question,
+        bonneReponse: r.bonne_reponse, mauvaiseReponse1: r.mauvaise_reponse_1, mauvaiseReponse2: r.mauvaise_reponse_2,
+        ordre: r.ordre
       }));
 
       this.zones.set(zones);
