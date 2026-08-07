@@ -50,7 +50,7 @@
         </ng-container>
 
         <!-- Témoignage historique (si disponible) -->
-        <ng-container *ngIf="TEMOIGNAGES[zone.id] as t">
+        <ng-container *ngIf="pointsService.temoignageDe(zone.id) as t">
           <div class="section-titre">Témoignage</div>
           <div class="temoignage-card">
             <div class="temoignage-guillemet">"</div>

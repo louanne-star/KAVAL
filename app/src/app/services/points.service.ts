@@ -32,13 +32,21 @@ export interface PointPopup {
   icone: string;
 }
 
-interface CachePoints {
-  zones:  ZoneMeta[];
-  vrais:  PointVrai[];
-  popups: PointPopup[];
+export interface Temoignage {
+  pointId: string;
+  titre: string;
+  auteur: string;
+  texte: string;
 }
 
-const CLE_CACHE = 'kaval_points_cache_v1';
+interface CachePoints {
+  zones:       ZoneMeta[];
+  vrais:       PointVrai[];
+  popups:      PointPopup[];
+  temoignages: Temoignage[];
+}
+
+const CLE_CACHE = 'kaval_points_cache_v2';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 // Charge le contenu des zones/points depuis Supabase (source de vérité) et le
@@ -47,9 +55,10 @@ const CLE_CACHE = 'kaval_points_cache_v1';
 @Injectable({ providedIn: 'root' })
 export class PointsService {
 
-  readonly zones       = signal<ZoneMeta[]>([]);
+  readonly zones        = signal<ZoneMeta[]>([]);
   readonly pointsVrai   = signal<PointVrai[]>([]);
   readonly pointsPopup  = signal<PointPopup[]>([]);
+  readonly temoignages  = signal<Temoignage[]>([]);
   readonly pret         = signal(false);
   readonly erreur       = signal<string | null>(null);
 
@@ -57,12 +66,14 @@ export class PointsService {
 
   async charger(): Promise<void> {
     try {
-      const [z, p] = await Promise.all([
+      const [z, p, t] = await Promise.all([
         this.supabase.client.from('zones').select('*').order('ordre'),
         this.supabase.client.from('points').select('*').order('ordre'),
+        this.supabase.client.from('temoignages').select('*'),
       ]);
       if (z.error) throw z.error;
       if (p.error) throw p.error;
+      if (t.error) throw t.error;
 
       const zones: ZoneMeta[] = (z.data ?? []).map((r: any) => ({
         id: r.id, nom: r.nom, sousTitre: r.sous_titre, couleur: r.couleur, icone: r.icone, ordre: r.ordre
@@ -79,12 +90,16 @@ export class PointsService {
           id: r.id, zoneId: r.zone_id, nom: r.nom, description: r.description,
           coords: [r.lat, r.lng] as [number, number], icone: r.icone ?? '📍'
         }));
+      const temoignages: Temoignage[] = (t.data ?? []).map((r: any) => ({
+        pointId: r.point_id, titre: r.titre, auteur: r.auteur, texte: r.texte
+      }));
 
       this.zones.set(zones);
       this.pointsVrai.set(vrais);
       this.pointsPopup.set(popups);
+      this.temoignages.set(temoignages);
       this.erreur.set(null);
-      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups }) });
+      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages }) });
     } catch {
       const chargeDepuisCache = await this.chargerDepuisCache();
       if (!chargeDepuisCache) {
@@ -102,6 +117,7 @@ export class PointsService {
     this.zones.set(cache.zones);
     this.pointsVrai.set(cache.vrais);
     this.pointsPopup.set(cache.popups);
+    this.temoignages.set(cache.temoignages ?? []);
     return true;
   }
 
@@ -111,5 +127,9 @@ export class PointsService {
 
   popupsDeZone(zoneId: string): PointPopup[] {
     return this.pointsPopup().filter(p => p.zoneId === zoneId);
+  }
+
+  temoignageDe(pointId: string): Temoignage | undefined {
+    return this.temoignages().find(t => t.pointId === pointId);
   }
 }
