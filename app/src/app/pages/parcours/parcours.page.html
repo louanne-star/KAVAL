@@ -60,6 +60,20 @@
           </div>
         </ng-container>
 
+        <!-- Quiz (si disponible) -->
+        <ng-container *ngIf="pointsService.quizDe(zone.id) as questions">
+          <ng-container *ngIf="questions.length > 0">
+            <div class="section-titre">Quiz</div>
+            <div class="quiz-card" *ngFor="let q of questions">
+              <p class="quiz-question">{{ q.question }}</p>
+              <button class="quiz-toggle" (click)="toggleReponse(q.id)">
+                {{ estRevele(q.id) ? 'Masquer la réponse' : 'Voir la réponse' }}
+              </button>
+              <p class="quiz-reponse" *ngIf="estRevele(q.id)">{{ q.reponse }}</p>
+            </div>
+          </ng-container>
+        </ng-container>
+
         <div class="section-titre">Contenu disponible</div>
 
         <div class="contenu-card">

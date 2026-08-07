@@ -39,14 +39,23 @@ export interface Temoignage {
   texte: string;
 }
 
+export interface QuizQuestion {
+  id: string;
+  pointId: string;
+  question: string;
+  reponse: string;
+  ordre: number;
+}
+
 interface CachePoints {
   zones:       ZoneMeta[];
   vrais:       PointVrai[];
   popups:      PointPopup[];
   temoignages: Temoignage[];
+  quiz:        QuizQuestion[];
 }
 
-const CLE_CACHE = 'kaval_points_cache_v2';
+const CLE_CACHE = 'kaval_points_cache_v3';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 // Charge le contenu des zones/points depuis Supabase (source de vérité) et le
@@ -59,6 +68,7 @@ export class PointsService {
   readonly pointsVrai   = signal<PointVrai[]>([]);
   readonly pointsPopup  = signal<PointPopup[]>([]);
   readonly temoignages  = signal<Temoignage[]>([]);
+  readonly quiz         = signal<QuizQuestion[]>([]);
   readonly pret         = signal(false);
   readonly erreur       = signal<string | null>(null);
 
@@ -66,14 +76,16 @@ export class PointsService {
 
   async charger(): Promise<void> {
     try {
-      const [z, p, t] = await Promise.all([
+      const [z, p, t, q] = await Promise.all([
         this.supabase.client.from('zones').select('*').order('ordre'),
         this.supabase.client.from('points').select('*').order('ordre'),
         this.supabase.client.from('temoignages').select('*'),
+        this.supabase.client.from('quiz_questions').select('*').order('ordre'),
       ]);
       if (z.error) throw z.error;
       if (p.error) throw p.error;
       if (t.error) throw t.error;
+      if (q.error) throw q.error;
 
       const zones: ZoneMeta[] = (z.data ?? []).map((r: any) => ({
         id: r.id, nom: r.nom, sousTitre: r.sous_titre, couleur: r.couleur, icone: r.icone, ordre: r.ordre
@@ -93,13 +105,17 @@ export class PointsService {
       const temoignages: Temoignage[] = (t.data ?? []).map((r: any) => ({
         pointId: r.point_id, titre: r.titre, auteur: r.auteur, texte: r.texte
       }));
+      const quiz: QuizQuestion[] = (q.data ?? []).map((r: any) => ({
+        id: r.id, pointId: r.point_id, question: r.question, reponse: r.reponse, ordre: r.ordre
+      }));
 
       this.zones.set(zones);
       this.pointsVrai.set(vrais);
       this.pointsPopup.set(popups);
       this.temoignages.set(temoignages);
+      this.quiz.set(quiz);
       this.erreur.set(null);
-      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages }) });
+      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages, quiz }) });
     } catch {
       const chargeDepuisCache = await this.chargerDepuisCache();
       if (!chargeDepuisCache) {
@@ -118,6 +134,7 @@ export class PointsService {
     this.pointsVrai.set(cache.vrais);
     this.pointsPopup.set(cache.popups);
     this.temoignages.set(cache.temoignages ?? []);
+    this.quiz.set(cache.quiz ?? []);
     return true;
   }
 
@@ -131,5 +148,9 @@ export class PointsService {
 
   temoignageDe(pointId: string): Temoignage | undefined {
     return this.temoignages().find(t => t.pointId === pointId);
+  }
+
+  quizDe(pointId: string): QuizQuestion[] {
+    return this.quiz().filter(q => q.pointId === pointId);
   }
 }

@@ -22,6 +22,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   jeuOuvert = false;
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
+  private readonly quizReveles = new Set<string>();
 
   // Mini-jeu disponible pour tous les vrai points d'une zone visuelle donnée
   readonly JEUX: Record<string, string> = {
@@ -63,6 +64,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
         ? (this.journeyService.zones().find(z => z.id === zoneId) ?? null)
         : null;
       this.setJeuOuvert(false);
+      this.quizReveles.clear();
     });
     window.addEventListener('message', this.onMessage);
   }
@@ -97,11 +99,22 @@ export class ParcoursPage implements OnInit, OnDestroy {
     if (this.getStatut(zone) === 'locked') return;
     this.zoneSelectionnee = zone;
     this.setJeuOuvert(false);
+    this.quizReveles.clear();
   }
 
   retourListe() {
     this.zoneSelectionnee = null;
     this.setJeuOuvert(false);
+    this.quizReveles.clear();
+  }
+
+  toggleReponse(questionId: string) {
+    if (this.quizReveles.has(questionId)) this.quizReveles.delete(questionId);
+    else this.quizReveles.add(questionId);
+  }
+
+  estRevele(questionId: string): boolean {
+    return this.quizReveles.has(questionId);
   }
 
   retourCarte() {
