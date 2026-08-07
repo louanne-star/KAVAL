@@ -27,10 +27,14 @@
         <div class="detail-badge-pill">{{ zone.zoneNom }} · Étape {{ zone.ordre }}</div>
         <h1 class="detail-titre">{{ zone.nom }}</h1>
         <p class="detail-sous-titre">{{ pointsService.metaDe(zone.zoneId)?.sousTitre }}</p>
-        <p class="detail-desc">{{ zone.description }}</p>
       </div>
 
       <div class="detail-contenu">
+
+        <!-- Histoire du point -->
+        <div class="histoire-card">
+          <p class="histoire-texte">{{ zone.description }}</p>
+        </div>
 
         <!-- Mini-jeu (si disponible pour cette zone) -->
         <ng-container *ngIf="JEUX[zone.zoneId]">

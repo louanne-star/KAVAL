@@ -139,14 +139,23 @@ ion-content.parcours-content {
   margin: 0 0 12px;
 }
 
-.detail-desc {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255,255,255,0.75);
-  margin: 0;
+.detail-contenu { padding: 24px 16px 100px; }
+
+.histoire-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  border: 1px solid #ebebeb;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
 }
 
-.detail-contenu { padding: 24px 16px 100px; }
+.histoire-texte {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #444;
+  margin: 0;
+}
 
 .section-titre {
   font-size: 11px;
