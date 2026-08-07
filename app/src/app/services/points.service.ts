@@ -55,7 +55,7 @@ interface CachePoints {
   quiz:        QuizQuestion[];
 }
 
-const CLE_CACHE = 'kaval_points_cache_v3';
+const CLE_CACHE = 'kaval_points_cache_v2';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 // Charge le contenu des zones/points depuis Supabase (source de vérité) et le
@@ -76,16 +76,31 @@ export class PointsService {
 
   async charger(): Promise<void> {
     try {
-      const [z, p, t, q] = await Promise.all([
+      // Zones + points sont critiques : sans eux, rien ne peut s'afficher (carte,
+      // parcours...), donc une erreur ici fait tomber tout le chargement sur le
+      // cache local. Témoignages/quiz sont du contenu optionnel qui ne doit
+      // jamais bloquer le reste — chacun se charge indépendamment et retombe
+      // silencieusement sur une liste vide en cas d'erreur (ex: table pas
+      // encore créée dans Supabase).
+      const [z, p] = await Promise.all([
         this.supabase.client.from('zones').select('*').order('ordre'),
         this.supabase.client.from('points').select('*').order('ordre'),
-        this.supabase.client.from('temoignages').select('*'),
-        this.supabase.client.from('quiz_questions').select('*').order('ordre'),
       ]);
       if (z.error) throw z.error;
       if (p.error) throw p.error;
-      if (t.error) throw t.error;
-      if (q.error) throw q.error;
+
+      const chargerOptionnel = async (p: PromiseLike<{ data: any[] | null; error: any }>): Promise<any[]> => {
+        try {
+          const r = await p;
+          return r.error ? [] : (r.data ?? []);
+        } catch {
+          return [];
+        }
+      };
+      const [t, q] = await Promise.all([
+        chargerOptionnel(this.supabase.client.from('temoignages').select('*')),
+        chargerOptionnel(this.supabase.client.from('quiz_questions').select('*').order('ordre')),
+      ]);
 
       const zones: ZoneMeta[] = (z.data ?? []).map((r: any) => ({
         id: r.id, nom: r.nom, sousTitre: r.sous_titre, couleur: r.couleur, icone: r.icone, ordre: r.ordre
@@ -102,10 +117,10 @@ export class PointsService {
           id: r.id, zoneId: r.zone_id, nom: r.nom, description: r.description,
           coords: [r.lat, r.lng] as [number, number], icone: r.icone ?? '📍'
         }));
-      const temoignages: Temoignage[] = (t.data ?? []).map((r: any) => ({
+      const temoignages: Temoignage[] = t.map((r: any) => ({
         pointId: r.point_id, titre: r.titre, auteur: r.auteur, texte: r.texte
       }));
-      const quiz: QuizQuestion[] = (q.data ?? []).map((r: any) => ({
+      const quiz: QuizQuestion[] = q.map((r: any) => ({
         id: r.id, pointId: r.point_id, question: r.question, reponse: r.reponse, ordre: r.ordre
       }));
 
