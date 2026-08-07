@@ -73,7 +73,7 @@ insert into points (id, zone_id, type, nom, description, lat, lng, rayon, icone,
   -- Zone 1 : Camp Est
   ('camp_est_principal', 'camp_est', 'vrai',
    'Camp Est',
-   'Centre pénitentiaire historique et point central de cette zone.',
+   'Construit dès 1874 à la pointe sud de l''île Nou, le Camp Est regroupe cases dortoirs, prison, lavoir et logement du surveillant-chef. Son eau saumâtre, source de nombreuses dysenteries, oblige longtemps les condamnés à aller puiser à la Fontaine Bigard avant la construction d''une citerne. Le camp abrite aussi le redouté quartier disciplinaire, où les condamnés à temps comme les « berlingots » à perpétuité subissent un régime éprouvant (ration réduite, billots de bois, longues heures debout). C''est de là que le forçat Raoul Tellier tente en 1897 sa douzième évasion, rapidement échouée malgré une préparation minutieuse.',
    -22.271302, 166.425924, 30, null, 1),
 
   ('parc_a_charbon', 'camp_est', 'popup',
