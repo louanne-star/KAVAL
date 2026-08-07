@@ -38,7 +38,7 @@
           <div class="contenu-card jeu-card" (click)="ouvrirJeu()">
             <div class="contenu-icone">🎮</div>
             <div class="contenu-info">
-              <p class="contenu-label">Traverse la Rivière</p>
+              <p class="contenu-label">{{ JEUX_NOMS[zone.zoneId] }}</p>
               <p class="contenu-sous">
                 {{ badgeService.aBadge(zone.id) ? 'Déjà complété — rejoue !' : 'Saute de rocher en rocher pour gagner un badge' }}
               </p>
@@ -90,26 +90,6 @@
             <button class="quiz-suivant" (click)="recommencerQuiz()">↺ Recommencer</button>
           </div>
         </ng-container>
-
-        <div class="section-titre">Contenu disponible</div>
-
-        <div class="contenu-card">
-          <div class="contenu-icone">🎙</div>
-          <div class="contenu-info">
-            <p class="contenu-label">Audio-guide</p>
-            <p class="contenu-sous">Disponible bientôt</p>
-          </div>
-          <div class="contenu-tag">À venir</div>
-        </div>
-
-        <div class="contenu-card">
-          <div class="contenu-icone">🎬</div>
-          <div class="contenu-info">
-            <p class="contenu-label">Vidéo historique</p>
-            <p class="contenu-sous">Disponible bientôt</p>
-          </div>
-          <div class="contenu-tag">À venir</div>
-        </div>
 
       </div>
     </ng-container>

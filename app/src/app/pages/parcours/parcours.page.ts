@@ -37,6 +37,11 @@ export class ParcoursPage implements OnInit, OnDestroy {
     camp_est:    'assets/mini-jeux/tribunal.html',
   };
 
+  readonly JEUX_NOMS: Record<string, string> = {
+    penitencier: 'Traverse la Rivière',
+    camp_est:    'Le tribunal',
+  };
+
   private paramSub?: Subscription;
   private readonly onMessage = (e: MessageEvent) => {
     if (e.data?.type === 'jeuTermine' && this.zoneSelectionnee) {
