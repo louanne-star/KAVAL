@@ -31,30 +31,35 @@
 
       <div class="detail-contenu">
 
+        <!-- Bloc mini-jeu, réutilisé pour être inséré juste après la 1ère section -->
+        <ng-template #miniJeuBlock>
+          <ng-container *ngIf="JEUX[zone.zoneId]">
+            <div class="section-titre">Mini-jeu</div>
+            <div class="contenu-card jeu-card" (click)="ouvrirJeu()">
+              <div class="contenu-icone">🎮</div>
+              <div class="contenu-info">
+                <p class="contenu-label">{{ JEUX_NOMS[zone.zoneId] }}</p>
+                <p class="contenu-sous">
+                  {{ badgeService.aBadge(zone.id) ? 'Déjà complété — rejoue !' : 'Saute de rocher en rocher pour gagner un badge' }}
+                </p>
+              </div>
+              <div class="contenu-tag" [class.badge-earned]="badgeService.aBadge(zone.id)">
+                {{ badgeService.aBadge(zone.id) ? '🏅' : 'Jouer →' }}
+              </div>
+            </div>
+          </ng-container>
+        </ng-template>
+
         <!-- Sections de texte du point (Histoire, Guerre médicale, ... — piloté depuis Supabase) -->
-        <ng-container *ngFor="let s of pointsService.sectionsDe(zone.id)">
+        <!-- Le mini-jeu s'intercale juste après la 1ère section (Histoire), avant les suivantes -->
+        <ng-container *ngFor="let s of pointsService.sectionsDe(zone.id); let first = first">
           <div class="section-titre">{{ s.titre }}</div>
           <div class="histoire-card">
             <p class="histoire-texte">{{ s.texte }}</p>
           </div>
+          <ng-container *ngIf="first" [ngTemplateOutlet]="miniJeuBlock"></ng-container>
         </ng-container>
-
-        <!-- Mini-jeu (si disponible pour cette zone) -->
-        <ng-container *ngIf="JEUX[zone.zoneId]">
-          <div class="section-titre">Mini-jeu</div>
-          <div class="contenu-card jeu-card" (click)="ouvrirJeu()">
-            <div class="contenu-icone">🎮</div>
-            <div class="contenu-info">
-              <p class="contenu-label">{{ JEUX_NOMS[zone.zoneId] }}</p>
-              <p class="contenu-sous">
-                {{ badgeService.aBadge(zone.id) ? 'Déjà complété — rejoue !' : 'Saute de rocher en rocher pour gagner un badge' }}
-              </p>
-            </div>
-            <div class="contenu-tag" [class.badge-earned]="badgeService.aBadge(zone.id)">
-              {{ badgeService.aBadge(zone.id) ? '🏅' : 'Jouer →' }}
-            </div>
-          </div>
-        </ng-container>
+        <ng-container *ngIf="pointsService.sectionsDe(zone.id).length === 0" [ngTemplateOutlet]="miniJeuBlock"></ng-container>
 
         <!-- Témoignage historique (si disponible) -->
         <ng-container *ngIf="pointsService.temoignageDe(zone.id) as t">
