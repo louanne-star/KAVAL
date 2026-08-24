@@ -613,7 +613,7 @@
       const line = document.createElementNS('http://www.w3.org/2000/svg','path');
       line.setAttribute('d', d);
       line.setAttribute('fill','none');
-      line.setAttribute('stroke', getComputedColor(p.color));
+      line.setAttribute('stroke', resolvedColors[p.id]);
       line.setAttribute('stroke-width', Math.max(cellPx*0.38,10));
       line.setAttribute('stroke-linecap','round');
       line.setAttribute('stroke-linejoin','round');
@@ -622,13 +622,23 @@
     });
   }
 
-  function getComputedColor(cssVarExpr){
+  // Résout chaque couleur de paire (var(--cN)) en rgb() une seule fois au
+  // démarrage. Avant : ce calcul (créer un <div>, l'attacher au DOM, lire
+  // getComputedStyle, le détacher) tournait pour CHAQUE paire à CHAQUE
+  // render() — donc à chaque pointermove pendant un tracé — et forçait des
+  // reflows synchrones répétés, perceptibles comme un tracé qui traîne
+  // derrière le doigt sur un mobile plus lent.
+  let resolvedColors = {};
+  function resolveColors(){
     const tmp = document.createElement('div');
-    tmp.style.color = cssVarExpr;
+    tmp.style.position = 'absolute';
+    tmp.style.visibility = 'hidden';
     document.body.appendChild(tmp);
-    const val = getComputedStyle(tmp).color;
+    PAIRS.forEach(p => {
+      tmp.style.color = p.color;
+      resolvedColors[p.id] = getComputedStyle(tmp).color;
+    });
     document.body.removeChild(tmp);
-    return val;
   }
 
   // ---- Events ----
@@ -698,6 +708,7 @@
   // ---- Init ----
   buildStaticData();
   buildGridDom();
+  resolveColors();
   resetState();
   requestAnimationFrame(()=>{ measure(); render(); });
 })();
