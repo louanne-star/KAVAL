@@ -125,7 +125,7 @@ insert into points (id, zone_id, type, nom, description, lat, lng, rayon, icone,
 
   ('hopital_du_marais', 'hopital', 'vrai',
    'Hôpital du Marais',
-   'Complexe hospitalier incluant le quartier des aliénées et un cimetière situé sur la plage à proximité.',
+   'Il était considéré comme l''un des plus beaux établissements de la Pénitentiaire et servait de « véritable école de chirurgie pour les jeunes médecins coloniaux ». Une tension constante existait entre l''administration et les forçats, ces derniers simulant des maladies (fièvres, ulcères, délire) à l''aide de plantes locales comme la pomme épineuse (Datura) ou le saint-bois pour échapper aux travaux forcés.',
    -22.268141, 166.397851, 30, null, 5),
 
     -- Zone 4 : Ferme Nord (uniquement des popups)
