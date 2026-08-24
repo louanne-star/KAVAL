@@ -6,23 +6,21 @@
 <title>Le Bagne — Connexion des Forçats</title>
 <style>
   :root{
-    --stone-dark:#332c22;
-    --stone:#4b4335;
-    --stone-mid:#5d5443;
-    --stone-light:#71674f;
-    --rivet:#221c15;
-    --parchment:#ecdfba;
-    --parchment-dim:#cabb90;
-    --ink:#1a1712;
-    --shadow:#14100a;
+    --navy-dark:#1c2f47;
+    --navy:#27476e;
+    --navy-light:#3a6190;
+    --gold:#c9a84c;
+    --cream:#fdf8ee;
+    --cream-dim:#e4d6b8;
+    --text-dim:rgba(246,236,217,0.7);
 
-    --c1:#bf6f34; /* boulet */
-    --c2:#c9a227; /* clé */
-    --c3:#6f7d4a; /* gamelle */
-    --c4:#3f7686; /* matricule */
-    --c5:#9c3f34; /* verrou */
-    --c6:#6a5a80; /* chaîne */
-    --c7:#55628c; /* lanterne */
+    --c1:#e0693a; /* boulet */
+    --c2:#e0b400; /* clé */
+    --c3:#4caf6d; /* gamelle */
+    --c4:#3f7fa6; /* matricule */
+    --c5:#c0453a; /* verrou */
+    --c6:#8a6fb0; /* chaîne */
+    --c7:#5c7f8c; /* lanterne */
   }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -33,12 +31,9 @@
     min-height:100%;
     touch-action:none;
     overscroll-behavior:none;
-    background:
-      radial-gradient(ellipse at 20% 0%, rgba(255,220,160,0.07), transparent 60%),
-      repeating-linear-gradient(0deg, var(--stone-dark) 0px, var(--stone-dark) 2px, #3d3527 2px, #3d3527 4px),
-      var(--stone-dark);
-    color:var(--parchment);
-    font-family: 'Arial Narrow', Arial, 'Helvetica Neue', sans-serif;
+    background:linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 55%, var(--navy-light) 100%);
+    color:var(--cream);
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     display:flex;
     justify-content:center;
     min-height:100vh;
@@ -61,8 +56,8 @@
 
   .eyebrow{
     font-size:11px;
-    letter-spacing:5px;
-    color:var(--c5);
+    letter-spacing:3px;
+    color:var(--gold);
     text-transform:uppercase;
     font-weight:700;
     margin-bottom:6px;
@@ -70,30 +65,24 @@
 
   h1{
     margin:0;
-    font-size:clamp(28px,8vw,40px);
-    letter-spacing:6px;
-    text-transform:uppercase;
-    font-weight:900;
-    color:var(--parchment);
-    text-shadow:
-      2px 2px 0 var(--shadow),
-      0 0 18px rgba(0,0,0,0.4);
-    font-stretch:condensed;
+    font-size:clamp(26px,7.5vw,34px);
+    letter-spacing:-0.3px;
+    font-weight:800;
+    color:#fff;
   }
 
   .subtitle{
     margin-top:8px;
     font-size:13px;
-    letter-spacing:2px;
-    color:var(--parchment-dim);
-    text-transform:uppercase;
+    color:var(--text-dim);
+    font-style:italic;
   }
 
   .instructions{
     margin-top:14px;
     font-size:13px;
     line-height:1.6;
-    color:var(--parchment-dim);
+    color:var(--text-dim);
     max-width:380px;
     margin-left:auto;
     margin-right:auto;
@@ -101,30 +90,14 @@
 
   .board-frame{
     position:relative;
-    background:
-      linear-gradient(160deg, var(--stone-light), var(--stone) 55%, var(--stone-dark));
-    border-radius:10px;
+    background:var(--cream);
+    border-radius:18px;
     padding:16px;
-    box-shadow:
-      0 18px 40px rgba(0,0,0,0.55),
-      inset 0 0 0 2px var(--rivet),
-      inset 0 2px 6px rgba(255,255,255,0.05);
+    box-shadow:0 14px 34px rgba(0,0,0,0.3);
+    border:1.5px solid rgba(201,168,76,0.4);
     width:100%;
     max-width:420px;
   }
-
-  .rivet{
-    position:absolute;
-    width:10px;
-    height:10px;
-    border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #7a7160, var(--rivet) 70%);
-    box-shadow:0 1px 2px rgba(0,0,0,0.6);
-  }
-  .rivet.tl{top:8px;left:8px;}
-  .rivet.tr{top:8px;right:8px;}
-  .rivet.bl{bottom:8px;left:8px;}
-  .rivet.br{bottom:8px;right:8px;}
 
   .toolbar{
     display:flex;
@@ -136,38 +109,33 @@
 
   .toolbar .label{
     font-size:11px;
-    letter-spacing:2px;
+    letter-spacing:1px;
     text-transform:uppercase;
-    color:var(--parchment-dim);
+    font-weight:700;
+    color:rgba(39,71,110,0.55);
   }
 
   button.reset-btn{
-    background:linear-gradient(180deg, #5a4b34, #3c311f);
-    color:var(--parchment);
-    border:1px solid var(--rivet);
-    border-radius:5px;
+    background:transparent;
+    color:var(--navy);
+    border:1.5px solid var(--navy);
+    border-radius:10px;
     padding:7px 14px;
     font-size:11px;
-    letter-spacing:1.5px;
+    letter-spacing:0.5px;
     text-transform:uppercase;
     font-weight:700;
     cursor:pointer;
-    box-shadow:0 2px 0 var(--shadow), inset 0 1px 0 rgba(255,255,255,0.08);
   }
-  button.reset-btn:active{
-    transform:translateY(1px);
-    box-shadow:0 1px 0 var(--shadow);
-  }
+  button.reset-btn:active{ opacity:0.7; }
 
   .grid-wrap{
     position:relative;
     width:100%;
     aspect-ratio:1/1;
-    background:
-      repeating-linear-gradient(45deg, rgba(0,0,0,0.10) 0 2px, transparent 2px 14px),
-      var(--stone-mid);
-    border-radius:6px;
-    box-shadow:inset 0 0 0 2px var(--rivet), inset 0 6px 18px rgba(0,0,0,0.4);
+    background:#eef1f6;
+    border-radius:12px;
+    box-shadow:inset 0 0 0 1.5px rgba(39,71,110,0.15);
     overflow:hidden;
     touch-action:none;
     user-select:none;
@@ -177,25 +145,16 @@
     position:absolute;
     inset:0;
     display:grid;
-    grid-template-columns:repeat(7, 1fr);
-    grid-template-rows:repeat(7, 1fr);
+    grid-template-columns:repeat(6, 1fr);
+    grid-template-rows:repeat(6, 1fr);
   }
 
   .cell{
     position:relative;
-    border:1px solid rgba(0,0,0,0.35);
-    background:
-      linear-gradient(160deg, rgba(255,255,255,0.03), transparent 60%);
+    border:1px solid rgba(39,71,110,0.08);
     display:flex;
     align-items:center;
     justify-content:center;
-  }
-
-  .cell::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02);
   }
 
   svg.paths{
@@ -209,92 +168,35 @@
   .dot{
     position:relative;
     z-index:3;
-    width:76%;
-    height:76%;
+    width:72%;
+    height:72%;
     border-radius:50%;
     box-shadow:
-      0 3px 5px rgba(0,0,0,0.55),
-      inset 0 0 0 2px rgba(0,0,0,0.4),
-      inset 0 2px 3px rgba(255,255,255,0.22);
-    background-blend-mode:overlay, overlay, normal;
+      0 2px 6px rgba(0,0,0,0.2),
+      inset 0 -2px 4px rgba(0,0,0,0.12),
+      inset 0 2px 3px rgba(255,255,255,0.35);
   }
 
-  /* boulet — métal martelé */
-  .tex-1{
-    background-color:var(--c1);
-    background-image:
-      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.35), transparent 45%),
-      repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.16) 0 2px, transparent 2px 7px),
-      radial-gradient(circle at 65% 70%, rgba(0,0,0,0.25), transparent 50%);
-  }
-
-  /* clé — laiton strié */
-  .tex-2{
-    background-color:var(--c2);
-    background-image:
-      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.4), transparent 45%),
-      repeating-linear-gradient(115deg, rgba(255,255,255,0.16) 0 2px, transparent 2px 6px),
-      radial-gradient(circle at 65% 75%, rgba(0,0,0,0.28), transparent 55%);
-  }
-
-  /* gamelle — étain gratté */
-  .tex-3{
-    background-color:var(--c3);
-    background-image:
-      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.3), transparent 45%),
-      repeating-linear-gradient(20deg, rgba(0,0,0,0.14) 0 1px, transparent 1px 5px),
-      repeating-linear-gradient(-35deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 6px);
-  }
-
-  /* matricule — plaque tamponnée */
-  .tex-4{
-    background-color:var(--c4);
-    background-image:
-      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.32), transparent 45%),
-      repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0 1px, transparent 1px 6px),
-      repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0 1px, transparent 1px 6px);
-  }
-
-  /* verrou — fer rouillé, taches */
-  .tex-5{
-    background-color:var(--c5);
-    background-image:
-      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.28), transparent 45%),
-      radial-gradient(circle at 70% 30%, rgba(0,0,0,0.3), transparent 35%),
-      radial-gradient(circle at 35% 70%, rgba(0,0,0,0.28), transparent 30%),
-      radial-gradient(circle at 65% 68%, rgba(0,0,0,0.22), transparent 32%);
-  }
-
-  /* chaîne — fer tissé, chevrons */
-  .tex-6{
-    background-color:var(--c6);
-    background-image:
-      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.32), transparent 45%),
-      repeating-linear-gradient(45deg, rgba(0,0,0,0.16) 0 2px, transparent 2px 6px),
-      repeating-linear-gradient(-45deg, rgba(0,0,0,0.12) 0 2px, transparent 2px 6px);
-  }
-
-  /* lanterne — verre et cage de fer */
-  .tex-7{
-    background-color:var(--c7);
-    background-image:
-      radial-gradient(circle at 50% 40%, rgba(255,235,180,0.4), transparent 55%),
-      repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0 2px, transparent 2px 8px),
-      radial-gradient(circle at 70% 75%, rgba(0,0,0,0.22), transparent 40%);
-  }
+  .tex-1{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c1); }
+  .tex-2{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c2); }
+  .tex-3{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c3); }
+  .tex-4{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c4); }
+  .tex-5{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c5); }
+  .tex-6{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c6); }
+  .tex-7{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c7); }
 
   footer{
     text-align:center;
     font-size:11px;
-    color:var(--parchment-dim);
-    letter-spacing:1px;
+    color:var(--text-dim);
+    letter-spacing:0.3px;
     max-width:380px;
   }
 
   .overlay{
     position:fixed;
     inset:0;
-    background:rgba(10,8,6,0.82);
+    background:rgba(15,25,40,0.75);
     display:none;
     align-items:center;
     justify-content:center;
@@ -304,50 +206,45 @@
   .overlay.show{display:flex;}
 
   .victory-card{
-    background:linear-gradient(160deg, var(--parchment), var(--parchment-dim));
-    color:var(--ink);
-    border-radius:8px;
-    padding:36px 28px;
+    background:var(--cream);
+    border-radius:18px;
+    padding:32px 26px;
     text-align:center;
     max-width:340px;
-    box-shadow:0 20px 50px rgba(0,0,0,0.6);
-    position:relative;
-    transform:rotate(-1.5deg);
-    border:3px solid #2a2317;
+    box-shadow:0 20px 50px rgba(0,0,0,0.45);
+    border:1.5px solid rgba(201,168,76,0.4);
   }
 
   .victory-card h2{
     margin:0 0 8px;
-    font-size:26px;
-    letter-spacing:3px;
-    text-transform:uppercase;
-    font-weight:900;
-    color:#5a2a1f;
+    font-size:24px;
+    letter-spacing:-0.3px;
+    font-weight:800;
+    color:var(--navy);
   }
 
   .victory-card p{
     margin:0 0 22px;
     font-size:13px;
     line-height:1.6;
-    color:#3a3226;
+    color:#555;
   }
 
   button.replay-btn{
-    background:linear-gradient(180deg, #8a5a34, #5c3a1f);
-    color:#f2e6cc;
+    background:var(--gold);
+    color:var(--navy-dark);
     border:none;
-    border-radius:5px;
-    padding:12px 26px;
-    font-size:13px;
-    letter-spacing:2px;
-    text-transform:uppercase;
+    border-radius:14px;
+    padding:13px 26px;
+    font-size:14px;
+    letter-spacing:0.3px;
     font-weight:800;
     cursor:pointer;
-    box-shadow:0 3px 0 #35220f;
+    box-shadow:0 4px 14px rgba(201,168,76,0.4);
   }
   button.replay-btn:active{
-    transform:translateY(2px);
-    box-shadow:0 1px 0 #35220f;
+    transform:translateY(1px);
+    box-shadow:0 2px 8px rgba(201,168,76,0.4);
   }
 </style>
 </head>
@@ -362,11 +259,6 @@
   </header>
 
   <div class="board-frame">
-    <span class="rivet tl"></span>
-    <span class="rivet tr"></span>
-    <span class="rivet bl"></span>
-    <span class="rivet br"></span>
-
     <div class="toolbar">
       <span class="label">Niveau moyen · 7 paires</span>
       <button class="reset-btn" id="resetBtn">Recommencer</button>
@@ -391,19 +283,20 @@
 
 <script>
 (function(){
-  const N = 7;
+  const N = 6;
 
   // Pair definitions: id, css color var, endpoints [{r,c},{r,c}]
-  // A guaranteed solution exists (used to place endpoints); the engine itself
-  // accepts any valid non-crossing route between each pair.
+  // Chaque paire dispose d'un chemin droit garanti qui n'entre jamais dans
+  // les cellules d'une autre paire (rangée/colonne dédiée) ; le moteur du
+  // jeu accepte n'importe quel tracé valide et sans croisement.
   const PAIRS = [
-    { id:1, color:'var(--c1)', name:'boulet',    endpoints:[{r:0,c:0},{r:2,c:0}] },
-    { id:2, color:'var(--c2)', name:'clé',       endpoints:[{r:0,c:3},{r:1,c:3}] },
-    { id:3, color:'var(--c3)', name:'gamelle',   endpoints:[{r:1,c:0},{r:1,c:1}] },
-    { id:4, color:'var(--c4)', name:'matricule', endpoints:[{r:2,c:3},{r:3,c:3}] },
-    { id:5, color:'var(--c5)', name:'verrou',    endpoints:[{r:3,c:0},{r:5,c:0}] },
-    { id:6, color:'var(--c6)', name:'chaîne',    endpoints:[{r:4,c:3},{r:5,c:3}] },
-    { id:7, color:'var(--c7)', name:'lanterne',  endpoints:[{r:6,c:0},{r:6,c:6}] },
+    { id:1, color:'var(--c1)', name:'boulet',    endpoints:[{r:0,c:0},{r:0,c:1}] },
+    { id:2, color:'var(--c2)', name:'clé',       endpoints:[{r:0,c:3},{r:0,c:4}] },
+    { id:3, color:'var(--c3)', name:'gamelle',   endpoints:[{r:1,c:0},{r:4,c:0}] },
+    { id:4, color:'var(--c4)', name:'matricule', endpoints:[{r:1,c:5},{r:4,c:5}] },
+    { id:5, color:'var(--c5)', name:'verrou',    endpoints:[{r:2,c:2},{r:2,c:3}] },
+    { id:6, color:'var(--c6)', name:'chaîne',    endpoints:[{r:3,c:2},{r:3,c:3}] },
+    { id:7, color:'var(--c7)', name:'lanterne',  endpoints:[{r:5,c:0},{r:5,c:5}] },
   ];
 
   const gridEl = document.getElementById('grid');
