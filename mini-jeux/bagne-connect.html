@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Le Bagne — Connexion des Forçats</title>
+<style>
+  :root{
+    --stone-dark:#332c22;
+    --stone:#4b4335;
+    --stone-mid:#5d5443;
+    --stone-light:#71674f;
+    --rivet:#221c15;
+    --parchment:#ecdfba;
+    --parchment-dim:#cabb90;
+    --ink:#1a1712;
+    --shadow:#14100a;
+
+    --c1:#bf6f34; /* boulet */
+    --c2:#c9a227; /* clé */
+    --c3:#6f7d4a; /* gamelle */
+    --c4:#3f7686; /* matricule */
+    --c5:#9c3f34; /* verrou */
+    --c6:#6a5a80; /* chaîne */
+    --c7:#55628c; /* lanterne */
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(255,220,160,0.07), transparent 60%),
+      repeating-linear-gradient(0deg, var(--stone-dark) 0px, var(--stone-dark) 2px, #3d3527 2px, #3d3527 4px),
+      var(--stone-dark);
+    color:var(--parchment);
+    font-family: 'Arial Narrow', Arial, 'Helvetica Neue', sans-serif;
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+  }
+
+  .page{
+    width:100%;
+    max-width:520px;
+    padding:22px 16px 40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+  }
+
+  header{
+    text-align:center;
+    width:100%;
+  }
+
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:5px;
+    color:var(--c5);
+    text-transform:uppercase;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+
+  h1{
+    margin:0;
+    font-size:clamp(28px,8vw,40px);
+    letter-spacing:6px;
+    text-transform:uppercase;
+    font-weight:900;
+    color:var(--parchment);
+    text-shadow:
+      2px 2px 0 var(--shadow),
+      0 0 18px rgba(0,0,0,0.4);
+    font-stretch:condensed;
+  }
+
+  .subtitle{
+    margin-top:8px;
+    font-size:13px;
+    letter-spacing:2px;
+    color:var(--parchment-dim);
+    text-transform:uppercase;
+  }
+
+  .instructions{
+    margin-top:14px;
+    font-size:13px;
+    line-height:1.6;
+    color:var(--parchment-dim);
+    max-width:380px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .board-frame{
+    position:relative;
+    background:
+      linear-gradient(160deg, var(--stone-light), var(--stone) 55%, var(--stone-dark));
+    border-radius:10px;
+    padding:16px;
+    box-shadow:
+      0 18px 40px rgba(0,0,0,0.55),
+      inset 0 0 0 2px var(--rivet),
+      inset 0 2px 6px rgba(255,255,255,0.05);
+    width:100%;
+    max-width:420px;
+  }
+
+  .rivet{
+    position:absolute;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #7a7160, var(--rivet) 70%);
+    box-shadow:0 1px 2px rgba(0,0,0,0.6);
+  }
+  .rivet.tl{top:8px;left:8px;}
+  .rivet.tr{top:8px;right:8px;}
+  .rivet.bl{bottom:8px;left:8px;}
+  .rivet.br{bottom:8px;right:8px;}
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    padding:0 2px;
+  }
+
+  .toolbar .label{
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--parchment-dim);
+  }
+
+  button.reset-btn{
+    background:linear-gradient(180deg, #5a4b34, #3c311f);
+    color:var(--parchment);
+    border:1px solid var(--rivet);
+    border-radius:5px;
+    padding:7px 14px;
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 2px 0 var(--shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  button.reset-btn:active{
+    transform:translateY(1px);
+    box-shadow:0 1px 0 var(--shadow);
+  }
+
+  .grid-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    background:
+      repeating-linear-gradient(45deg, rgba(0,0,0,0.10) 0 2px, transparent 2px 14px),
+      var(--stone-mid);
+    border-radius:6px;
+    box-shadow:inset 0 0 0 2px var(--rivet), inset 0 6px 18px rgba(0,0,0,0.4);
+    overflow:hidden;
+    touch-action:none;
+    user-select:none;
+  }
+
+  .grid{
+    position:absolute;
+    inset:0;
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    grid-template-rows:repeat(6, 1fr);
+  }
+
+  .cell{
+    position:relative;
+    border:1px solid rgba(0,0,0,0.35);
+    background:
+      linear-gradient(160deg, rgba(255,255,255,0.03), transparent 60%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .cell::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02);
+  }
+
+  svg.paths{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+
+  .dot{
+    position:relative;
+    z-index:3;
+    width:76%;
+    height:76%;
+    border-radius:50%;
+    box-shadow:
+      0 3px 5px rgba(0,0,0,0.55),
+      inset 0 0 0 2px rgba(0,0,0,0.4),
+      inset 0 2px 3px rgba(255,255,255,0.22);
+    background-blend-mode:overlay, overlay, normal;
+  }
+
+  /* boulet — métal martelé */
+  .tex-1{
+    background-color:var(--c1);
+    background-image:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.35), transparent 45%),
+      repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.16) 0 2px, transparent 2px 7px),
+      radial-gradient(circle at 65% 70%, rgba(0,0,0,0.25), transparent 50%);
+  }
+
+  /* clé — laiton strié */
+  .tex-2{
+    background-color:var(--c2);
+    background-image:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.4), transparent 45%),
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.16) 0 2px, transparent 2px 6px),
+      radial-gradient(circle at 65% 75%, rgba(0,0,0,0.28), transparent 55%);
+  }
+
+  /* gamelle — étain gratté */
+  .tex-3{
+    background-color:var(--c3);
+    background-image:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.3), transparent 45%),
+      repeating-linear-gradient(20deg, rgba(0,0,0,0.14) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(-35deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 6px);
+  }
+
+  /* matricule — plaque tamponnée */
+  .tex-4{
+    background-color:var(--c4);
+    background-image:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.32), transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0 1px, transparent 1px 6px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0 1px, transparent 1px 6px);
+  }
+
+  /* verrou — fer rouillé, taches */
+  .tex-5{
+    background-color:var(--c5);
+    background-image:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.28), transparent 45%),
+      radial-gradient(circle at 70% 30%, rgba(0,0,0,0.3), transparent 35%),
+      radial-gradient(circle at 35% 70%, rgba(0,0,0,0.28), transparent 30%),
+      radial-gradient(circle at 65% 68%, rgba(0,0,0,0.22), transparent 32%);
+  }
+
+  /* chaîne — fer tissé, chevrons */
+  .tex-6{
+    background-color:var(--c6);
+    background-image:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.32), transparent 45%),
+      repeating-linear-gradient(45deg, rgba(0,0,0,0.16) 0 2px, transparent 2px 6px),
+      repeating-linear-gradient(-45deg, rgba(0,0,0,0.12) 0 2px, transparent 2px 6px);
+  }
+
+  /* lanterne — verre et cage de fer */
+  .tex-7{
+    background-color:var(--c7);
+    background-image:
+      radial-gradient(circle at 50% 40%, rgba(255,235,180,0.4), transparent 55%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0 2px, transparent 2px 8px),
+      radial-gradient(circle at 70% 75%, rgba(0,0,0,0.22), transparent 40%);
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--parchment-dim);
+    letter-spacing:1px;
+    max-width:380px;
+  }
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(10,8,6,0.82);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:20px;
+  }
+  .overlay.show{display:flex;}
+
+  .victory-card{
+    background:linear-gradient(160deg, var(--parchment), var(--parchment-dim));
+    color:var(--ink);
+    border-radius:8px;
+    padding:36px 28px;
+    text-align:center;
+    max-width:340px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.6);
+    position:relative;
+    transform:rotate(-1.5deg);
+    border:3px solid #2a2317;
+  }
+
+  .victory-card h2{
+    margin:0 0 8px;
+    font-size:26px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    font-weight:900;
+    color:#5a2a1f;
+  }
+
+  .victory-card p{
+    margin:0 0 22px;
+    font-size:13px;
+    line-height:1.6;
+    color:#3a3226;
+  }
+
+  button.replay-btn{
+    background:linear-gradient(180deg, #8a5a34, #5c3a1f);
+    color:#f2e6cc;
+    border:none;
+    border-radius:5px;
+    padding:12px 26px;
+    font-size:13px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 3px 0 #35220f;
+  }
+  button.replay-btn:active{
+    transform:translateY(2px);
+    box-shadow:0 1px 0 #35220f;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Bagne de l'île sèche</div>
+    <h1>Connexion des forçats</h1>
+    <div class="subtitle">Relie chaque paire — nul ne s'évade seul</div>
+    <p class="instructions">Fais glisser d'un symbole à son identique pour tracer une chaîne. Les chaînes ne peuvent jamais se croiser.</p>
+  </header>
+
+  <div class="board-frame">
+    <span class="rivet tl"></span>
+    <span class="rivet tr"></span>
+    <span class="rivet bl"></span>
+    <span class="rivet br"></span>
+
+    <div class="toolbar">
+      <span class="label">Niveau moyen · 7 paires</span>
+      <button class="reset-btn" id="resetBtn">Recommencer</button>
+    </div>
+
+    <div class="grid-wrap" id="gridWrap">
+      <div class="grid" id="grid"></div>
+      <svg class="paths" id="svgPaths"></svg>
+    </div>
+  </div>
+
+  <footer>Astuce : les gardiens ont posé leurs cadenas sur certaines cases — impossible d'y faire passer une autre chaîne.</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="victory-card">
+    <h2>Évasion réussie</h2>
+    <p>Tous les forçats sont enchaînés ensemble. La cour du bagne est enfin silencieuse.</p>
+    <button class="replay-btn" id="replayBtn">Rejouer</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const N = 7;
+
+  // Pair definitions: id, css color var, endpoints [{r,c},{r,c}]
+  // A guaranteed solution exists (used to place endpoints); the engine itself
+  // accepts any valid non-crossing route between each pair.
+  const PAIRS = [
+    { id:1, color:'var(--c1)', name:'boulet',    endpoints:[{r:0,c:0},{r:2,c:0}] },
+    { id:2, color:'var(--c2)', name:'clé',       endpoints:[{r:0,c:3},{r:1,c:3}] },
+    { id:3, color:'var(--c3)', name:'gamelle',   endpoints:[{r:1,c:0},{r:1,c:1}] },
+    { id:4, color:'var(--c4)', name:'matricule', endpoints:[{r:2,c:3},{r:3,c:3}] },
+    { id:5, color:'var(--c5)', name:'verrou',    endpoints:[{r:3,c:0},{r:5,c:0}] },
+    { id:6, color:'var(--c6)', name:'chaîne',    endpoints:[{r:4,c:3},{r:5,c:3}] },
+    { id:7, color:'var(--c7)', name:'lanterne',  endpoints:[{r:6,c:0},{r:6,c:6}] },
+  ];
+
+  const gridEl = document.getElementById('grid');
+  const svg = document.getElementById('svgPaths');
+  const gridWrap = document.getElementById('gridWrap');
+  const overlay = document.getElementById('overlay');
+  const resetBtn = document.getElementById('resetBtn');
+  const replayBtn = document.getElementById('replayBtn');
+
+  let occupancy;      // occupancy[r][c] = pairId or null
+  let endpointMap;    // endpointMap[r][c] = pairId or undefined
+  let paths;          // paths[pairId] = [{r,c}, ...]
+  let complete;       // complete[pairId] = bool
+  let drawingPid = null;
+  let cellPx = 0;
+
+  function coordKey(r,c){ return r+'_'+c; }
+
+  function buildStaticData(){
+    endpointMap = Array.from({length:N}, ()=>Array(N).fill(undefined));
+    PAIRS.forEach(p=>{
+      p.endpoints.forEach(e=>{ endpointMap[e.r][e.c] = p.id; });
+    });
+  }
+
+  function resetState(){
+    occupancy = Array.from({length:N}, ()=>Array(N).fill(null));
+    paths = {};
+    complete = {};
+    PAIRS.forEach(p=>{
+      paths[p.id] = [ p.endpoints[0] ];
+      occupancy[p.endpoints[0].r][p.endpoints[0].c] = p.id;
+      occupancy[p.endpoints[1].r][p.endpoints[1].c] = p.id;
+      complete[p.id] = false;
+      // reset path to just first endpoint (path considered "started" only when user draws)
+      paths[p.id] = [];
+    });
+    drawingPid = null;
+    overlay.classList.remove('show');
+  }
+
+  function isEndpointCell(r,c){ return endpointMap[r][c] !== undefined; }
+
+  function pairColor(pid){
+    return PAIRS.find(p=>p.id===pid).color;
+  }
+
+  function buildGridDom(){
+    gridEl.innerHTML = '';
+    for(let r=0;r<N;r++){
+      for(let c=0;c<N;c++){
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        if(isEndpointCell(r,c)){
+          const pid = endpointMap[r][c];
+          const dot = document.createElement('div');
+          dot.className = 'dot tex-' + pid;
+          cell.appendChild(dot);
+        }
+        gridEl.appendChild(cell);
+      }
+    }
+  }
+
+  function cellFromPoint(clientX, clientY){
+    const el = document.elementFromPoint(clientX, clientY);
+    if(!el) return null;
+    const cellEl = el.closest('.cell');
+    if(!cellEl || !gridEl.contains(cellEl)) return null;
+    return { r: parseInt(cellEl.dataset.r,10), c: parseInt(cellEl.dataset.c,10) };
+  }
+
+  function clearPathCells(pid){
+    const p = paths[pid];
+    p.forEach(cell=>{
+      if(!isEndpointCell(cell.r,cell.c)){
+        occupancy[cell.r][cell.c] = null;
+      }
+    });
+    paths[pid] = [];
+    complete[pid] = false;
+  }
+
+  function startDraw(r,c){
+    if(isEndpointCell(r,c)){
+      const pid = endpointMap[r][c];
+      clearPathCells(pid);
+      paths[pid] = [{r,c}];
+      occupancy[r][c] = pid;
+      drawingPid = pid;
+      render();
+      return;
+    }
+    const occ = occupancy[r][c];
+    if(occ !== null){
+      const pid = occ;
+      const path = paths[pid];
+      const idx = path.findIndex(p=>p.r===r && p.c===c);
+      if(idx !== -1){
+        const removed = path.slice(idx+1);
+        removed.forEach(cell=>{
+          if(!isEndpointCell(cell.r,cell.c)) occupancy[cell.r][cell.c] = null;
+        });
+        paths[pid] = path.slice(0, idx+1);
+        complete[pid] = false;
+        drawingPid = pid;
+        render();
+      }
+    }
+  }
+
+  function tryExtend(r,c){
+    if(drawingPid === null) return;
+    const pid = drawingPid;
+    if(complete[pid]) return; // already finished, ignore further drag
+    const path = paths[pid];
+    if(path.length === 0) return;
+    const last = path[path.length-1];
+    if(last.r===r && last.c===c) return;
+
+    const dist = Math.abs(last.r-r) + Math.abs(last.c-c);
+    if(dist !== 1) return; // must be orthogonally adjacent
+
+    // backtrack
+    if(path.length>=2){
+      const prev = path[path.length-2];
+      if(prev.r===r && prev.c===c){
+        const popped = path.pop();
+        if(!isEndpointCell(popped.r,popped.c)){
+          occupancy[popped.r][popped.c] = null;
+        }
+        render();
+        return;
+      }
+    }
+
+    const occ = occupancy[r][c];
+    const isEnd = isEndpointCell(r,c);
+
+    if(isEnd){
+      const targetPid = endpointMap[r][c];
+      if(targetPid !== pid) return; // blocked: someone else's endpoint
+      // is this the other endpoint (not the starting one already in path)?
+      const alreadyIn = path.some(p=>p.r===r && p.c===c);
+      if(alreadyIn) return;
+      path.push({r,c});
+      complete[pid] = true;
+      drawingPid = null;
+      render();
+      checkWin();
+      return;
+    }
+
+    if(occ !== null) return; // occupied by another pair, blocked
+    path.push({r,c});
+    occupancy[r][c] = pid;
+    render();
+  }
+
+  function stopDraw(){
+    drawingPid = null;
+  }
+
+  function checkWin(){
+    const allDone = PAIRS.every(p=>complete[p.id]);
+    if(allDone){
+      setTimeout(()=>{
+        overlay.classList.add('show');
+        window.parent?.postMessage({ type: 'jeuTermine' }, '*');
+      }, 250);
+    }
+  }
+
+  // ---- Rendering ----
+  function measure(){
+    const rect = gridWrap.getBoundingClientRect();
+    cellPx = rect.width / N;
+    svg.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+    svg.setAttribute('width', rect.width);
+    svg.setAttribute('height', rect.height);
+  }
+
+  function centerOf(r,c){
+    return { x: c*cellPx + cellPx/2, y: r*cellPx + cellPx/2 };
+  }
+
+  function render(){
+    svg.innerHTML = '';
+    PAIRS.forEach(p=>{
+      const path = paths[p.id];
+      if(path.length < 2) return;
+      const pts = path.map(cell=>centerOf(cell.r,cell.c));
+      const d = pts.map((pt,i)=> (i===0? 'M':'L') + pt.x.toFixed(1) + ',' + pt.y.toFixed(1)).join(' ');
+
+      const shadow = document.createElementNS('http://www.w3.org/2000/svg','path');
+      shadow.setAttribute('d', d);
+      shadow.setAttribute('fill','none');
+      shadow.setAttribute('stroke', 'rgba(0,0,0,0.35)');
+      shadow.setAttribute('stroke-width', Math.max(cellPx*0.4,11));
+      shadow.setAttribute('stroke-linecap','round');
+      shadow.setAttribute('stroke-linejoin','round');
+      shadow.setAttribute('transform','translate(0,2)');
+      svg.appendChild(shadow);
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg','path');
+      line.setAttribute('d', d);
+      line.setAttribute('fill','none');
+      line.setAttribute('stroke', getComputedColor(p.color));
+      line.setAttribute('stroke-width', Math.max(cellPx*0.38,10));
+      line.setAttribute('stroke-linecap','round');
+      line.setAttribute('stroke-linejoin','round');
+      line.style.opacity = complete[p.id] ? '1' : '0.92';
+      svg.appendChild(line);
+    });
+  }
+
+  function getComputedColor(cssVarExpr){
+    const tmp = document.createElement('div');
+    tmp.style.color = cssVarExpr;
+    document.body.appendChild(tmp);
+    const val = getComputedStyle(tmp).color;
+    document.body.removeChild(tmp);
+    return val;
+  }
+
+  // ---- Events ----
+  let pointerActive = false;
+
+  gridWrap.addEventListener('pointerdown', (e)=>{
+    const cell = cellFromPoint(e.clientX, e.clientY);
+    if(!cell) return;
+    pointerActive = true;
+    startDraw(cell.r, cell.c);
+    e.preventDefault();
+  });
+
+  gridWrap.addEventListener('pointermove', (e)=>{
+    if(!pointerActive || drawingPid === null) return;
+    const cell = cellFromPoint(e.clientX, e.clientY);
+    if(!cell) return;
+    tryExtend(cell.r, cell.c);
+    e.preventDefault();
+  });
+
+  function endPointer(){
+    pointerActive = false;
+    stopDraw();
+  }
+  document.addEventListener('pointerup', endPointer);
+  document.addEventListener('pointercancel', endPointer);
+
+  window.addEventListener('resize', ()=>{ measure(); render(); });
+
+  resetBtn.addEventListener('click', ()=>{
+    resetState();
+    render();
+  });
+
+  replayBtn.addEventListener('click', ()=>{
+    overlay.classList.remove('show');
+    resetState();
+    render();
+  });
+
+  // ---- Init ----
+  buildStaticData();
+  buildGridDom();
+  resetState();
+  requestAnimationFrame(()=>{ measure(); render(); });
+})();
+</script>
+
+</body>
+</html>

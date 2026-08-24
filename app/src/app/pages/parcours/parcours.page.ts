@@ -35,11 +35,13 @@ export class ParcoursPage implements OnInit, OnDestroy {
   readonly JEUX: Record<string, string> = {
     penitencier: 'assets/mini-jeux/river_jump.html',
     camp_est:    'assets/mini-jeux/tribunal.html',
+    hopital:     'assets/mini-jeux/bagne-connect.html',
   };
 
   readonly JEUX_NOMS: Record<string, string> = {
     penitencier: 'Traverse la Rivière',
     camp_est:    'Le tribunal',
+    hopital:     'Connexion des forçats',
   };
 
   private paramSub?: Subscription;
