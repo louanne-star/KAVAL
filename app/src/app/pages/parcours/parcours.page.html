@@ -9,6 +9,10 @@
     </div>
   </div>
 
+  <!-- Redirection en cours vers la carte (point pas encore résolu) : rien à afficher, -->
+  <!-- pas même une fraction de seconde, pour ne jamais laisser flasher la liste vide. -->
+  <ng-container *ngIf="!enRedirection">
+
   <!-- ── Vue détail d'une zone ──────────────────────────────────────────── -->
   <ng-container *ngIf="zoneSelectionnee as zone">
 
@@ -162,6 +166,8 @@
 
       </div>
     </div>
+
+  </ng-container>
 
   </ng-container>
 

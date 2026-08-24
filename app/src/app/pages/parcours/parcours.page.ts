@@ -19,6 +19,7 @@ import { UiStateService } from '../../services/ui-state.service';
 export class ParcoursPage implements OnInit, OnDestroy {
 
   zoneSelectionnee: JourneyZone | null = null;
+  enRedirection = false;
   jeuOuvert = false;
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
@@ -75,6 +76,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
     this.paramSub = this.route.queryParamMap.subscribe(params => {
       const zoneId = params.get('zone');
       if (!zoneId) {
+        this.enRedirection = false;
         this.zoneSelectionnee = null;
         this.setJeuOuvert(false);
         this.initQuiz();
@@ -83,6 +85,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
 
       const zone = this.journeyService.zones().find(z => z.id === zoneId) ?? null;
       if (zone) {
+        this.enRedirection = false;
         this.zoneSelectionnee = zone;
         this.setJeuOuvert(false);
         this.initQuiz();
@@ -90,7 +93,11 @@ export class ParcoursPage implements OnInit, OnDestroy {
         // zones() pas encore chargées (ex: reload direct sur une page détail,
         // avant que le GPS/l'itinéraire ne soit prêt) ou id invalide : jamais
         // de "page d'attente" affichée ici, direction la carte — elle rouvrira
-        // ce point automatiquement dès que ses données seront prêtes.
+        // ce point automatiquement dès que ses données seront prêtes. Le drapeau
+        // est posé AVANT le navigate() pour que le rendu de ce même cycle (avant
+        // que la navigation ne s'effectue) n'affiche jamais la liste, même une
+        // fraction de seconde.
+        this.enRedirection = true;
         this.router.navigate(['/tabs/carte'], { queryParams: { point: zoneId } });
       }
     });
