@@ -117,9 +117,9 @@ export class ParcoursPage implements OnInit, OnDestroy {
   }
 
   retourListe() {
-    this.zoneSelectionnee = null;
+    const pointId = this.zoneSelectionnee?.id;
     this.setJeuOuvert(false);
-    this.initQuiz();
+    this.router.navigate(['/tabs/carte'], { queryParams: pointId ? { point: pointId } : {} });
   }
 
   private initQuiz() {

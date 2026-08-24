@@ -3,7 +3,8 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
 import { earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline } from 'ionicons/icons';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
@@ -27,6 +28,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
   private mapPret    = signal(false);
   zoneSelectionneeId = signal<string | null>(null);
   navCibleId         = signal<string | null>(null);
+  private pointAOuvrirId = signal<string | null>(null);
+  private routeSub?: Subscription;
 
   zoneSelectionnee = computed(() => {
     const id = this.zoneSelectionneeId();
@@ -190,9 +193,35 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly pointsService: PointsService,
     private ngZone: NgZone,
     private router: Router,
+    private route: ActivatedRoute,
     readonly badgeService: BadgeService,
   ) {
     addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline });
+
+    // Reçoit l'id d'un point à ouvrir automatiquement (ex: retour depuis sa
+    // page détail dans Parcours, via /tabs/carte?point=<id>).
+    this.routeSub = this.route.queryParamMap.subscribe(params => {
+      const id = params.get('point');
+      if (id) this.pointAOuvrirId.set(id);
+    });
+
+    // Dès que la carte et les zones sont prêtes, ouvre le point demandé comme
+    // un clic sur son marqueur (sheet + centrage), puis nettoie l'URL.
+    effect(() => {
+      const id    = this.pointAOuvrirId();
+      const zones = this.journeyService.zones();
+      if (!id || !this.mapPret() || zones.length === 0) return;
+      const zone = zones.find(z => z.id === id);
+      if (!zone) return;
+      untracked(() => {
+        this.miniPointSelectionne.set(null);
+        this.miniPopupPos.set(null);
+        this.zoneSelectionneeId.set(zone.id);
+        this.map.flyTo(zone.coords, 15, { duration: 0.8 });
+        this.pointAOuvrirId.set(null);
+        this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+      });
+    });
 
     // Redessine les cercles, segments et marqueurs quand les zones, l'itinéraire ou la cible nav changent.
     effect(() => {
@@ -251,6 +280,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.navAbortCtrl?.abort();
     clearTimeout(this.arriveeTimeout);
+    this.routeSub?.unsubscribe();
     this.map?.remove();
   }
 
