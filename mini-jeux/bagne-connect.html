@@ -633,11 +633,14 @@
 
   // ---- Events ----
   let pointerActive = false;
+  let lastPointerX = null, lastPointerY = null;
 
   gridWrap.addEventListener('pointerdown', (e)=>{
     const cell = cellFromPoint(e.clientX, e.clientY);
     if(!cell) return;
     pointerActive = true;
+    lastPointerX = e.clientX;
+    lastPointerY = e.clientY;
     startDraw(cell.r, cell.c);
     e.preventDefault();
   }, { passive: false });
@@ -648,10 +651,28 @@
     // scrolle la page au lieu de tracer une chaîne (tactile mobile imprécis).
     if(!pointerActive) return;
     e.preventDefault();
-    if(drawingPid === null) return;
-    const cell = cellFromPoint(e.clientX, e.clientY);
-    if(!cell) return;
-    tryExtend(cell.r, cell.c);
+    if(drawingPid === null){ lastPointerX = e.clientX; lastPointerY = e.clientY; return; }
+
+    // Sur mobile, pointermove ne se déclenche pas assez souvent pour suivre un
+    // doigt rapide : deux événements successifs peuvent sauter plusieurs
+    // cases d'un coup, or tryExtend n'accepte qu'une case orthogonalement
+    // adjacente à la fois. On interpole donc entre l'ancienne et la nouvelle
+    // position à l'écran pour ne jamais sauter de case intermédiaire.
+    const fromX = lastPointerX ?? e.clientX, fromY = lastPointerY ?? e.clientY;
+    const toX = e.clientX, toY = e.clientY;
+    const dist = Math.hypot(toX - fromX, toY - fromY);
+    const step = Math.max(cellPx / 4, 4);
+    const steps = Math.max(1, Math.ceil(dist / step));
+
+    for (let i = 1; i <= steps; i++) {
+      const x = fromX + (toX - fromX) * (i / steps);
+      const y = fromY + (toY - fromY) * (i / steps);
+      const cell = cellFromPoint(x, y);
+      if (cell) tryExtend(cell.r, cell.c);
+    }
+
+    lastPointerX = toX;
+    lastPointerY = toY;
   }, { passive: false });
 
   function endPointer(){
