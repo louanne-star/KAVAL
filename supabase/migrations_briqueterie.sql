@@ -25,12 +25,12 @@ insert into point_sections (point_id, titre, texte, ordre) values
 on conflict (point_id, titre) do update set
   texte = excluded.texte, ordre = excluded.ordre;
 
--- ── Témoignage : citation de M. Joubert ──────────────────────────────────────
+-- ── Témoignage : rapport de l'inspecteur Cabanel (11 octobre 1882) ──────────
 
 insert into temoignages (point_id, titre, auteur, texte) values
   ('briqueterie',
-   'Un coup fatal à l''industrie du pays',
-   'M. Joubert, membre civil du Conseil privé',
-   'Ce projet portera un coup fatal à l''industrie du pays.')
+   'Un chantier bien installé',
+   'Inspecteur Cabanel, 11 octobre 1882',
+   'La briqueterie est très bien installée, en face du jardin de la transportation. Les séchoirs sont très bien. On m''a assuré qu''elle fournissait 60 à 75 000 briques par mois. Il est bien entendu que je donne ce chiffre sous toutes réserves. Il y a un logement convenable pour le surveillant Chevallier qui est chargé de cet important chantier.')
 on conflict (point_id) do update set
   titre = excluded.titre, auteur = excluded.auteur, texte = excluded.texte;
