@@ -290,13 +290,13 @@
   // les cellules d'une autre paire (rangée/colonne dédiée) ; le moteur du
   // jeu accepte n'importe quel tracé valide et sans croisement.
   const PAIRS = [
-    { id:1, color:'var(--c1)', name:'boulet',    endpoints:[{r:0,c:0},{r:0,c:1}] },
-    { id:2, color:'var(--c2)', name:'clé',       endpoints:[{r:0,c:3},{r:0,c:4}] },
-    { id:3, color:'var(--c3)', name:'gamelle',   endpoints:[{r:1,c:0},{r:4,c:0}] },
-    { id:4, color:'var(--c4)', name:'matricule', endpoints:[{r:1,c:5},{r:4,c:5}] },
-    { id:5, color:'var(--c5)', name:'verrou',    endpoints:[{r:2,c:2},{r:2,c:3}] },
-    { id:6, color:'var(--c6)', name:'chaîne',    endpoints:[{r:3,c:2},{r:3,c:3}] },
-    { id:7, color:'var(--c7)', name:'lanterne',  endpoints:[{r:5,c:0},{r:5,c:5}] },
+    { id:1, color:'var(--c1)', name:'boulet',    endpoints:[{r:0,c:0},{r:0,c:4}] },
+    { id:2, color:'var(--c2)', name:'clé',       endpoints:[{r:0,c:5},{r:1,c:2}] },
+    { id:3, color:'var(--c3)', name:'gamelle',   endpoints:[{r:1,c:1},{r:2,c:2}] },
+    { id:4, color:'var(--c4)', name:'matricule', endpoints:[{r:2,c:3},{r:3,c:4}] },
+    { id:5, color:'var(--c5)', name:'verrou',    endpoints:[{r:3,c:3},{r:4,c:0}] },
+    { id:6, color:'var(--c6)', name:'chaîne',    endpoints:[{r:4,c:1},{r:4,c:5}] },
+    { id:7, color:'var(--c7)', name:'lanterne',  endpoints:[{r:5,c:5},{r:5,c:0}] },
   ];
 
   const gridEl = document.getElementById('grid');
