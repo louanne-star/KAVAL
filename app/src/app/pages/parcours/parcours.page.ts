@@ -74,11 +74,25 @@ export class ParcoursPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.paramSub = this.route.queryParamMap.subscribe(params => {
       const zoneId = params.get('zone');
-      this.zoneSelectionnee = zoneId
-        ? (this.journeyService.zones().find(z => z.id === zoneId) ?? null)
-        : null;
-      this.setJeuOuvert(false);
-      this.initQuiz();
+      if (!zoneId) {
+        this.zoneSelectionnee = null;
+        this.setJeuOuvert(false);
+        this.initQuiz();
+        return;
+      }
+
+      const zone = this.journeyService.zones().find(z => z.id === zoneId) ?? null;
+      if (zone) {
+        this.zoneSelectionnee = zone;
+        this.setJeuOuvert(false);
+        this.initQuiz();
+      } else {
+        // zones() pas encore chargées (ex: reload direct sur une page détail,
+        // avant que le GPS/l'itinéraire ne soit prêt) ou id invalide : jamais
+        // de "page d'attente" affichée ici, direction la carte — elle rouvrira
+        // ce point automatiquement dès que ses données seront prêtes.
+        this.router.navigate(['/tabs/carte'], { queryParams: { point: zoneId } });
+      }
     });
     window.addEventListener('message', this.onMessage);
   }
