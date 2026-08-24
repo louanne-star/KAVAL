@@ -73,7 +73,7 @@ insert into points (id, zone_id, type, nom, description, lat, lng, rayon, icone,
   -- Zone 1 : Camp Est
   ('camp_est_principal', 'camp_est', 'vrai',
    'Camp Est',
-   'Construit dès 1874 à la pointe sud de l''île Nou, le Camp Est regroupe cases dortoirs, prison, lavoir et logement du surveillant-chef. Son eau saumâtre, source de nombreuses dysenteries, oblige longtemps les condamnés à aller puiser à la Fontaine Bigard avant la construction d''une citerne. Le camp abrite aussi le redouté quartier disciplinaire, où les condamnés à temps comme les « berlingots » à perpétuité subissent un régime éprouvant (ration réduite, billots de bois, longues heures debout). C''est de là que le forçat Raoul Tellier tente en 1897 sa douzième évasion, rapidement échouée malgré une préparation minutieuse.',
+   'Centre pénitentiaire historique et point central de cette zone.',
    -22.271302, 166.425924, 30, null, 1),
 
   ('parc_a_charbon', 'camp_est', 'popup',
@@ -125,7 +125,7 @@ insert into points (id, zone_id, type, nom, description, lat, lng, rayon, icone,
 
   ('hopital_du_marais', 'hopital', 'vrai',
    'Hôpital du Marais',
-   'Il était considéré comme l''un des plus beaux établissements de la Pénitentiaire et servait de « véritable école de chirurgie pour les jeunes médecins coloniaux ». Une tension constante existait entre l''administration et les forçats, ces derniers simulant des maladies (fièvres, ulcères, délire) à l''aide de plantes locales comme la pomme épineuse (Datura) ou le saint-bois pour échapper aux travaux forcés.',
+   'Complexe hospitalier incluant le quartier des aliénées et un cimetière situé sur la plage à proximité.',
    -22.268141, 166.397851, 30, null, 5),
 
     -- Zone 4 : Ferme Nord (uniquement des popups)

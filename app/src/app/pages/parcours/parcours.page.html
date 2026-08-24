@@ -31,11 +31,13 @@
 
       <div class="detail-contenu">
 
-        <!-- Histoire du point -->
-        <div class="section-titre">Histoire</div>
-        <div class="histoire-card">
-          <p class="histoire-texte">{{ zone.description }}</p>
-        </div>
+        <!-- Sections de texte du point (Histoire, Guerre médicale, ... — piloté depuis Supabase) -->
+        <ng-container *ngFor="let s of pointsService.sectionsDe(zone.id)">
+          <div class="section-titre">{{ s.titre }}</div>
+          <div class="histoire-card">
+            <p class="histoire-texte">{{ s.texte }}</p>
+          </div>
+        </ng-container>
 
         <!-- Mini-jeu (si disponible pour cette zone) -->
         <ng-container *ngIf="JEUX[zone.zoneId]">

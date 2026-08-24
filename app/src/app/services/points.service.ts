@@ -49,12 +49,21 @@ export interface QuizQuestion {
   ordre: number;
 }
 
+export interface PointSection {
+  id: string;
+  pointId: string;
+  titre: string;
+  texte: string;
+  ordre: number;
+}
+
 interface CachePoints {
   zones:       ZoneMeta[];
   vrais:       PointVrai[];
   popups:      PointPopup[];
   temoignages: Temoignage[];
   quiz:        QuizQuestion[];
+  sections:    PointSection[];
 }
 
 const CLE_CACHE = 'kaval_points_cache_v2';
@@ -71,6 +80,7 @@ export class PointsService {
   readonly pointsPopup  = signal<PointPopup[]>([]);
   readonly temoignages  = signal<Temoignage[]>([]);
   readonly quiz         = signal<QuizQuestion[]>([]);
+  readonly sections     = signal<PointSection[]>([]);
   readonly pret         = signal(false);
   readonly erreur       = signal<string | null>(null);
 
@@ -99,9 +109,10 @@ export class PointsService {
           return [];
         }
       };
-      const [t, q] = await Promise.all([
+      const [t, q, s] = await Promise.all([
         chargerOptionnel(this.supabase.client.from('temoignages').select('*')),
         chargerOptionnel(this.supabase.client.from('quiz_questions').select('*').order('ordre')),
+        chargerOptionnel(this.supabase.client.from('point_sections').select('*').order('ordre')),
       ]);
 
       const zones: ZoneMeta[] = (z.data ?? []).map((r: any) => ({
@@ -127,14 +138,18 @@ export class PointsService {
         bonneReponse: r.bonne_reponse, mauvaiseReponse1: r.mauvaise_reponse_1, mauvaiseReponse2: r.mauvaise_reponse_2,
         ordre: r.ordre
       }));
+      const sections: PointSection[] = s.map((r: any) => ({
+        id: r.id, pointId: r.point_id, titre: r.titre, texte: r.texte, ordre: r.ordre
+      }));
 
       this.zones.set(zones);
       this.pointsVrai.set(vrais);
       this.pointsPopup.set(popups);
       this.temoignages.set(temoignages);
       this.quiz.set(quiz);
+      this.sections.set(sections);
       this.erreur.set(null);
-      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages, quiz }) });
+      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages, quiz, sections }) });
     } catch {
       const chargeDepuisCache = await this.chargerDepuisCache();
       if (!chargeDepuisCache) {
@@ -154,6 +169,7 @@ export class PointsService {
     this.pointsPopup.set(cache.popups);
     this.temoignages.set(cache.temoignages ?? []);
     this.quiz.set(cache.quiz ?? []);
+    this.sections.set(cache.sections ?? []);
     return true;
   }
 
@@ -171,5 +187,9 @@ export class PointsService {
 
   quizDe(pointId: string): QuizQuestion[] {
     return this.quiz().filter(q => q.pointId === pointId);
+  }
+
+  sectionsDe(pointId: string): PointSection[] {
+    return this.sections().filter(s => s.pointId === pointId);
   }
 }
