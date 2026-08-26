@@ -108,6 +108,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   private map!: L.Map;
   private tileNormale!:   L.TileLayer;
+  private tileLabels!:    L.TileLayer;
   private tileSatellite!: L.TileLayer;
   private marqueurs = new Map<string, L.Marker>();
   private overlays  = new Map<string, L.Circle>();
@@ -296,8 +297,13 @@ export class MapPage implements AfterViewInit, OnDestroy {
     });
 
     this.tileNormale = L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { attribution: '© OpenStreetMap', maxZoom: 19 }
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      { attribution: '© Esri', maxZoom: 19, maxNativeZoom: 16 }
+    ).addTo(this.map);
+
+    this.tileLabels = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+      { attribution: '© Esri', maxZoom: 19, maxNativeZoom: 16 }
     ).addTo(this.map);
 
     this.tileSatellite = L.tileLayer(
@@ -670,10 +676,12 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.modeSatellite.set(satellite);
     if (satellite) {
       this.tileNormale.remove();
+      this.tileLabels.remove();
       this.tileSatellite.addTo(this.map);
     } else {
       this.tileSatellite.remove();
       this.tileNormale.addTo(this.map);
+      this.tileLabels.addTo(this.map);
     }
   }
 
