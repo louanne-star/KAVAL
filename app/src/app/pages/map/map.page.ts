@@ -296,8 +296,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
     });
 
     this.tileNormale = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      { attribution: '© OpenStreetMap © CARTO', maxZoom: 19 }
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { attribution: '© OpenStreetMap', maxZoom: 19 }
     ).addTo(this.map);
 
     this.tileSatellite = L.tileLayer(
