@@ -116,9 +116,21 @@ export class ParcoursPage implements OnInit, OnDestroy {
     this.uiState.navMasquee.set(v);
   }
 
+  // Mis en cache par chemin de jeu : le sanitizer crée un nouvel objet
+  // SafeResourceUrl à chaque appel, donc si ce getter en recréait un neuf à
+  // chaque cycle de détection de changement (déclenché très souvent, ex.
+  // toutes les mises à jour GPS), Angular verrait une référence différente
+  // et réassignerait iframe.src à chaque fois — ce qui recharge le jeu en
+  // boucle, même sans changer de zone.
+  private jeuUrlCache: { jeu: string; url: SafeResourceUrl } | null = null;
+
   get jeuUrl(): SafeResourceUrl | null {
     const jeu = this.zoneSelectionnee ? this.JEUX[this.zoneSelectionnee.zoneId] : null;
-    return jeu ? this.sanitizer.bypassSecurityTrustResourceUrl(jeu) : null;
+    if (!jeu) return null;
+    if (this.jeuUrlCache?.jeu !== jeu) {
+      this.jeuUrlCache = { jeu, url: this.sanitizer.bypassSecurityTrustResourceUrl(jeu) };
+    }
+    return this.jeuUrlCache.url;
   }
 
   getStatut(zone: JourneyZone): 'visite' | 'actif' | 'locked' {
