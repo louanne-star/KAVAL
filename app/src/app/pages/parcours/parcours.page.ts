@@ -78,6 +78,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
         ? (this.journeyService.zones().find(z => z.id === zoneId) ?? null)
         : null;
       this.setJeuOuvert(false);
+      this.calculerJeuUrl();
       this.initQuiz();
     });
     window.addEventListener('message', this.onMessage);
@@ -95,9 +96,17 @@ export class ParcoursPage implements OnInit, OnDestroy {
     this.uiState.navMasquee.set(v);
   }
 
-  get jeuUrl(): SafeResourceUrl | null {
+  // Calculé une seule fois par changement de zone (pas un getter) : Angular
+  // ré-appelle les getters à chaque détection de changement, et
+  // bypassSecurityTrustResourceUrl renvoie un nouvel objet à chaque appel —
+  // même URL, mais nouvelle référence, ce qui force Angular à réassigner
+  // iframe.src et donc à recharger le jeu en cours (ex: watchPosition GPS
+  // qui déclenche une détection de changement toutes les quelques secondes).
+  jeuUrl: SafeResourceUrl | null = null;
+
+  private calculerJeuUrl() {
     const jeu = this.zoneSelectionnee ? this.JEUX[this.zoneSelectionnee.zoneId] : null;
-    return jeu ? this.sanitizer.bypassSecurityTrustResourceUrl(jeu) : null;
+    this.jeuUrl = jeu ? this.sanitizer.bypassSecurityTrustResourceUrl(jeu) : null;
   }
 
   getStatut(zone: JourneyZone): 'visite' | 'actif' | 'locked' {
@@ -113,12 +122,14 @@ export class ParcoursPage implements OnInit, OnDestroy {
     if (this.getStatut(zone) === 'locked') return;
     this.zoneSelectionnee = zone;
     this.setJeuOuvert(false);
+    this.calculerJeuUrl();
     this.initQuiz();
   }
 
   retourListe() {
     this.zoneSelectionnee = null;
     this.setJeuOuvert(false);
+    this.calculerJeuUrl();
     this.initQuiz();
   }
 
