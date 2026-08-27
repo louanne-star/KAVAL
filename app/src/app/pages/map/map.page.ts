@@ -537,6 +537,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // ── Marker icon factory ───────────────────────────────────────────────────
 
   private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
+    if (this.badgeService.aBadge(zone.id)) {
+      const pinValideeSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 46" width="32" height="46"
+          style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
+        <path d="M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z" fill="#c0553c"/>
+        <circle cx="16" cy="15" r="10" fill="#ffffff"/>
+        <path d="M16.00,8.80 L17.53,12.90 L21.90,13.08 L18.47,15.80 L19.64,20.02 L16.00,17.60 L12.36,20.02 L13.53,15.80 L10.10,13.08 L14.47,12.90 Z" fill="#c0553c"/>
+      </svg>`;
+      return L.divIcon({
+        className: '',
+        html: pinValideeSvg,
+        iconSize: [32, 46], iconAnchor: [16, 46]
+      });
+    }
+
     const couleur = zone.debloque || estProchain ? '#c0553c' : '#BEBEBE';
     const opacity = !zone.debloque && !estProchain ? 'opacity:0.45;' : '';
 
