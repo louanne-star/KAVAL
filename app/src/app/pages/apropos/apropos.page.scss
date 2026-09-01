@@ -338,20 +338,21 @@
   inset: 0;
   background: rgba(26, 46, 30, 0.5);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
+  padding: 24px;
   z-index: 1000;
 }
 
 .popup-card {
   position: relative;
   width: 100%;
-  max-width: 480px;
+  max-width: 420px;
   max-height: 70vh;
   overflow-y: auto;
   background: #fffcf7;
-  border-radius: 20px 20px 0 0;
-  padding: 24px 20px 32px;
+  border-radius: 20px;
+  padding: 24px 20px;
 }
 
 .popup-close {
