@@ -39,7 +39,7 @@
           <h2 class="section-titre">L'HISTOIRE</h2>
           <p class="section-texte">De 1864 à 1897, l'Île Nou fut l'un des principaux bagnes de Nouvelle-Calédonie. Des milliers de forçats y vécurent et travaillèrent dans des conditions extrêmes.</p>
         </div>
-        <div class="card-arrow">›</div>
+        <button class="card-arrow" (click)="ouvrirPopup('histoire')" title="En savoir plus">›</button>
       </div>
     </div>
 
@@ -48,7 +48,7 @@
       <div class="section-num-row">
         <p class="section-num">02</p>
         <h2 class="section-titre">LES VESTIGES</h2>
-        <div class="card-arrow">›</div>
+        <button class="card-arrow" (click)="ouvrirPopup('vestiges')" title="En savoir plus">›</button>
       </div>
       <div class="vestiges-scroll">
         <div class="vestige-card" *ngFor="let v of vestiges">
@@ -89,7 +89,7 @@
         <div>
           <p class="section-num">04</p>
           <h2 class="section-titre">LE PROJET KAVAL</h2>
-          <p class="section-texte">KAVAL est une application conçue par une équipe passionnée d'histoire et de patrimoine calédonien. Notre mission : faire découvrir le bagne de l'Île Nou.</p>
+          <p class="section-texte">KAVAL est né d'une SAE (Situation d'Apprentissage et d'Évaluation) du BUT Métiers du Multimédia et de l'Internet (MMI) de l'Université de la Nouvelle-Calédonie. Conçue par une équipe d'étudiants passionnés d'histoire et de patrimoine calédonien, l'application a pour mission de faire découvrir le bagne de l'Île Nou au plus grand nombre.</p>
         </div>
       </div>
     </div>
@@ -118,6 +118,15 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Popup "en savoir plus" (flèches) -->
+  <div class="popup-overlay" *ngIf="popupOuvert" (click)="fermerPopup()">
+    <div class="popup-card" (click)="$event.stopPropagation()">
+      <button class="popup-close" (click)="fermerPopup()">✕</button>
+      <h3 class="popup-titre">{{ popups[popupOuvert].titre }}</h3>
+      <p class="popup-texte">{{ popups[popupOuvert].texte }}</p>
+    </div>
   </div>
 
 </ion-content>
