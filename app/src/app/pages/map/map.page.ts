@@ -13,6 +13,7 @@ import { FavoriteService } from '../../services/favorite.service';
 import { CommentService } from '../../services/comment.service';
 import { AuthService } from '../../services/auth.service';
 import { PointsService, PointPopup } from '../../services/points.service';
+import { UiStateService } from '../../services/ui-state.service';
 
 @Component({
   selector: 'app-map',
@@ -196,6 +197,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     readonly badgeService: BadgeService,
+    readonly uiState: UiStateService,
   ) {
     addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline });
 
@@ -221,6 +223,24 @@ export class MapPage implements AfterViewInit, OnDestroy {
         this.map.flyTo(zone.coords, 15, { duration: 0.8 });
         this.pointAOuvrirId.set(null);
         this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+      });
+    });
+
+    // Retour depuis la fiche détail d'un point (bouton "← Retour", navigation
+    // navigateur) : rouvre la fiche exactement où on l'avait laissée — même
+    // zoom, même centrage — plutôt qu'un zoom fixe arbitraire.
+    effect(() => {
+      const etat  = this.uiState.pointARouvrir();
+      const zones = this.journeyService.zones();
+      if (!etat || !this.mapPret() || zones.length === 0) return;
+      const zone = zones.find(z => z.id === etat.pointId);
+      if (!zone) return;
+      untracked(() => {
+        this.miniPointSelectionne.set(null);
+        this.miniPopupPos.set(null);
+        this.zoneSelectionneeId.set(zone.id);
+        this.map.flyTo([etat.lat, etat.lng], etat.zoom, { duration: 0.8 });
+        this.uiState.pointARouvrir.set(null);
       });
     });
 
@@ -360,7 +380,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
           this.miniPointSelectionne.set(null);
           this.miniPopupPos.set(null);
           this.zoneSelectionneeId.set(zone.id);
-          this.map.flyTo(zone.coords, 15, { duration: 0.8 });
         }));
       this.marqueurs.set(zone.id, marqueur);
     });
@@ -622,7 +641,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
           this.zoneSelectionneeId.set(null);
           this.miniPointSelectionne.set(point);
           this.mettreAJourPositionMiniPopup();
-          this.map.flyTo(point.coords, 17, { duration: 0.6 });
         }))
     );
   }
@@ -712,6 +730,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   explorer(zoneId: string) {
+    const centre = this.map.getCenter();
+    this.uiState.pointARouvrir.set({ pointId: zoneId, zoom: this.map.getZoom(), lat: centre.lat, lng: centre.lng });
     this.fermerFiche();
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
   }
