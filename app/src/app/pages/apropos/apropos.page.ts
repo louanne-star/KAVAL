@@ -40,4 +40,25 @@ export class AproposPage {
     { role: 'Encadrement', nom: 'Université de la Nouvelle-Calédonie' },
     { role: 'Sources historiques', nom: 'Association Témoignage d\'Un Passé' },
   ];
+
+  popupOuvert: 'histoire' | 'vestiges' | null = null;
+
+  readonly popups = {
+    histoire: {
+      titre: "L'Histoire du bagne",
+      texte: "Créé en 1864, le bagne de l'Île Nou fut le point d'entrée de la transportation pénale française en Nouvelle-Calédonie. Jusqu'à sa fermeture en 1897, environ 22 000 forçats y furent déportés et condamnés aux travaux forcés dans des conditions très dures : carrières, briqueterie, agriculture, construction. L'administration pénitentiaire organisait la vie du bagne en plusieurs zones spécialisées — industrielle, agricole, hospitalière — dont on retrouve aujourd'hui les vestiges disséminés sur l'île."
+    },
+    vestiges: {
+      titre: 'Les Vestiges',
+      texte: "Plus d'un siècle plus tard, les traces du bagne subsistent par fragments : fondations de bâtiments, fours, ateliers et lieux de culte témoignent encore de la vie quotidienne des forçats. La grande cheminée, le magasin colonial, l'atelier des forçats, la caserne militaire ou la chapelle font partie des vestiges les plus visibles aujourd'hui, intégrés au paysage urbain de Nouméa."
+    },
+  };
+
+  ouvrirPopup(id: 'histoire' | 'vestiges') {
+    this.popupOuvert = id;
+  }
+
+  fermerPopup() {
+    this.popupOuvert = null;
+  }
 }
