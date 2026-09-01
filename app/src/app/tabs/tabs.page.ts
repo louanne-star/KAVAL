@@ -18,9 +18,11 @@ export class TabsPage {
 
   ongletActif = signal<string>('carte');
 
+  // Pas d'entrée "Parcours" : cette page n'a plus de vue autonome (l'ancienne
+  // liste "Mon Épopée" a été supprimée), elle ne s'ouvre que sur un point
+  // précis depuis la Carte, Recherche ou Compte.
   readonly onglets = [
     { id: 'carte',    icone: 'map-outline',                label: 'Carte'    },
-    { id: 'parcours', icone: 'list-outline',               label: 'Parcours' },
     { id: 'apropos',  icone: 'information-circle-outline', label: 'À propos' },
   ];
 

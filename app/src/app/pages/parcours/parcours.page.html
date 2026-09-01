@@ -112,63 +112,6 @@
 
   </ng-container>
 
-  <!-- ── Vue liste (timeline) ───────────────────────────────────────────── -->
-  <ng-container *ngIf="!zoneSelectionnee">
-
-    <div class="parcours-header">
-      <p class="header-label">KAVAL · ÎLE NOU</p>
-      <h1 class="header-titre">Mon Épopée</h1>
-      <p class="header-sub">{{ journeyService.zonesDebloquees() }} / {{ journeyService.zones().length }} sites explorés</p>
-      <div class="header-progress">
-        <div class="progress-bar">
-          <div class="progress-fill"
-               [style.width.%]="(journeyService.zonesDebloquees() / journeyService.zones().length) * 100">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Zones pas encore chargées -->
-    <div class="liste-vide" *ngIf="journeyService.zones().length === 0">
-      <div class="vide-icone">🗺️</div>
-      <p>Aucun site débloqué pour l'instant.</p>
-      <p class="vide-hint">Déplace-toi sur l'Île Nou pour commencer le parcours.</p>
-      <button class="btn-carte" (click)="retourCarte()">Voir la carte →</button>
-    </div>
-
-    <!-- Timeline -->
-    <div class="timeline" *ngIf="journeyService.zones().length > 0">
-      <div class="timeline-item"
-           *ngFor="let z of journeyService.zones(); let last = last"
-           [class.visite]="getStatut(z) === 'visite'"
-           [class.actif]="getStatut(z) === 'actif'"
-           [class.locked]="getStatut(z) === 'locked'">
-
-        <div class="zone-bloc" (click)="selectZone(z)">
-          <div class="zone-badge" *ngIf="getStatut(z) === 'visite'">✓</div>
-          <div class="zone-badge locked-badge" *ngIf="getStatut(z) === 'locked'">🔒</div>
-
-          <div class="zone-icone"><span>{{ pointsService.metaDe(z.zoneId)?.icone }}</span></div>
-
-          <div class="zone-infos" *ngIf="getStatut(z) !== 'locked'">
-            <p class="zone-ordre">Étape {{ z.ordre }} · {{ z.zoneNom }}</p>
-            <h3 class="zone-nom">{{ z.nom }}</h3>
-            <p class="zone-sous-titre">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</p>
-          </div>
-
-          <div class="zone-infos" *ngIf="getStatut(z) === 'locked'">
-            <p class="zone-ordre">Étape {{ z.ordre }} · {{ z.zoneNom }}</p>
-            <p class="zone-locked-text">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</p>
-          </div>
-        </div>
-
-        <div class="timeline-line" *ngIf="!last"></div>
-
-      </div>
-    </div>
-
-  </ng-container>
-
   </ng-container>
 
 </ion-content>

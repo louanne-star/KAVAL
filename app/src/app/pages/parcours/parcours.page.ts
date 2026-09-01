@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -64,6 +64,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
     private sanitizer: DomSanitizer,
     private ngZone: NgZone,
     readonly journeyService: JourneyService,
@@ -76,10 +77,12 @@ export class ParcoursPage implements OnInit, OnDestroy {
     this.paramSub = this.route.queryParamMap.subscribe(params => {
       const zoneId = params.get('zone');
       if (!zoneId) {
-        this.enRedirection = false;
-        this.zoneSelectionnee = null;
-        this.setJeuOuvert(false);
-        this.initQuiz();
+        // Plus de vue liste "Mon Épopée" (supprimée) : sans point précis à
+        // afficher, retour à la carte. Le drapeau est posé AVANT le
+        // navigate() pour ne jamais laisser flasher un contenu vide ici,
+        // même une fraction de seconde.
+        this.enRedirection = true;
+        this.router.navigate(['/tabs/carte']);
         return;
       }
 
@@ -93,10 +96,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
         // zones() pas encore chargées (ex: reload direct sur une page détail,
         // avant que le GPS/l'itinéraire ne soit prêt) ou id invalide : jamais
         // de "page d'attente" affichée ici, direction la carte — elle rouvrira
-        // ce point automatiquement dès que ses données seront prêtes. Le drapeau
-        // est posé AVANT le navigate() pour que le rendu de ce même cycle (avant
-        // que la navigation ne s'effectue) n'affiche jamais la liste, même une
-        // fraction de seconde.
+        // ce point automatiquement dès que ses données seront prêtes.
         this.enRedirection = true;
         this.router.navigate(['/tabs/carte'], { queryParams: { point: zoneId } });
       }
@@ -133,26 +133,14 @@ export class ParcoursPage implements OnInit, OnDestroy {
     return this.jeuUrlCache.url;
   }
 
-  getStatut(zone: JourneyZone): 'visite' | 'actif' | 'locked' {
-    if (!zone.debloque) return 'locked';
-    return this.badgeService.aBadge(zone.id) ? 'visite' : 'actif';
-  }
-
-  get zonesDebloquees(): JourneyZone[] {
-    return this.journeyService.zones().filter(z => z.debloque);
-  }
-
-  selectZone(zone: JourneyZone) {
-    if (this.getStatut(zone) === 'locked') return;
-    this.zoneSelectionnee = zone;
-    this.setJeuOuvert(false);
-    this.initQuiz();
-  }
-
+  // Bouton "← Retour" : comportement navigateur (retourne à la page d'où on
+  // vient, quelle qu'elle soit — Carte, Recherche, Compte...) plutôt qu'une
+  // redirection fixe. Quand on vient de la Carte, celle-ci rouvre la fiche
+  // du point avec son zoom/centrage d'origine via UiStateService (voir
+  // MapPage.explorer() et son effect de réouverture).
   retourListe() {
-    const pointId = this.zoneSelectionnee?.id;
     this.setJeuOuvert(false);
-    this.router.navigate(['/tabs/carte'], { queryParams: pointId ? { point: pointId } : {} });
+    this.location.back();
   }
 
   private initQuiz() {
@@ -197,10 +185,6 @@ export class ParcoursPage implements OnInit, OnDestroy {
     this.quizTermine = false;
     this.quizReponseChoisie = null;
     this.melangerChoixActuels();
-  }
-
-  retourCarte() {
-    this.router.navigate(['/tabs/carte']);
   }
 
   ouvrirJeu() { this.setJeuOuvert(true); }
