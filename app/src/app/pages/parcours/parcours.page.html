@@ -112,6 +112,55 @@
 
   </ng-container>
 
+  <!-- ── Vue liste : parcours dans l'ordre calculé par proximité GPS ────── -->
+  <ng-container *ngIf="!zoneSelectionnee">
+
+    <div class="parcours-header">
+      <p class="header-label">KAVAL · ÎLE NOU</p>
+      <h1 class="header-titre">Parcours</h1>
+      <p class="header-sub">{{ badgeService.badges().size }} / {{ journeyService.zones().length }} sites explorés</p>
+      <div class="header-progress">
+        <div class="progress-bar">
+          <div class="progress-fill"
+               [style.width.%]="(badgeService.badges().size / journeyService.zones().length) * 100">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zones pas encore chargées -->
+    <div class="liste-vide" *ngIf="journeyService.zones().length === 0">
+      <div class="vide-icone">🗺️</div>
+      <p>Chargement du parcours…</p>
+      <p class="vide-hint">Active ta position pour un ordre adapté à ta localisation.</p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline" *ngIf="journeyService.zones().length > 0">
+      <div class="timeline-item"
+           *ngFor="let z of journeyService.zones(); let last = last"
+           [class.visite]="badgeService.aBadge(z.id)"
+           [class.actif]="!badgeService.aBadge(z.id)">
+
+        <div class="zone-bloc" (click)="selectZone(z)">
+          <div class="zone-badge" *ngIf="badgeService.aBadge(z.id)">✓</div>
+
+          <div class="zone-icone"><span>{{ pointsService.metaDe(z.zoneId)?.icone }}</span></div>
+
+          <div class="zone-infos">
+            <p class="zone-ordre">Étape {{ z.ordre }} · {{ z.zoneNom }}</p>
+            <h3 class="zone-nom">{{ z.nom }}</h3>
+            <p class="zone-sous-titre">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</p>
+          </div>
+        </div>
+
+        <div class="timeline-line" *ngIf="!last"></div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
   </ng-container>
 
 </ion-content>

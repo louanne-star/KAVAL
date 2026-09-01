@@ -77,12 +77,13 @@ export class ParcoursPage implements OnInit, OnDestroy {
     this.paramSub = this.route.queryParamMap.subscribe(params => {
       const zoneId = params.get('zone');
       if (!zoneId) {
-        // Plus de vue liste "Mon Épopée" (supprimée) : sans point précis à
-        // afficher, retour à la carte. Le drapeau est posé AVANT le
-        // navigate() pour ne jamais laisser flasher un contenu vide ici,
-        // même une fraction de seconde.
-        this.enRedirection = true;
-        this.router.navigate(['/tabs/carte']);
+        // Pas de point précis : liste des points dans l'ordre du parcours
+        // (journeyService.zones(), déjà calculé par proximité GPS — ou par
+        // rapport à une position par défaut si l'utilisateur n'a pas
+        // partagé sa position, voir JourneyService.construireRoute()).
+        this.enRedirection = false;
+        this.zoneSelectionnee = null;
+        this.setJeuOuvert(false);
         return;
       }
 
@@ -131,6 +132,13 @@ export class ParcoursPage implements OnInit, OnDestroy {
       this.jeuUrlCache = { jeu, url: this.sanitizer.bypassSecurityTrustResourceUrl(jeu) };
     }
     return this.jeuUrlCache.url;
+  }
+
+  // Depuis la liste : ouvre le détail d'un point. Navigue (plutôt qu'une
+  // simple mutation d'état) pour que "← Retour" (Location.back()) ramène
+  // bien à la liste.
+  selectZone(zone: JourneyZone) {
+    this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zone.id } });
   }
 
   // Bouton "← Retour" : comportement navigateur (retourne à la page d'où on
