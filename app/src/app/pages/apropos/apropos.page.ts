@@ -18,20 +18,20 @@ export class AproposPage {
   }
 
   vestiges = [
-    { nom: 'La grande cheminée', icone: 'flame-outline', couleur: '#2d1a0a' },
-    { nom: 'Magasin colonial', icone: 'storefront-outline', couleur: '#0a1a2d' },
-    { nom: 'Atelier des forçats', icone: 'hammer-outline', couleur: '#1a2e1e' },
-    { nom: 'Caserne', icone: 'home-outline', couleur: '#1a1a2d' },
-    { nom: 'Chapelle', icone: 'prism-outline', couleur: '#2d1a2d' },
+    { nom: 'La Boulangerie', icone: 'flame-outline', couleur: '#2d1a0a' },
+    { nom: 'Magasin des vivres', icone: 'storefront-outline', couleur: '#0a1a2d' },
+    { nom: 'Les Ateliers', icone: 'hammer-outline', couleur: '#1a2e1e' },
+    { nom: 'Caserne des surveillants', icone: 'home-outline', couleur: '#1a1a2d' },
+    { nom: 'Chapelle Saint-Thomas', icone: 'prism-outline', couleur: '#2d1a2d' },
   ];
 
   chiffres = [
     { valeur: '1864', label: 'Année d\'ouverture' },
-    { valeur: '1897', label: 'Année de fermeture' },
-    { valeur: '22 000', label: 'Forçats déportés' },
+    { valeur: '1897', label: 'Fin de la transportation' },
+    { valeur: '22 000', label: 'Forçats transportés' },
     { valeur: '33 ans', label: 'Durée du bagne' },
     { valeur: '5', label: 'Zones historiques' },
-    { valeur: '38', label: 'Lieux recensés' },
+    { valeur: '25', label: 'Lieux recensés' },
   ];
 
   credits = [
@@ -40,4 +40,25 @@ export class AproposPage {
     { role: 'Encadrement', nom: 'Université de la Nouvelle-Calédonie' },
     { role: 'Sources historiques', nom: 'Association Témoignage d\'Un Passé' },
   ];
+
+  popupOuvert: 'histoire' | 'vestiges' | null = null;
+
+  readonly popups = {
+    histoire: {
+      titre: "L'Histoire du bagne",
+      texte: "Créé en 1864 à la pointe de Nouville, le pénitencier-dépôt de l'Île Nou fut le point d'entrée de la transportation pénale française en Nouvelle-Calédonie : c'est là qu'arrivaient les condamnés, avant d'être répartis vers les camps de l'île ou de la Grande Terre (Bourail, Canala, la vallée du Diahot...). Jusqu'à la fin de la transportation en 1897, environ 22 000 forçats furent envoyés dans la colonie. Les conditions de vie y étaient très dures : le taux de mortalité annuel a atteint environ 27 pour 1 000 entre 1877 et 1883. Les principaux bâtiments du site ont été classés monuments historiques en 1977, et le site a rouvert au public en 2021 grâce au travail de préservation de l'association ATUP (Témoignage d'un Passé)."
+    },
+    vestiges: {
+      titre: 'Les Vestiges',
+      texte: "Une partie des bâtiments d'origine est aujourd'hui classée monument historique et se visite : l'ancienne boulangerie pénitentiaire (qui abrite désormais une exposition), le bâtiment cellulaire de l'hôpital, l'hôtel du commandant, le presbytère et la chapelle Saint-Thomas. D'autres constructions, notamment celles du Camp Est et de la Vacherie, ont aujourd'hui disparu et ne subsistent que sur d'anciennes photographies. Le site est entretenu par l'association ATUP (Témoignage d'un Passé), qui organise aussi des visites guidées et des ateliers pédagogiques."
+    },
+  };
+
+  ouvrirPopup(id: 'histoire' | 'vestiges') {
+    this.popupOuvert = id;
+  }
+
+  fermerPopup() {
+    this.popupOuvert = null;
+  }
 }
