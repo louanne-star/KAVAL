@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Le Tribunal du Bagne</title>
+<style>
+  :root {
+    --brun-fonce:    #241811;
+    --brun-panneau:  #2b1d14;
+    --brun-cadre:    #3d2a1a;
+    --or:            #c9a84c;
+    --creme:         #f6ecd9;
+    --creme-bord:    #c9a45c;
+    --rouge:         #9a2a1a;
+    --vert:          #4caf6d;
+    --vert-fonce:    #2f7a49;
+    --texte-fonce:   #241811;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body {
+    height:100%; background:var(--brun-fonce);
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overflow:hidden; touch-action:manipulation;
+  }
+  #jeu {
+    position:relative; width:100%; height:100%;
+    max-width:420px; margin:0 auto;
+    display:flex; flex-direction:column;
+    background:var(--brun-panneau);
+  }
+  .ecran { position:absolute; inset:0; display:none; flex-direction:column; overflow-y:auto; }
+  .ecran.actif { display:flex; }
+
+  /* ── Écrans chargement / erreur ─────────────────────────────────────── */
+  #ecran-chargement, #ecran-erreur {
+    align-items:center; justify-content:center; text-align:center; gap:14px; padding:32px;
+    color:var(--creme);
+  }
+  .spinner {
+    width:38px; height:38px; border-radius:50%;
+    border:4px solid rgba(201,168,76,0.25); border-top-color:var(--or);
+    animation:tourner 0.9s linear infinite;
+  }
+  @keyframes tourner { to { transform:rotate(360deg); } }
+  .btn-reessayer {
+    margin-top:6px; background:var(--or); color:var(--brun-fonce); border:none;
+    border-radius:12px; padding:12px 28px; font-weight:700; font-size:15px; cursor:pointer;
+  }
+
+  /* ── Header commun ───────────────────────────────────────────────────── */
+  .entete {
+    background:#1a1108; padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+    border-bottom:2px solid var(--or);
+  }
+  .entete-titre { color:var(--or); font-weight:800; font-size:15px; letter-spacing:0.3px; }
+  .entete-info { color:rgba(255,255,255,0.55); font-size:12px; }
+  .entete-score { color:#fff; font-weight:700; font-size:13px; }
+
+  /* ── Scène / portrait ────────────────────────────────────────────────── */
+  .scene-cadre {
+    position:relative; margin:8px 16px 0; flex:1 1 auto; min-height:120px;
+    border-radius:16px; overflow:hidden;
+    border:8px solid var(--brun-cadre);
+    box-shadow:0 10px 24px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(201,168,76,0.35);
+  }
+  .scene-sky {
+    position:absolute; inset:0; background:#dbab6d;
+  }
+  .scene-sun {
+    position:absolute; top:8%; left:50%; width:72%; padding-top:72%;
+    transform:translateX(-50%); border-radius:50%;
+    background:radial-gradient(circle at 50% 42%, #fdf2d6 0%, #f9e4b2 45%, #f2d091 74%, #e9bd78 100%);
+    box-shadow:0 0 30px 8px rgba(253,242,214,0.4);
+    animation:respirer 6s ease-in-out infinite;
+  }
+  @keyframes respirer {
+    0%,100% { opacity:0.92; }
+    50%     { opacity:1; }
+  }
+  .scene-collines { position:absolute; inset:0; }
+  .colline {
+    position:absolute; left:0; bottom:0; width:200%; height:60%;
+  }
+  .colline path { fill: var(--c); }
+  .colline-1 { bottom:30%; height:34%; --c:#5c7f8c; animation:vagueA 10s linear infinite; }
+  .colline-2 { bottom:16%; height:38%; --c:#33586a; animation:vagueB 15s linear infinite; opacity:0.96; }
+  .colline-3 { bottom:0;   height:47%; --c:#17323d; animation:vagueA 20s linear infinite reverse; }
+  @keyframes vagueA { from { transform:translateX(0); }    to { transform:translateX(-50%); } }
+  @keyframes vagueB { from { transform:translateX(-50%); } to { transform:translateX(0); } }
+  .scene-bateau {
+    position:absolute; right:11%; bottom:22%; width:17%; opacity:0.94;
+    animation:tanguer 4.5s ease-in-out infinite;
+  }
+  @keyframes tanguer {
+    0%,100% { transform:translateY(0) rotate(0deg); }
+    50%     { transform:translateY(-2.5px) rotate(-1deg); }
+  }
+  .scene-photo-wrap {
+    position:absolute; left:0; right:0; bottom:0; top:2%;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .scene-photo-wrap img { max-width:96%; max-height:100%; object-fit:contain; filter:drop-shadow(0 6px 10px rgba(0,0,0,0.35)); }
+  .scene-photo-fallback {
+    display:none; align-items:flex-end; justify-content:center; width:60%; height:82%;
+    color:rgba(36,24,17,0.4);
+  }
+  .scene-photo-wrap.img-err img { display:none; }
+  .scene-photo-wrap.img-err .scene-photo-fallback { display:flex; }
+
+  /* ── Dossier ─────────────────────────────────────────────────────────── */
+  .dossier-zone { flex:0 0 auto; padding:12px 16px; display:flex; flex-direction:column; gap:10px; }
+  .dossier-carte {
+    position:relative; background:var(--creme); border-radius:10px; padding:12px 14px 11px;
+    border:2px dashed var(--creme-bord);
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .dossier-entete {
+    font-family:Georgia, 'Times New Roman', serif; font-weight:700; font-size:12px;
+    letter-spacing:0.4px; text-align:center; color:var(--texte-fonce);
+    padding-bottom:6px; margin-bottom:7px; border-bottom:1px solid rgba(36,24,17,0.18);
+  }
+  .dossier-ligne { font-size:13.5px; color:var(--texte-fonce); margin-bottom:4px; }
+  .dossier-ligne b { font-weight:700; }
+  .dossier-label-accusation {
+    font-weight:700; font-size:12px; color:var(--rouge); letter-spacing:0.3px;
+    margin-top:6px; margin-bottom:3px;
+  }
+  .dossier-accusation { font-size:13px; color:#5a2418; line-height:1.42; padding-right:60px; }
+
+  .stamp-condamne {
+    position:absolute; top:80px; right:8px; width:56px; height:56px;
+    transform:rotate(-14deg); pointer-events:none;
+  }
+  .stamp-condamne img { width:100%; height:100%; object-fit:contain; }
+  .stamp-condamne .stamp-fallback {
+    display:none; width:100%; height:100%; border-radius:50%;
+    border:2.5px dashed var(--rouge); color:var(--rouge); opacity:0.9;
+    align-items:center; justify-content:center; text-align:center;
+    font-weight:800; font-size:9px; letter-spacing:0.5px;
+  }
+  .stamp-condamne.img-err img { display:none; }
+  .stamp-condamne.img-err .stamp-fallback { display:flex; }
+
+  .choix-label {
+    text-align:center; color:rgba(255,255,255,0.85); font-weight:700; font-size:12.5px;
+    letter-spacing:0.5px;
+  }
+
+  .stamps-row { display:flex; gap:8px; }
+  .stamp-btn {
+    flex:1; background:var(--creme); border:2.5px solid transparent; border-radius:12px;
+    padding:8px 4px 10px; display:flex; flex-direction:column; align-items:center; gap:4px;
+    cursor:pointer; transition:transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .stamp-btn img { width:100%; max-width:82px; aspect-ratio:1; object-fit:contain; }
+  .stamp-btn .stamp-fallback {
+    display:none; width:100%; aspect-ratio:1; border-radius:50%;
+    border:3px solid currentColor; align-items:center; justify-content:center;
+    font-weight:800; font-size:10px; text-align:center; padding:4px;
+  }
+  .stamp-btn.img-err img { display:none; }
+  .stamp-btn.img-err .stamp-fallback { display:flex; }
+  .stamp-btn[data-peine="TRANSPORTÉ"] .stamp-fallback { color:#2d6b2d; }
+  .stamp-btn[data-peine="DEPORTÉ"]    .stamp-fallback { color:#1a4a8a; }
+  .stamp-btn[data-peine="RELÉGUÉ"]    .stamp-fallback { color:#8a4a10; }
+  .stamp-btn .stamp-nom { font-size:11px; font-weight:700; color:var(--texte-fonce); letter-spacing:0.2px; }
+  .stamp-btn.selectionne {
+    border-color:var(--or); transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.3);
+  }
+
+  .btn-valider {
+    width:100%; border:none; border-radius:14px; padding:0;
+    min-height:56px; position:relative; overflow:hidden;
+    background:transparent; cursor:pointer;
+    transition:opacity 0.15s ease, transform 0.1s ease;
+  }
+  .btn-valider img { display:block; width:100%; height:auto; }
+  .btn-valider .btn-fallback-texte {
+    display:none; width:100%; padding:16px; text-align:center; border-radius:14px;
+    font-size:17px; font-weight:800; letter-spacing:0.3px; color:#fff;
+    background:linear-gradient(180deg, var(--vert) 0%, var(--vert-fonce) 100%);
+    box-shadow:0 6px 16px rgba(47,122,73,0.45);
+  }
+  .btn-valider.img-err img { display:none; }
+  .btn-valider.img-err .btn-fallback-texte { display:block; }
+  .btn-valider:disabled { opacity:0.35; cursor:default; }
+  .btn-valider:not(:disabled):active { transform:scale(0.98); }
+
+  .btn-aide {
+    position:fixed; right:14px; top:60px; width:38px; height:38px; border-radius:50%; z-index:5;
+    border:none; padding:0; overflow:hidden; background:transparent; cursor:pointer;
+    box-shadow:0 3px 10px rgba(0,0,0,0.35);
+  }
+  .btn-aide img { width:100%; height:100%; object-fit:contain; border-radius:50%; }
+  .btn-aide .btn-fallback-texte {
+    display:none; width:100%; height:100%; border-radius:50%; align-items:center; justify-content:center;
+    background:var(--brun-fonce); border:2px solid var(--or); color:var(--or);
+    font-weight:800; font-size:18px; font-family:Georgia,serif;
+  }
+  .btn-aide.img-err img { display:none; }
+  .btn-aide.img-err .btn-fallback-texte { display:flex; }
+
+  /* ── Résultat round ──────────────────────────────────────────────────── */
+  #ecran-resultat { padding:0; }
+  .resultat-bandeau {
+    padding:16px; text-align:center; font-weight:800; font-size:17px; color:#fff;
+  }
+  .resultat-bandeau.correct   { background:#1a5c1a; }
+  .resultat-bandeau.incorrect { background:#8a2a10; }
+  .resultat-corps { padding:20px 20px 0; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .resultat-tampons { display:flex; gap:18px; align-items:center; }
+  .resultat-tampon-bloc { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .resultat-tampon-bloc img, .resultat-tampon-bloc .stamp-fallback { width:88px; height:88px; }
+  .resultat-tampon-bloc .stamp-fallback {
+    display:none; border-radius:50%; border:3px solid currentColor;
+    align-items:center; justify-content:center; font-weight:800; font-size:11px; text-align:center; padding:4px;
+  }
+  .resultat-tampon-bloc.img-err img { display:none; }
+  .resultat-tampon-bloc.img-err .stamp-fallback { display:flex; }
+  .resultat-tampon-bloc.rate img { opacity:0.4; }
+  .resultat-tampon-croix {
+    position:relative;
+  }
+  .resultat-tampon-croix::before, .resultat-tampon-croix::after {
+    content:''; position:absolute; left:6px; right:6px; top:50%; height:4px; background:#cc2020;
+    border-radius:4px;
+  }
+  .resultat-tampon-croix::before { transform:rotate(45deg); }
+  .resultat-tampon-croix::after  { transform:rotate(-45deg); }
+  .resultat-tampon-label { font-size:12px; font-weight:700; }
+  .resultat-verdict { font-weight:800; font-size:15px; color:var(--texte-fonce); margin-top:2px; }
+  .resultat-explication {
+    font-size:13.5px; color:#444; line-height:1.55; text-align:center; padding:0 6px;
+    font-style:italic;
+  }
+  .resultat-score {
+    margin:16px 20px 0; background:rgba(0,0,0,0.06); border-radius:12px; padding:12px;
+    text-align:center; font-weight:700; color:var(--texte-fonce);
+  }
+  .btn-suivant {
+    margin:16px 20px 20px; border:none; border-radius:14px; padding:16px;
+    background:var(--brun-fonce); color:var(--or); font-weight:800; font-size:15px;
+    border:2px solid var(--or); cursor:pointer;
+  }
+  #ecran-resultat.actif { background:#fdf8ee; }
+
+  /* ── Intro / fin ─────────────────────────────────────────────────────── */
+  .ecran-centre {
+    align-items:center; justify-content:center; text-align:center; padding:28px; gap:16px;
+    color:var(--creme);
+  }
+  .titre-scale { font-size:26px; font-weight:800; color:var(--or); }
+  .sous-titre { font-size:14px; color:rgba(246,236,217,0.75); font-style:italic; }
+  .regles-carte {
+    background:var(--creme); color:var(--texte-fonce); border-radius:12px; padding:18px;
+    text-align:left; font-size:14px; line-height:1.65; width:100%;
+  }
+  .regles-carte b { color:var(--rouge); }
+  .peine-ligne { font-weight:700; margin:2px 0; }
+  .btn-principal {
+    width:100%; border:none; border-radius:14px; padding:16px; font-weight:800; font-size:16px;
+    background:var(--or); color:var(--brun-fonce); cursor:pointer;
+  }
+  .score-final { font-size:52px; font-weight:800; color:var(--or); }
+  .etoiles { font-size:26px; letter-spacing:4px; }
+  .etoile-off { opacity:0.25; }
+
+  /* ── Modale définitions ──────────────────────────────────────────────── */
+  #modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:100; align-items:center; justify-content:center; }
+  #modal.open { display:flex; }
+  #modal-box { background:#fdf8ef; border:1.5px solid var(--or); border-radius:18px; padding:28px 24px; width:88%; max-width:370px; box-shadow:0 8px 32px rgba(0,0,0,0.25); }
+  #modal-box h2 { font-size:17px; color:#1a2e1e; text-align:center; margin-bottom:18px; padding-bottom:10px; border-bottom:1px solid #e0d0a0; }
+  .def-item { margin-bottom:14px; padding:12px 14px; background:#fff; border-radius:10px; border-left:4px solid var(--or); }
+  .def-item:nth-child(2){ border-left-color:#2d6b2d; }
+  .def-item:nth-child(3){ border-left-color:#1a4a8a; }
+  .def-item:nth-child(4){ border-left-color:#7a3a10; }
+  .def-titre { font-size:13px; font-weight:bold; color:#1a2e1e; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
+  .def-texte { font-size:13px; color:#444; line-height:1.6; }
+  #modal-close { display:block; margin:18px auto 0; background:#1a2e1e; color:var(--or); border:none; border-radius:12px; padding:12px 36px; font-size:15px; font-weight:bold; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div id="jeu">
+
+  <!-- ── Chargement ─────────────────────────────────────────────────────── -->
+  <div id="ecran-chargement" class="ecran actif">
+    <div class="spinner"></div>
+    <p>Ouverture des dossiers du bagne…</p>
+  </div>
+
+  <!-- ── Erreur ─────────────────────────────────────────────────────────── -->
+  <div id="ecran-erreur" class="ecran">
+    <p>⚠ Impossible de charger les dossiers du tribunal.</p>
+    <button class="btn-reessayer" id="btn-reessayer">Réessayer</button>
+  </div>
+
+  <!-- ── Intro ──────────────────────────────────────────────────────────── -->
+  <div id="ecran-intro" class="ecran ecran-centre">
+    <div class="titre-scale">⚖️ LE TRIBUNAL</div>
+    <div class="sous-titre">Bagne de l'Île Nou · Nouvelle-Calédonie</div>
+    <div class="regles-carte">
+      <p><b>Vous êtes juge au tribunal du bagne.</b></p>
+      <p style="margin-top:8px;">3 dossiers vous attendent. Pour chaque détenu, choisissez la bonne peine :</p>
+      <p class="peine-ligne" style="margin-top:10px;">🟢 TRANSPORTÉ — Crime politique</p>
+      <p class="peine-ligne">🔵 DÉPORTÉ — Crime grave</p>
+      <p class="peine-ligne">🟠 RELÉGUÉ — Récidiviste mineur</p>
+      <p style="margin-top:10px; font-style:italic;">Appuyez sur ? pour les définitions.</p>
+      <p style="margin-top:4px;"><b>2 bonnes réponses sur 3 = VICTOIRE !</b></p>
+    </div>
+    <button class="btn-principal" id="btn-commencer">COMMENCER ▶</button>
+  </div>
+
+  <!-- ── Jeu (un round) ─────────────────────────────────────────────────── -->
+  <div id="ecran-jeu" class="ecran">
+    <div class="entete">
+      <span class="entete-titre">⚖️ LE TRIBUNAL DU BAGNE</span>
+      <span class="entete-info" id="info-round">Dossier 1/3</span>
+      <span class="entete-score" id="info-score">0/0 ✓</span>
+    </div>
+
+    <div class="scene-cadre">
+      <div class="scene-sky"></div>
+      <div class="scene-sun"></div>
+      <div class="scene-collines">
+        <svg class="colline colline-1" viewBox="0 0 400 100" preserveAspectRatio="none">
+          <path d="M0,50 Q50,35 100,50 Q150,65 200,50 Q250,35 300,50 Q350,65 400,50 L400,100 L0,100 Z"/>
+        </svg>
+        <svg class="colline colline-2" viewBox="0 0 400 100" preserveAspectRatio="none">
+          <path d="M0,42 Q50,60 100,42 Q150,24 200,42 Q250,60 300,42 Q350,24 400,42 L400,100 L0,100 Z"/>
+        </svg>
+        <svg class="colline colline-3" viewBox="0 0 400 100" preserveAspectRatio="none">
+          <path d="M0,55 Q50,38 100,55 Q150,72 200,55 Q250,38 300,55 Q350,72 400,55 L400,100 L0,100 Z"/>
+        </svg>
+      </div>
+      <svg class="scene-bateau" viewBox="0 0 70 40">
+        <path d="M6,26 L64,26 L56,35 L14,35 Z" fill="#141b1f"/>
+        <rect x="20" y="14" width="4" height="14" fill="#141b1f"/>
+        <rect x="34" y="10" width="4" height="18" fill="#141b1f"/>
+        <rect x="35" y="10" width="2" height="6" fill="#e0693a"/>
+        <path d="M6,26 L64,26 L60,22 L10,22 Z" fill="#1e2a30"/>
+      </svg>
+      <div class="scene-photo-wrap" id="photo-wrap">
+        <img id="photo-img" alt="Portrait du détenu" />
+        <div class="scene-photo-fallback">
+          <svg width="72" height="90" viewBox="0 0 72 90" fill="none"><circle cx="36" cy="26" r="20" fill="currentColor"/><path d="M6,90 C6,60 20,48 36,48 C52,48 66,60 66,90 Z" fill="currentColor"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="dossier-zone">
+      <div class="dossier-carte">
+        <div class="dossier-entete">ADMINISTRATION PÉNITENTIAIRE DE L'ÎLE NOU</div>
+        <div class="dossier-ligne"><b>MATRICULE : <span id="d-matricule"></span></b></div>
+        <div class="dossier-ligne">NOM : <span id="d-nom"></span> (<span id="d-age"></span> ans)</div>
+        <div class="dossier-label-accusation">DOSSIER D'ACCUSATION :</div>
+        <div class="dossier-accusation" id="d-accusation"></div>
+
+        <div class="stamp-condamne">
+          <img alt="Tampon Condamné" />
+          <div class="stamp-fallback">★ CONDAMNÉ ★</div>
+        </div>
+      </div>
+
+      <div class="choix-label">CHOISISSEZ UN TAMPON CI-DESSOUS</div>
+
+      <div class="stamps-row" id="stamps-row">
+        <button class="stamp-btn" data-peine="TRANSPORTÉ">
+          <img alt="Tampon Transporté" />
+          <div class="stamp-fallback">TRANS­PORTÉ</div>
+          <span class="stamp-nom">TRANSPORTÉ</span>
+        </button>
+        <button class="stamp-btn" data-peine="DEPORTÉ">
+          <img alt="Tampon Déporté" />
+          <div class="stamp-fallback">DÉPORTÉ</div>
+          <span class="stamp-nom">DÉPORTÉ</span>
+        </button>
+        <button class="stamp-btn" data-peine="RELÉGUÉ">
+          <img alt="Tampon Relégué" />
+          <div class="stamp-fallback">RELÉGUÉ</div>
+          <span class="stamp-nom">RELÉGUÉ</span>
+        </button>
+      </div>
+
+      <button class="btn-valider" id="btn-valider" disabled>
+        <img alt="Valider" />
+        <span class="btn-fallback-texte">VALIDER</span>
+      </button>
+    </div>
+
+    <button class="btn-aide" id="btn-aide">
+      <img alt="Aide" />
+      <span class="btn-fallback-texte">?</span>
+    </button>
+  </div>
+
+  <!-- ── Résultat d'un round ───────────────────────────────────────────── -->
+  <div id="ecran-resultat" class="ecran">
+    <div class="resultat-bandeau" id="resultat-bandeau"></div>
+    <div class="resultat-corps">
+      <div class="resultat-tampons" id="resultat-tampons"></div>
+      <div class="resultat-verdict" id="resultat-verdict"></div>
+      <div class="resultat-explication" id="resultat-explication"></div>
+    </div>
+    <div class="resultat-score" id="resultat-score"></div>
+    <button class="btn-suivant" id="btn-suivant">DOSSIER SUIVANT →</button>
+  </div>
+
+  <!-- ── Fin de partie ──────────────────────────────────────────────────── -->
+  <div id="ecran-fin" class="ecran ecran-centre">
+    <div id="fin-titre" class="titre-scale"></div>
+    <div class="score-final" id="fin-score"></div>
+    <div class="etoiles" id="fin-etoiles"></div>
+    <div class="sous-titre" id="fin-message"></div>
+    <button class="btn-principal" id="btn-rejouer">▶ REJOUER</button>
+  </div>
+
+</div>
+
+<!-- ── Modale définitions ──────────────────────────────────────────────── -->
+<div id="modal">
+  <div id="modal-box">
+    <h2>⚖️ Les peines du bagne</h2>
+    <div class="def-item">
+      <div class="def-titre">🟢 Transporté</div>
+      <div class="def-texte">Crime politique ou de rébellion. Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.</div>
+    </div>
+    <div class="def-item">
+      <div class="def-titre">🔵 Déporté</div>
+      <div class="def-texte">Crime grave (meurtre, espionnage, actes violents). Banni définitivement dans une enceinte fortifiée, sans retour possible.</div>
+    </div>
+    <div class="def-item">
+      <div class="def-titre">🟠 Relégué</div>
+      <div class="def-texte">Récidiviste de crimes mineurs (vol, vagabondage). Éloignement permanent aux colonies pour protéger la société française.</div>
+    </div>
+    <button id="modal-close">Fermer</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────
+// Config Supabase (clé publique anon — lecture seule, RLS "using (true)")
+// ─────────────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://onuavovmdbfigwfbagtd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9udWF2b3ZtZGJmaWd3ZmJhZ3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNzc4NzQsImV4cCI6MjA5Nzg1Mzg3NH0.J3FL0tb9S0xjIobkCo3Q833bg1GAFqUnxsj3nkptDNI';
+const BUCKET_URL = `${SUPABASE_URL}/storage/v1/object/public/tribunal`;
+const TAMPON_URLS = {
+  'TRANSPORTÉ': `${BUCKET_URL}/tampons/transporte.png`,
+  'DEPORTÉ':    `${BUCKET_URL}/tampons/deporte.png`,
+  'RELÉGUÉ':    `${BUCKET_URL}/tampons/relegue.png`,
+};
+const UI_IMG = {
+  valider:  `${BUCKET_URL}/btn-valider.png`,
+  infos:    `${BUCKET_URL}/btn-infos.png`,
+  condamne: `${BUCKET_URL}/badge-condamne.png`,
+};
+
+const NB_ROUNDS      = 3;
+const SEUIL_VICTOIRE = 2;
+
+const EXPLICATIONS = {
+  'TRANSPORTÉ': 'Crime politique ou de rébellion : transporté en Nouvelle-Calédonie, avec possibilité de retour.',
+  'DEPORTÉ':    'Crime grave : déporté définitivement dans une enceinte fortifiée, sans retour possible.',
+  'RELÉGUÉ':    'Récidiviste de crimes mineurs : relégué aux colonies pour éloigner les indésirables.',
+};
+
+// ── State ───────────────────────────────────────────────────────────────
+let dossiers = [];
+let currentIdx = 0;
+let score = 0;
+let selection = null;
+
+// ── DOM refs ────────────────────────────────────────────────────────────
+const $ = sel => document.querySelector(sel);
+const ecrans = {
+  chargement: $('#ecran-chargement'),
+  erreur:     $('#ecran-erreur'),
+  intro:      $('#ecran-intro'),
+  jeu:        $('#ecran-jeu'),
+  resultat:   $('#ecran-resultat'),
+  fin:        $('#ecran-fin'),
+};
+function afficherEcran(nom) {
+  Object.values(ecrans).forEach(e => e.classList.remove('actif'));
+  ecrans[nom].classList.add('actif');
+}
+
+// ── Chargement des dossiers depuis Supabase ────────────────────────────
+async function chargerDossiers() {
+  afficherEcran('chargement');
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/tribunal_dossiers?select=*&actif=eq.true`,
+      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+    );
+    if (!resp.ok) throw new Error('http ' + resp.status);
+    const tous = await resp.json();
+    if (!Array.isArray(tous) || tous.length === 0) throw new Error('vide');
+
+    dossiers = melanger(tous).slice(0, NB_ROUNDS);
+    afficherEcran('intro');
+  } catch {
+    afficherEcran('erreur');
+  }
+}
+
+function melanger(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── Helpers image avec repli gracieux ──────────────────────────────────
+function chargerImage(imgEl, url, wrapperEl) {
+  // Affiche le repli tant que l'image n'a pas fini de charger (pas seulement
+  // en cas d'échec) pour éviter un trou visuel pendant la requête réseau.
+  wrapperEl.classList.add('img-err');
+  if (!url) return;
+  imgEl.onload  = () => wrapperEl.classList.remove('img-err');
+  imgEl.onerror = () => wrapperEl.classList.add('img-err');
+  imgEl.src = url;
+}
+
+// ── Rendu d'un round ────────────────────────────────────────────────────
+function afficherRound() {
+  selection = null;
+  const d = dossiers[currentIdx];
+
+  $('#info-round').textContent = `Dossier ${currentIdx + 1}/${NB_ROUNDS}`;
+  $('#info-score').textContent = `${score}/${currentIdx} ✓`;
+
+  $('#d-matricule').textContent  = d.matricule;
+  $('#d-nom').textContent        = d.nom;
+  $('#d-age').textContent        = d.age;
+  $('#d-accusation').textContent = d.accusation;
+
+  const photoWrap = $('#photo-wrap');
+  const photoUrl  = d.photo ? `${BUCKET_URL}/${d.photo}` : null;
+  chargerImage($('#photo-img'), photoUrl, photoWrap);
+
+  document.querySelectorAll('.stamp-btn').forEach(btn => {
+    btn.classList.remove('selectionne', 'img-err');
+    const peine = btn.dataset.peine;
+    chargerImage(btn.querySelector('img'), TAMPON_URLS[peine], btn);
+  });
+
+  $('#btn-valider').disabled = true;
+  afficherEcran('jeu');
+}
+
+// ── Sélection d'un tampon ───────────────────────────────────────────────
+document.querySelectorAll('.stamp-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.stamp-btn').forEach(b => b.classList.remove('selectionne'));
+    btn.classList.add('selectionne');
+    selection = btn.dataset.peine;
+    $('#btn-valider').disabled = false;
+  });
+});
+
+// ── Validation ──────────────────────────────────────────────────────────
+$('#btn-valider').addEventListener('click', () => {
+  if (!selection) return;
+  const d = dossiers[currentIdx];
+  const correct = selection === d.bonne_reponse;
+  if (correct) score++;
+
+  $('#resultat-bandeau').className = 'resultat-bandeau ' + (correct ? 'correct' : 'incorrect');
+  $('#resultat-bandeau').textContent = correct ? '✓  BONNE RÉPONSE !' : '✗  MAUVAISE RÉPONSE';
+
+  const tamponsWrap = $('#resultat-tampons');
+  tamponsWrap.innerHTML = '';
+
+  if (!correct) {
+    tamponsWrap.appendChild(creerBlocTampon(selection, true, 'Votre choix'));
+  }
+  tamponsWrap.appendChild(creerBlocTampon(d.bonne_reponse, false, correct ? null : 'Bonne réponse'));
+
+  $('#resultat-verdict').textContent      = correct ? `Peine : ${labelPeine(d.bonne_reponse)}` : `Bonne réponse : ${labelPeine(d.bonne_reponse)}`;
+  $('#resultat-explication').textContent  = d.explication || EXPLICATIONS[d.bonne_reponse] || '';
+  $('#resultat-score').textContent        = `Score : ${score} / ${currentIdx + 1}`;
+  $('#btn-suivant').textContent           = currentIdx < dossiers.length - 1 ? 'DOSSIER SUIVANT →' : 'VOIR MON RÉSULTAT →';
+
+  afficherEcran('resultat');
+});
+
+function labelPeine(p) { return p === 'DEPORTÉ' ? 'DÉPORTÉ' : p; }
+
+function creerBlocTampon(peine, rate, label) {
+  const bloc = document.createElement('div');
+  bloc.className = 'resultat-tampon-bloc' + (rate ? ' rate' : '');
+
+  const imgWrap = document.createElement('div');
+  imgWrap.className = rate ? 'resultat-tampon-croix' : '';
+  const img = document.createElement('img');
+  img.alt = peine;
+  imgWrap.appendChild(img);
+  const fallback = document.createElement('div');
+  fallback.className = 'stamp-fallback';
+  fallback.style.color = peine === 'TRANSPORTÉ' ? '#2d6b2d' : peine === 'DEPORTÉ' ? '#1a4a8a' : '#8a4a10';
+  fallback.textContent = labelPeine(peine);
+  imgWrap.appendChild(fallback);
+  bloc.appendChild(imgWrap);
+  chargerImage(img, TAMPON_URLS[peine], bloc);
+
+  if (label) {
+    const lbl = document.createElement('div');
+    lbl.className = 'resultat-tampon-label';
+    lbl.style.color = rate ? '#cc2020' : '#1a5c1a';
+    lbl.textContent = label;
+    bloc.appendChild(lbl);
+  }
+  return bloc;
+}
+
+// ── Navigation round suivant / fin ──────────────────────────────────────
+$('#btn-suivant').addEventListener('click', () => {
+  currentIdx++;
+  if (currentIdx >= dossiers.length) {
+    afficherFin();
+  } else {
+    afficherRound();
+  }
+});
+
+function afficherFin() {
+  const victoire = score >= SEUIL_VICTOIRE;
+  $('#fin-titre').textContent   = victoire ? '🏆 VICTOIRE !' : '⚖️ RÉSULTAT FINAL';
+  $('#fin-titre').style.color   = victoire ? '#5cd485' : 'var(--or)';
+  $('#fin-score').textContent   = `${score} / ${dossiers.length}`;
+  $('#fin-message').textContent = victoire ? 'Juge exemplaire !' : `Il fallait ${SEUIL_VICTOIRE} bonnes réponses sur ${dossiers.length}.`;
+
+  const etoiles = $('#fin-etoiles');
+  etoiles.innerHTML = '';
+  for (let i = 0; i < dossiers.length; i++) {
+    const s = document.createElement('span');
+    s.textContent = '★';
+    if (i >= score) s.classList.add('etoile-off');
+    etoiles.appendChild(s);
+  }
+
+  afficherEcran('fin');
+
+  // Prévient l'app hôte (parcours.page.ts écoute ce message) qu'une partie
+  // vient de se terminer, uniquement en cas de victoire.
+  if (victoire) {
+    window.parent?.postMessage({ type: 'jeuTermine' }, '*');
+  }
+}
+
+// ── Rejouer / réessayer ─────────────────────────────────────────────────
+$('#btn-rejouer').addEventListener('click', () => {
+  currentIdx = 0; score = 0;
+  chargerDossiers();
+});
+$('#btn-reessayer').addEventListener('click', chargerDossiers);
+
+// ── Intro → jeu ──────────────────────────────────────────────────────────
+$('#btn-commencer').addEventListener('click', () => {
+  currentIdx = 0; score = 0;
+  afficherRound();
+});
+
+// ── Modale définitions ──────────────────────────────────────────────────
+const modal = $('#modal');
+$('#btn-aide').addEventListener('click', () => modal.classList.add('open'));
+$('#modal-close').addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+// ── Éléments d'interface fixes (ne dépendent pas d'un round) ────────────
+chargerImage($('#btn-valider').querySelector('img'), UI_IMG.valider, $('#btn-valider'));
+chargerImage($('#btn-aide').querySelector('img'), UI_IMG.infos, $('#btn-aide'));
+chargerImage($('.stamp-condamne').querySelector('img'), UI_IMG.condamne, $('.stamp-condamne'));
+
+// ── Démarrage ─────────────────────────────────────────────────────────────
+chargerDossiers();
+</script>
+</body>
+</html>

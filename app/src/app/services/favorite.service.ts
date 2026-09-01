@@ -6,8 +6,8 @@ const CLE = 'kaval_favoris_v1';
 
 @Injectable({ providedIn: 'root' })
 export class FavoriteService {
+
   private _favoris = signal<Set<string>>(new Set());
-  readonly favoris = this._favoris.asReadonly();
 
   constructor(private sync: SyncService) {
     Preferences.get({ key: CLE }).then(({ value }) => {
@@ -19,17 +19,23 @@ export class FavoriteService {
     return this._favoris().has(zoneId);
   }
 
+  favoris(): Set<string> {
+    return this._favoris();
+  }
+
   async toggle(zoneId: string): Promise<void> {
-    const s = new Set(this._favoris());
-    if (s.has(zoneId)) {
-      s.delete(zoneId);
-      this.sync.pushFavoriSuppression(zoneId);
+    const set = new Set(this._favoris());
+    if (set.has(zoneId)) {
+      set.delete(zoneId);
+      this._favoris.set(set);
+      await Preferences.set({ key: CLE, value: JSON.stringify([...set]) });
+      await this.sync.pushFavoriSuppression(zoneId);
     } else {
-      s.add(zoneId);
-      this.sync.pushFavoriAjout(zoneId);
+      set.add(zoneId);
+      this._favoris.set(set);
+      await Preferences.set({ key: CLE, value: JSON.stringify([...set]) });
+      await this.sync.pushFavoriAjout(zoneId);
     }
-    this._favoris.set(s);
-    await Preferences.set({ key: CLE, value: JSON.stringify([...s]) });
   }
 
   async chargerDepuisCloud(favoris: string[]): Promise<void> {

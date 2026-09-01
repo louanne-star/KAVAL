@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Le Bagne — Connexion des Forçats</title>
+<style>
+  :root{
+    --navy-dark:#1c2f47;
+    --navy:#27476e;
+    --navy-light:#3a6190;
+    --gold:#c9a84c;
+    --cream:#fdf8ee;
+    --cream-dim:#e4d6b8;
+    --text-dim:rgba(246,236,217,0.7);
+
+    --c1:#e0693a; /* boulet */
+    --c2:#e0b400; /* clé */
+    --c3:#4caf6d; /* gamelle */
+    --c4:#3f7fa6; /* matricule */
+    --c5:#c0453a; /* verrou */
+    --c6:#8a6fb0; /* chaîne */
+    --c7:#5c7f8c; /* lanterne */
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    touch-action:none;
+    overscroll-behavior:none;
+    background:linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 55%, var(--navy-light) 100%);
+    color:var(--cream);
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+  }
+
+  .page{
+    width:100%;
+    max-width:520px;
+    padding:22px 16px 40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+  }
+
+  header{
+    text-align:center;
+    width:100%;
+  }
+
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:3px;
+    color:var(--gold);
+    text-transform:uppercase;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+
+  h1{
+    margin:0;
+    font-size:clamp(26px,7.5vw,34px);
+    letter-spacing:-0.3px;
+    font-weight:800;
+    color:#fff;
+  }
+
+  .subtitle{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--text-dim);
+    font-style:italic;
+  }
+
+  .instructions{
+    margin-top:14px;
+    font-size:13px;
+    line-height:1.6;
+    color:var(--text-dim);
+    max-width:380px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .board-frame{
+    position:relative;
+    background:var(--cream);
+    border-radius:18px;
+    padding:16px;
+    box-shadow:0 14px 34px rgba(0,0,0,0.3);
+    border:1.5px solid rgba(201,168,76,0.4);
+    width:100%;
+    max-width:420px;
+  }
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    padding:0 2px;
+  }
+
+  .toolbar .label{
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(39,71,110,0.55);
+  }
+
+  button.reset-btn{
+    background:transparent;
+    color:var(--navy);
+    border:1.5px solid var(--navy);
+    border-radius:10px;
+    padding:7px 14px;
+    font-size:11px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    font-weight:700;
+    cursor:pointer;
+  }
+  button.reset-btn:active{ opacity:0.7; }
+
+  .grid-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    background:#eef1f6;
+    border-radius:12px;
+    box-shadow:inset 0 0 0 1.5px rgba(39,71,110,0.15);
+    overflow:hidden;
+    touch-action:none;
+    user-select:none;
+  }
+
+  .grid{
+    position:absolute;
+    inset:0;
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    grid-template-rows:repeat(6, 1fr);
+  }
+
+  .cell{
+    position:relative;
+    border:1px solid rgba(39,71,110,0.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  svg.paths{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+
+  .dot{
+    position:relative;
+    z-index:3;
+    width:72%;
+    height:72%;
+    border-radius:50%;
+    box-shadow:
+      0 2px 6px rgba(0,0,0,0.2),
+      inset 0 -2px 4px rgba(0,0,0,0.12),
+      inset 0 2px 3px rgba(255,255,255,0.35);
+  }
+
+  .tex-1{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c1); }
+  .tex-2{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c2); }
+  .tex-3{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c3); }
+  .tex-4{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c4); }
+  .tex-5{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c5); }
+  .tex-6{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c6); }
+  .tex-7{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c7); }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:0.3px;
+    max-width:380px;
+  }
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,25,40,0.75);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:20px;
+  }
+  .overlay.show{display:flex;}
+
+  .victory-card{
+    background:var(--cream);
+    border-radius:18px;
+    padding:32px 26px;
+    text-align:center;
+    max-width:340px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.45);
+    border:1.5px solid rgba(201,168,76,0.4);
+  }
+
+  .victory-card h2{
+    margin:0 0 8px;
+    font-size:24px;
+    letter-spacing:-0.3px;
+    font-weight:800;
+    color:var(--navy);
+  }
+
+  .victory-card p{
+    margin:0 0 22px;
+    font-size:13px;
+    line-height:1.6;
+    color:#555;
+  }
+
+  button.replay-btn{
+    background:var(--gold);
+    color:var(--navy-dark);
+    border:none;
+    border-radius:14px;
+    padding:13px 26px;
+    font-size:14px;
+    letter-spacing:0.3px;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(201,168,76,0.4);
+  }
+  button.replay-btn:active{
+    transform:translateY(1px);
+    box-shadow:0 2px 8px rgba(201,168,76,0.4);
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Bagne de l'île sèche</div>
+    <h1>Connexion des forçats</h1>
+    <div class="subtitle">Relie chaque paire — nul ne s'évade seul</div>
+    <p class="instructions">Fais glisser d'un symbole à son identique pour tracer une chaîne. Les chaînes ne peuvent jamais se croiser.</p>
+  </header>
+
+  <div class="board-frame">
+    <div class="toolbar">
+      <span class="label">Niveau moyen · 7 paires</span>
+      <button class="reset-btn" id="resetBtn">Recommencer</button>
+    </div>
+
+    <div class="grid-wrap" id="gridWrap">
+      <div class="grid" id="grid"></div>
+      <svg class="paths" id="svgPaths"></svg>
+    </div>
+  </div>
+
+  <footer>Astuce : les gardiens ont posé leurs cadenas sur certaines cases — impossible d'y faire passer une autre chaîne.</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="victory-card">
+    <h2>Évasion réussie</h2>
+    <p>Tous les forçats sont enchaînés ensemble. La cour du bagne est enfin silencieuse.</p>
+    <button class="replay-btn" id="replayBtn">Rejouer</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const N = 6;
+
+  // Pair definitions: id, css color var, endpoints [{r,c},{r,c}]
+  // Chaque paire dispose d'un chemin droit garanti qui n'entre jamais dans
+  // les cellules d'une autre paire (rangée/colonne dédiée) ; le moteur du
+  // jeu accepte n'importe quel tracé valide et sans croisement.
+  const PAIRS = [
+    { id:1, color:'var(--c1)', name:'boulet',    endpoints:[{r:0,c:0},{r:0,c:4}] },
+    { id:2, color:'var(--c2)', name:'clé',       endpoints:[{r:0,c:5},{r:1,c:2}] },
+    { id:3, color:'var(--c3)', name:'gamelle',   endpoints:[{r:1,c:1},{r:2,c:2}] },
+    { id:4, color:'var(--c4)', name:'matricule', endpoints:[{r:2,c:3},{r:3,c:4}] },
+    { id:5, color:'var(--c5)', name:'verrou',    endpoints:[{r:3,c:3},{r:4,c:0}] },
+    { id:6, color:'var(--c6)', name:'chaîne',    endpoints:[{r:4,c:1},{r:4,c:5}] },
+    { id:7, color:'var(--c7)', name:'lanterne',  endpoints:[{r:5,c:5},{r:5,c:0}] },
+  ];
+
+  const gridEl = document.getElementById('grid');
+  const svg = document.getElementById('svgPaths');
+  const gridWrap = document.getElementById('gridWrap');
+  const overlay = document.getElementById('overlay');
+  const resetBtn = document.getElementById('resetBtn');
+  const replayBtn = document.getElementById('replayBtn');
+
+  let occupancy;      // occupancy[r][c] = pairId or null
+  let endpointMap;    // endpointMap[r][c] = pairId or undefined
+  let paths;          // paths[pairId] = [{r,c}, ...]
+  let complete;       // complete[pairId] = bool
+  let drawingPid = null;
+  let cellPx = 0;
+
+  function coordKey(r,c){ return r+'_'+c; }
+
+  function buildStaticData(){
+    endpointMap = Array.from({length:N}, ()=>Array(N).fill(undefined));
+    PAIRS.forEach(p=>{
+      p.endpoints.forEach(e=>{ endpointMap[e.r][e.c] = p.id; });
+    });
+  }
+
+  function resetState(){
+    occupancy = Array.from({length:N}, ()=>Array(N).fill(null));
+    paths = {};
+    complete = {};
+    PAIRS.forEach(p=>{
+      paths[p.id] = [ p.endpoints[0] ];
+      occupancy[p.endpoints[0].r][p.endpoints[0].c] = p.id;
+      occupancy[p.endpoints[1].r][p.endpoints[1].c] = p.id;
+      complete[p.id] = false;
+      // reset path to just first endpoint (path considered "started" only when user draws)
+      paths[p.id] = [];
+    });
+    drawingPid = null;
+    overlay.classList.remove('show');
+  }
+
+  function isEndpointCell(r,c){ return endpointMap[r][c] !== undefined; }
+
+  function pairColor(pid){
+    return PAIRS.find(p=>p.id===pid).color;
+  }
+
+  function buildGridDom(){
+    gridEl.innerHTML = '';
+    for(let r=0;r<N;r++){
+      for(let c=0;c<N;c++){
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        if(isEndpointCell(r,c)){
+          const pid = endpointMap[r][c];
+          const dot = document.createElement('div');
+          dot.className = 'dot tex-' + pid;
+          cell.appendChild(dot);
+        }
+        gridEl.appendChild(cell);
+      }
+    }
+  }
+
+  function cellFromPoint(clientX, clientY){
+    const el = document.elementFromPoint(clientX, clientY);
+    if(!el) return null;
+    const cellEl = el.closest('.cell');
+    if(!cellEl || !gridEl.contains(cellEl)) return null;
+    return { r: parseInt(cellEl.dataset.r,10), c: parseInt(cellEl.dataset.c,10) };
+  }
+
+  function clearPathCells(pid){
+    const p = paths[pid];
+    p.forEach(cell=>{
+      if(!isEndpointCell(cell.r,cell.c)){
+        occupancy[cell.r][cell.c] = null;
+      }
+    });
+    paths[pid] = [];
+    complete[pid] = false;
+  }
+
+  function startDraw(r,c){
+    if(isEndpointCell(r,c)){
+      const pid = endpointMap[r][c];
+      clearPathCells(pid);
+      paths[pid] = [{r,c}];
+      occupancy[r][c] = pid;
+      drawingPid = pid;
+      render();
+      return;
+    }
+    const occ = occupancy[r][c];
+    if(occ !== null){
+      const pid = occ;
+      const path = paths[pid];
+      const idx = path.findIndex(p=>p.r===r && p.c===c);
+      if(idx !== -1){
+        const removed = path.slice(idx+1);
+        removed.forEach(cell=>{
+          if(!isEndpointCell(cell.r,cell.c)) occupancy[cell.r][cell.c] = null;
+        });
+        paths[pid] = path.slice(0, idx+1);
+        complete[pid] = false;
+        drawingPid = pid;
+        render();
+      }
+    }
+  }
+
+  function tryExtend(r,c){
+    if(drawingPid === null) return;
+    const pid = drawingPid;
+    if(complete[pid]) return; // already finished, ignore further drag
+    const path = paths[pid];
+    if(path.length === 0) return;
+    const last = path[path.length-1];
+    if(last.r===r && last.c===c) return;
+
+    const dist = Math.abs(last.r-r) + Math.abs(last.c-c);
+    if(dist !== 1) return; // must be orthogonally adjacent
+
+    // backtrack
+    if(path.length>=2){
+      const prev = path[path.length-2];
+      if(prev.r===r && prev.c===c){
+        const popped = path.pop();
+        if(!isEndpointCell(popped.r,popped.c)){
+          occupancy[popped.r][popped.c] = null;
+        }
+        render();
+        return;
+      }
+    }
+
+    const occ = occupancy[r][c];
+    const isEnd = isEndpointCell(r,c);
+
+    if(isEnd){
+      const targetPid = endpointMap[r][c];
+      if(targetPid !== pid) return; // blocked: someone else's endpoint
+      // is this the other endpoint (not the starting one already in path)?
+      const alreadyIn = path.some(p=>p.r===r && p.c===c);
+      if(alreadyIn) return;
+      path.push({r,c});
+      complete[pid] = true;
+      drawingPid = null;
+      render();
+      checkWin();
+      return;
+    }
+
+    if(occ !== null) return; // occupied by another pair, blocked
+    path.push({r,c});
+    occupancy[r][c] = pid;
+    render();
+  }
+
+  function stopDraw(){
+    drawingPid = null;
+  }
+
+  function checkWin(){
+    const allDone = PAIRS.every(p=>complete[p.id]);
+    if(allDone){
+      setTimeout(()=>{
+        overlay.classList.add('show');
+        window.parent?.postMessage({ type: 'jeuTermine' }, '*');
+      }, 250);
+    }
+  }
+
+  // ---- Rendering ----
+  function measure(){
+    const rect = gridWrap.getBoundingClientRect();
+    cellPx = rect.width / N;
+    svg.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+    svg.setAttribute('width', rect.width);
+    svg.setAttribute('height', rect.height);
+  }
+
+  function centerOf(r,c){
+    return { x: c*cellPx + cellPx/2, y: r*cellPx + cellPx/2 };
+  }
+
+  function render(){
+    svg.innerHTML = '';
+    PAIRS.forEach(p=>{
+      const path = paths[p.id];
+      if(path.length < 2) return;
+      const pts = path.map(cell=>centerOf(cell.r,cell.c));
+      const d = pts.map((pt,i)=> (i===0? 'M':'L') + pt.x.toFixed(1) + ',' + pt.y.toFixed(1)).join(' ');
+
+      const shadow = document.createElementNS('http://www.w3.org/2000/svg','path');
+      shadow.setAttribute('d', d);
+      shadow.setAttribute('fill','none');
+      shadow.setAttribute('stroke', 'rgba(0,0,0,0.35)');
+      shadow.setAttribute('stroke-width', Math.max(cellPx*0.4,11));
+      shadow.setAttribute('stroke-linecap','round');
+      shadow.setAttribute('stroke-linejoin','round');
+      shadow.setAttribute('transform','translate(0,2)');
+      svg.appendChild(shadow);
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg','path');
+      line.setAttribute('d', d);
+      line.setAttribute('fill','none');
+      line.setAttribute('stroke', resolvedColors[p.id]);
+      line.setAttribute('stroke-width', Math.max(cellPx*0.38,10));
+      line.setAttribute('stroke-linecap','round');
+      line.setAttribute('stroke-linejoin','round');
+      line.style.opacity = complete[p.id] ? '1' : '0.92';
+      svg.appendChild(line);
+    });
+  }
+
+  // Résout chaque couleur de paire (var(--cN)) en rgb() une seule fois au
+  // démarrage. Avant : ce calcul (créer un <div>, l'attacher au DOM, lire
+  // getComputedStyle, le détacher) tournait pour CHAQUE paire à CHAQUE
+  // render() — donc à chaque pointermove pendant un tracé — et forçait des
+  // reflows synchrones répétés, perceptibles comme un tracé qui traîne
+  // derrière le doigt sur un mobile plus lent.
+  let resolvedColors = {};
+  function resolveColors(){
+    const tmp = document.createElement('div');
+    tmp.style.position = 'absolute';
+    tmp.style.visibility = 'hidden';
+    document.body.appendChild(tmp);
+    PAIRS.forEach(p => {
+      tmp.style.color = p.color;
+      resolvedColors[p.id] = getComputedStyle(tmp).color;
+    });
+    document.body.removeChild(tmp);
+  }
+
+  // ---- Events ----
+  let pointerActive = false;
+  let lastPointerX = null, lastPointerY = null;
+
+  gridWrap.addEventListener('pointerdown', (e)=>{
+    const cell = cellFromPoint(e.clientX, e.clientY);
+    if(!cell) return;
+    pointerActive = true;
+    lastPointerX = e.clientX;
+    lastPointerY = e.clientY;
+    startDraw(cell.r, cell.c);
+    e.preventDefault();
+  }, { passive: false });
+
+  gridWrap.addEventListener('pointermove', (e)=>{
+    // preventDefault dès qu'un geste est en cours, même si le doigt n'est pas
+    // exactement sur une case valide — sinon le navigateur reprend la main et
+    // scrolle la page au lieu de tracer une chaîne (tactile mobile imprécis).
+    if(!pointerActive) return;
+    e.preventDefault();
+    if(drawingPid === null){ lastPointerX = e.clientX; lastPointerY = e.clientY; return; }
+
+    // Sur mobile, pointermove ne se déclenche pas assez souvent pour suivre un
+    // doigt rapide : deux événements successifs peuvent sauter plusieurs
+    // cases d'un coup, or tryExtend n'accepte qu'une case orthogonalement
+    // adjacente à la fois. On interpole donc entre l'ancienne et la nouvelle
+    // position à l'écran pour ne jamais sauter de case intermédiaire.
+    const fromX = lastPointerX ?? e.clientX, fromY = lastPointerY ?? e.clientY;
+    const toX = e.clientX, toY = e.clientY;
+    const dist = Math.hypot(toX - fromX, toY - fromY);
+    const step = Math.max(cellPx / 4, 4);
+    const steps = Math.max(1, Math.ceil(dist / step));
+
+    for (let i = 1; i <= steps; i++) {
+      const x = fromX + (toX - fromX) * (i / steps);
+      const y = fromY + (toY - fromY) * (i / steps);
+      const cell = cellFromPoint(x, y);
+      if (cell) tryExtend(cell.r, cell.c);
+    }
+
+    lastPointerX = toX;
+    lastPointerY = toY;
+  }, { passive: false });
+
+  function endPointer(){
+    pointerActive = false;
+    stopDraw();
+  }
+  document.addEventListener('pointerup', endPointer);
+  document.addEventListener('pointercancel', endPointer);
+
+  window.addEventListener('resize', ()=>{ measure(); render(); });
+
+  resetBtn.addEventListener('click', ()=>{
+    resetState();
+    render();
+  });
+
+  replayBtn.addEventListener('click', ()=>{
+    overlay.classList.remove('show');
+    resetState();
+    render();
+  });
+
+  // ---- Init ----
+  buildStaticData();
+  buildGridDom();
+  resolveColors();
+  resetState();
+  requestAnimationFrame(()=>{ measure(); render(); });
+})();
+</script>
+
+</body>
+</html>

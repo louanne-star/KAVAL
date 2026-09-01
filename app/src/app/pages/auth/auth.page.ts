@@ -56,13 +56,23 @@ export class AuthPage {
         await this.auth.sInscrire(this.email, this.motDePasse);
       }
 
+      // Si un autre compte a déjà été utilisé sur cet appareil, on repart d'un
+      // cache local vide pour ne pas hériter de ses badges/notes/commentaires/favoris.
+      if (await this.sync.estNouveauCompte()) {
+        await Promise.all([
+          this.badges.reinitialiser(),
+          this.ratings.reinitialiser(),
+          this.comments.reinitialiser(),
+          this.favoris.reinitialiser(),
+        ]);
+      }
+
       // Synchronise les données cloud vers le local (silencieux si offline)
       const data = await this.sync.syncAll();
       if (data) {
         await Promise.all([
           this.badges.chargerDepuisCloud(data.badges),
           this.ratings.chargerDepuisCloud(data.ratings),
-          this.comments.chargerDepuisCloud(data.comments),
           this.favoris.chargerDepuisCloud(data.favoris),
         ]);
       }

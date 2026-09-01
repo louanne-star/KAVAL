@@ -1,5 +1,5 @@
 ion-content {
-  --background: #1a2e1e;
+  --background: #27476e;
 }
 
 .auth-container {
@@ -73,7 +73,7 @@ ion-content {
 
   &.actif {
     background: #ffffff;
-    color: #1a2e1e;
+    color: #27476e;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
 }
@@ -101,7 +101,7 @@ ion-content {
   border-radius: 12px;
   padding: 13px 14px;
   font-size: 15px;
-  color: #1a2e1e;
+  color: #27476e;
   font-family: inherit;
   box-sizing: border-box;
   outline: none;
@@ -127,7 +127,7 @@ ion-content {
 
 .auth-btn {
   width: 100%;
-  background: linear-gradient(135deg, #1a2e1e, #2d5a3d);
+  background: linear-gradient(135deg, #27476e, #3a6190);
   color: #c9a84c;
   border: none;
   border-radius: 14px;
@@ -136,7 +136,7 @@ ion-content {
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 20px rgba(26,46,30,0.4);
+  box-shadow: 0 4px 20px rgba(39,71,110,0.4);
   margin-top: 4px;
   display: flex;
   align-items: center;

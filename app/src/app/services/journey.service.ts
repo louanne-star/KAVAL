@@ -1,5 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
+import { PointsService } from './points.service';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -12,6 +13,8 @@ export interface JourneyZone {
   debloque: boolean;
   couleurZone: string;
   rayonZone: number;
+  zoneId: string;   // id de la zone visuelle de regroupement (ex: 'camp_est')
+  zoneNom: string;  // nom de cette zone visuelle (ex: 'Le Camp Est')
 }
 
 export interface SegmentItineraire {
@@ -22,51 +25,10 @@ export interface SegmentItineraire {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const ZONES_SOURCE: Omit<JourneyZone, 'ordre' | 'debloque'>[] = [
-  {
-    id: 'camp_est',
-    nom: 'Le Camp Est',
-    description: 'Annexe du pénitencier avec activités industrielles et bâtiments cellulaires.',
-    coords: [-22.2710, 166.4260],
-    couleurZone: '#e74c3c',
-    rayonZone: 180
-  },
-  {
-    id: 'vacherie',
-    nom: 'La Vacherie',
-    description: 'Zone agricole regroupant le camp des libérés et le cimetière des surveillants.',
-    coords: [-22.2669, 166.4130],
-    couleurZone: '#9b59b6',
-    rayonZone: 160
-  },
-  {
-    id: 'hopital',
-    nom: "L'Hôpital du Marais",
-    description: 'Ancienne zone hospitalière avec chapelle, lavoir, briqueterie et cimetière.',
-    coords: [-22.2667, 166.3975],
-    couleurZone: '#3498db',
-    rayonZone: 200
-  },
-  {
-    id: 'penitencier',
-    nom: 'Le Pénitencier',
-    description: "Cœur historique de l'Île Nou. Musée du bagne et parcours archéologique.",
-    coords: [-22.2617, 166.4033],
-    couleurZone: '#27ae60',
-    rayonZone: 220
-  },
-  {
-    id: 'ferme_nord',
-    nom: 'La Ferme Nord',
-    description: "Zone dédiée à l'agriculture et à l'isolement sanitaire. Phare et léproserie.",
-    coords: [-22.2606, 166.3909],
-    couleurZone: '#f39c12',
-    rayonZone: 170
-  },
-];
-
 const CLE_PERSISTANCE = 'kaval_journey_v1';
 const OSRM_BASE       = 'https://router.project-osrm.org/route/v1/foot';
+// Position de secours utilisée quand le GPS échoue/est refusé : IUT de Nouvelle-Calédonie, Nouville.
+const POSITION_DEPART_IUT: [number, number] = [-22.26889, 166.41944];
 const DIRECTION_NOMS  = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
 const DIRECTION_FLECHES: Record<string, string> = {
   N: '↑', NE: '↗', E: '→', SE: '↘', S: '↓', SO: '↙', O: '←', NO: '↖'
@@ -89,12 +51,25 @@ export class JourneyService {
   );
 
   private gpsWatchId = -1;
+  private erreurGPSTimeout?: ReturnType<typeof setTimeout>;
+
+  constructor(private pointsService: PointsService) {}
 
   // ── Public API ─────────────────────────────────────────────────────────────
 
   async initialiser() {
+    await this.pointsService.charger();
     await this.chargerEtat();
     this.demarrerGPS();
+  }
+
+  metaDe(zoneId: string) {
+    return this.pointsService.metaDe(zoneId);
+  }
+
+  /** Affiche un avertissement quand une action nécessite une position réelle indisponible. */
+  signalerPositionRequise() {
+    this.afficherErreurGPS("Active ta position pour lancer la navigation guidée.");
   }
 
   async reinitialiser() {
@@ -102,7 +77,8 @@ export class JourneyService {
     this.zones.set([]);
     this.segmentsItineraire.set([]);
     const pos = this.positionUtilisateur();
-    if (pos) this.construireRoute(pos);
+    if (pos) this.construireRoute(pos.coords.latitude, pos.coords.longitude);
+    else this.demarrerAvecPositionDefaut();
   }
 
   dispose() {
@@ -126,20 +102,39 @@ export class JourneyService {
 
   // ── Persistence ────────────────────────────────────────────────────────────
 
+  // Reconstruit la liste des vrai points depuis Supabase/cache (chargé au préalable via PointsService).
+  private sourcePoints(): Omit<JourneyZone, 'ordre' | 'debloque'>[] {
+    const zonesMeta = new Map(this.pointsService.zones().map(z => [z.id, z]));
+    return this.pointsService.pointsVrai().map(p => {
+      const zone = zonesMeta.get(p.zoneId);
+      return {
+        id: p.id,
+        nom: p.nom,
+        description: p.description,
+        coords: p.coords,
+        couleurZone: zone?.couleur ?? '#999999',
+        rayonZone: p.rayon,
+        zoneId: p.zoneId,
+        zoneNom: zone?.nom ?? '',
+      };
+    });
+  }
+
   private async chargerEtat() {
+    const source = this.sourcePoints();
     const { value } = await Preferences.get({ key: CLE_PERSISTANCE });
     if (!value) return;
 
     const save: { ordre: string[] } = JSON.parse(value);
     const zones = save.ordre
       .map((id, i) => {
-        const src = ZONES_SOURCE.find(z => z.id === id);
+        const src = source.find(z => z.id === id);
         if (!src) return null;
         return { ...src, ordre: i + 1, debloque: true } as JourneyZone;
       })
       .filter((z): z is JourneyZone => z !== null);
 
-    if (zones.length === 5) {
+    if (zones.length === source.length && zones.length > 0) {
       this.zones.set(zones);
       this.sauvegarderEtat(); // écrase l'ancien format (qui avait des zones verrouillées)
       this.fetcherItineraires(zones);
@@ -158,29 +153,60 @@ export class JourneyService {
 
   private demarrerGPS() {
     if (!navigator.geolocation) {
-      this.erreurGPS.set("Géolocalisation non disponible sur cet appareil.");
+      this.afficherErreurGPS("Géolocalisation non disponible sur cet appareil.");
+      this.demarrerAvecPositionDefaut();
       return;
     }
+
+    // Filet de sécurité : sur certains appareils, watchPosition ne rappelle
+    // jamais (ni succès ni erreur) quand le GPS n'arrive pas à capter de
+    // signal — le "timeout" de l'API n'est alors pas fiable. On force donc
+    // le repli sur l'IUT si rien n'est arrivé après 10s.
+    const delaiSecours = setTimeout(() => this.demarrerAvecPositionDefaut(), 10000);
+
     this.gpsWatchId = navigator.geolocation.watchPosition(
-      pos => this.surPositionObtenue(pos),
-      err => this.erreurGPS.set(this.messageErreurGPS(err)),
+      pos => {
+        clearTimeout(delaiSecours);
+        this.surPositionObtenue(pos);
+      },
+      err => {
+        clearTimeout(delaiSecours);
+        this.afficherErreurGPS(this.messageErreurGPS(err));
+        this.demarrerAvecPositionDefaut();
+      },
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
     );
+  }
+
+  // Affiche le bandeau d'erreur GPS et l'efface automatiquement après 5 minutes
+  // pour ne pas laisser un avertissement obsolète affiché indéfiniment.
+  private afficherErreurGPS(message: string) {
+    this.erreurGPS.set(message);
+    clearTimeout(this.erreurGPSTimeout);
+    this.erreurGPSTimeout = setTimeout(() => this.erreurGPS.set(null), 5 * 60 * 1000);
   }
 
   private surPositionObtenue(position: GeolocationPosition) {
     this.positionUtilisateur.set(position);
     this.erreurGPS.set(null);
+    clearTimeout(this.erreurGPSTimeout);
     if (this.zones().length === 0) {
-      this.construireRoute(position);
+      this.construireRoute(position.coords.latitude, position.coords.longitude);
     }
+  }
+
+  // Utilise la position de l'IUT pour construire le parcours quand le GPS n'a jamais répondu.
+  private demarrerAvecPositionDefaut() {
+    if (this.zones().length > 0) return;
+    const [lat, lng] = POSITION_DEPART_IUT;
+    this.construireRoute(lat, lng);
   }
 
   // ── Route construction (nearest-neighbor TSP) ─────────────────────────────
 
-  private construireRoute(position: GeolocationPosition) {
-    const { latitude: lat, longitude: lng } = position.coords;
-    const ordered = this.voisinLePlusProche(lat, lng, [...ZONES_SOURCE]);
+  private construireRoute(lat: number, lng: number) {
+    const source = this.sourcePoints();
+    const ordered = this.voisinLePlusProche(lat, lng, source);
 
     const zones: JourneyZone[] = ordered.map((src, i) => ({
       ...src, ordre: i + 1, debloque: true
@@ -191,12 +217,12 @@ export class JourneyService {
     this.fetcherItineraires(zones);
   }
 
-  private voisinLePlusProche(
+  private voisinLePlusProche<T extends { coords: [number, number] }>(
     startLat: number, startLng: number,
-    sources: typeof ZONES_SOURCE
-  ): typeof ZONES_SOURCE {
+    sources: T[]
+  ): T[] {
     const restants  = [...sources];
-    const ordonnes: typeof ZONES_SOURCE = [];
+    const ordonnes: T[] = [];
     let lat = startLat, lng = startLng;
     while (restants.length > 0) {
       let closest = 0, minDist = Infinity;

@@ -9,6 +9,10 @@
     </div>
   </div>
 
+  <!-- Redirection en cours vers la carte (point pas encore résolu) : rien à afficher, -->
+  <!-- pas même une fraction de seconde, pour ne jamais laisser flasher la liste vide. -->
+  <ng-container *ngIf="!enRedirection">
+
   <!-- ── Vue détail d'une zone ──────────────────────────────────────────── -->
   <ng-container *ngIf="zoneSelectionnee as zone">
 
@@ -21,53 +25,87 @@
     <!-- Détail zone -->
     <ng-container *ngIf="!jeuOuvert">
 
-      <div class="detail-header" [style.--couleur]="zone.couleurZone">
+      <div class="detail-header" [class]="'detail-header zone-' + zone.zoneId" [style.--couleur]="zone.couleurZone">
         <button class="btn-retour" (click)="retourListe()">← Retour</button>
-        <div class="detail-icone">{{ META[zone.id]?.icone }}</div>
-        <div class="detail-badge-pill">Zone {{ zone.ordre }}</div>
+        <div class="detail-icone">{{ pointsService.metaDe(zone.zoneId)?.icone }}</div>
+        <div class="detail-badge-pill">{{ zone.zoneNom }} · Étape {{ zone.ordre }}</div>
         <h1 class="detail-titre">{{ zone.nom }}</h1>
-        <p class="detail-sous-titre">{{ META[zone.id]?.sousTitre }}</p>
-        <p class="detail-desc">{{ zone.description }}</p>
+        <p class="detail-sous-titre">{{ pointsService.metaDe(zone.zoneId)?.sousTitre }}</p>
       </div>
 
       <div class="detail-contenu">
 
-        <!-- Mini-jeu (si disponible pour cette zone) -->
-        <ng-container *ngIf="META[zone.id]?.jeu">
-          <div class="section-titre">Mini-jeu</div>
-          <div class="contenu-card jeu-card" (click)="ouvrirJeu()">
-            <div class="contenu-icone">🎮</div>
-            <div class="contenu-info">
-              <p class="contenu-label">Traverse la Rivière</p>
-              <p class="contenu-sous">
-                {{ badgeService.aBadge(zone.id) ? 'Déjà complété — rejoue !' : 'Saute de rocher en rocher pour gagner un badge' }}
-              </p>
+        <!-- Bloc mini-jeu, réutilisé pour être inséré juste après la 1ère section -->
+        <ng-template #miniJeuBlock>
+          <ng-container *ngIf="JEUX[zone.zoneId]">
+            <div class="section-titre">Mini-jeu</div>
+            <div class="contenu-card jeu-card" (click)="ouvrirJeu()">
+              <div class="contenu-icone">🎮</div>
+              <div class="contenu-info">
+                <p class="contenu-label">{{ JEUX_NOMS[zone.zoneId] }}</p>
+                <p class="contenu-sous">
+                  {{ badgeService.aBadge(zone.id) ? 'Déjà complété — rejoue !' : 'Saute de rocher en rocher pour gagner un badge' }}
+                </p>
+              </div>
+              <div class="contenu-tag" [class.badge-earned]="badgeService.aBadge(zone.id)">
+                {{ badgeService.aBadge(zone.id) ? '🏅' : 'Jouer →' }}
+              </div>
             </div>
-            <div class="contenu-tag" [class.badge-earned]="badgeService.aBadge(zone.id)">
-              {{ badgeService.aBadge(zone.id) ? '🏅' : 'Jouer →' }}
-            </div>
+          </ng-container>
+        </ng-template>
+
+        <!-- Sections de texte du point (Histoire, Guerre médicale, ... — piloté depuis Supabase) -->
+        <!-- Le mini-jeu s'intercale juste après la 1ère section (Histoire), avant les suivantes -->
+        <ng-container *ngFor="let s of pointsService.sectionsDe(zone.id); let first = first">
+          <div class="section-titre">{{ s.titre }}</div>
+          <div class="histoire-card">
+            <p class="histoire-texte">{{ s.texte }}</p>
+          </div>
+          <ng-container *ngIf="first" [ngTemplateOutlet]="miniJeuBlock"></ng-container>
+        </ng-container>
+        <ng-container *ngIf="pointsService.sectionsDe(zone.id).length === 0" [ngTemplateOutlet]="miniJeuBlock"></ng-container>
+
+        <!-- Témoignage historique (si disponible) -->
+        <ng-container *ngIf="pointsService.temoignageDe(zone.id) as t">
+          <div class="section-titre">Témoignage</div>
+          <div class="temoignage-card">
+            <div class="temoignage-guillemet">"</div>
+            <p class="temoignage-titre">{{ t.titre }}</p>
+            <p class="temoignage-texte">{{ t.texte }}</p>
+            <div class="temoignage-auteur">— {{ t.auteur }}</div>
           </div>
         </ng-container>
 
-        <div class="section-titre">Contenu disponible</div>
+        <!-- Quiz (si disponible) -->
+        <ng-container *ngIf="zoneQuiz.length > 0">
+          <div class="section-titre">Quiz</div>
 
-        <div class="contenu-card">
-          <div class="contenu-icone">🎙</div>
-          <div class="contenu-info">
-            <p class="contenu-label">Audio-guide</p>
-            <p class="contenu-sous">Disponible bientôt</p>
-          </div>
-          <div class="contenu-tag">À venir</div>
-        </div>
+          <div class="quiz-bloc" *ngIf="!quizTermine">
+            <div class="quiz-progress">Question {{ quizIndex + 1 }} / {{ zoneQuiz.length }}</div>
+            <p class="quiz-question">{{ zoneQuiz[quizIndex].question }}</p>
 
-        <div class="contenu-card">
-          <div class="contenu-icone">🎬</div>
-          <div class="contenu-info">
-            <p class="contenu-label">Vidéo historique</p>
-            <p class="contenu-sous">Disponible bientôt</p>
+            <div class="quiz-choix">
+              <button class="quiz-choix-btn"
+                      *ngFor="let choix of quizChoixActuels"
+                      [class.correct]="quizReponseChoisie && choix === zoneQuiz[quizIndex].bonneReponse"
+                      [class.incorrect]="quizReponseChoisie === choix && choix !== zoneQuiz[quizIndex].bonneReponse"
+                      [disabled]="!!quizReponseChoisie"
+                      (click)="choisirReponse(choix)">
+                {{ choix }}
+              </button>
+            </div>
+
+            <button class="quiz-suivant" *ngIf="quizReponseChoisie" (click)="questionSuivante()">
+              {{ quizIndex < zoneQuiz.length - 1 ? 'Question suivante →' : 'Voir le résultat →' }}
+            </button>
           </div>
-          <div class="contenu-tag">À venir</div>
-        </div>
+
+          <div class="quiz-bloc quiz-resultat" *ngIf="quizTermine">
+            <p class="quiz-resultat-score">{{ quizScore }} / {{ zoneQuiz.length }}</p>
+            <p class="quiz-resultat-texte">{{ quizScore === zoneQuiz.length ? 'Sans faute !' : 'Bien joué !' }}</p>
+            <button class="quiz-suivant" (click)="recommencerQuiz()">↺ Recommencer</button>
+          </div>
+        </ng-container>
 
       </div>
     </ng-container>
@@ -80,11 +118,11 @@
     <div class="parcours-header">
       <p class="header-label">KAVAL · ÎLE NOU</p>
       <h1 class="header-titre">Mon Épopée</h1>
-      <p class="header-sub">{{ journeyService.zonesDebloquees() }} / 5 zones explorées</p>
+      <p class="header-sub">{{ journeyService.zonesDebloquees() }} / {{ journeyService.zones().length }} sites explorés</p>
       <div class="header-progress">
         <div class="progress-bar">
           <div class="progress-fill"
-               [style.width.%]="(journeyService.zonesDebloquees() / 5) * 100">
+               [style.width.%]="(journeyService.zonesDebloquees() / journeyService.zones().length) * 100">
           </div>
         </div>
       </div>
@@ -93,7 +131,7 @@
     <!-- Zones pas encore chargées -->
     <div class="liste-vide" *ngIf="journeyService.zones().length === 0">
       <div class="vide-icone">🗺️</div>
-      <p>Aucune zone débloquée pour l'instant.</p>
+      <p>Aucun site débloqué pour l'instant.</p>
       <p class="vide-hint">Déplace-toi sur l'Île Nou pour commencer le parcours.</p>
       <button class="btn-carte" (click)="retourCarte()">Voir la carte →</button>
     </div>
@@ -106,28 +144,30 @@
            [class.actif]="getStatut(z) === 'actif'"
            [class.locked]="getStatut(z) === 'locked'">
 
-        <div class="timeline-line" *ngIf="!last"></div>
-
         <div class="zone-bloc" (click)="selectZone(z)">
           <div class="zone-badge" *ngIf="getStatut(z) === 'visite'">✓</div>
           <div class="zone-badge locked-badge" *ngIf="getStatut(z) === 'locked'">🔒</div>
 
-          <div class="zone-icone"><span>{{ META[z.id]?.icone }}</span></div>
+          <div class="zone-icone"><span>{{ pointsService.metaDe(z.zoneId)?.icone }}</span></div>
 
           <div class="zone-infos" *ngIf="getStatut(z) !== 'locked'">
-            <p class="zone-ordre">Zone {{ z.ordre }}</p>
+            <p class="zone-ordre">Étape {{ z.ordre }} · {{ z.zoneNom }}</p>
             <h3 class="zone-nom">{{ z.nom }}</h3>
-            <p class="zone-sous-titre">{{ META[z.id]?.sousTitre }}</p>
+            <p class="zone-sous-titre">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</p>
           </div>
 
           <div class="zone-infos" *ngIf="getStatut(z) === 'locked'">
-            <p class="zone-ordre">Zone {{ z.ordre }}</p>
-            <p class="zone-locked-text">{{ META[z.id]?.sousTitre }}</p>
+            <p class="zone-ordre">Étape {{ z.ordre }} · {{ z.zoneNom }}</p>
+            <p class="zone-locked-text">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</p>
           </div>
         </div>
 
+        <div class="timeline-line" *ngIf="!last"></div>
+
       </div>
     </div>
+
+  </ng-container>
 
   </ng-container>
 

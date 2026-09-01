@@ -20,6 +20,21 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/auth/auth.page').then(m => m.AuthPage),
   },
   {
+    path: 'compte',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/compte/compte.page').then(m => m.ComptePage),
+  },
+  {
+    path: 'recherche',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/recherche/recherche.page').then(m => m.RecherchePage),
+  },
+  {
+    path: 'favoris',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/favoris/favoris.page').then(m => m.FavorisPage),
+  },
+  {
     path: 'tabs',
     canActivate: [authGuard],
     loadComponent: () => import('./tabs/tabs.page').then(m => m.TabsPage),

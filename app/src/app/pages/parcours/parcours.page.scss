@@ -1,5 +1,5 @@
 ion-content.parcours-content {
-  --background: #0a0a0a;
+  --background: #f7f7f5;
 }
 
 // ── Badge win overlay ─────────────────────────────────────────────────────────
@@ -11,18 +11,18 @@ ion-content.parcours-content {
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.5);
   animation: fonduEntree 0.3s ease;
 }
 
 .badge-win-card {
-  background: #1a1a0a;
-  border: 2px solid #c9a84c;
+  background: #fff;
+  border: 2px solid #27476e;
   border-radius: 28px;
   padding: 48px 40px 40px;
   text-align: center;
   animation: slideUp 0.4s ease;
-  box-shadow: 0 0 80px rgba(201,168,76,0.25);
+  box-shadow: 0 0 60px rgba(39,71,110,0.2);
 }
 
 .badge-emoji {
@@ -34,13 +34,13 @@ ion-content.parcours-content {
 .badge-titre {
   font-size: 24px;
   font-weight: 900;
-  color: #c9a84c;
+  color: #27476e;
   margin: 16px 0 8px;
 }
 
 .badge-sous {
   font-size: 14px;
-  color: rgba(255,255,255,0.45);
+  color: #999;
   margin: 0;
 }
 
@@ -60,14 +60,16 @@ ion-content.parcours-content {
 .jeu-container {
   position: fixed;
   inset: 0;
-  z-index: 100;
-  background: #0d1f0d;
+  // Au-dessus de la nav custom du shell (tabs.page.scss, z-index: 9999),
+  // sinon elle reste visible par-dessus et recouvre le bas du jeu (bouton VALIDER).
+  z-index: 10000;
+  background: #0b1929;
   display: flex;
   flex-direction: column;
 }
 
 .btn-fermer-jeu {
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.4);
   color: rgba(255,255,255,0.8);
   border: none;
   padding: 14px 20px;
@@ -87,15 +89,22 @@ ion-content.parcours-content {
 // ── Détail zone ───────────────────────────────────────────────────────────────
 
 .detail-header {
-  background: linear-gradient(160deg, var(--couleur, #c9a84c) 0%, #0a0a0a 65%);
+  background: linear-gradient(160deg, #27476e 0%, #3a6190 100%);
   padding: 56px 24px 32px;
   color: #fff;
 }
 
+// Photo de fond spécifique à chaque zone
+.detail-header.zone-camp_est {
+  background-image: url('/assets/images/Photo%20camp-est.jpg');
+  background-size: cover;
+  background-position: center 20%;
+}
+
 .btn-retour {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.15);
   border: none;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.9);
   font-size: 14px;
   font-weight: 600;
   padding: 8px 16px;
@@ -112,7 +121,7 @@ ion-content.parcours-content {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.6);
   margin-bottom: 6px;
 }
 
@@ -125,50 +134,60 @@ ion-content.parcours-content {
 
 .detail-sous-titre {
   font-size: 13px;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.6);
   font-style: italic;
   margin: 0 0 12px;
 }
 
-.detail-desc {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255,255,255,0.65);
-  margin: 0;
+.detail-contenu { padding: 24px 16px 100px; }
+
+.histoire-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  border: 1px solid #ebebeb;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
 }
 
-.detail-contenu { padding: 24px 16px 100px; }
+.histoire-texte {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #444;
+  margin: 0;
+}
 
 .section-titre {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #444;
+  color: #27476e;
   margin: 0 0 12px;
 }
 
 .contenu-card {
-  background: #1a1a1a;
+  background: #fff;
   border-radius: 16px;
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 14px;
   margin-bottom: 10px;
-  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  border: 1px solid #ebebeb;
 }
 
 .jeu-card {
   cursor: pointer;
-  border-color: rgba(201,168,76,0.2);
+  border-color: rgba(39,71,110,0.2);
   &:active { opacity: 0.8; }
 }
 
 .contenu-icone {
   font-size: 28px;
   width: 48px; height: 48px;
-  background: #222;
+  background: #f0f4f9;
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
@@ -179,25 +198,161 @@ ion-content.parcours-content {
 .contenu-label {
   font-size: 15px;
   font-weight: 700;
-  color: #fff;
+  color: #27476e;
   margin: 0 0 2px;
 }
 
-.contenu-sous { font-size: 12px; color: #555; margin: 0; }
+.contenu-sous { font-size: 12px; color: #aaa; margin: 0; }
 
 .contenu-tag {
   font-size: 11px;
   font-weight: 600;
-  color: #555;
-  background: #222;
+  color: #aaa;
+  background: #f5f5f5;
   padding: 4px 10px;
   border-radius: 10px;
   white-space: nowrap;
 }
 
 .badge-earned {
-  background: rgba(201,168,76,0.15);
+  background: rgba(39,71,110,0.1);
+  color: #27476e;
+}
+
+// ── Témoignage historique ─────────────────────────────────────────────────────
+
+.temoignage-card {
+  background: #fdf8f0;
+  border-radius: 16px;
+  padding: 20px 20px 16px;
+  margin-bottom: 10px;
+  border: 1px solid #e8dfc8;
+  position: relative;
+  overflow: hidden;
+}
+
+.temoignage-guillemet {
+  font-size: 72px;
+  line-height: 0.6;
   color: #c9a84c;
+  font-family: Georgia, serif;
+  opacity: 0.35;
+  margin-bottom: 8px;
+  display: block;
+  user-select: none;
+}
+
+.temoignage-titre {
+  font-size: 16px;
+  font-weight: 800;
+  color: #27476e;
+  margin: 0 0 10px;
+  letter-spacing: -0.2px;
+}
+
+.temoignage-texte {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.75;
+  margin: 0 0 14px;
+  font-style: italic;
+}
+
+.temoignage-auteur {
+  font-size: 12px;
+  font-weight: 700;
+  color: #c9a84c;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+// ── Quiz ─────────────────────────────────────────────────────────────────────
+
+.quiz-bloc {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 16px;
+  margin-bottom: 10px;
+  border: 1px solid #ebebeb;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.quiz-progress {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #999;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.quiz-question {
+  font-size: 16px;
+  font-weight: 800;
+  color: #27476e;
+  line-height: 1.45;
+  margin: 0 0 16px;
+}
+
+.quiz-choix { display: flex; flex-direction: column; gap: 10px; }
+
+.quiz-choix-btn {
+  text-align: left;
+  border: 1.5px solid #e0e0e0;
+  background: #fafafa;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.quiz-choix-btn:active:not(:disabled) { opacity: 0.75; }
+.quiz-choix-btn:disabled { cursor: default; }
+
+.quiz-choix-btn.correct {
+  border-color: #2f7a49;
+  background: rgba(76,175,109,0.12);
+  color: #1a5c1a;
+}
+
+.quiz-choix-btn.incorrect {
+  border-color: #9a2a1a;
+  background: rgba(154,42,26,0.08);
+  color: #9a2a1a;
+}
+
+.quiz-suivant {
+  width: 100%;
+  margin-top: 16px;
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  background: #27476e;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quiz-suivant:active { opacity: 0.85; }
+
+.quiz-resultat { text-align: center; }
+
+.quiz-resultat-score {
+  font-size: 40px;
+  font-weight: 800;
+  color: #27476e;
+  margin: 4px 0 0;
+}
+
+.quiz-resultat-texte {
+  font-size: 14px;
+  color: #999;
+  margin: 4px 0 4px;
 }
 
 // ── État vide ─────────────────────────────────────────────────────────────────
@@ -208,13 +363,13 @@ ion-content.parcours-content {
 }
 
 .vide-icone { font-size: 48px; margin-bottom: 16px; }
-.liste-vide p { margin: 0 0 8px; font-size: 15px; color: rgba(255,255,255,0.35); }
-.vide-hint { font-size: 13px !important; color: #333 !important; }
+.liste-vide p { margin: 0 0 8px; font-size: 15px; color: #bbb; }
+.vide-hint { font-size: 13px !important; color: #ccc !important; }
 
 .btn-carte {
   margin-top: 24px;
-  background: #c9a84c;
-  color: #1a1a0a;
+  background: #27476e;
+  color: #fff;
   border: none;
   border-radius: 14px;
   padding: 12px 28px;
@@ -226,13 +381,14 @@ ion-content.parcours-content {
 // ── Header timeline ───────────────────────────────────────────────────────────
 
 .parcours-header {
+  background: linear-gradient(160deg, #27476e, #3a6190);
   padding: 60px 24px 32px;
   text-align: center;
 }
 
 .header-label {
   font-size: 10px;
-  color: rgba(201,168,76,0.7);
+  color: rgba(255,255,255,0.5);
   letter-spacing: 3px;
   text-transform: uppercase;
   margin: 0 0 8px;
@@ -248,21 +404,21 @@ ion-content.parcours-content {
 
 .header-sub {
   font-size: 13px;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.55);
   margin: 0 0 20px;
 }
 
 .header-progress { max-width: 200px; margin: 0 auto; }
 
 .progress-bar {
-  width: 100%; height: 3px;
-  background: rgba(255,255,255,0.1);
+  width: 100%; height: 4px;
+  background: rgba(255,255,255,0.2);
   border-radius: 2px; overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #c9a84c, #f0d080);
+  background: #fff;
   border-radius: 2px;
   transition: width 0.8s ease;
 }
@@ -270,7 +426,7 @@ ion-content.parcours-content {
 // ── Timeline ──────────────────────────────────────────────────────────────────
 
 .timeline {
-  padding: 0 32px 100px;
+  padding: 24px 32px 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -285,43 +441,48 @@ ion-content.parcours-content {
 
 .timeline-line {
   width: 2px; height: 40px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(39,71,110,0.12);
 }
 
-.timeline-item.visite .timeline-line { background: rgba(201,168,76,0.4); }
+.timeline-item.visite .timeline-line { background: rgba(39,71,110,0.4); }
+.timeline-item.actif  .timeline-line { background: rgba(39,71,110,0.3); }
 
 .zone-bloc {
-  width: 100%; max-width: 280px;
-  background: #1a1a1a;
+  width: 100%; max-width: 240px;
+  background: #fff;
   border-radius: 24px;
   padding: 24px;
   display: flex; flex-direction: column;
   align-items: center; gap: 12px;
   position: relative;
-  border: 1px solid rgba(255,255,255,0.05);
-  transition: all 0.3s ease;
+  border: 1.5px solid #ebebeb;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: max-width 0.3s ease, box-shadow 0.3s ease;
   cursor: default;
 }
 
 .timeline-item.visite .zone-bloc {
-  background: #1e1a0f;
-  border-color: rgba(201,168,76,0.3);
+  max-width: 300px;
+  border-color: rgba(39,71,110,0.3);
+  background: #f0f4f9;
+  box-shadow: 0 6px 24px rgba(39,71,110,0.12);
   cursor: pointer;
 }
 
 .timeline-item.actif .zone-bloc {
-  background: #1e1a0f;
-  border-color: rgba(201,168,76,0.6);
-  transform: scale(1.05);
-  box-shadow: 0 8px 40px rgba(201,168,76,0.18);
-  max-width: 300px;
+  max-width: 265px;
+  border-color: #27476e;
+  border-width: 2px;
+  box-shadow: 0 4px 16px rgba(39,71,110,0.14);
   cursor: pointer;
 }
 
 .timeline-item.locked .zone-bloc {
-  background: #111;
-  border-color: rgba(255,255,255,0.03);
-  opacity: 0.45;
+  max-width: 220px;
+  background: #f7f7f5;
+  border-color: #e8e8e8;
+  box-shadow: none;
+  opacity: 0.5;
 }
 
 .zone-badge {
@@ -329,22 +490,26 @@ ion-content.parcours-content {
   top: -10px; right: -10px;
   width: 28px; height: 28px;
   border-radius: 50%;
-  background: #c9a84c;
-  color: #1a1a1a;
+  background: #27476e;
+  color: #fff;
   font-size: 13px; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(201,168,76,0.5);
+  box-shadow: 0 2px 8px rgba(39,71,110,0.4);
 }
 
-.locked-badge { background: #2a2a2a; font-size: 12px; }
+.locked-badge {
+  background: #ddd;
+  color: #aaa;
+  font-size: 12px;
+}
 
 .zone-icone {
   font-size: 56px; line-height: 1;
-  filter: drop-shadow(0 4px 12px rgba(201,168,76,0.25));
+  filter: drop-shadow(0 4px 8px rgba(39,71,110,0.15));
 }
 
 .timeline-item.locked .zone-icone {
-  filter: grayscale(1) opacity(0.3);
+  filter: grayscale(1) opacity(0.35);
   font-size: 40px;
 }
 
@@ -352,12 +517,13 @@ ion-content.parcours-content {
 
 .zone-ordre {
   font-size: 10px;
-  color: rgba(201,168,76,0.7);
+  color: #27476e;
+  opacity: 0.6;
   letter-spacing: 2px;
   text-transform: uppercase;
   margin: 0 0 4px;
 }
 
-.zone-nom { font-size: 18px; font-weight: 800; color: #fff; margin: 0 0 4px; }
-.zone-sous-titre { font-size: 12px; color: rgba(255,255,255,0.35); margin: 0; }
-.zone-locked-text { font-size: 12px; color: rgba(255,255,255,0.18); margin: 0; }
+.zone-nom { font-size: 18px; font-weight: 800; color: #27476e; margin: 0 0 4px; }
+.zone-sous-titre { font-size: 12px; color: #999; margin: 0; }
+.zone-locked-text { font-size: 12px; color: #bbb; margin: 0; }
