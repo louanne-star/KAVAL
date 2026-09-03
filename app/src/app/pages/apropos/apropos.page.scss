@@ -310,10 +310,13 @@
 }
 
 .credit-item {
-  background: #f5f0e8;
-  border-radius: 10px;
-  border-left: 3px solid #1a2e1e;
-  padding: 10px 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee5d8;
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
 }
 
 .credit-role {
