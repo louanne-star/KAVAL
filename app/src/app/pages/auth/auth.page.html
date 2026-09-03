@@ -63,7 +63,7 @@
           <label class="auth-rgpd-ligne">
             <input type="checkbox" [(ngModel)]="rgpdAccepte" name="rgpdAccepte" />
             <span>
-              J'accepte que mes données (email, badges, favoris, avis) soient utilisées
+              J'accepte que mes données (email, position GPS, avis) soient utilisées
               pour faire fonctionner KAVAL.
               <button type="button" class="auth-rgpd-lien" (click)="toggleRgpdDetail()">
                 {{ rgpdDetailOuvert ? 'Masquer' : 'En savoir plus' }}
@@ -71,11 +71,12 @@
             </span>
           </label>
           <p class="auth-rgpd-detail" *ngIf="rgpdDetailOuvert">
-            Conformément au RGPD, ces données sont stockées de façon sécurisée et ne
-            servent qu'au fonctionnement de l'application (sauvegarde et synchronisation
-            de ta progression). Elles ne sont ni revendues ni partagées avec des tiers.
-            Tu peux demander l'accès, la modification ou la suppression de tes données
-            à tout moment depuis ton compte.
+            Ton email sert à créer et retrouver ton compte. Ta position GPS est utilisée
+            pour détecter ton passage sur les sites du parcours et débloquer ta
+            progression. Tes avis sont partagés avec les autres utilisateurs de
+            l'application. Ces données sont stockées de façon sécurisée, ne sont jamais
+            revendues ni partagées avec des tiers, et tu peux à tout moment en demander
+            l'accès, la modification ou la suppression.
           </p>
         </div>
 
