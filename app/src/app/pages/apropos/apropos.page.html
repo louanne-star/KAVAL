@@ -50,20 +50,17 @@
         <h2 class="section-titre">LES VESTIGES</h2>
         <button class="card-arrow" (click)="ouvrirPopup('vestiges')" title="En savoir plus">›</button>
       </div>
-      <div class="vestiges-scroll">
-        <div class="vestige-card" *ngFor="let v of vestiges">
+      <div class="vestiges-scroll" (scroll)="onVestigesScroll($event)">
+        <div class="vestige-card" *ngFor="let v of vestiges" (click)="ouvrirVestige(v)">
           <div class="vestige-img" [style.background]="v.couleur">
-            <ion-icon [name]="v.icone"></ion-icon>
+            <img *ngIf="v.image" [src]="v.image" [alt]="v.nom" class="vestige-img-photo">
+            <ion-icon *ngIf="!v.image" [name]="v.icone"></ion-icon>
           </div>
           <p class="vestige-label">{{ v.nom }}</p>
         </div>
       </div>
       <div class="vestiges-dots">
-        <span class="active"></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
+        <span *ngFor="let v of vestiges; let i = index" [class.active]="i === vestigeIndex"></span>
       </div>
     </div>
 
@@ -126,6 +123,18 @@
       <button class="popup-close" (click)="fermerPopup()">✕</button>
       <h3 class="popup-titre">{{ popups[popupOuvert].titre }}</h3>
       <p class="popup-texte">{{ popups[popupOuvert].texte }}</p>
+    </div>
+  </div>
+
+  <!-- Popup aperçu en grand d'un vestige -->
+  <div class="popup-overlay" *ngIf="vestigeSelectionne as v" (click)="fermerVestige()">
+    <div class="popup-card vestige-popup-card" (click)="$event.stopPropagation()">
+      <button class="popup-close" (click)="fermerVestige()">✕</button>
+      <div class="vestige-popup-visuel" [style.background]="v.couleur">
+        <img *ngIf="v.image" [src]="v.image" [alt]="v.nom" class="vestige-popup-img">
+        <ion-icon *ngIf="!v.image" [name]="v.icone" class="vestige-popup-icone"></ion-icon>
+      </div>
+      <p class="vestige-popup-nom">{{ v.nom }}</p>
     </div>
   </div>
 

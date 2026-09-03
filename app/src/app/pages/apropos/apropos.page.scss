@@ -170,6 +170,7 @@
   background: #f5f0e8;
   border-radius: 12px;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .vestige-img {
@@ -178,11 +179,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 
   ion-icon {
     font-size: 36px;
     color: rgba(201, 168, 76, 0.7);
   }
+}
+
+.vestige-img-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .vestige-label {
@@ -384,5 +392,40 @@
   font-size: 14px;
   color: #555;
   line-height: 1.7;
+  margin: 0;
+}
+
+// Popup aperçu en grand d'un vestige
+.vestige-popup-card {
+  padding: 20px;
+}
+
+.vestige-popup-visuel {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.vestige-popup-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vestige-popup-icone {
+  font-size: 64px;
+  color: rgba(201, 168, 76, 0.7);
+}
+
+.vestige-popup-nom {
+  font-size: 16px;
+  font-weight: 900;
+  color: #1a2e1e;
+  text-align: center;
   margin: 0;
 }
