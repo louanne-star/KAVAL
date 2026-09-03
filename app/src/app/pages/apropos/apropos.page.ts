@@ -17,13 +17,16 @@ export class AproposPage {
     addIcons({ hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline });
   }
 
-  vestiges = [
+  vestiges: { nom: string; icone: string; couleur: string; image?: string }[] = [
     { nom: 'La Boulangerie', icone: 'flame-outline', couleur: '#2d1a0a' },
     { nom: 'Magasin des vivres', icone: 'storefront-outline', couleur: '#0a1a2d' },
     { nom: 'Les Ateliers', icone: 'hammer-outline', couleur: '#1a2e1e' },
     { nom: 'Caserne des surveillants', icone: 'home-outline', couleur: '#1a1a2d' },
     { nom: 'Chapelle Saint-Thomas', icone: 'prism-outline', couleur: '#2d1a2d' },
   ];
+
+  vestigeIndex = 0;
+  vestigeSelectionne: { nom: string; icone: string; couleur: string; image?: string } | null = null;
 
   chiffres = [
     { valeur: '1864', label: 'Année d\'ouverture' },
@@ -60,5 +63,21 @@ export class AproposPage {
 
   fermerPopup() {
     this.popupOuvert = null;
+  }
+
+  onVestigesScroll(e: Event) {
+    const el = e.target as HTMLElement;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    this.vestigeIndex = maxScroll <= 0
+      ? 0
+      : Math.round((el.scrollLeft / maxScroll) * (this.vestiges.length - 1));
+  }
+
+  ouvrirVestige(v: { nom: string; icone: string; couleur: string; image?: string }) {
+    this.vestigeSelectionne = v;
+  }
+
+  fermerVestige() {
+    this.vestigeSelectionne = null;
   }
 }
