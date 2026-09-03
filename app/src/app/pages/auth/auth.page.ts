@@ -21,10 +21,18 @@ export class AuthPage {
 
   onglet: 'connexion' | 'inscription' = 'connexion';
 
-  email      = '';
-  motDePasse = '';
+  email        = '';
+  motDePasse   = '';
+  rgpdAccepte  = false;
+  rgpdDetailOuvert = false;
   chargement = signal(false);
   erreur     = signal<string | null>(null);
+
+  // Politique de mot de passe : au moins 8 caractères, une majuscule, une
+  // minuscule et un chiffre (recommandation CNIL pour une authentification
+  // par mot de passe seul).
+  private readonly REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  private readonly REGEX_MDP   = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
   constructor(
     private auth:     AuthService,
@@ -41,11 +49,32 @@ export class AuthPage {
     this.erreur.set(null);
   }
 
+  toggleRgpdDetail() {
+    this.rgpdDetailOuvert = !this.rgpdDetailOuvert;
+  }
+
   async soumettre() {
+    this.email = this.email.trim().toLowerCase();
+
     if (!this.email || !this.motDePasse) {
       this.erreur.set('Veuillez remplir tous les champs.');
       return;
     }
+    if (!this.REGEX_EMAIL.test(this.email)) {
+      this.erreur.set('Adresse email invalide.');
+      return;
+    }
+    if (this.onglet === 'inscription') {
+      if (!this.REGEX_MDP.test(this.motDePasse)) {
+        this.erreur.set('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.');
+        return;
+      }
+      if (!this.rgpdAccepte) {
+        this.erreur.set('Vous devez accepter la politique de confidentialité pour créer un compte.');
+        return;
+      }
+    }
+
     this.chargement.set(true);
     this.erreur.set(null);
 
@@ -90,7 +119,7 @@ export class AuthPage {
   private traduireErreur(msg: string): string {
     if (msg.includes('Invalid login credentials')) return 'Email ou mot de passe incorrect.';
     if (msg.includes('User already registered'))   return 'Un compte existe déjà avec cet email.';
-    if (msg.includes('Password should be'))        return 'Le mot de passe doit contenir au moins 6 caractères.';
+    if (msg.includes('Password should be'))        return 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.';
     if (msg.includes('Unable to validate'))        return 'Email invalide.';
     if (msg.includes('Failed to fetch') || msg.includes('NetworkError'))
       return 'Pas de connexion internet. Reconnectez-vous plus tard.';
