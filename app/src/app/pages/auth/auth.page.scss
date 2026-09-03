@@ -26,15 +26,8 @@ ion-content {
 .logo-name {
   font-size: 28px;
   font-weight: 800;
-  color: #c9a84c;
+  color: #f0e9da;
   letter-spacing: 5px;
-}
-
-.auth-accroche {
-  font-size: 13px;
-  color: rgba(255,255,255,0.45);
-  letter-spacing: 1px;
-  margin: 0 0 12px;
 }
 
 .auth-pourquoi {
@@ -116,7 +109,7 @@ ion-content {
   outline: none;
   transition: border-color 0.2s;
 
-  &:focus { border-color: #c9a84c; }
+  &:focus { border-color: #f0e9da; }
   &::placeholder { color: #ccc; }
 }
 
@@ -190,7 +183,7 @@ ion-content {
 .auth-btn {
   width: 100%;
   background: linear-gradient(135deg, #27476e, #3a6190);
-  color: #c9a84c;
+  color: #f0e9da;
   border: none;
   border-radius: 14px;
   padding: 15px 0;
@@ -211,8 +204,8 @@ ion-content {
 .auth-loader {
   width: 20px;
   height: 20px;
-  border: 2.5px solid rgba(201,168,76,0.3);
-  border-top-color: #c9a84c;
+  border: 2.5px solid rgba(240,233,218,0.3);
+  border-top-color: #f0e9da;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
