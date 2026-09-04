@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -6,6 +6,7 @@ import { JourneyService } from '../../services/journey.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { BadgeService } from '../../services/badge.service';
 import { RatingService } from '../../services/rating.service';
+import { PointsService } from '../../services/points.service';
 
 @Component({
   selector: 'app-favoris',
@@ -14,15 +15,7 @@ import { RatingService } from '../../services/rating.service';
   standalone: true,
   imports: [IonicModule, CommonModule]
 })
-export class FavorisPage {
-
-  readonly META: Record<string, { icone: string; sousTitre: string }> = {
-    camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
-    vacherie:    { icone: '🌾', sousTitre: 'Agriculture & libérés' },
-    hopital:     { icone: '✝️', sousTitre: 'Soins & chapelle' },
-    penitencier: { icone: '🗝️', sousTitre: 'Cœur du bagne' },
-    ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
-  };
+export class FavorisPage implements OnInit {
 
   readonly zonesFavorites = computed(() =>
     this.journeyService.zones().filter(z => this.favoriteService.estFavori(z.id))
@@ -33,8 +26,13 @@ export class FavorisPage {
     readonly favoriteService: FavoriteService,
     readonly badgeService:    BadgeService,
     readonly ratingService:   RatingService,
+    readonly pointsService:   PointsService,
     private router:           Router,
   ) {}
+
+  ngOnInit() {
+    this.ratingService.chargerMoyennes();
+  }
 
   retour() {
     this.router.navigate(['/tabs/carte']);

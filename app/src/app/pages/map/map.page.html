@@ -5,16 +5,15 @@
   <div class="header-navios">
 
     <div class="nav-logo">
-      <span class="logo-shell">🐚</span>
-      <span class="logo-name">KAVAL</span>
+      <img src="assets/icon/logo.png" class="logo-img" alt="Kaval" />
     </div>
 
     <div class="nav-actions">
       <button class="nav-btn" (click)="allerVersRecherche()" title="Recherche">
-        🔍
+        <ion-icon name="search-outline"></ion-icon>
       </button>
       <button class="nav-btn" (click)="allerVersFavoris()" title="Favoris">
-        ♥
+        <ion-icon name="heart-outline"></ion-icon>
       </button>
       <button class="nav-avatar" (click)="allerVersCompte()" title="Mon compte">
         <span *ngIf="authService.avatarEmoji" class="avatar-emoji">{{ authService.avatarEmoji }}</span>
@@ -39,12 +38,15 @@
         <span *ngIf="distanceNavCible() !== null">{{ distanceNavCible() }} m jusqu'à {{ navCibleZone()?.nom }}</span>
       </div>
     </div>
+    <div class="hud-mode">
+      <ion-icon [name]="modeTransport() === 'foot' ? 'walk-outline' : 'car-outline'"></ion-icon>
+    </div>
     <button class="hud-annuler" (click)="annulerNav()">✕</button>
   </div>
 
   <!-- ── Notification d'arrivée ───────────────────────────────────────────── -->
   <div class="arrivee-notif" *ngIf="zoneArrivee() as zone">
-    <div class="arrivee-icone">{{ META[zone.id]?.icone }}</div>
+    <div class="arrivee-icone">{{ iconeZone(zone.zoneId) }}</div>
     <div class="arrivee-corps">
       <div class="arrivee-titre">Vous êtes arrivé !</div>
       <div class="arrivee-nom">{{ zone.nom }}</div>
@@ -55,8 +57,7 @@
 
   <!-- ── Satellite toggle ─────────────────────────────────────────────────── -->
   <button class="btn-satellite" [class.actif]="modeSatellite()" (click)="toggleModeCarte()">
-    <span class="satellite-icone">{{ modeSatellite() ? '🗺️' : '🛰️' }}</span>
-    <span class="satellite-label">{{ modeSatellite() ? 'Carte' : 'Sat.' }}</span>
+    <ion-icon [name]="modeSatellite() ? 'map-outline' : 'earth-outline'" class="satellite-ion-icon"></ion-icon>
   </button>
 
   <!-- ── Recenter button ──────────────────────────────────────────────────── -->
@@ -85,7 +86,7 @@
               {{ favoriteService.estFavori(zone.id) ? '♥' : '♡' }}
             </button>
           </div>
-          <p class="sheet-type">{{ META[zone.id]?.sousTitre }}</p>
+          <p class="sheet-type">{{ nomZone(zone.zoneId) }} · {{ sousTitreZone(zone.zoneId) }}</p>
 
           <!-- Notes + commentaires communauté -->
           <div class="sheet-rating">
@@ -144,6 +145,19 @@
     </div>
   </div>
 
+  <!-- ── Mini-point popup ─────────────────────────────────────────────────── -->
+  <div class="mini-popup-card" *ngIf="miniPointSelectionne() as mp"
+       [style.left.px]="miniPopupPos()?.x ?? 0"
+       [style.top.px]="miniPopupPos()?.y ?? 0"
+       [class.mini-popup-card--pret]="miniPopupPos()">
+    <div class="mini-popup-icone">{{ mp.icone }}</div>
+    <div class="mini-popup-corps">
+      <div class="mini-popup-nom">{{ mp.nom }}</div>
+      <div class="mini-popup-desc">{{ mp.description }}</div>
+    </div>
+    <button class="mini-popup-close" (click)="fermerMiniPoint()">✕</button>
+  </div>
+
   <!-- ── Modale commentaires communauté ─────────────────────────────────── -->
   <div class="commentaire-overlay" *ngIf="commentaireOuvert() as zoneId" (click)="fermerCommentaire()">
     <div class="commentaire-card" (click)="$event.stopPropagation()">
@@ -174,11 +188,9 @@
         </div>
       </div>
 
-      <!-- Mon commentaire -->
+      <!-- Ajouter un commentaire -->
       <div class="comm-mon-form">
-        <div class="comm-form-label">
-          {{ commentService.getCommentaire(zoneId) ? 'Modifier mon commentaire' : 'Ajouter un commentaire' }}
-        </div>
+        <div class="comm-form-label">Ajouter un commentaire</div>
         <textarea class="commentaire-textarea"
                   rows="3"
                   placeholder="Décrivez votre expérience…"
@@ -187,21 +199,21 @@
                   maxlength="300">
         </textarea>
         <div class="commentaire-actions">
-          <button class="commentaire-annuler" (click)="fermerCommentaire()">Annuler</button>
-          <button class="commentaire-sauver" (click)="sauvegarderCommentaire(zoneId)">Publier</button>
+          <button class="commentaire-annuler" (click)="fermerCommentaire()">Fermer</button>
+          <button class="commentaire-sauver" [disabled]="!brouillonCommentaire.trim()" (click)="sauvegarderCommentaire(zoneId)">Publier</button>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- ── Completion screen: shown when all 5 zones are unlocked ──────────── -->
+  <!-- ── Completion screen: shown when all points are unlocked ───────────── -->
   <div class="ecran-completion" *ngIf="parcoursComplet()">
     <div class="completion-card">
       <div class="completion-trophee">🏆</div>
       <h2 class="completion-titre">Parcours terminé !</h2>
       <p class="completion-sous-titre">
-        Vous avez exploré les 5 sites historiques de l'Île Nou.
+        Vous avez exploré les {{ journeyService.zones().length }} sites historiques de l'Île Nou.
       </p>
       <div class="completion-zones">
         <div class="completion-zone" *ngFor="let z of journeyService.zones()">

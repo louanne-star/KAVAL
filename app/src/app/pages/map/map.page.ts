@@ -1,14 +1,20 @@
 import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracked, NgZone } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import { earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline } from 'ionicons/icons';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
+import maplibreGL from '@maplibre/maplibre-gl-leaflet';
 import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { RatingService } from '../../services/rating.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { CommentService } from '../../services/comment.service';
 import { AuthService } from '../../services/auth.service';
+import { PointsService, PointPopup } from '../../services/points.service';
+import { UiStateService } from '../../services/ui-state.service';
 
 @Component({
   selector: 'app-map',
@@ -19,21 +25,13 @@ import { AuthService } from '../../services/auth.service';
 })
 export class MapPage implements AfterViewInit, OnDestroy {
 
-  // ── Meta locale (icône + sous-titre par zone) ─────────────────────────────
-
-  readonly META: Record<string, { icone: string; sousTitre: string }> = {
-    camp_est:    { icone: '⛏️',  sousTitre: 'Carrière & industrie' },
-    vacherie:    { icone: '🌾', sousTitre: 'Agriculture & libérés' },
-    hopital:     { icone: '✝️', sousTitre: 'Soins & chapelle' },
-    penitencier: { icone: '🗝️', sousTitre: 'Cœur du bagne' },
-    ferme_nord:  { icone: '🌊', sousTitre: 'Phare & léproserie' },
-  };
-
   // ── Component state ───────────────────────────────────────────────────────
 
   private mapPret    = signal(false);
   zoneSelectionneeId = signal<string | null>(null);
   navCibleId         = signal<string | null>(null);
+  private pointAOuvrirId = signal<string | null>(null);
+  private routeSub?: Subscription;
 
   zoneSelectionnee = computed(() => {
     const id = this.zoneSelectionneeId();
@@ -51,7 +49,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   );
 
   readonly parcoursComplet = computed(() =>
-    this.journeyService.zones().length === 5 &&
+    this.journeyService.zones().length > 0 &&
     this.journeyService.zones().every(z => this.badgeService.badges().has(z.id))
   );
 
@@ -105,14 +103,18 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Leaflet handles: zone layer ───────────────────────────────────────────
 
-  modeSatellite = signal(false);
+  modeSatellite        = signal(false);
+  modeTransport        = signal<'foot' | 'driving'>('foot');
+  miniPointSelectionne = signal<PointPopup | null>(null);
+  miniPopupPos         = signal<{ x: number; y: number } | null>(null);
 
   private map!: L.Map;
-  private tileNormale!:   L.TileLayer;
+  private tileNormale!:   L.MaplibreGL;
   private tileSatellite!: L.TileLayer;
   private marqueurs = new Map<string, L.Marker>();
   private overlays  = new Map<string, L.Circle>();
-  private segments  = new Map<string, { bg: L.Polyline; fg: L.Polyline }>();
+  private segments     = new Map<string, { bg: L.Polyline; fg: L.Polyline }>();
+  private popupMarqueurs: L.Marker[] = [];
 
   // ── Leaflet handles: live navigation (user → next zone) ───────────────────
 
@@ -160,7 +162,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   brouillonCommentaire = '';
 
   ouvrirCommentaire(zoneId: string) {
-    this.brouillonCommentaire = this.commentService.getCommentaire(zoneId) ?? '';
+    this.brouillonCommentaire = '';
     this.commentaireOuvert.set(zoneId);
     this.commentService.chargerCommentairesZone(zoneId);
   }
@@ -178,8 +180,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   async sauvegarderCommentaire(zoneId: string) {
-    await this.commentService.commenter(zoneId, this.brouillonCommentaire.trim());
-    this.commentaireOuvert.set(null);
+    const texte = this.brouillonCommentaire.trim();
+    if (!texte) return;
+    this.brouillonCommentaire = '';
+    await this.commentService.commenter(zoneId, texte);
   }
 
   constructor(
@@ -188,16 +192,70 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly favoriteService: FavoriteService,
     readonly commentService: CommentService,
     readonly authService: AuthService,
+    readonly pointsService: PointsService,
     private ngZone: NgZone,
     private router: Router,
+    private route: ActivatedRoute,
     readonly badgeService: BadgeService,
+    readonly uiState: UiStateService,
   ) {
+    addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline });
 
-    // Redessine les cercles, segments et marqueurs quand les zones ou l'itinéraire changent.
+    // Reçoit l'id d'un point à ouvrir automatiquement (ex: retour depuis sa
+    // page détail dans Parcours, via /tabs/carte?point=<id>).
+    this.routeSub = this.route.queryParamMap.subscribe(params => {
+      const id = params.get('point');
+      if (id) this.pointAOuvrirId.set(id);
+    });
+
+    // Dès que la carte et les zones sont prêtes, ouvre le point demandé comme
+    // un clic sur son marqueur (sheet + centrage), puis nettoie l'URL.
+    effect(() => {
+      const id    = this.pointAOuvrirId();
+      const zones = this.journeyService.zones();
+      if (!id || !this.mapPret() || zones.length === 0) return;
+      const zone = zones.find(z => z.id === id);
+      if (!zone) return;
+      untracked(() => {
+        this.miniPointSelectionne.set(null);
+        this.miniPopupPos.set(null);
+        this.zoneSelectionneeId.set(zone.id);
+        this.map.flyTo(zone.coords, 15, { duration: 0.8 });
+        this.pointAOuvrirId.set(null);
+        this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+      });
+    });
+
+    // Retour depuis la fiche détail d'un point (bouton "← Retour", navigation
+    // navigateur) : rouvre la fiche exactement où on l'avait laissée — même
+    // zoom, même centrage — plutôt qu'un zoom fixe arbitraire.
+    effect(() => {
+      const etat  = this.uiState.pointARouvrir();
+      const zones = this.journeyService.zones();
+      if (!etat || !this.mapPret() || zones.length === 0) return;
+      const zone = zones.find(z => z.id === etat.pointId);
+      if (!zone) return;
+      untracked(() => {
+        this.miniPointSelectionne.set(null);
+        this.miniPopupPos.set(null);
+        this.zoneSelectionneeId.set(zone.id);
+        this.map.flyTo([etat.lat, etat.lng], etat.zoom, { duration: 0.8 });
+        this.uiState.pointARouvrir.set(null);
+      });
+    });
+
+    // Redessine les cercles, segments et marqueurs quand les zones, l'itinéraire ou la cible nav changent.
     effect(() => {
       const zones    = this.journeyService.zones();
       const segments = this.journeyService.segmentsItineraire();
+      this.navCibleId(); // masque/affiche les segments selon l'état nav
       if (this.mapPret()) this.mettreAJourCarte(zones, segments);
+    });
+
+    // Affiche tous les points popup dès que le contenu est chargé — indépendant des badges/itinéraire.
+    effect(() => {
+      const popups = this.pointsService.pointsPopup();
+      if (this.mapPret()) this.dessinerPopups(popups);
     });
 
     // Déplace le point GPS, met à jour la navigation live et vérifie les arrivées.
@@ -217,6 +275,16 @@ export class MapPage implements AfterViewInit, OnDestroy {
       const pos = this.journeyService.positionUtilisateur();
       if (this.mapPret() && pos) this.mettreAJourNavigation(pos);
     });
+
+    // Refetch nav avec le nouveau profil quand le mode transport change.
+    effect(() => {
+      this.modeTransport(); // subscribe
+      if (!untracked(() => this.mapPret())) return;
+      this.supprimerNavActive();
+      this.navDernierePosition = null;
+      const pos = untracked(() => this.journeyService.positionUtilisateur());
+      if (pos) this.mettreAJourNavigation(pos);
+    });
   }
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -233,6 +301,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.navAbortCtrl?.abort();
     clearTimeout(this.arriveeTimeout);
+    this.routeSub?.unsubscribe();
     this.map?.remove();
   }
 
@@ -247,15 +316,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
       zoomControl:  false
     });
 
-    this.tileNormale = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      { attribution: '© OpenStreetMap © CARTO', maxZoom: 19 }
-    ).addTo(this.map);
+    // Fond de carte vectoriel coloré (style "Liberty" d'OpenFreeMap, gratuit
+    // et sans clé API — contrairement à Mapbox/CARTO/Stadia) pour un rendu
+    // moderne façon carte Snapchat, plutôt que le gris plat précédent.
+    this.tileNormale = maplibreGL({
+      style: 'https://tiles.openfreemap.org/styles/liberty'
+    }).addTo(this.map);
 
     this.tileSatellite = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       { attribution: '© Esri, DigitalGlobe', maxZoom: 19 }
     );
+
+    // Garde la bulle du mini-point collée à son marqueur pendant les pans/zooms.
+    this.map.on('move', () => this.ngZone.run(() => this.mettreAJourPositionMiniPopup()));
   }
 
   // ── Zone layer update ─────────────────────────────────────────────────────
@@ -300,8 +374,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
       })
         .addTo(this.map)
         .on('click', () => this.ngZone.run(() => {
+          this.miniPointSelectionne.set(null);
+          this.miniPopupPos.set(null);
           this.zoneSelectionneeId.set(zone.id);
-          this.map.flyTo(zone.coords, 15, { duration: 0.8 });
         }));
       this.marqueurs.set(zone.id, marqueur);
     });
@@ -313,6 +388,12 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.segments.forEach(s => { s.bg.remove(); s.fg.remove(); });
     this.segments.clear();
 
+    // Pendant la navigation active, on n'affiche que le tracé OSRM live —
+    // sauf si on n'a pas de position réelle, auquel cas ce tracé live ne peut
+    // jamais se dessiner : on garde alors le tracé fantôme pour ne pas laisser
+    // la carte sans aucune ligne.
+    if (untracked(() => this.navCibleId()) && untracked(() => this.journeyService.positionUtilisateur())) return;
+
     for (let i = 0; i < zones.length - 1; i++) {
       const a = zones[i];
       const b = zones[i + 1];
@@ -320,19 +401,22 @@ export class MapPage implements AfterViewInit, OnDestroy {
         ? itineraires[i].coordonnees
         : [a.coords, b.coords];
 
-      let couleur: string, poids: number, opacite: number, dash: string | undefined;
+      let couleur: string, poidsCore: number, poidsBord: number, opacite: number, dash: string | undefined, className: string | undefined;
 
       const badges = this.badgeService.badges();
       if (badges.has(b.id)) {
-        couleur = '#c9a84c'; poids = 5; opacite = 0.95; dash = undefined;
+        // Segment complété : navy plein bien visible
+        couleur = '#27476e'; poidsCore = 6; poidsBord = 12; opacite = 0.95; dash = undefined; className = undefined;
       } else if (badges.has(a.id)) {
-        couleur = '#3498db'; poids = 2; opacite = 0.25; dash = '6 6';
+        // Segment prochain : bleu animé
+        couleur = '#3498db'; poidsCore = 4; poidsBord = 10; opacite = 0.9; dash = '12 7'; className = 'seg-prochain';
       } else {
-        couleur = '#bbb'; poids = 2; opacite = 0.4; dash = '4 8';
+        // Segments futurs : discrets mais lisibles sur le fond de carte clair
+        couleur = '#8a93a6'; poidsCore = 3; poidsBord = 7; opacite = 0.55; dash = '4 8'; className = undefined;
       }
 
-      const bg = L.polyline(coords, { weight: poids + 4, color: '#ffffff', opacity: opacite * 0.8 }).addTo(this.map);
-      const fg = L.polyline(coords, { weight: poids, color: couleur, opacity: opacite, dashArray: dash }).addTo(this.map);
+      const bg = L.polyline(coords, { weight: poidsBord, color: '#ffffff', opacity: opacite }).addTo(this.map);
+      const fg = L.polyline(coords, { weight: poidsCore, color: couleur, opacity: opacite, dashArray: dash, className }).addTo(this.map);
       this.segments.set(String(i), { bg, fg });
     }
   }
@@ -364,7 +448,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
     const signal = this.navAbortCtrl.signal;
 
     try {
-      const url = `https://router.project-osrm.org/route/v1/foot/${lng},${lat};${prochaine.coords[1]},${prochaine.coords[0]}?overview=full&geometries=geojson&steps=true`;
+      const profil = untracked(() => this.modeTransport());
+      const url = `https://router.project-osrm.org/route/v1/${profil}/${lng},${lat};${prochaine.coords[1]},${prochaine.coords[0]}?overview=full&geometries=geojson&steps=true`;
       const resp = await fetch(url, { signal });
       if (!resp.ok || signal.aborted) return;
 
@@ -405,14 +490,22 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   private dessinerNavActive(coords: L.LatLngExpression[]) {
+    const estVoiture  = untracked(() => this.modeTransport()) === 'driving';
+    const couleur     = estVoiture ? '#E07B39' : '#2980b9';
+    const dash        = estVoiture ? undefined  : '14 6';
+    const poidsCore   = estVoiture ? 8          : 7;
+    const poidsBord   = 16;
+
     if (this.navLigne) {
       this.navLigne.bg.setLatLngs(coords);
       this.navLigne.fg.setLatLngs(coords);
+      this.navLigne.fg.setStyle({ color: couleur, dashArray: dash, weight: poidsCore });
     } else {
-      const bg = L.polyline(coords, { weight: 10, color: '#ffffff', opacity: 0.85 }).addTo(this.map);
+      const bg = L.polyline(coords, { weight: poidsBord, color: '#ffffff', opacity: 0.95 }).addTo(this.map);
       const fg = L.polyline(coords, {
-        weight: 5, color: '#3498db', opacity: 1,
-        dashArray: '10 5', className: 'seg-prochain'
+        weight: poidsCore, color: couleur, opacity: 1,
+        dashArray: dash,
+        className: estVoiture ? '' : 'seg-prochain'
       }).addTo(this.map);
       this.navLigne = { bg, fg };
     }
@@ -460,38 +553,44 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // ── Marker icon factory ───────────────────────────────────────────────────
 
   private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
-    let fond: string, bordure: string, couleurNum: string, anneau: string;
+    if (this.badgeService.aBadge(zone.id)) {
+      const pinValideeSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 46" width="32" height="46"
+          style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
+        <path d="M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z" fill="#c0553c"/>
+        <circle cx="16" cy="15" r="10" fill="#fdf8f0"/>
+        <path d="M16.00,8.80 L17.53,12.90 L21.90,13.08 L18.47,15.80 L19.64,20.02 L16.00,17.60 L12.36,20.02 L13.53,15.80 L10.10,13.08 L14.47,12.90 Z" fill="#c0553c"/>
+      </svg>`;
+      return L.divIcon({
+        className: '',
+        html: pinValideeSvg,
+        iconSize: [32, 46], iconAnchor: [16, 46]
+      });
+    }
 
-    if (zone.debloque) {
-      fond = '#c9a84c'; bordure = '#8b6914'; couleurNum = '#1a2e1e'; anneau = '';
-    } else if (estProchain) {
-      fond = '#ffffff'; bordure = '#3498db'; couleurNum = '#3498db';
-      anneau = `<div style="
-        position:absolute;top:-8px;left:-8px;right:-8px;bottom:-8px;
-        border-radius:50%;border:2px solid rgba(52,152,219,0.6);
-        animation:pulsation 1.5s ease-out infinite;pointer-events:none;
-      "></div>`;
-    } else {
-      fond = '#ffffff'; bordure = '#ddd'; couleurNum = '#bbb'; anneau = '';
+    const couleur = zone.debloque || estProchain ? '#c0553c' : '#BEBEBE';
+    const opacity = !zone.debloque && !estProchain ? 'opacity:0.45;' : '';
+
+    const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 46" width="32" height="46"
+        style="${opacity}filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
+      <path d="M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z" fill="${couleur}"/>
+    </svg>`;
+
+    if (estProchain) {
+      return L.divIcon({
+        className: '',
+        html: `<div style="position:relative;">
+          <div style="position:absolute;width:46px;height:46px;border-radius:50%;top:-7px;left:-7px;
+            border:2px solid rgba(192,85,60,0.4);animation:pulsation 1.8s ease-out infinite;pointer-events:none;"></div>
+          ${pinSvg}
+        </div>`,
+        iconSize: [32, 46], iconAnchor: [16, 46]
+      });
     }
 
     return L.divIcon({
       className: '',
-      html: `<div style="position:relative;display:inline-block;">
-        ${anneau}
-        <div style="
-          width:42px;height:42px;
-          border-radius:50% 50% 50% 0;transform:rotate(-45deg);
-          background:${fond};border:3px solid ${bordure};
-          box-shadow:0 4px 16px rgba(0,0,0,0.2);
-          display:flex;align-items:center;justify-content:center;">
-          <span style="transform:rotate(45deg);font-size:15px;font-weight:800;color:${couleurNum};">
-            ${zone.ordre}
-          </span>
-        </div>
-      </div>`,
-      iconSize:   [42, 42],
-      iconAnchor: [21, 42]
+      html: pinSvg,
+      iconSize: [32, 46], iconAnchor: [16, 46]
     });
   }
 
@@ -514,6 +613,66 @@ export class MapPage implements AfterViewInit, OnDestroy {
         zIndexOffset: 1000
       }).addTo(this.map);
     }
+  }
+
+  // ── Popups (infos au clic, hors itinéraire/badges — toujours affichés) ────
+
+  iconeZone(zoneId: string): string {
+    return this.pointsService.metaDe(zoneId)?.icone ?? '📍';
+  }
+
+  sousTitreZone(zoneId: string): string {
+    return this.pointsService.metaDe(zoneId)?.sousTitre ?? '';
+  }
+
+  nomZone(zoneId: string): string {
+    return this.pointsService.metaDe(zoneId)?.nom ?? '';
+  }
+
+  private dessinerPopups(popups: PointPopup[]) {
+    this.popupMarqueurs.forEach(m => m.remove());
+    this.popupMarqueurs = popups.map(point =>
+      L.marker(point.coords, { icon: this.creerMiniMarqueur(point), zIndexOffset: 200 })
+        .addTo(this.map)
+        .on('click', () => this.ngZone.run(() => {
+          this.zoneSelectionneeId.set(null);
+          this.miniPointSelectionne.set(point);
+          this.mettreAJourPositionMiniPopup();
+        }))
+    );
+  }
+
+  // Projette le point sélectionné en pixels écran pour coller la bulle à son marqueur.
+  private mettreAJourPositionMiniPopup() {
+    const point = this.miniPointSelectionne();
+    if (!point) { this.miniPopupPos.set(null); return; }
+    const { x, y } = this.map.latLngToContainerPoint(point.coords as L.LatLngExpression);
+    const marge = 90; // demi-largeur approx. de la bulle, pour éviter qu'elle sorte de l'écran
+    const xBorne = Math.min(Math.max(x, marge), window.innerWidth - marge);
+    this.miniPopupPos.set({ x: xBorne, y });
+  }
+
+  private creerMiniMarqueur(_point: PointPopup): L.DivIcon {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:22px;height:22px;border-radius:50%;
+        background:#d06248;border:1.5px solid rgba(255,255,255,0.75);
+        box-shadow:0 2px 8px rgba(0,0,0,0.25);cursor:pointer;
+        animation:miniAppear 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+      "></div>`,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11]
+    });
+  }
+
+  fermerMiniPoint() {
+    this.miniPointSelectionne.set(null);
+    this.miniPopupPos.set(null);
+  }
+
+  toggleModeTransport() {
+    this.modeTransport.set(this.modeTransport() === 'foot' ? 'driving' : 'foot');
   }
 
   // ── Cleanup ───────────────────────────────────────────────────────────────
@@ -566,6 +725,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   explorer(zoneId: string) {
+    const centre = this.map.getCenter();
+    this.uiState.pointARouvrir.set({ pointId: zoneId, zoom: this.map.getZoom(), lat: centre.lat, lng: centre.lng });
     this.fermerFiche();
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
   }
@@ -577,11 +738,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   toggleItineraire(zoneId: string) {
     const actif = this.navCibleId() === zoneId;
+    const pos   = this.journeyService.positionUtilisateur();
+
+    // La navigation live suit la position réelle : sans elle, impossible de
+    // tracer un itinéraire "depuis ici". On prévient plutôt que de laisser
+    // le bouton s'activer sans rien afficher.
+    if (!actif && !pos) {
+      this.journeyService.signalerPositionRequise();
+      return;
+    }
+
     this.navCibleId.set(actif ? null : zoneId);
     if (!actif) {
       this.zoneSelectionneeId.set(null);
       const zone = this.journeyService.zones().find(z => z.id === zoneId);
-      const pos  = this.journeyService.positionUtilisateur();
       if (zone && pos) {
         const bounds = L.latLngBounds(
           [pos.coords.latitude, pos.coords.longitude],
@@ -620,6 +790,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.zoneSelectionneeId.set(null);
     this.arriveeDejaTraitee.clear();
     this.zoneArrivee.set(null);
+    this.miniPointSelectionne.set(null);
+    this.miniPopupPos.set(null);
     clearTimeout(this.arriveeTimeout);
     await Promise.all([
       this.journeyService.reinitialiser(),

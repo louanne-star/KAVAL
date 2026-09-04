@@ -7,7 +7,10 @@
       <span class="logo-name">KAVAL</span>
     </div>
 
-    <p class="auth-accroche">Île Nou · Nouvelle-Calédonie</p>
+    <!-- Pourquoi se connecter -->
+    <p class="auth-pourquoi">
+      KAVAL est une application pour explorer le site historique du bagne de l'Île Nou.
+    </p>
 
     <!-- Card -->
     <div class="auth-card">
@@ -44,11 +47,37 @@
           <label class="auth-label">Mot de passe</label>
           <input class="auth-input"
                  type="password"
-                 placeholder="••••••"
+                 placeholder="••••••••"
                  [(ngModel)]="motDePasse"
                  name="motDePasse"
-                 autocomplete="current-password"
+                 [autocomplete]="onglet === 'connexion' ? 'current-password' : 'new-password'"
+                 minlength="8"
                  required />
+          <p class="auth-aide" *ngIf="onglet === 'inscription'">
+            8 caractères minimum, avec au moins une majuscule, une minuscule et un chiffre.
+          </p>
+        </div>
+
+        <!-- RGPD (inscription uniquement) -->
+        <div class="auth-rgpd" *ngIf="onglet === 'inscription'">
+          <label class="auth-rgpd-ligne">
+            <input type="checkbox" [(ngModel)]="rgpdAccepte" name="rgpdAccepte" />
+            <span>
+              J'accepte que mes données (email, position GPS, avis) soient utilisées
+              pour faire fonctionner KAVAL.
+              <button type="button" class="auth-rgpd-lien" (click)="toggleRgpdDetail()">
+                {{ rgpdDetailOuvert ? 'Masquer' : 'En savoir plus' }}
+              </button>
+            </span>
+          </label>
+          <p class="auth-rgpd-detail" *ngIf="rgpdDetailOuvert">
+            Ton email sert à créer et retrouver ton compte. Ta position GPS est utilisée
+            pour détecter ton passage sur les sites du parcours et débloquer ta
+            progression. Tes avis sont partagés avec les autres utilisateurs de
+            l'application. Ces données sont stockées de façon sécurisée, ne sont jamais
+            revendues ni partagées avec des tiers, et tu peux à tout moment en demander
+            l'accès, la modification ou la suppression.
+          </p>
         </div>
 
         <!-- Erreur -->
@@ -70,8 +99,7 @@
 
     <!-- Note offline -->
     <p class="auth-note">
-      La connexion n'est requise qu'au premier lancement.<br>
-      L'application fonctionne ensuite sans internet.
+      Ton compte permet de sauvegarder ta progression.
     </p>
 
   </div>

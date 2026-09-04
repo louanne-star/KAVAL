@@ -5,6 +5,7 @@ import { filter } from 'rxjs/operators';
 import { IonTabs, IonTabBar, IonTabButton, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { mapOutline, listOutline, informationCircleOutline } from 'ionicons/icons';
+import { UiStateService } from '../services/ui-state.service';
 
 @Component({
   selector: 'app-tabs',
@@ -23,7 +24,7 @@ export class TabsPage {
     { id: 'apropos',  icone: 'information-circle-outline', label: 'À propos' },
   ];
 
-  constructor(private router: Router) {
+  constructor(private router: Router, readonly uiState: UiStateService) {
     addIcons({ mapOutline, listOutline, informationCircleOutline });
 
     router.events
