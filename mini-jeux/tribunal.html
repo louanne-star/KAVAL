@@ -610,6 +610,10 @@ function drawResult() {
 }
 
 // ── INTRO ─────────────────────────────────────────────────────────
+// Hiérarchie simplifiée à 2 tailles de texte (BODY / LIST) + poids/couleur
+// pour marquer l'emphase, plutôt que des tailles quasi-identiques peu
+// lisibles. Palette réduite : vert foncé (titres), brun chaud (texte),
+// couleurs des 3 peines (identiques aux boutons du jeu) pour la liste.
 function drawIntro() {
   drawPageBG();
   ctx.fillStyle='#1a2e1e'; ctx.fillRect(0,0,W,Math.floor(H*0.090));
@@ -625,41 +629,58 @@ function drawIntro() {
   ctx.strokeStyle='#c9a84c'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(W*0.15,H*0.185); ctx.lineTo(W*0.85,H*0.185); ctx.stroke();
 
-  const grad=ctx.createLinearGradient(W*0.06,H*0.20,W*0.06,H*0.67);
+  const grad=ctx.createLinearGradient(W*0.06,H*0.20,W*0.06,H*0.82);
   grad.addColorStop(0,'#fdf8ee'); grad.addColorStop(1,'#f0e4c0');
-  ctx.fillStyle=grad; rr(W*0.06,H*0.20,W*0.88,H*0.47,8); ctx.fill();
-  ctx.strokeStyle='#8b6914'; ctx.lineWidth=1; rr(W*0.06,H*0.20,W*0.88,H*0.47,8); ctx.stroke();
+  ctx.fillStyle=grad; rr(W*0.06,H*0.20,W*0.88,H*0.62,10); ctx.fill();
+  ctx.strokeStyle='#8b6914'; ctx.lineWidth=1; rr(W*0.06,H*0.20,W*0.88,H*0.62,10); ctx.stroke();
 
-  ctx.fillStyle='#1a0a00';
-  ctx.font=`bold ${Math.floor(W*0.034)}px Georgia,serif`;
+  const HEAD_SIZE='#1a2e1e', BODY_COL='#3a2a18', MUTED_COL='#6b4914';
+  const BODY_SIZE=Math.floor(W*0.029), LIST_SIZE=Math.floor(W*0.031);
+
+  ctx.fillStyle=HEAD_SIZE;
+  ctx.font=`bold ${Math.floor(W*0.036)}px Georgia,serif`;
   ctx.textAlign='center';
   ctx.fillText('VOTRE MISSION', W/2, H*0.258);
 
+  // [texte, style, couleur (pour 'list' uniquement)]
   const lines=[
-    ['Vous êtes juge au tribunal','normal'],
-    ['du bagne de l\'Île Nou.','normal'],
-    ['',''],
-    ['8 dossiers vous attendent.','bold'],
-    ['Pour chaque détenu, choisissez','normal'],
-    ['la bonne peine parmi :','normal'],
-    ['',''],
-    ['🟢 TRANSPORTÉ  —  Crime politique','color'],
-    ['🔵 DÉPORTÉ  —  Crime grave','color'],
-    ['🟠 RELÉGUÉ  —  Récidiviste mineur','color'],
-    ['',''],
-    ['Appuyez sur ? pour les définitions.','italic'],
-    ['6 bonnes réponses = VICTOIRE !','bold'],
+    ['Vous êtes juge au tribunal', 'body'],
+    ['du bagne de l\'Île Nou.', 'body'],
+    ['', ''],
+    ['8 dossiers de bagnards vous attendent.', 'strong'],
+    ['Lisez le motif, puis choisissez', 'body'],
+    ['la bonne peine parmi :', 'body'],
+    ['', ''],
+    ['🟢 TRANSPORTÉ — crime politique', 'list', '#2d6b2d'],
+    ['🔵 DÉPORTÉ — crime grave', 'list', '#1a4a8a'],
+    ['🟠 RELÉGUÉ — vol répété (récidive)', 'list', '#7a3a10'],
+    ['', ''],
+    ['Un doute ? Appuyez sur (?) pour revoir les définitions.', 'help'],
   ];
   let py=H*0.298;
-  const lh=Math.floor(H*0.040);
-  lines.forEach(([txt,style])=>{
-    if (!txt) { py+=lh*0.4; return; }
-    if (style==='bold') { ctx.font=`bold ${Math.floor(W*0.031)}px Georgia,serif`; ctx.fillStyle='#1a2e1e'; }
-    else if (style==='color') { ctx.font=`bold ${Math.floor(W*0.029)}px Georgia,serif`; ctx.fillStyle='#4a2a00'; }
-    else if (style==='italic') { ctx.font=`italic ${Math.floor(W*0.028)}px Georgia,serif`; ctx.fillStyle='#6b4914'; }
-    else { ctx.font=`${Math.floor(W*0.029)}px Georgia,serif`; ctx.fillStyle='#2a1a0a'; }
-    ctx.fillText(txt, W/2, py); py+=lh;
+  const lhBody=Math.floor(H*0.040), lhList=Math.floor(H*0.044);
+  lines.forEach(([txt,style,color])=>{
+    if (!txt) { py+=lhBody*0.4; return; }
+    if (style==='strong')    { ctx.font=`bold ${BODY_SIZE}px Georgia,serif`;   ctx.fillStyle=HEAD_SIZE; }
+    else if (style==='list') { ctx.font=`bold ${LIST_SIZE}px Georgia,serif`;   ctx.fillStyle=color; }
+    else if (style==='help') { ctx.font=`italic ${BODY_SIZE}px Georgia,serif`; ctx.fillStyle=MUTED_COL; }
+    else                     { ctx.font=`${BODY_SIZE}px Georgia,serif`;       ctx.fillStyle=BODY_COL; }
+    ctx.fillText(txt, W/2, py);
+    py += (style==='list') ? lhList : lhBody;
   });
+
+  // Condition de victoire mise en avant comme un badge (pas juste du texte
+  // en gras) : plus visible et compréhensible d'un coup d'œil, quel que
+  // soit l'âge du joueur.
+  py += H*0.012;
+  const pillW=W*0.66, pillH=Math.floor(H*0.052);
+  const pillX=(W-pillW)/2;
+  ctx.fillStyle='#1a2e1e'; rr(pillX,py,pillW,pillH,pillH/2); ctx.fill();
+  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=1.5; rr(pillX,py,pillW,pillH,pillH/2); ctx.stroke();
+  ctx.fillStyle='#c9a84c';
+  ctx.font=`bold ${Math.floor(W*0.028)}px Georgia,serif`;
+  ctx.textAlign='center';
+  ctx.fillText('🏆 6 bonnes réponses sur 8 pour gagner', W/2, py+pillH*0.65);
 
   const by=H*0.855;
   ctx.fillStyle='#1a2e1e'; rr(W*0.10,by,W*0.80,Math.floor(H*0.068),12); ctx.fill();
