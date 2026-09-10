@@ -57,11 +57,11 @@
 
   /* ── Header commun ───────────────────────────────────────────────────── */
   .entete {
-    background:#1a1108; padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
-    border-bottom:2px solid var(--or);
+    background:var(--creme); padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+    border-bottom:2px solid var(--creme-bord);
   }
-  .entete-titre { color:var(--creme); font-weight:800; font-size:17px; letter-spacing:0.2px; }
-  .entete-score { color:var(--creme); font-weight:800; font-size:14px; }
+  .entete-titre { color:var(--texte-fonce); font-weight:800; font-size:17px; letter-spacing:0.2px; }
+  .entete-score { color:var(--texte-fonce); font-weight:800; font-size:14px; }
 
   /* ── Scène / portrait ────────────────────────────────────────────────── */
   .scene-cadre {
@@ -122,7 +122,7 @@
     box-shadow:0 4px 14px rgba(0,0,0,0.25);
   }
   .dossier-entete {
-    font-family:Georgia, 'Times New Roman', serif; font-weight:700; font-size:12px;
+    font-weight:800; font-size:12px;
     letter-spacing:0.4px; text-align:center; color:var(--texte-fonce);
     padding-bottom:6px; margin-bottom:7px; border-bottom:1px solid rgba(36,24,17,0.18);
   }
@@ -135,7 +135,7 @@
   .dossier-accusation { font-size:14.5px; font-weight:500; color:#3a160c; line-height:1.5; padding-right:60px; }
 
   .stamp-condamne {
-    position:absolute; top:80px; right:8px; width:56px; height:56px;
+    position:absolute; top:78px; right:6px; width:78px; height:78px;
     transform:rotate(-14deg); pointer-events:none;
   }
   .stamp-condamne img { width:100%; height:100%; object-fit:contain; }
@@ -225,46 +225,38 @@
   .btn-aide.img-err .btn-fallback-texte { display:flex; }
 
   /* ── Résultat round ──────────────────────────────────────────────────── */
-  #ecran-resultat { padding:0; }
+  #ecran-resultat { padding:0; justify-content:center; }
   .resultat-bandeau {
-    padding:16px; text-align:center; font-weight:800; font-size:17px; color:#fff;
+    padding:4px 16px 0; text-align:center; font-weight:800; font-size:22px;
   }
-  .resultat-bandeau.correct   { background:#1a5c1a; }
-  .resultat-bandeau.incorrect { background:#8a2a10; }
+  .resultat-bandeau.correct   { color:#1a5c1a; }
+  .resultat-bandeau.incorrect { color:#8a2a10; }
   .resultat-corps { padding:20px 20px 0; display:flex; flex-direction:column; align-items:center; gap:12px; }
   .resultat-tampons { display:flex; gap:18px; align-items:center; }
   .resultat-tampon-bloc { display:flex; flex-direction:column; align-items:center; gap:6px; }
-  .resultat-tampon-bloc img, .resultat-tampon-bloc .stamp-fallback { width:88px; height:88px; }
+  .resultat-tampon-bloc img, .resultat-tampon-bloc .stamp-fallback { width:110px; height:110px; }
+  .resultat-tampons.unique .resultat-tampon-bloc img,
+  .resultat-tampons.unique .resultat-tampon-bloc .stamp-fallback { width:150px; height:150px; }
   .resultat-tampon-bloc .stamp-fallback {
     display:none; border-radius:50%; border:3px solid currentColor;
     align-items:center; justify-content:center; font-weight:800; font-size:11px; text-align:center; padding:4px;
   }
   .resultat-tampon-bloc.img-err img { display:none; }
   .resultat-tampon-bloc.img-err .stamp-fallback { display:flex; }
-  .resultat-tampon-bloc.rate img { opacity:0.4; }
-  .resultat-tampon-croix {
-    position:relative;
-  }
-  .resultat-tampon-croix::before, .resultat-tampon-croix::after {
-    content:''; position:absolute; left:6px; right:6px; top:50%; height:4px; background:#cc2020;
-    border-radius:4px;
-  }
-  .resultat-tampon-croix::before { transform:rotate(45deg); }
-  .resultat-tampon-croix::after  { transform:rotate(-45deg); }
-  .resultat-tampon-label { font-size:12px; font-weight:700; }
+  .resultat-tampon-bloc.rate img { opacity:0.5; filter:grayscale(1); }
+  .resultat-tampon-label { font-size:15px; font-weight:700; }
   .resultat-verdict { font-weight:800; font-size:15px; color:var(--texte-fonce); margin-top:2px; }
   .resultat-explication {
     font-size:13.5px; color:#444; line-height:1.55; text-align:center; padding:0 6px;
     font-style:italic;
   }
   .resultat-score {
-    margin:16px 20px 0; background:rgba(0,0,0,0.06); border-radius:12px; padding:12px;
-    text-align:center; font-weight:700; color:var(--texte-fonce);
+    margin:16px 20px 0; text-align:center; font-weight:700; font-size:15px; color:var(--texte-fonce);
   }
   .btn-suivant {
-    margin:16px 20px 20px; border:none; border-radius:14px; padding:16px;
-    background:var(--brun-fonce); color:var(--or); font-weight:800; font-size:15px;
-    border:2px solid var(--or); cursor:pointer;
+    margin:16px 20px 20px; border:1.5px solid var(--creme); border-radius:14px; padding:16px;
+    background:linear-gradient(135deg, var(--brun-cadre), var(--brun-fonce)); color:var(--creme);
+    font-weight:800; font-size:16px; cursor:pointer;
   }
   #ecran-resultat.actif { background:#fdf8ee; }
 
@@ -290,8 +282,8 @@
     width:100%; border:1.5px solid var(--creme); border-radius:14px; padding:16px; font-weight:800; font-size:16px;
     background:linear-gradient(135deg, var(--brun-cadre), var(--brun-fonce)); color:var(--creme); cursor:pointer;
   }
-  .score-final { font-size:52px; font-weight:800; color:var(--or); }
-  .etoiles { font-size:26px; letter-spacing:4px; }
+  .score-final { font-size:52px; font-weight:800; color:var(--creme); }
+  .etoiles { font-size:26px; letter-spacing:4px; color:var(--creme); }
   .etoile-off { opacity:0.25; }
 
   /* ── Modale définitions ──────────────────────────────────────────────── */
@@ -299,13 +291,15 @@
   #modal.open { display:flex; }
   #modal-box { background:#fdf8ef; border:1.5px solid var(--or); border-radius:18px; padding:28px 24px; width:88%; max-width:370px; box-shadow:0 8px 32px rgba(0,0,0,0.25); }
   #modal-box h2 { font-size:17px; color:#1a2e1e; text-align:center; margin-bottom:18px; padding-bottom:10px; border-bottom:1px solid #e0d0a0; }
-  .def-item { margin-bottom:14px; padding:12px 14px; background:#fff; border-radius:10px; border-left:4px solid var(--or); }
-  .def-item:nth-child(2){ border-left-color:#2d6b2d; }
-  .def-item:nth-child(3){ border-left-color:#1a4a8a; }
-  .def-item:nth-child(4){ border-left-color:#7a3a10; }
-  .def-titre { font-size:13px; font-weight:bold; color:#1a2e1e; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
-  .def-texte { font-size:13px; color:#444; line-height:1.6; }
-  #modal-close { display:block; margin:18px auto 0; background:#1a2e1e; color:var(--or); border:none; border-radius:12px; padding:12px 36px; font-size:15px; font-weight:bold; cursor:pointer; }
+  .def-item { padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid #eee5d8; }
+  .def-item:last-of-type { padding-bottom:0; margin-bottom:0; border-bottom:none; }
+  .def-titre { font-size:14px; font-weight:800; color:#1a2e1e; letter-spacing:0.3px; margin-bottom:4px; }
+  .def-texte { font-size:13px; color:#555; line-height:1.6; }
+  #modal-close {
+    display:block; width:100%; margin:18px 0 0; border:1.5px solid var(--creme); border-radius:14px; padding:16px;
+    font-weight:800; font-size:16px; background:linear-gradient(135deg, var(--brun-cadre), var(--brun-fonce));
+    color:var(--creme); cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -447,17 +441,17 @@
 <!-- ── Modale définitions ──────────────────────────────────────────────── -->
 <div id="modal">
   <div id="modal-box">
-    <h2>⚖️ Les peines du bagne</h2>
+    <h2>Les peines du bagne</h2>
     <div class="def-item">
-      <div class="def-titre">🟢 Transporté</div>
+      <div class="def-titre">Transporté</div>
       <div class="def-texte">Crime politique ou de rébellion. Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.</div>
     </div>
     <div class="def-item">
-      <div class="def-titre">🔵 Déporté</div>
+      <div class="def-titre">Déporté</div>
       <div class="def-texte">Crime grave (meurtre, espionnage, actes violents). Banni définitivement dans une enceinte fortifiée, sans retour possible.</div>
     </div>
     <div class="def-item">
-      <div class="def-titre">🟠 Relégué</div>
+      <div class="def-titre">Relégué</div>
       <div class="def-texte">Vol répété ou vagabondage (récidive). Éloignement permanent aux colonies pour protéger la société française.</div>
     </div>
     <button id="modal-close">Fermer</button>
@@ -595,10 +589,11 @@ $('#btn-valider').addEventListener('click', () => {
   if (correct) score++;
 
   $('#resultat-bandeau').className = 'resultat-bandeau ' + (correct ? 'correct' : 'incorrect');
-  $('#resultat-bandeau').textContent = correct ? '✓  BONNE RÉPONSE !' : '✗  MAUVAISE RÉPONSE';
+  $('#resultat-bandeau').textContent = correct ? 'BONNE RÉPONSE !' : 'MAUVAISE RÉPONSE';
 
   const tamponsWrap = $('#resultat-tampons');
   tamponsWrap.innerHTML = '';
+  tamponsWrap.classList.toggle('unique', correct);
 
   if (!correct) {
     tamponsWrap.appendChild(creerBlocTampon(selection, true, 'Votre choix'));
@@ -607,7 +602,7 @@ $('#btn-valider').addEventListener('click', () => {
 
   $('#resultat-verdict').textContent      = correct ? `Peine : ${labelPeine(d.bonne_reponse)}` : `Bonne réponse : ${labelPeine(d.bonne_reponse)}`;
   $('#resultat-explication').textContent  = d.explication || EXPLICATIONS[d.bonne_reponse] || '';
-  $('#resultat-score').textContent        = `Score : ${score} / ${currentIdx + 1}`;
+  $('#resultat-score').textContent        = `Score : ${score} / ${dossiers.length}`;
   $('#btn-suivant').textContent           = currentIdx < dossiers.length - 1 ? 'DOSSIER SUIVANT →' : 'VOIR MON RÉSULTAT →';
 
   afficherEcran('resultat');
@@ -620,7 +615,6 @@ function creerBlocTampon(peine, rate, label) {
   bloc.className = 'resultat-tampon-bloc' + (rate ? ' rate' : '');
 
   const imgWrap = document.createElement('div');
-  imgWrap.className = rate ? 'resultat-tampon-croix' : '';
   const img = document.createElement('img');
   img.alt = peine;
   imgWrap.appendChild(img);
@@ -654,8 +648,8 @@ $('#btn-suivant').addEventListener('click', () => {
 
 function afficherFin() {
   const victoire = score >= SEUIL_VICTOIRE;
-  $('#fin-titre').textContent   = victoire ? '🏆 VICTOIRE !' : '⚖️ RÉSULTAT FINAL';
-  $('#fin-titre').style.color   = victoire ? '#5cd485' : 'var(--or)';
+  $('#fin-titre').textContent   = victoire ? 'VICTOIRE !' : 'RÉSULTAT FINAL';
+  $('#fin-titre').style.color   = victoire ? '#5cd485' : 'var(--creme)';
   $('#fin-score').textContent   = `${score} / ${dossiers.length}`;
   $('#fin-message').textContent = victoire ? 'Juge exemplaire !' : `Il fallait ${SEUIL_VICTOIRE} bonnes réponses sur ${dossiers.length}.`;
 
