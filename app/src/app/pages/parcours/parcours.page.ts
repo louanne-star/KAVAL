@@ -1,22 +1,33 @@
-import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { IonContent } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { PointsService, QuizQuestion } from '../../services/points.service';
 import { UiStateService } from '../../services/ui-state.service';
+import { LanguageService } from '../../services/language.service';
+import { Langue } from '../../i18n/translations';
+
+type ChoixSlot = 'bonne' | 'm1' | 'm2';
 
 @Component({
   selector: 'app-parcours',
   templateUrl: './parcours.page.html',
   styleUrls: ['./parcours.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonContent]
+  imports: [CommonModule, IonContent, TranslatePipe]
 })
 export class ParcoursPage implements OnInit, OnDestroy {
+
+  @ViewChild(IonContent) private ionContent?: IonContent;
+  // Position de scroll de la liste au moment où on ouvre un point, pour la
+  // restaurer au retour (le composant n'est jamais détruit entre-temps :
+  // même route, seul le query param "zone" change).
+  private scrollListe = 0;
 
   zoneSelectionnee: JourneyZone | null = null;
   enRedirection = false;
@@ -24,11 +35,13 @@ export class ParcoursPage implements OnInit, OnDestroy {
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
 
-  // Quiz : une question à la fois, 3 choix mélangés (2 fausses + 1 vraie réponse)
+  // Quiz : une question à la fois, 3 choix mélangés (2 fausses + 1 vraie réponse).
+  // On mélange des "slots" (bonne/m1/m2) plutôt que le texte directement, pour
+  // que l'affichage reste cohérent si la langue change en cours de quiz.
   zoneQuiz: QuizQuestion[] = [];
   quizIndex = 0;
-  quizChoixActuels: string[] = [];
-  quizReponseChoisie: string | null = null;
+  quizChoixActuels: ChoixSlot[] = [];
+  quizReponseChoisie: ChoixSlot | null = null;
   quizScore = 0;
   quizTermine = false;
 
@@ -39,11 +52,22 @@ export class ParcoursPage implements OnInit, OnDestroy {
     hopital:     'assets/mini-jeux/bagne-connect.html',
   };
 
-  readonly JEUX_NOMS: Record<string, string> = {
-    penitencier: 'Traverse la Rivière',
-    camp_est:    'Le tribunal',
-    hopital:     'Connexion des forçats',
+  private readonly JEUX_NOMS: Record<Langue, Record<string, string>> = {
+    fr: {
+      penitencier: 'Traverse la Rivière',
+      camp_est:    'Le tribunal',
+      hopital:     'Connexion des forçats',
+    },
+    en: {
+      penitencier: 'Cross the River',
+      camp_est:    'The Trial',
+      hopital:     'Convicts Connect',
+    },
   };
+
+  nomJeu(zoneId: string): string {
+    return this.JEUX_NOMS[this.languageService.langue()][zoneId] ?? '';
+  }
 
   private paramSub?: Subscription;
   private readonly onMessage = (e: MessageEvent) => {
@@ -70,6 +94,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
     readonly journeyService: JourneyService,
     readonly badgeService: BadgeService,
     readonly pointsService: PointsService,
+    readonly languageService: LanguageService,
     private uiState: UiStateService,
   ) {}
 
@@ -84,6 +109,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
         this.enRedirection = false;
         this.zoneSelectionnee = null;
         this.setJeuOuvert(false);
+        this.restaurerScrollListe();
         return;
       }
 
@@ -137,8 +163,20 @@ export class ParcoursPage implements OnInit, OnDestroy {
   // Depuis la liste : ouvre le détail d'un point. Navigue (plutôt qu'une
   // simple mutation d'état) pour que "← Retour" (Location.back()) ramène
   // bien à la liste.
-  selectZone(zone: JourneyZone) {
+  async selectZone(zone: JourneyZone) {
+    const el = await this.ionContent?.getScrollElement();
+    this.scrollListe = el?.scrollTop ?? 0;
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zone.id } });
+  }
+
+  // Rappelé quand on revient à la vue liste (query param "zone" retiré) :
+  // le DOM de la liste vient d'être remonté par le *ngIf, on attend le
+  // prochain tick pour que sa hauteur soit calculée avant de scroller.
+  private restaurerScrollListe() {
+    if (!this.scrollListe) return;
+    setTimeout(() => {
+      this.ionContent?.scrollToPoint(0, this.scrollListe, 0);
+    });
   }
 
   // Bouton "← Retour" : comportement navigateur (retourne à la page d'où on
@@ -161,9 +199,8 @@ export class ParcoursPage implements OnInit, OnDestroy {
   }
 
   private melangerChoixActuels() {
-    const q = this.zoneQuiz[this.quizIndex];
-    if (!q) { this.quizChoixActuels = []; return; }
-    const choix = [q.bonneReponse, q.mauvaiseReponse1, q.mauvaiseReponse2];
+    if (!this.zoneQuiz[this.quizIndex]) { this.quizChoixActuels = []; return; }
+    const choix: ChoixSlot[] = ['bonne', 'm1', 'm2'];
     for (let i = choix.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [choix[i], choix[j]] = [choix[j], choix[i]];
@@ -171,10 +208,16 @@ export class ParcoursPage implements OnInit, OnDestroy {
     this.quizChoixActuels = choix;
   }
 
-  choisirReponse(choix: string) {
+  texteChoix(q: QuizQuestion, slot: ChoixSlot): string {
+    if (slot === 'bonne') return this.pointsService.texte(q.bonneReponse, q.bonneReponseEn);
+    if (slot === 'm1')    return this.pointsService.texte(q.mauvaiseReponse1, q.mauvaiseReponse1En);
+    return this.pointsService.texte(q.mauvaiseReponse2, q.mauvaiseReponse2En);
+  }
+
+  choisirReponse(slot: ChoixSlot) {
     if (this.quizReponseChoisie) return;
-    this.quizReponseChoisie = choix;
-    if (choix === this.zoneQuiz[this.quizIndex].bonneReponse) this.quizScore++;
+    this.quizReponseChoisie = slot;
+    if (slot === 'bonne') this.quizScore++;
   }
 
   questionSuivante() {

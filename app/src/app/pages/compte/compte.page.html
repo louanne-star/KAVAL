@@ -16,7 +16,7 @@
           <span class="cp-edit-dot" aria-hidden="true">✎</span>
         </button>
         <p class="cp-email">{{ username() || auth.user()?.email }}</p>
-        <p class="cp-role">Explorateur · KAVAL</p>
+        <p class="cp-role">{{ 'compte.role' | translate }}</p>
       </div>
 
       <!-- Wave SVG -->
@@ -32,8 +32,8 @@
 
     <!-- ── Pill tabs ─────────────────────────────────────────────────────────── -->
     <div class="cp-tabs">
-      <button class="cp-tab" [class.cp-tab--on]="vue() === 'profil'" (click)="changerVue('profil')">Profil</button>
-      <button class="cp-tab" [class.cp-tab--on]="vue() === 'mdp'"    (click)="changerVue('mdp')">Sécurité</button>
+      <button class="cp-tab" [class.cp-tab--on]="vue() === 'profil'" (click)="changerVue('profil')">{{ 'compte.tabs.profil' | translate }}</button>
+      <button class="cp-tab" [class.cp-tab--on]="vue() === 'mdp'"    (click)="changerVue('mdp')">{{ 'compte.tabs.securite' | translate }}</button>
     </div>
 
     <!-- ── Contenu ───────────────────────────────────────────────────────────── -->
@@ -49,36 +49,36 @@
         <div class="stats-row">
           <div class="stat-card">
             <span class="stat-num">{{ nombreZonesVisitees() }}</span>
-            <span class="stat-lbl">Visitées</span>
+            <span class="stat-lbl">{{ 'compte.stats.visitees' | translate }}</span>
           </div>
           <div class="stat-card stat-card--fav">
             <span class="stat-num">{{ zonesFavorites().length }}</span>
-            <span class="stat-lbl">Favoris</span>
+            <span class="stat-lbl">{{ 'compte.stats.favoris' | translate }}</span>
           </div>
           <div class="stat-card stat-card--total">
             <span class="stat-num">{{ totalZones() }}</span>
-            <span class="stat-lbl">Zones</span>
+            <span class="stat-lbl">{{ 'compte.stats.zones' | translate }}</span>
           </div>
         </div>
 
         <!-- Identité -->
-        <p class="list-label">Identité</p>
+        <p class="list-label">{{ 'compte.section.identite' | translate }}</p>
         <div class="list-card">
           <div class="list-row list-row--last" [class.list-row--editing]="editingUsername()">
             <div class="list-ico list-ico--cyan">
               <ion-icon name="person-outline"></ion-icon>
             </div>
             <div class="list-txt" *ngIf="!editingUsername()">
-              <span class="list-name">{{ username() || 'Ajouter un pseudonyme' }}</span>
-              <span class="list-sub" [class.list-sub--dim]="!username()">Nom d'utilisateur</span>
+              <span class="list-name">{{ username() || ('compte.identite.placeholder' | translate) }}</span>
+              <span class="list-sub" [class.list-sub--dim]="!username()">{{ 'compte.identite.label' | translate }}</span>
             </div>
             <input class="inline-input" *ngIf="editingUsername()"
                    [(ngModel)]="usernameTemp"
-                   placeholder="Votre pseudonyme…"
+                   [placeholder]="'compte.identite.inputPlaceholder' | translate"
                    (keyup.enter)="sauvegarderUsername()"
                    autofocus />
             <button class="list-action-btn" *ngIf="!editingUsername()" (click)="commencerEditUsername()">
-              Modifier
+              {{ 'compte.action.modifier' | translate }}
             </button>
             <button class="list-action-btn list-action-btn--save" *ngIf="editingUsername()"
                     (click)="sauvegarderUsername()">✓</button>
@@ -86,7 +86,7 @@
         </div>
 
         <!-- Zones sauvegardées -->
-        <p class="list-label">Zones sauvegardées</p>
+        <p class="list-label">{{ 'compte.section.favoris' | translate }}</p>
         <div class="list-card">
           <ng-container *ngIf="zonesFavorites().length > 0; else noFav">
             <button class="list-row" *ngFor="let z of zonesFavorites(); let last = last"
@@ -103,58 +103,41 @@
           <ng-template #noFav>
             <div class="list-row list-row--last list-row--static">
               <div class="list-ico list-ico--dim">♡</div>
-              <span class="list-name list-name--dim">Aucun favori pour l'instant</span>
+              <span class="list-name list-name--dim">{{ 'compte.favorisVide' | translate }}</span>
             </div>
           </ng-template>
         </div>
 
         <!-- Préférences -->
-        <p class="list-label">Préférences</p>
+        <p class="list-label">{{ 'compte.section.preferences' | translate }}</p>
         <div class="list-card">
-
-          <!-- Apparence -->
-          <div class="list-row">
-            <div class="list-ico list-ico--purple">
-              <ion-icon name="moon-outline"></ion-icon>
-            </div>
-            <div class="list-txt">
-              <span class="list-name">Apparence</span>
-              <span class="list-sub">{{ theme() === 'dark' ? 'Mode sombre' : 'Mode clair' }}</span>
-            </div>
-            <button class="toggle" [class.toggle--on]="theme() === 'dark'"
-                    (click)="toggleTheme()" aria-label="Changer le thème">
-              <span class="toggle-knob"></span>
-            </button>
-          </div>
-
-          <!-- Langue -->
           <div class="list-row list-row--last">
             <div class="list-ico list-ico--amber">
               <ion-icon name="language-outline"></ion-icon>
             </div>
             <div class="list-txt">
-              <span class="list-name">Langue</span>
-              <span class="list-sub">{{ langue() === 'fr' ? 'Français' : 'English' }}</span>
+              <span class="list-name">{{ 'compte.langue.label' | translate }}</span>
+              <span class="list-sub">{{ languageService.langue() === 'fr' ? ('compte.langue.fr' | translate) : ('compte.langue.en' | translate) }}</span>
             </div>
             <div class="lang-pills">
-              <button class="lang-pill" [class.lang-pill--on]="langue() === 'fr'"
+              <button class="lang-pill" [class.lang-pill--on]="languageService.langue() === 'fr'"
                       (click)="changerLangue('fr')">FR</button>
-              <button class="lang-pill" [class.lang-pill--on]="langue() === 'en'"
+              <button class="lang-pill" [class.lang-pill--on]="languageService.langue() === 'en'"
                       (click)="changerLangue('en')">EN</button>
             </div>
           </div>
         </div>
 
         <!-- Paramètres -->
-        <p class="list-label">Paramètres</p>
+        <p class="list-label">{{ 'compte.section.parametres' | translate }}</p>
         <div class="list-card">
           <button class="list-row list-row--last" (click)="changerVue('mdp')">
             <div class="list-ico list-ico--cyan">
               <ion-icon name="lock-closed-outline"></ion-icon>
             </div>
             <div class="list-txt">
-              <span class="list-name">Mot de passe</span>
-              <span class="list-sub">Modifier votre sécurité</span>
+              <span class="list-name">{{ 'compte.mdp.titre' | translate }}</span>
+              <span class="list-sub">{{ 'compte.mdp.sousTitre' | translate }}</span>
             </div>
             <span class="list-arrow">›</span>
           </button>
@@ -162,8 +145,8 @@
 
         <!-- Actions -->
         <div class="cp-actions">
-          <button class="cp-logout" (click)="seDeconnecter()">Se déconnecter</button>
-          <button class="cp-delete" (click)="confirmSuppr.set(true)" aria-label="Supprimer le compte">
+          <button class="cp-logout" (click)="seDeconnecter()">{{ 'compte.action.deconnexion' | translate }}</button>
+          <button class="cp-delete" (click)="confirmSuppr.set(true)" [attr.aria-label]="'compte.action.supprimerAria' | translate">
             <ion-icon name="trash-outline"></ion-icon>
           </button>
         </div>
@@ -173,24 +156,24 @@
       <!-- ════════ VUE MDP ═══════════════════════════════════════════════════ -->
       <ng-container *ngIf="vue() === 'mdp'">
 
-        <button class="cp-back-link" (click)="changerVue('profil')">‹ Profil</button>
+        <button class="cp-back-link" (click)="changerVue('profil')">{{ 'compte.mdp.retour' | translate }}</button>
 
-        <p class="list-label">Nouveau mot de passe</p>
+        <p class="list-label">{{ 'compte.mdp.nouveau' | translate }}</p>
         <div class="list-card">
           <div class="field">
-            <label class="field-label" for="f-mdp">Nouveau mot de passe</label>
+            <label class="field-label" for="f-mdp">{{ 'compte.mdp.nouveau' | translate }}</label>
             <input id="f-mdp" class="field-input" type="password" placeholder="••••••"
                    [(ngModel)]="nouveauMdp" autocomplete="new-password" />
           </div>
           <div class="field field--last">
-            <label class="field-label" for="f-mdp2">Confirmer</label>
+            <label class="field-label" for="f-mdp2">{{ 'compte.mdp.confirmer' | translate }}</label>
             <input id="f-mdp2" class="field-input" type="password" placeholder="••••••"
                    [(ngModel)]="confirmMdp" autocomplete="new-password" />
           </div>
         </div>
 
         <button class="cp-save" (click)="modifierMdp()" [disabled]="chargement()">
-          <span *ngIf="!chargement()">Enregistrer</span>
+          <span *ngIf="!chargement()">{{ 'compte.action.enregistrer' | translate }}</span>
           <span *ngIf="chargement()" class="spin"></span>
         </button>
 
@@ -202,12 +185,15 @@
   <div class="overlay" *ngIf="confirmSuppr()" (click)="confirmSuppr.set(false)">
     <div class="sheet" (click)="$event.stopPropagation()">
       <div class="sheet-bar"></div>
-      <h3 class="sheet-h sheet-h--red">Supprimer le compte ?</h3>
-      <p class="sheet-p">Toutes vos données (badges, notes, favoris) seront définitivement supprimées.</p>
+      <h3 class="sheet-h sheet-h--red">{{ 'compte.supprSheet.titre' | translate }}</h3>
+      <p class="sheet-p">{{ 'compte.supprSheet.texte' | translate }}</p>
       <div class="sheet-btns">
-        <button class="sh-cancel" (click)="confirmSuppr.set(false)">Annuler</button>
+        <button class="sh-cancel" (click)="confirmSuppr.set(false)">{{ 'compte.action.annuler' | translate }}</button>
         <button class="sh-danger" (click)="supprimerCompte()" [disabled]="chargement()">
-          <span *ngIf="!chargement()">Supprimer</span>
+          <span *ngIf="!chargement()" class="sh-danger-content">
+            <ion-icon name="trash-outline"></ion-icon>
+            {{ 'compte.action.supprimer' | translate }}
+          </span>
           <span *ngIf="chargement()" class="spin spin--w"></span>
         </button>
       </div>
@@ -218,7 +204,7 @@
   <div class="overlay" *ngIf="voirPicker()" (click)="voirPicker.set(false)">
     <div class="sheet" (click)="$event.stopPropagation()">
       <div class="sheet-bar"></div>
-      <h3 class="sheet-h">Choisir un avatar</h3>
+      <h3 class="sheet-h">{{ 'compte.avatarSheet.titre' | translate }}</h3>
       <div class="emoji-grid">
         <button class="emoji-btn" *ngFor="let e of emojis"
                 [class.emoji-btn--on]="auth.avatarEmoji === e"

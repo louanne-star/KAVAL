@@ -7,7 +7,7 @@
       <span class="logo-name">KAVAL</span>
     </div>
 
-    <p class="auth-accroche">Île Nou · Nouvelle-Calédonie</p>
+    <p class="auth-accroche">{{ 'auth.accroche' | translate }}</p>
 
     <!-- Card -->
     <div class="auth-card">
@@ -17,12 +17,12 @@
         <button class="auth-tab"
                 [class.actif]="onglet === 'connexion'"
                 (click)="basculerOnglet('connexion')">
-          Connexion
+          {{ 'auth.onglets.connexion' | translate }}
         </button>
         <button class="auth-tab"
                 [class.actif]="onglet === 'inscription'"
                 (click)="basculerOnglet('inscription')">
-          Inscription
+          {{ 'auth.onglets.inscription' | translate }}
         </button>
       </div>
 
@@ -30,7 +30,7 @@
       <form (ngSubmit)="soumettre()" #form="ngForm">
 
         <div class="auth-champ">
-          <label class="auth-label">Email</label>
+          <label class="auth-label">{{ 'auth.champs.email' | translate }}</label>
           <input class="auth-input"
                  type="email"
                  placeholder="votre@email.com"
@@ -41,7 +41,7 @@
         </div>
 
         <div class="auth-champ">
-          <label class="auth-label">Mot de passe</label>
+          <label class="auth-label">{{ 'auth.champs.motDePasse' | translate }}</label>
           <input class="auth-input"
                  type="password"
                  placeholder="••••••"
@@ -59,7 +59,7 @@
         <!-- Bouton -->
         <button class="auth-btn" type="submit" [disabled]="chargement()">
           <span *ngIf="!chargement()">
-            {{ onglet === 'connexion' ? 'Se connecter' : 'Créer mon compte' }}
+            {{ (onglet === 'connexion' ? 'auth.bouton.connexion' : 'auth.bouton.inscription') | translate }}
           </span>
           <span *ngIf="chargement()" class="auth-loader"></span>
         </button>
@@ -70,8 +70,8 @@
 
     <!-- Note offline -->
     <p class="auth-note">
-      La connexion n'est requise qu'au premier lancement.<br>
-      L'application fonctionne ensuite sans internet.
+      {{ 'auth.note.ligne1' | translate }}<br>
+      {{ 'auth.note.ligne2' | translate }}
     </p>
 
   </div>

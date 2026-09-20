@@ -15,13 +15,15 @@ import { CommentService } from '../../services/comment.service';
 import { AuthService } from '../../services/auth.service';
 import { PointsService, PointPopup } from '../../services/points.service';
 import { UiStateService } from '../../services/ui-state.service';
+import { LanguageService } from '../../services/language.service';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.page.html',
   styleUrls: ['./map.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, TranslatePipe]
 })
 export class MapPage implements AfterViewInit, OnDestroy {
 
@@ -82,7 +84,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Navigation active : cible + instruction OSRM ─────────────────────────
 
-  instructionNav = signal<{ texte: string; icone: string; distance: number } | null>(null);
+  instructionNav = signal<{ modifierKey: string; icone: string; distance: number } | null>(null);
   zoneArrivee    = signal<JourneyZone | null>(null);
 
   readonly navCibleZone = computed(() => {
@@ -134,15 +136,15 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── OSRM instruction maps ─────────────────────────────────────────────────
 
-  private readonly MODIFIER_FR: Record<string, string> = {
-    'left':         'Tournez à gauche',
-    'right':        'Tournez à droite',
-    'straight':     'Continuez tout droit',
-    'slight left':  'Légèrement à gauche',
-    'slight right': 'Légèrement à droite',
-    'sharp left':   'Virage serré à gauche',
-    'sharp right':  'Virage serré à droite',
-    'uturn':        'Demi-tour',
+  private readonly MODIFIER_KEY: Record<string, string> = {
+    'left':         'left',
+    'right':        'right',
+    'straight':     'straight',
+    'slight left':  'slightLeft',
+    'slight right': 'slightRight',
+    'sharp left':   'sharpLeft',
+    'sharp right':  'sharpRight',
+    'uturn':        'uturn',
   };
 
   private readonly MODIFIER_ICONE: Record<string, string> = {
@@ -169,10 +171,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   formatDate(iso: string): string {
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-    if (diff < 60)    return 'à l\'instant';
-    if (diff < 3600)  return `il y a ${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
-    return `il y a ${Math.floor(diff / 86400)} j`;
+    if (diff < 60)    return this.translate.instant('carte.commentaires.temps.instant');
+    if (diff < 3600)  return this.translate.instant('carte.commentaires.temps.min',   { n: Math.floor(diff / 60) });
+    if (diff < 86400) return this.translate.instant('carte.commentaires.temps.heure', { n: Math.floor(diff / 3600) });
+    return this.translate.instant('carte.commentaires.temps.jour', { n: Math.floor(diff / 86400) });
   }
 
   fermerCommentaire() {
@@ -198,6 +200,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     readonly badgeService: BadgeService,
     readonly uiState: UiStateService,
+    readonly languageService: LanguageService,
+    private translate: TranslateService,
   ) {
     addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline });
 
@@ -290,10 +294,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   ngAfterViewInit() {
-    setTimeout(async () => {
+    setTimeout(() => {
       this.initMap();
       this.mapPret.set(true);
-      await this.journeyService.initialiser();
       this.ratingService.chargerMoyennes();
     }, 200);
   }
@@ -472,20 +475,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
     }
   }
 
-  private parseInstruction(steps: any[]): { texte: string; icone: string; distance: number } | null {
+  private parseInstruction(steps: any[]): { modifierKey: string; icone: string; distance: number } | null {
     if (!steps?.length) return null;
     const premierPas    = steps[0];
     const prochainVirage = steps[1];
 
     if (!prochainVirage || prochainVirage.maneuver?.type === 'arrive') {
-      return { texte: 'Continuez tout droit', icone: '↑', distance: Math.round(premierPas.distance ?? 0) };
+      return { modifierKey: 'straight', icone: '↑', distance: Math.round(premierPas.distance ?? 0) };
     }
 
     const modifier = prochainVirage.maneuver?.modifier ?? 'straight';
     return {
-      texte:    this.MODIFIER_FR[modifier]    ?? 'Continuez tout droit',
-      icone:    this.MODIFIER_ICONE[modifier] ?? '↑',
-      distance: Math.round(premierPas.distance ?? 0),
+      modifierKey: this.MODIFIER_KEY[modifier]   ?? 'straight',
+      icone:       this.MODIFIER_ICONE[modifier] ?? '↑',
+      distance:    Math.round(premierPas.distance ?? 0),
     };
   }
 
@@ -622,11 +625,13 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   sousTitreZone(zoneId: string): string {
-    return this.pointsService.metaDe(zoneId)?.sousTitre ?? '';
+    const meta = this.pointsService.metaDe(zoneId);
+    return this.pointsService.texte(meta?.sousTitre ?? '', meta?.sousTitreEn);
   }
 
   nomZone(zoneId: string): string {
-    return this.pointsService.metaDe(zoneId)?.nom ?? '';
+    const meta = this.pointsService.metaDe(zoneId);
+    return this.pointsService.texte(meta?.nom ?? '', meta?.nomEn);
   }
 
   private dessinerPopups(popups: PointPopup[]) {

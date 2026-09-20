@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { JourneyService } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { FavoriteService } from '../../services/favorite.service';
@@ -16,7 +17,7 @@ type Filtre = 'tous' | 'visites' | 'favoris';
   templateUrl: './recherche.page.html',
   styleUrls: ['./recherche.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe]
 })
 export class RecherchePage implements OnInit {
 
@@ -27,7 +28,11 @@ export class RecherchePage implements OnInit {
     const t = this.terme().toLowerCase().trim();
     const f = this.filtre();
     return this.journeyService.zones().filter(zone => {
-      const texte = `${zone.nom} ${this.pointsService.metaDe(zone.zoneId)?.sousTitre ?? ''}`.toLowerCase();
+      const meta = this.pointsService.metaDe(zone.zoneId);
+      const texte = [
+        zone.nom, zone.nomEn,
+        this.pointsService.texte(meta?.sousTitre ?? '', meta?.sousTitreEn),
+      ].join(' ').toLowerCase();
       if (t && !texte.includes(t)) return false;
       if (f === 'visites') return this.badgeService.aBadge(zone.id);
       if (f === 'favoris') return this.favoriteService.estFavori(zone.id);

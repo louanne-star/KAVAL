@@ -19,9 +19,9 @@
   </svg>
 </div>
     <div class="hero-text">
-      <p class="hero-label">ÎLE NOU</p>
-      <h1>BAGNE DE<br>NOUVELLE-CALÉDONIE</h1>
-      <p class="hero-tagline">Explorer. Comprendre. Se souvenir.</p>
+      <p class="hero-label">{{ contenu().hero.label }}</p>
+      <h1>{{ contenu().hero.titreLigne1 }}<br>{{ contenu().hero.titreLigne2 }}</h1>
+      <p class="hero-tagline">{{ contenu().hero.tagline }}</p>
     </div>
   </div>
 
@@ -36,10 +36,10 @@
         </div>
         <div class="card-right">
           <p class="section-num">01</p>
-          <h2 class="section-titre">L'HISTOIRE</h2>
-          <p class="section-texte">De 1864 à 1897, l'Île Nou fut l'un des principaux bagnes de Nouvelle-Calédonie. Des milliers de forçats y vécurent et travaillèrent dans des conditions extrêmes.</p>
+          <h2 class="section-titre">{{ contenu().histoire.titre }}</h2>
+          <p class="section-texte">{{ contenu().histoire.texte }}</p>
         </div>
-        <button class="card-arrow" (click)="ouvrirPopup('histoire')" title="En savoir plus">›</button>
+        <button class="card-arrow" (click)="ouvrirPopup('histoire')" [title]="contenu().enSavoirPlus">›</button>
       </div>
     </div>
 
@@ -47,11 +47,11 @@
     <div class="section-card large">
       <div class="section-num-row">
         <p class="section-num">02</p>
-        <h2 class="section-titre">LES VESTIGES</h2>
-        <button class="card-arrow" (click)="ouvrirPopup('vestiges')" title="En savoir plus">›</button>
+        <h2 class="section-titre">{{ contenu().vestigesTitre }}</h2>
+        <button class="card-arrow" (click)="ouvrirPopup('vestiges')" [title]="contenu().enSavoirPlus">›</button>
       </div>
       <div class="vestiges-scroll">
-        <div class="vestige-card" *ngFor="let v of vestiges">
+        <div class="vestige-card" *ngFor="let v of contenu().vestiges">
           <div class="vestige-img" [style.background]="v.couleur">
             <ion-icon [name]="v.icone"></ion-icon>
           </div>
@@ -72,8 +72,8 @@
       <div class="artisanat-content">
         <div class="artisanat-text">
           <p class="section-num">03</p>
-          <h2 class="section-titre">L'ARTISANAT</h2>
-          <p class="section-texte">Les forçats de l'Île Nou étaient aussi de talentueux artisans. Leurs gravures sur nacre témoignent d'un savoir-faire unique, né de la contrainte et de la volonté de créer malgré l'adversité.</p>
+          <h2 class="section-titre">{{ contenu().artisanat.titre }}</h2>
+          <p class="section-texte">{{ contenu().artisanat.texte }}</p>
         </div>
         <div class="artisanat-imgs">
           <img src="assets/apropos/artisanat1.jpg" alt="Nacre gravée 1" class="nacre-img nacre1">
@@ -88,8 +88,8 @@
         <img src="assets/icon/projet.png" alt="Projet" class="projet-img">
         <div>
           <p class="section-num">04</p>
-          <h2 class="section-titre">LE PROJET KAVAL</h2>
-          <p class="section-texte">KAVAL est né d'une SAE (Situation d'Apprentissage et d'Évaluation) du BUT Métiers du Multimédia et de l'Internet (MMI) de l'Université de la Nouvelle-Calédonie. Conçue par une équipe d'étudiants passionnés d'histoire et de patrimoine calédonien, l'application a pour mission de faire découvrir le bagne de l'Île Nou au plus grand nombre.</p>
+          <h2 class="section-titre">{{ contenu().projet.titre }}</h2>
+          <p class="section-texte">{{ contenu().projet.texte }}</p>
         </div>
       </div>
     </div>
@@ -97,9 +97,9 @@
     <!-- 05 Chiffres clés -->
     <div class="section-card">
       <p class="section-num">05</p>
-      <h2 class="section-titre">CHIFFRES CLÉS</h2>
+      <h2 class="section-titre">{{ contenu().chiffresTitre }}</h2>
       <div class="chiffres-grid">
-        <div class="chiffre-item" *ngFor="let c of chiffres">
+        <div class="chiffre-item" *ngFor="let c of contenu().chiffres">
           <p class="chiffre-valeur">{{ c.valeur }}</p>
           <p class="chiffre-label">{{ c.label }}</p>
         </div>
@@ -109,9 +109,9 @@
     <!-- 06 Crédits -->
     <div class="section-card credits">
       <p class="section-num">06</p>
-      <h2 class="section-titre">CRÉDITS & REMERCIEMENTS</h2>
+      <h2 class="section-titre">{{ contenu().creditsTitre }}</h2>
       <div class="credits-list">
-        <div class="credit-item" *ngFor="let c of credits">
+        <div class="credit-item" *ngFor="let c of contenu().credits">
           <p class="credit-role">{{ c.role }}</p>
           <p class="credit-nom">{{ c.nom }}</p>
         </div>
@@ -124,8 +124,8 @@
   <div class="popup-overlay" *ngIf="popupOuvert" (click)="fermerPopup()">
     <div class="popup-card" (click)="$event.stopPropagation()">
       <button class="popup-close" (click)="fermerPopup()">✕</button>
-      <h3 class="popup-titre">{{ popups[popupOuvert].titre }}</h3>
-      <p class="popup-texte">{{ popups[popupOuvert].texte }}</p>
+      <h3 class="popup-titre">{{ contenu().popups[popupOuvert].titre }}</h3>
+      <p class="popup-texte">{{ contenu().popups[popupOuvert].texte }}</p>
     </div>
   </div>
 

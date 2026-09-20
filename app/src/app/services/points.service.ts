@@ -1,13 +1,20 @@
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { SupabaseService } from './supabase';
+import { LanguageService } from './language.service';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+// Les champs "*En" sont la traduction anglaise du contenu éditorial stocké
+// dans Supabase (colonnes *_en, voir supabase/migrations_i18n_en.sql).
+// Optionnels : tant que la migration n'a pas été exécutée, ou pour du contenu
+// pas encore traduit, ils sont undefined et texte() retombe sur le français.
 
 export interface ZoneMeta {
   id: string;
   nom: string;
+  nomEn?: string;
   sousTitre: string;
+  sousTitreEn?: string;
   couleur: string;
   icone: string;
   ordre: number;
@@ -17,7 +24,9 @@ export interface PointVrai {
   id: string;
   zoneId: string;
   nom: string;
+  nomEn?: string;
   description: string;
+  descriptionEn?: string;
   coords: [number, number];
   rayon: number;
   ordre: number;
@@ -27,7 +36,9 @@ export interface PointPopup {
   id: string;
   zoneId: string;
   nom: string;
+  nomEn?: string;
   description: string;
+  descriptionEn?: string;
   coords: [number, number];
   icone: string;
 }
@@ -35,17 +46,24 @@ export interface PointPopup {
 export interface Temoignage {
   pointId: string;
   titre: string;
+  titreEn?: string;
   auteur: string;
+  auteurEn?: string;
   texte: string;
+  texteEn?: string;
 }
 
 export interface QuizQuestion {
   id: string;
   pointId: string;
   question: string;
+  questionEn?: string;
   bonneReponse: string;
+  bonneReponseEn?: string;
   mauvaiseReponse1: string;
+  mauvaiseReponse1En?: string;
   mauvaiseReponse2: string;
+  mauvaiseReponse2En?: string;
   ordre: number;
 }
 
@@ -53,7 +71,9 @@ export interface PointSection {
   id: string;
   pointId: string;
   titre: string;
+  titreEn?: string;
   texte: string;
+  texteEn?: string;
   ordre: number;
 }
 
@@ -84,7 +104,12 @@ export class PointsService {
   readonly pret         = signal(false);
   readonly erreur       = signal<string | null>(null);
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService, private languageService: LanguageService) {}
+
+  /** Retourne `en` en mode anglais s'il existe, sinon retombe toujours sur `fr`. */
+  texte(fr: string, en?: string | null): string {
+    return this.languageService.langue() === 'en' && en ? en : fr;
+  }
 
   async charger(): Promise<void> {
     try {
@@ -116,30 +141,37 @@ export class PointsService {
       ]);
 
       const zones: ZoneMeta[] = (z.data ?? []).map((r: any) => ({
-        id: r.id, nom: r.nom, sousTitre: r.sous_titre, couleur: r.couleur, icone: r.icone, ordre: r.ordre
+        id: r.id, nom: r.nom, nomEn: r.nom_en, sousTitre: r.sous_titre, sousTitreEn: r.sous_titre_en,
+        couleur: r.couleur, icone: r.icone, ordre: r.ordre
       }));
       const vrais: PointVrai[] = (p.data ?? [])
         .filter((r: any) => r.type === 'vrai')
         .map((r: any) => ({
-          id: r.id, zoneId: r.zone_id, nom: r.nom, description: r.description,
+          id: r.id, zoneId: r.zone_id, nom: r.nom, nomEn: r.nom_en,
+          description: r.description, descriptionEn: r.description_en,
           coords: [r.lat, r.lng] as [number, number], rayon: r.rayon, ordre: r.ordre
         }));
       const popups: PointPopup[] = (p.data ?? [])
         .filter((r: any) => r.type === 'popup')
         .map((r: any) => ({
-          id: r.id, zoneId: r.zone_id, nom: r.nom, description: r.description,
+          id: r.id, zoneId: r.zone_id, nom: r.nom, nomEn: r.nom_en,
+          description: r.description, descriptionEn: r.description_en,
           coords: [r.lat, r.lng] as [number, number], icone: r.icone ?? '📍'
         }));
       const temoignages: Temoignage[] = t.map((r: any) => ({
-        pointId: r.point_id, titre: r.titre, auteur: r.auteur, texte: r.texte
+        pointId: r.point_id, titre: r.titre, titreEn: r.titre_en,
+        auteur: r.auteur, auteurEn: r.auteur_en, texte: r.texte, texteEn: r.texte_en
       }));
       const quiz: QuizQuestion[] = q.map((r: any) => ({
-        id: r.id, pointId: r.point_id, question: r.question,
-        bonneReponse: r.bonne_reponse, mauvaiseReponse1: r.mauvaise_reponse_1, mauvaiseReponse2: r.mauvaise_reponse_2,
+        id: r.id, pointId: r.point_id, question: r.question, questionEn: r.question_en,
+        bonneReponse: r.bonne_reponse, bonneReponseEn: r.bonne_reponse_en,
+        mauvaiseReponse1: r.mauvaise_reponse_1, mauvaiseReponse1En: r.mauvaise_reponse_1_en,
+        mauvaiseReponse2: r.mauvaise_reponse_2, mauvaiseReponse2En: r.mauvaise_reponse_2_en,
         ordre: r.ordre
       }));
       const sections: PointSection[] = s.map((r: any) => ({
-        id: r.id, pointId: r.point_id, titre: r.titre, texte: r.texte, ordre: r.ordre
+        id: r.id, pointId: r.point_id, titre: r.titre, titreEn: r.titre_en,
+        texte: r.texte, texteEn: r.texte_en, ordre: r.ordre
       }));
 
       this.zones.set(zones);

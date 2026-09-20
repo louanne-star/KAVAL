@@ -10,8 +10,8 @@
 
       <div class="fv-title-row">
         <div>
-          <p class="fv-eyebrow">Ma collection</p>
-          <h1 class="fv-title">Favoris</h1>
+          <p class="fv-eyebrow">{{ 'favoris.eyebrow' | translate }}</p>
+          <h1 class="fv-title">{{ 'favoris.titre' | translate }}</h1>
         </div>
         <div class="fv-count-badge">
           <span class="fv-count-num">{{ zonesFavorites().length }}</span>
@@ -42,8 +42,8 @@
             <div class="zi-ico" [ngClass]="'ico-' + z.id">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
 
             <div class="zi-info">
-              <div class="zi-name">{{ z.nom }}</div>
-              <div class="zi-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</div>
+              <div class="zi-name">{{ pointsService.texte(z.nom, z.nomEn) }}</div>
+              <div class="zi-sub">{{ pointsService.texte(pointsService.metaDe(z.zoneId)?.sousTitre ?? '', pointsService.metaDe(z.zoneId)?.sousTitreEn) }}</div>
               <div class="zi-meta">
                 <span class="zi-stars">{{ starsFor(ratingService.getMoyenne(z.id)?.moyenne ?? null) }}</span>
                 <span class="zi-badge" *ngIf="badgeService.aBadge(z.id)">🏅</span>
@@ -51,7 +51,7 @@
             </div>
 
             <button class="zi-heart" (click)="toggleFavori(z.id); $event.stopPropagation()"
-                    aria-label="Retirer des favoris">♡</button>
+                    [attr.aria-label]="'favoris.retirerAria' | translate">♡</button>
 
           </div>
         </div>
@@ -60,8 +60,8 @@
       <ng-template #aucun>
         <div class="fv-empty">
           <div class="fv-empty-ico">♡</div>
-          <h2 class="fv-empty-h">Aucun favori</h2>
-          <p class="fv-empty-p">Explorez la carte et appuyez sur ♡ pour sauvegarder vos zones préférées.</p>
+          <h2 class="fv-empty-h">{{ 'favoris.vide.titre' | translate }}</h2>
+          <p class="fv-empty-p">{{ 'favoris.vide.texte' | translate }}</p>
         </div>
       </ng-template>
 

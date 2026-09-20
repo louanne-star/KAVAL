@@ -9,13 +9,13 @@
     </div>
 
     <div class="nav-actions">
-      <button class="nav-btn" (click)="allerVersRecherche()" title="Recherche">
+      <button class="nav-btn" (click)="allerVersRecherche()" [title]="'carte.recherche' | translate">
         <ion-icon name="search-outline"></ion-icon>
       </button>
-      <button class="nav-btn" (click)="allerVersFavoris()" title="Favoris">
+      <button class="nav-btn" (click)="allerVersFavoris()" [title]="'carte.favoris' | translate">
         <ion-icon name="heart-outline"></ion-icon>
       </button>
-      <button class="nav-avatar" (click)="allerVersCompte()" title="Mon compte">
+      <button class="nav-avatar" (click)="allerVersCompte()" [title]="'carte.monCompte' | translate">
         <span *ngIf="authService.avatarEmoji" class="avatar-emoji">{{ authService.avatarEmoji }}</span>
         <span *ngIf="!authService.avatarEmoji" class="avatar-initiales">{{ authService.emailInitiales }}</span>
       </button>
@@ -25,31 +25,31 @@
 
   <!-- ── GPS error banner ─────────────────────────────────────────────────── -->
   <div class="gps-erreur" *ngIf="journeyService.erreurGPS()">
-    ⚠ {{ journeyService.erreurGPS() }}
+    ⚠ {{ journeyService.erreurGPS() | translate }}
   </div>
 
   <!-- ── HUD navigation active (instructions OSRM) ───────────────────────── -->
   <div class="nav-hud" *ngIf="navCibleId() && instructionNav() as inst">
     <div class="hud-icone">{{ inst.icone }}</div>
     <div class="hud-corps">
-      <div class="hud-instruction">{{ inst.texte }}</div>
+      <div class="hud-instruction">{{ ('carte.nav.instructions.' + inst.modifierKey) | translate }}</div>
       <div class="hud-meta">
-        <span *ngIf="inst.distance > 0">dans {{ inst.distance }} m · </span>
-        <span *ngIf="distanceNavCible() !== null">{{ distanceNavCible() }} m jusqu'à {{ navCibleZone()?.nom }}</span>
+        <span *ngIf="inst.distance > 0">{{ 'carte.nav.dans' | translate:{n: inst.distance} }}</span>
+        <span *ngIf="distanceNavCible() !== null">{{ 'carte.nav.jusqua' | translate:{n: distanceNavCible(), zone: pointsService.texte(navCibleZone()?.nom ?? '', navCibleZone()?.nomEn)} }}</span>
       </div>
     </div>
     <div class="hud-mode">
       <ion-icon [name]="modeTransport() === 'foot' ? 'walk-outline' : 'car-outline'"></ion-icon>
     </div>
-    <button class="hud-annuler" (click)="annulerNav()">✕</button>
+    <button class="hud-annuler" [attr.aria-label]="'carte.nav.annulerAria' | translate" (click)="annulerNav()">✕</button>
   </div>
 
   <!-- ── Notification d'arrivée ───────────────────────────────────────────── -->
   <div class="arrivee-notif" *ngIf="zoneArrivee() as zone">
     <div class="arrivee-icone">{{ iconeZone(zone.zoneId) }}</div>
     <div class="arrivee-corps">
-      <div class="arrivee-titre">Vous êtes arrivé !</div>
-      <div class="arrivee-nom">{{ zone.nom }}</div>
+      <div class="arrivee-titre">{{ 'carte.arrivee.titre' | translate }}</div>
+      <div class="arrivee-nom">{{ pointsService.texte(zone.nom, zone.nomEn) }}</div>
     </div>
     <div class="arrivee-badge">🏅</div>
     <button class="arrivee-close" (click)="fermerArrivee()">✕</button>
@@ -74,15 +74,15 @@
 
         <div class="sheet-info">
           <div class="sheet-badge-row">
-            <span class="sheet-etape">Étape {{ zone.ordre }}</span>
+            <span class="sheet-etape">{{ 'commun.etape' | translate:{n: zone.ordre} }}</span>
             <span class="sheet-statut" *ngIf="badgeService.aBadge(zone.id)">🏅</span>
           </div>
           <div class="sheet-nom-row">
-            <h2 class="sheet-nom">{{ zone.nom }}</h2>
+            <h2 class="sheet-nom">{{ pointsService.texte(zone.nom, zone.nomEn) }}</h2>
             <button class="sheet-fav-btn"
                     [class.actif]="favoriteService.estFavori(zone.id)"
                     (click)="toggleFavori(zone.id)"
-                    title="Favori">
+                    [title]="'carte.fiche.favoriAria' | translate">
               {{ favoriteService.estFavori(zone.id) ? '♥' : '♡' }}
             </button>
           </div>
@@ -92,13 +92,13 @@
           <div class="sheet-rating">
             <div class="rating-communaute" *ngIf="ratingService.getMoyenne(zone.id) as m; else aucunAvis">
               <span class="rating-stars-moy">{{ starsFor(m.moyenne) }}</span>
-              <span class="rating-info">{{ m.moyenne | number:'1.1-1' }} · {{ m.nb }} avis</span>
+              <span class="rating-info">{{ m.moyenne | number:'1.1-1' }} · {{ m.nb }} {{ (m.nb > 1 ? 'commun.avisPluriel' : 'commun.avisSingulier') | translate }}</span>
             </div>
             <ng-template #aucunAvis>
-              <span class="rating-info">Aucun avis</span>
+              <span class="rating-info">{{ 'carte.fiche.aucunAvis' | translate }}</span>
             </ng-template>
             <div class="ma-note-row">
-              <span class="ma-note-label">Ma note</span>
+              <span class="ma-note-label">{{ 'carte.fiche.maNote' | translate }}</span>
               <div class="stars-row">
                 <button *ngFor="let s of [1,2,3,4,5]"
                         class="star-btn"
@@ -107,7 +107,7 @@
               </div>
             </div>
             <button class="btn-commentaire" (click)="ouvrirCommentaire(zone.id)">
-              💬 Commentaires<span *ngIf="commentService.getCommentairesZone(zone.id).length > 0"> ({{ commentService.getCommentairesZone(zone.id).length }})</span>
+              {{ 'carte.fiche.commentaires' | translate }}<span *ngIf="commentService.getCommentairesZone(zone.id).length > 0"> ({{ commentService.getCommentairesZone(zone.id).length }})</span>
             </button>
           </div>
         </div>
@@ -116,7 +116,7 @@
         <div class="sheet-nav" *ngIf="distanceZone() !== null">
           <div class="nav-fleche">{{ flecheVersZone() }}</div>
           <p class="nav-distance">{{ distanceZone() }} m</p>
-          <p class="nav-temps">{{ tempsMarche() }} min à pied</p>
+          <p class="nav-temps">{{ 'carte.fiche.minutesAPied' | translate:{n: tempsMarche()} }}</p>
         </div>
 
       </div>
@@ -128,17 +128,17 @@
       <div class="sheet-divider"></div>
 
       <!-- Description courte -->
-      <p class="sheet-desc">{{ zone.description }}</p>
+      <p class="sheet-desc">{{ pointsService.texte(zone.description, zone.descriptionEn) }}</p>
 
       <!-- Actions -->
       <div class="sheet-actions-row">
         <button class="btn-itineraire"
                 [class.actif]="navCibleId() === zone.id"
                 (click)="toggleItineraire(zone.id)">
-          {{ navCibleId() === zone.id ? '✕ Annuler' : 'Itinéraire' }}
+          {{ (navCibleId() === zone.id ? 'carte.fiche.annulerItineraire' : 'carte.fiche.itineraire') | translate }}
         </button>
         <button class="btn-explorer" (click)="explorer(zone.id)">
-          Explorer →
+          {{ 'carte.fiche.explorer' | translate }}
         </button>
       </div>
 
@@ -152,8 +152,8 @@
        [class.mini-popup-card--pret]="miniPopupPos()">
     <div class="mini-popup-icone">{{ mp.icone }}</div>
     <div class="mini-popup-corps">
-      <div class="mini-popup-nom">{{ mp.nom }}</div>
-      <div class="mini-popup-desc">{{ mp.description }}</div>
+      <div class="mini-popup-nom">{{ pointsService.texte(mp.nom, mp.nomEn) }}</div>
+      <div class="mini-popup-desc">{{ pointsService.texte(mp.description, mp.descriptionEn) }}</div>
     </div>
     <button class="mini-popup-close" (click)="fermerMiniPoint()">✕</button>
   </div>
@@ -163,14 +163,14 @@
     <div class="commentaire-card" (click)="$event.stopPropagation()">
 
       <div class="commentaire-header">
-        <span class="commentaire-titre">Commentaires</span>
+        <span class="commentaire-titre">{{ 'carte.commentaires.titre' | translate }}</span>
         <button class="commentaire-close" (click)="fermerCommentaire()">✕</button>
       </div>
 
       <!-- Liste communauté -->
       <div class="comm-liste">
         <div class="comm-vide" *ngIf="commentService.getCommentairesZone(zoneId).length === 0">
-          Soyez le premier à commenter !
+          {{ 'carte.commentaires.vide' | translate }}
         </div>
         <div class="comm-item"
              *ngFor="let c of commentService.getCommentairesZone(zoneId)"
@@ -180,7 +180,7 @@
           </div>
           <div class="comm-corps">
             <div class="comm-meta">
-              <span class="comm-auteur">{{ c.userId === authService.userId ? 'Moi' : c.initiales }}</span>
+              <span class="comm-auteur">{{ c.userId === authService.userId ? ('carte.commentaires.moi' | translate) : c.initiales }}</span>
               <span class="comm-date">{{ formatDate(c.date) }}</span>
             </div>
             <div class="comm-texte">{{ c.texte }}</div>
@@ -190,17 +190,17 @@
 
       <!-- Ajouter un commentaire -->
       <div class="comm-mon-form">
-        <div class="comm-form-label">Ajouter un commentaire</div>
+        <div class="comm-form-label">{{ 'carte.commentaires.ajouter' | translate }}</div>
         <textarea class="commentaire-textarea"
                   rows="3"
-                  placeholder="Décrivez votre expérience…"
+                  [placeholder]="'carte.commentaires.placeholder' | translate"
                   [value]="brouillonCommentaire"
                   (input)="brouillonCommentaire = $any($event.target).value"
                   maxlength="300">
         </textarea>
         <div class="commentaire-actions">
-          <button class="commentaire-annuler" (click)="fermerCommentaire()">Fermer</button>
-          <button class="commentaire-sauver" [disabled]="!brouillonCommentaire.trim()" (click)="sauvegarderCommentaire(zoneId)">Publier</button>
+          <button class="commentaire-annuler" (click)="fermerCommentaire()">{{ 'carte.commentaires.fermer' | translate }}</button>
+          <button class="commentaire-sauver" [disabled]="!brouillonCommentaire.trim()" (click)="sauvegarderCommentaire(zoneId)">{{ 'carte.commentaires.publier' | translate }}</button>
         </div>
       </div>
 
@@ -211,17 +211,17 @@
   <div class="ecran-completion" *ngIf="parcoursComplet()">
     <div class="completion-card">
       <div class="completion-trophee">🏆</div>
-      <h2 class="completion-titre">Parcours terminé !</h2>
+      <h2 class="completion-titre">{{ 'carte.completion.titre' | translate }}</h2>
       <p class="completion-sous-titre">
-        Vous avez exploré les {{ journeyService.zones().length }} sites historiques de l'Île Nou.
+        {{ 'carte.completion.sousTitre' | translate:{n: journeyService.zones().length} }}
       </p>
       <div class="completion-zones">
         <div class="completion-zone" *ngFor="let z of journeyService.zones()">
-          <span class="zone-coche">✓</span> {{ z.nom }}
+          <span class="zone-coche">✓</span> {{ pointsService.texte(z.nom, z.nomEn) }}
         </div>
       </div>
       <button class="btn-recommencer" (click)="recommencer()">
-        Recommencer →
+        {{ 'carte.completion.recommencer' | translate }}
       </button>
     </div>
   </div>

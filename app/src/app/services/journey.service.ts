@@ -8,13 +8,16 @@ export interface JourneyZone {
   id: string;
   ordre: number;
   nom: string;
+  nomEn?: string;
   description: string;
+  descriptionEn?: string;
   coords: [number, number];
   debloque: boolean;
   couleurZone: string;
   rayonZone: number;
   zoneId: string;   // id de la zone visuelle de regroupement (ex: 'camp_est')
   zoneNom: string;  // nom de cette zone visuelle (ex: 'Le Camp Est')
+  zoneNomEn?: string;
 }
 
 export interface SegmentItineraire {
@@ -69,7 +72,7 @@ export class JourneyService {
 
   /** Affiche un avertissement quand une action nécessite une position réelle indisponible. */
   signalerPositionRequise() {
-    this.afficherErreurGPS("Active ta position pour lancer la navigation guidée.");
+    this.afficherErreurGPS('carte.gps.positionRequise');
   }
 
   async reinitialiser() {
@@ -110,12 +113,15 @@ export class JourneyService {
       return {
         id: p.id,
         nom: p.nom,
+        nomEn: p.nomEn,
         description: p.description,
+        descriptionEn: p.descriptionEn,
         coords: p.coords,
         couleurZone: zone?.couleur ?? '#999999',
         rayonZone: p.rayon,
         zoneId: p.zoneId,
         zoneNom: zone?.nom ?? '',
+        zoneNomEn: zone?.nomEn,
       };
     });
   }
@@ -153,7 +159,7 @@ export class JourneyService {
 
   private demarrerGPS() {
     if (!navigator.geolocation) {
-      this.afficherErreurGPS("Géolocalisation non disponible sur cet appareil.");
+      this.afficherErreurGPS('carte.gps.nonDisponible');
       this.demarrerAvecPositionDefaut();
       return;
     }
@@ -178,10 +184,12 @@ export class JourneyService {
     );
   }
 
-  // Affiche le bandeau d'erreur GPS et l'efface automatiquement après 5 minutes
-  // pour ne pas laisser un avertissement obsolète affiché indéfiniment.
-  private afficherErreurGPS(message: string) {
-    this.erreurGPS.set(message);
+  // Affiche le bandeau d'erreur GPS (une clé de traduction, résolue dans le
+  // template — voir carte.gps.* dans translations.ts) et l'efface
+  // automatiquement après 5 minutes pour ne pas laisser un avertissement
+  // obsolète affiché indéfiniment.
+  private afficherErreurGPS(cleTraduction: string) {
+    this.erreurGPS.set(cleTraduction);
     clearTimeout(this.erreurGPSTimeout);
     this.erreurGPSTimeout = setTimeout(() => this.erreurGPS.set(null), 5 * 60 * 1000);
   }
@@ -276,11 +284,11 @@ export class JourneyService {
   }
 
   private messageErreurGPS(err: GeolocationPositionError): string {
-    const msgs: Record<number, string> = {
-      1: "Accès à la localisation refusé. Activez-la dans les réglages.",
-      2: "Position indisponible. Vérifiez votre GPS.",
-      3: "Délai d'attente GPS dépassé."
+    const cles: Record<number, string> = {
+      1: 'carte.gps.refuse',
+      2: 'carte.gps.indisponible',
+      3: 'carte.gps.timeout',
     };
-    return msgs[err.code] ?? "Erreur GPS inconnue.";
+    return cles[err.code] ?? 'carte.gps.inconnue';
   }
 }

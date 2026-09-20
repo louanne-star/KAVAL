@@ -30,6 +30,7 @@
     "@capacitor/status-bar": "8.0.3",
     "@ionic/angular": "^8.0.0",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
+    "@ngx-translate/core": "^18.0.0",
     "@supabase/supabase-js": "^2.100.0",
     "ionicons": "^7.0.0",
     "leaflet": "^1.9.4",

@@ -11,7 +11,7 @@
       <div class="rch-title-row">
         <div>
           <p class="rch-eyebrow">Île Nou</p>
-          <h1 class="rch-title">Explorer</h1>
+          <h1 class="rch-title">{{ 'recherche.titre' | translate }}</h1>
         </div>
         <div class="rch-count-badge">
           <span class="rch-count-num">{{ resultats().length }}</span>
@@ -34,18 +34,18 @@
     <div class="rch-search-sticky">
       <div class="rch-search">
         <ion-icon name="search-outline" class="rch-ico"></ion-icon>
-        <input class="rch-input" type="search" placeholder="Rechercher une zone…"
+        <input class="rch-input" type="search" [placeholder]="'recherche.placeholder' | translate"
                [value]="terme()"
                (input)="terme.set($any($event.target).value)" />
         <button class="rch-clear" *ngIf="terme()" (click)="terme.set('')"
-                aria-label="Effacer">✕</button>
+                [attr.aria-label]="'recherche.effacerAria' | translate">✕</button>
       </div>
 
       <!-- Filtres chips -->
       <div class="rch-chips">
-        <button class="chip" [class.chip--on]="filtre() === 'tous'"    (click)="filtre.set('tous')">Tout voir</button>
-        <button class="chip" [class.chip--on]="filtre() === 'visites'" (click)="filtre.set('visites')">Visités 🏅</button>
-        <button class="chip" [class.chip--on]="filtre() === 'favoris'" (click)="filtre.set('favoris')">Favoris ♡</button>
+        <button class="chip" [class.chip--on]="filtre() === 'tous'"    (click)="filtre.set('tous')">{{ 'recherche.chips.tous' | translate }}</button>
+        <button class="chip" [class.chip--on]="filtre() === 'visites'" (click)="filtre.set('visites')">{{ 'recherche.chips.visites' | translate }}</button>
+        <button class="chip" [class.chip--on]="filtre() === 'favoris'" (click)="filtre.set('favoris')">{{ 'recherche.chips.favoris' | translate }}</button>
       </div>
     </div>
 
@@ -64,13 +64,13 @@
             </div>
           </div>
 
-          <div class="zc-name">{{ z.nom }}</div>
-          <div class="zc-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</div>
+          <div class="zc-name">{{ pointsService.texte(z.nom, z.nomEn) }}</div>
+          <div class="zc-sub">{{ pointsService.texte(pointsService.metaDe(z.zoneId)?.sousTitre ?? '', pointsService.metaDe(z.zoneId)?.sousTitreEn) }}</div>
 
           <div class="zc-footer">
             <span class="zc-stars">{{ starsFor(ratingService.getMoyenne(z.id)?.moyenne ?? null) }}</span>
             <button class="zc-map" (click)="allerVersCarte(z.id); $event.stopPropagation()"
-                    aria-label="Voir sur la carte">
+                    [attr.aria-label]="'recherche.voirCarteAria' | translate">
               <ion-icon name="map-outline"></ion-icon>
             </button>
           </div>
@@ -81,8 +81,8 @@
       <ng-template #aucun>
         <div class="rch-empty">
           <div class="rch-empty-ico">🔍</div>
-          <h2 class="rch-empty-h">Aucun résultat</h2>
-          <p class="rch-empty-p">Aucune zone ne correspond à votre recherche.</p>
+          <h2 class="rch-empty-h">{{ 'recherche.vide.titre' | translate }}</h2>
+          <p class="rch-empty-p">{{ 'recherche.vide.texte' | translate }}</p>
         </div>
       </ng-template>
     </div>

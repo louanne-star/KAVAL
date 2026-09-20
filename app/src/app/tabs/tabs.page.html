@@ -12,7 +12,7 @@
   <div class="nav-bar">
 
     <button class="nav-tab"
-            *ngFor="let o of onglets"
+            *ngFor="let o of onglets()"
             [class.actif]="ongletActif() === o.id"
             (click)="navTo(o.id)">
 
