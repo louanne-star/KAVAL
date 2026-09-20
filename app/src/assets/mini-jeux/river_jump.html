@@ -11,39 +11,77 @@ body {
   display:flex; align-items:center; justify-content:center;
   min-height:100vh; overflow:hidden; touch-action:none;
 }
-canvas { display:block; }
+#stage { position:relative; }
+#bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+canvas { position:relative; display:block; background:transparent; }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
+<div id="stage">
+  <img id="bg" src="bg-riviere.gif" alt="">
+  <canvas id="c"></canvas>
+</div>
 <script>
+const stage = document.getElementById('stage');
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const W = Math.min(window.innerWidth, 420);
 const H = Math.min(window.innerHeight, 720);
 canvas.width = W; canvas.height = H;
+stage.style.width = W + 'px'; stage.style.height = H + 'px';
 
-// Vitesse de disparition des plateformes réduite de 20% (niveau jugé trop
-// difficile) : chaque rocher passe 20% de temps en plus dans son état
-// "émergé" avant de recommencer à couler.
-const RALENTI_DISPARITION = 0.8;
+// ── SPRITES ──────────────────────────────────────────────────────
+function chargerImage(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(img);
+    img.src = src;
+  });
+}
+const IMAGES = {};
+const imagesPretes = Promise.all([
+  ['planche', 'planche.png'], ['depart', 'depart.png'],
+  ['arrivee', 'arrivee.png'], ['info', 'i.png'],
+].map(([k, src]) => chargerImage(src).then(img => { IMAGES[k] = img; })));
+
+// Vitesse de disparition des plateformes réduite de 60% au total (niveau
+// encore jugé trop difficile après des passages à 0.8 puis 0.55) : chaque
+// rocher reste émergé nettement plus longtemps avant de recommencer à
+// couler, laissant plus de marge pour repérer et taper la bonne cible.
+const RALENTI_DISPARITION = 0.40;
+
+// Vitesse de balancement latéral/vertical des planches, également réduite
+// pour un jeu plus calme (indépendant de la vitesse de disparition ci-dessus).
+const VITESSE_BALANCEMENT = 0.65;
+
+// Fenêtre de saut : un rocher est sautable/affiché tant que sa valeur de
+// "sinkVal" reste sous ce seuil. Remonté de 0.18 à 0.30 pour élargir la
+// fenêtre de timing acceptée.
+const SEUIL_SAUTABLE = 0.30;
 
 function makeRocks() {
   return [
-    { bx:W*0.22, by:H*0.20, lat:{a:28,sp:0.018,ph:0},   dep:{a:10,sp:0.013,ph:1.0}, sink:{sp:0.022,ph:0.0} },
-    { bx:W*0.65, by:H*0.23, lat:{a:22,sp:0.015,ph:2.1}, dep:{a:8, sp:0.017,ph:0.5}, sink:{sp:0.019,ph:2.4} },
-    { bx:W*0.40, by:H*0.32, lat:{a:30,sp:0.021,ph:1.2}, dep:{a:12,sp:0.011,ph:2.2}, sink:{sp:0.025,ph:1.1} },
-    { bx:W*0.75, by:H*0.35, lat:{a:20,sp:0.016,ph:3.3}, dep:{a:9, sp:0.014,ph:0.8}, sink:{sp:0.020,ph:3.5} },
-    { bx:W*0.18, by:H*0.44, lat:{a:25,sp:0.019,ph:0.7}, dep:{a:11,sp:0.016,ph:1.5}, sink:{sp:0.023,ph:0.8} },
-    { bx:W*0.55, by:H*0.47, lat:{a:32,sp:0.017,ph:2.8}, dep:{a:7, sp:0.012,ph:3.1}, sink:{sp:0.021,ph:2.0} },
-    { bx:W*0.30, by:H*0.56, lat:{a:26,sp:0.020,ph:1.9}, dep:{a:13,sp:0.015,ph:0.3}, sink:{sp:0.024,ph:1.6} },
-    { bx:W*0.70, by:H*0.59, lat:{a:22,sp:0.023,ph:0.4}, dep:{a:8, sp:0.018,ph:2.7}, sink:{sp:0.018,ph:4.1} },
-    { bx:W*0.20, by:H*0.68, lat:{a:28,sp:0.016,ph:3.0}, dep:{a:10,sp:0.013,ph:1.8}, sink:{sp:0.022,ph:2.9} },
-    { bx:W*0.60, by:H*0.71, lat:{a:24,sp:0.018,ph:1.5}, dep:{a:9, sp:0.016,ph:0.6}, sink:{sp:0.026,ph:0.3} },
-  ].map(r => ({ ...r, sink: { ...r.sink, sp: r.sink.sp * RALENTI_DISPARITION } }));
+    // 7 planches au lieu de 10, repositionnées pour rester dans le chenal
+    // d'eau du fond (vérifié en échantillonnant les pixels du GIF de fond) ;
+    // amplitudes latérales réduites sur les rangées où le chenal est étroit.
+    { bx:W*0.47, by:H*0.20, ang:-0.08, lat:{a:16,sp:0.018,ph:0},   dep:{a:9, sp:0.013,ph:1.0}, sink:{sp:0.022,ph:0.0} },
+    { bx:W*0.70, by:H*0.32, ang: 0.10, lat:{a:24,sp:0.015,ph:2.1}, dep:{a:10,sp:0.017,ph:0.5}, sink:{sp:0.019,ph:2.4} },
+    { bx:W*0.40, by:H*0.42, ang: 0.05, lat:{a:22,sp:0.021,ph:1.2}, dep:{a:11,sp:0.011,ph:2.2}, sink:{sp:0.025,ph:1.1} },
+    { bx:W*0.61, by:H*0.52, ang:-0.12, lat:{a:26,sp:0.016,ph:3.3}, dep:{a:8, sp:0.014,ph:0.8}, sink:{sp:0.020,ph:3.5} },
+    { bx:W*0.33, by:H*0.62, ang: 0.07, lat:{a:16,sp:0.019,ph:0.7}, dep:{a:9, sp:0.016,ph:1.5}, sink:{sp:0.023,ph:0.8} },
+    { bx:W*0.505,by:H*0.72, ang:-0.06, lat:{a:12,sp:0.017,ph:2.8}, dep:{a:7, sp:0.012,ph:3.1}, sink:{sp:0.021,ph:2.0} },
+    { bx:W*0.535,by:H*0.80, ang: 0.11, lat:{a:20,sp:0.020,ph:1.9}, dep:{a:8, sp:0.015,ph:0.3}, sink:{sp:0.024,ph:1.6} },
+  ].map(r => ({
+    ...r,
+    lat:  { ...r.lat,  sp: r.lat.sp  * VITESSE_BALANCEMENT },
+    dep:  { ...r.dep,  sp: r.dep.sp  * VITESSE_BALANCEMENT },
+    sink: { ...r.sink, sp: r.sink.sp * RALENTI_DISPARITION },
+  }));
 }
 
 let rocks, playerRock, state, jump, waveT, particles;
+let aideOuverte = false;
 
 function resetGame() {
   rocks = makeRocks();
@@ -69,7 +107,7 @@ function getRockState(r, t, occupied) {
 
 function isJumpable(rockIdx) {
   const s = getRockState(rocks[rockIdx], waveT, rockIdx === playerRock);
-  return s.sinkVal < 0.18;
+  return s.sinkVal < SEUIL_SAUTABLE;
 }
 
 // ── PARTICULES ───────────────────────────────────────────────────
@@ -87,6 +125,10 @@ function ripple(x, y) {
 
 // ── INPUT ────────────────────────────────────────────────────────
 function handleTap(cx, cy) {
+  if (aideOuverte) { aideOuverte = false; return; }
+  const aide = aideXY();
+  if (Math.hypot(cx-aide.x, cy-aide.y) < AIDE_D*0.7) { aideOuverte = true; return; }
+
   if (state === 'win') { resetGame(); return; }
   if (state !== 'play') return;
 
@@ -110,7 +152,7 @@ function handleTap(cx, cy) {
   });
 
   const arrX = W*0.5, arrY = H*0.88;
-  if (Math.hypot(cx-arrX, cy-arrY) < 55 && playerRock >= 8) {
+  if (Math.hypot(cx-arrX, cy-arrY) < 55 && playerRock >= 5) {
     startJump(fromX, fromY, arrX, arrY, () => {
       state = 'win';
       setTimeout(() => window.parent.postMessage({ type: 'jeuTermine' }, '*'), 1800);
@@ -153,114 +195,114 @@ canvas.addEventListener('click', e => {
 });
 
 // ── DESSIN ───────────────────────────────────────────────────────
-function drawBG() {
-  const topH = H*0.16;
-  ctx.fillStyle = '#3a6b20'; ctx.fillRect(0, 0, W, topH);
-  for (let x = 8; x < W; x += 16) {
-    ctx.fillStyle = x%32===8 ? '#4a8428' : '#56a030';
-    ctx.fillRect(x, topH-10, 4, 10);
-    ctx.fillRect(x+6, topH-14, 3, 14);
-  }
-  ctx.fillStyle = '#0e7a6e'; ctx.fillRect(0, topH-5, W, H*0.76);
-  for (let layer = 0; layer < 5; layer++) {
-    const alpha  = [0.12,0.09,0.07,0.06,0.04][layer];
-    const freq   = [0.030,0.022,0.018,0.014,0.010][layer];
-    const speed  = [1.0,0.7,1.3,0.5,0.9][layer];
-    const yBase  = topH + H*0.76*(0.1+layer*0.18);
-    ctx.fillStyle = `rgba(32,200,180,${alpha})`;
-    ctx.beginPath(); ctx.moveTo(0, yBase);
-    for (let x = 0; x <= W; x += 6)
-      ctx.lineTo(x, yBase + Math.sin(x*freq + waveT*speed + layer)*14);
-    ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath(); ctx.fill();
-  }
-  const botY = H*0.84;
-  ctx.fillStyle = '#2d5a18'; ctx.fillRect(0, botY, W, H-botY);
-  ctx.fillStyle = '#3a7020'; ctx.fillRect(0, botY, W, 12);
-  for (let x = 8; x < W; x += 16) {
-    ctx.fillStyle = x%32===8 ? '#4a8428' : '#56a030';
-    ctx.fillRect(x, botY, 4, 10);
-    ctx.fillRect(x+7, botY, 3, 13);
-  }
-  const treeY = [60,130,210,290,380,460,550,630];
-  treeY.forEach((y, i) => {
-    drawTree(i%2===0?14:20, y, 20+i%3*4);
-    drawTree(i%2===0?W-14:W-20, y+30, 18+i%3*5);
-  });
-}
+// Le fond (rives, forêt, eau) est le GIF animé #bg affiché sous le canvas
+// transparent. Les planches, pontons et le bouton d'aide sont les sprites
+// dessinés par l'illustrateur (bucket Supabase "riviere"), chargés dans
+// IMAGES — seule la mécanique (halo, montée de l'eau, ombre) reste en canvas.
 
-function drawTree(x, y, r) {
-  ctx.fillStyle='#2a1a08'; ctx.fillRect(x-3,y,5,r*0.7);
-  ctx.fillStyle='#1a4a08'; ctx.beginPath(); ctx.arc(x,y-r*0.2,r*0.9,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#256010'; ctx.beginPath(); ctx.arc(x-r*0.3,y-r*0.5,r*0.65,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#308018'; ctx.beginPath(); ctx.arc(x+r*0.2,y-r*0.7,r*0.6,0,Math.PI*2); ctx.fill();
-}
+const PLANCHE_D = 68; // planche.png est une image carrée (disque de bois)
 
 function drawRock(r, idx) {
   const occupied = idx === playerRock;
   const rs = getRockState(r, waveT, occupied);
   // Un rocher non sautable ne s'affiche plus du tout (au lieu d'apparaître
   // encore visible/valide alors qu'il ferait tomber le joueur à l'eau).
-  if (rs.sinkVal >= 0.18) return;
+  if (rs.sinkVal >= SEUIL_SAUTABLE) return;
   const { x, y, sinkVal } = rs;
   const sink  = Math.min(sinkVal, 1);
-  const scale = 1 - sink*0.45;
-  const alpha = 1 - sink*0.9;
+  const alpha = 1 - sink*0.75;
   if (alpha <= 0) return;
-  const rw = 28, rh = 19;
+  const d = PLANCHE_D;
 
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.translate(x, y + sink*18);
+  ctx.translate(x, y + sink*14);
+  ctx.rotate(r.ang || 0);
 
-  if (sink > 0.05) {
-    ctx.fillStyle = `rgba(0,0,0,${0.18*sink})`;
-    ctx.beginPath(); ctx.ellipse(2, rh*scale+4, rw*scale*0.85, rh*scale*0.4, 0,0,Math.PI*2); ctx.fill();
+  // Ombre douce portée sur l'eau (dégradé plutôt qu'un aplat)
+  const shadowA = 0.24*(1-sink*0.5);
+  const sg = ctx.createRadialGradient(2, d*0.32, 2, 2, d*0.32, d*0.55);
+  sg.addColorStop(0, `rgba(15,25,20,${shadowA})`);
+  sg.addColorStop(1, 'rgba(15,25,20,0)');
+  ctx.fillStyle = sg;
+  ctx.beginPath(); ctx.ellipse(2, d*0.32, d*0.55, d*0.24, 0,0,Math.PI*2); ctx.fill();
+
+  if (IMAGES.planche) ctx.drawImage(IMAGES.planche, -d/2, -d/2, d, d);
+
+  // Ligne d'eau qui monte sur la planche à mesure qu'elle coule (dégradé
+  // adouci, découpé au disque de la planche)
+  if (sink > 0.02) {
+    const niveau = d/2 - sink/SEUIL_SAUTABLE * d;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, d/2, 0, Math.PI*2); ctx.clip();
+    const wg = ctx.createLinearGradient(0, niveau-12, 0, niveau+18);
+    wg.addColorStop(0,   'rgba(90,140,170,0)');
+    wg.addColorStop(0.5, 'rgba(70,120,155,0.5)');
+    wg.addColorStop(1,   'rgba(55,100,135,0.62)');
+    ctx.fillStyle = wg;
+    ctx.fillRect(-d/2, niveau-12, d, d);
+    ctx.restore();
   }
-  const bright = 1 - sink*0.4;
-  const grad = ctx.createRadialGradient(-rw*scale*0.15, -rh*scale*0.2, 1, 0, 0, rw*scale);
-  grad.addColorStop(0, `rgba(${Math.round(210*bright)},${Math.round(175*bright)},${Math.round(120*bright)},1)`);
-  grad.addColorStop(0.55,`rgba(${Math.round(140*bright)},${Math.round(100*bright)},${Math.round(65*bright)},1)`);
-  grad.addColorStop(1,   `rgba(${Math.round(80*bright)}, ${Math.round(55*bright)}, ${Math.round(35*bright)}, 1)`);
-  ctx.fillStyle = grad;
-  ctx.beginPath(); ctx.ellipse(0,0,rw*scale,rh*scale,0,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle = `rgba(60,38,20,${0.6*alpha})`; ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.ellipse(0,0,rw*scale,rh*scale,0,0,Math.PI*2); ctx.stroke();
-  if (sink < 0.3) {
-    ctx.fillStyle = `rgba(255,240,200,${0.3*(1-sink/0.3)})`;
-    ctx.beginPath(); ctx.ellipse(-rw*scale*0.2,-rh*scale*0.3,rw*scale*0.4,rh*scale*0.25,-0.2,0,Math.PI*2); ctx.fill();
-  }
-  // Halo vert discret : un rocher affiché est par construction toujours
-  // sautable (cf. le retour anticipé plus haut), donc toujours "sûr".
-  if (state === 'play' && !occupied) {
-    ctx.strokeStyle = `rgba(100,255,120,${(0.18-sink)/0.18*0.7})`;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.ellipse(0,0,rw*scale+5,rh*scale+4,0,0,Math.PI*2); ctx.stroke();
-  }
+
   ctx.restore();
-
-  if (sink > 0.05 && sink < 0.7) {
-    const wa = Math.min(sink*2,1)*(1-sink/0.7)*0.35;
-    ctx.strokeStyle = `rgba(100,230,210,${wa})`; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.ellipse(x, y+sink*18, rw*scale+8+sink*5, 6,0,0,Math.PI*2); ctx.stroke();
-  }
 }
 
-function drawPlatform(x, y, w, h, label) {
-  ctx.fillStyle='rgba(0,0,0,0.2)';
-  ctx.beginPath(); ctx.ellipse(x+4,y+h/2+5,w/2,h/3,0,0,Math.PI*2); ctx.fill();
-  const g = ctx.createRadialGradient(x-w*0.2,y-h*0.2,2,x,y,w/2);
-  g.addColorStop(0,'#d4a85a'); g.addColorStop(0.6,'#a87030'); g.addColorStop(1,'#6b4518');
-  ctx.fillStyle = g;
-  ctx.beginPath(); ctx.ellipse(x,y,w/2,h/2,0,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='#5a3010'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.ellipse(x,y,w/2,h/2,0,0,Math.PI*2); ctx.stroke();
-  ctx.fillStyle='rgba(255,235,180,0.35)';
-  ctx.beginPath(); ctx.ellipse(x-w*0.12,y-h*0.22,w*0.25,h*0.18,-0.2,0,Math.PI*2); ctx.fill();
-  if (label) {
-    ctx.fillStyle='#fff'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
-    ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=4;
-    ctx.fillText(label, x, y+4); ctx.shadowBlur=0;
-  }
+const PANNEAU_W = 140, PANNEAU_H = Math.round(PANNEAU_W * 373/668);
+
+function drawPlatform(x, y, image) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  const sg = ctx.createRadialGradient(3, PANNEAU_H/2+6, 2, 3, PANNEAU_H/2+6, PANNEAU_W*0.55);
+  sg.addColorStop(0, 'rgba(15,25,15,0.28)');
+  sg.addColorStop(1, 'rgba(15,25,15,0)');
+  ctx.fillStyle = sg;
+  ctx.beginPath(); ctx.ellipse(3, PANNEAU_H/2+6, PANNEAU_W*0.55, PANNEAU_H*0.28, 0,0,Math.PI*2); ctx.fill();
+
+  if (image) ctx.drawImage(image, -PANNEAU_W/2, -PANNEAU_H/2, PANNEAU_W, PANNEAU_H);
+  ctx.restore();
+}
+
+const AIDE_D = 34;
+const aideXY = () => ({ x: W - 26, y: 26 });
+
+function drawBoutonAide() {
+  if (!IMAGES.info) return;
+  const { x, y } = aideXY();
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 1;
+  ctx.drawImage(IMAGES.info, x-AIDE_D/2, y-AIDE_D/2, AIDE_D, AIDE_D);
+  ctx.restore();
+}
+
+function drawAide() {
+  ctx.fillStyle = 'rgba(0,0,0,0.62)'; ctx.fillRect(0,0,W,H);
+  const cw = Math.min(W*0.82, 300), ch = 232;
+  const cx = W/2, cy = H/2;
+  ctx.fillStyle = '#3a2312';
+  ctx.beginPath(); ctx.roundRect(cx-cw/2, cy-ch/2, cw, ch, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,210,150,0.35)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(cx-cw/2, cy-ch/2, cw, ch, 16); ctx.stroke();
+
+  ctx.fillStyle = '#ffd27a'; ctx.font = 'bold 17px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Comment jouer', cx, cy-ch/2+34);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.font = '13px sans-serif';
+  const lignes = [
+    'Touche une planche quand elle',
+    "sort de l'eau pour sauter dessus.",
+    '',
+    'Chaque planche finit par recouler :',
+    'ne traîne pas trop avant de sauter.',
+    '',
+    "Atteins le ponton d'arrivée",
+    'pour terminer la traversée.',
+  ];
+  lignes.forEach((l, i) => ctx.fillText(l, cx, cy-ch/2+62+i*18));
+
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px sans-serif';
+  ctx.fillText('(touche l\'écran pour fermer)', cx, cy+ch/2-14);
 }
 
 function drawPlayer(x, y, squishY) {
@@ -343,9 +385,8 @@ function update() {
 // ── RENDER ────────────────────────────────────────────────────────
 function render() {
   ctx.clearRect(0,0,W,H);
-  drawBG();
-  drawPlatform(W*0.5, H*0.11, 80, 50, 'DÉPART');
-  drawPlatform(W*0.5, H*0.88, 80, 50, 'ARRIVÉE');
+  drawPlatform(W*0.5, H*0.11, IMAGES.depart);
+  drawPlatform(W*0.5, H*0.88, IMAGES.arrivee);
   rocks.forEach((r, i) => drawRock(r, i));
   drawParticles();
 
@@ -364,13 +405,14 @@ function render() {
   }
   drawPlayer(px, py, squish);
   drawHUD();
+  drawBoutonAide();
 
   if (state==='win')  drawOverlay('🎉','Traversée réussie !','Bravo champion !','▶ Rejouer','#1560c0');
+  if (aideOuverte) drawAide();
 }
 
 function loop() { update(); render(); requestAnimationFrame(loop); }
-resetGame();
-loop();
+imagesPretes.then(() => { resetGame(); loop(); });
 </script>
 </body>
 </html>
