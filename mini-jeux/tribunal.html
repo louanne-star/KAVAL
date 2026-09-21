@@ -27,7 +27,14 @@
     position:relative; width:100%; height:100%;
     max-width:420px; margin:0 auto;
     display:flex; flex-direction:column;
-    background:var(--brun-panneau);
+    background:linear-gradient(-45deg, #1f0a05, #3d1409, #69200f, #3d1409, #1f0a05);
+    background-size:400% 400%;
+    animation:degradeMouvant 16s ease-in-out infinite;
+  }
+  @keyframes degradeMouvant {
+    0%   { background-position:0% 50%; }
+    50%  { background-position:100% 50%; }
+    100% { background-position:0% 50%; }
   }
   .ecran { position:absolute; inset:0; display:none; flex-direction:column; overflow-y:auto; }
   .ecran.actif { display:flex; }
@@ -50,16 +57,15 @@
 
   /* ── Header commun ───────────────────────────────────────────────────── */
   .entete {
-    background:#1a1108; padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
-    border-bottom:2px solid var(--or);
+    background:var(--creme); padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+    border-bottom:2px solid var(--creme-bord);
   }
-  .entete-titre { color:var(--or); font-weight:800; font-size:15px; letter-spacing:0.3px; }
-  .entete-info { color:rgba(255,255,255,0.55); font-size:12px; }
-  .entete-score { color:#fff; font-weight:700; font-size:13px; }
+  .entete-titre { color:var(--texte-fonce); font-weight:800; font-size:17px; letter-spacing:0.2px; }
+  .entete-score { color:var(--texte-fonce); font-weight:800; font-size:14px; }
 
   /* ── Scène / portrait ────────────────────────────────────────────────── */
   .scene-cadre {
-    position:relative; margin:8px 16px 0; flex:1 1 auto; min-height:120px;
+    position:relative; margin:8px 8px 0; aspect-ratio:16/10; flex:0 0 auto;
     border-radius:16px; overflow:hidden;
     border:8px solid var(--brun-cadre);
     box-shadow:0 10px 24px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(201,168,76,0.35);
@@ -116,20 +122,20 @@
     box-shadow:0 4px 14px rgba(0,0,0,0.25);
   }
   .dossier-entete {
-    font-family:Georgia, 'Times New Roman', serif; font-weight:700; font-size:12px;
+    font-weight:800; font-size:12px;
     letter-spacing:0.4px; text-align:center; color:var(--texte-fonce);
     padding-bottom:6px; margin-bottom:7px; border-bottom:1px solid rgba(36,24,17,0.18);
   }
-  .dossier-ligne { font-size:13.5px; color:var(--texte-fonce); margin-bottom:4px; }
-  .dossier-ligne b { font-weight:700; }
+  .dossier-ligne { font-size:15px; font-weight:600; color:var(--texte-fonce); margin-bottom:5px; }
+  .dossier-ligne b { font-weight:800; }
   .dossier-label-accusation {
-    font-weight:700; font-size:12px; color:var(--rouge); letter-spacing:0.3px;
-    margin-top:6px; margin-bottom:3px;
+    font-weight:800; font-size:13px; color:var(--rouge); letter-spacing:0.3px;
+    margin-top:8px; margin-bottom:4px;
   }
-  .dossier-accusation { font-size:13px; color:#5a2418; line-height:1.42; padding-right:60px; }
+  .dossier-accusation { font-size:14.5px; font-weight:500; color:#3a160c; line-height:1.5; padding-right:60px; }
 
   .stamp-condamne {
-    position:absolute; top:80px; right:8px; width:56px; height:56px;
+    position:absolute; top:78px; right:6px; width:78px; height:78px;
     transform:rotate(-14deg); pointer-events:none;
   }
   .stamp-condamne img { width:100%; height:100%; object-fit:contain; }
@@ -153,7 +159,11 @@
     padding:8px 4px 10px; display:flex; flex-direction:column; align-items:center; gap:4px;
     cursor:pointer; transition:transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .stamp-btn img { width:100%; max-width:82px; aspect-ratio:1; object-fit:contain; }
+  .stamp-btn img {
+    width:100%; max-width:82px; aspect-ratio:1; object-fit:contain;
+    image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges;
+    backface-visibility:hidden; transform:translateZ(0);
+  }
   .stamp-btn .stamp-fallback {
     display:none; width:100%; aspect-ratio:1; border-radius:50%;
     border:3px solid currentColor; align-items:center; justify-content:center;
@@ -164,7 +174,13 @@
   .stamp-btn[data-peine="TRANSPORTÉ"] .stamp-fallback { color:#2d6b2d; }
   .stamp-btn[data-peine="DEPORTÉ"]    .stamp-fallback { color:#1a4a8a; }
   .stamp-btn[data-peine="RELÉGUÉ"]    .stamp-fallback { color:#8a4a10; }
-  .stamp-btn .stamp-nom { font-size:11px; font-weight:700; color:var(--texte-fonce); letter-spacing:0.2px; }
+  .stamp-btn[data-peine="TRANSPORTÉ"] { border-color:rgba(45,107,45,0.4); }
+  .stamp-btn[data-peine="DEPORTÉ"]    { border-color:rgba(26,74,138,0.4); }
+  .stamp-btn[data-peine="RELÉGUÉ"]    { border-color:rgba(138,74,16,0.4); }
+  .stamp-btn .stamp-nom { font-size:12px; font-weight:800; letter-spacing:0.2px; }
+  .stamp-btn[data-peine="TRANSPORTÉ"] .stamp-nom { color:#2d6b2d; }
+  .stamp-btn[data-peine="DEPORTÉ"]    .stamp-nom { color:#1a4a8a; }
+  .stamp-btn[data-peine="RELÉGUÉ"]    .stamp-nom { color:#8a4a10; }
   .stamp-btn.selectionne {
     border-color:var(--or); transform:translateY(-2px);
     box-shadow:0 6px 14px rgba(0,0,0,0.3);
@@ -172,20 +188,26 @@
 
   .btn-valider {
     width:100%; border:none; border-radius:14px; padding:0;
-    min-height:56px; position:relative; overflow:hidden;
+    min-height:46px; position:relative; overflow:hidden;
     background:transparent; cursor:pointer;
     transition:opacity 0.15s ease, transform 0.1s ease;
   }
   .btn-valider img { display:block; width:100%; height:auto; }
   .btn-valider .btn-fallback-texte {
-    display:none; width:100%; padding:16px; text-align:center; border-radius:14px;
-    font-size:17px; font-weight:800; letter-spacing:0.3px; color:#fff;
+    display:none; width:100%; padding:12px; text-align:center; border-radius:14px;
+    font-size:16px; font-weight:800; letter-spacing:0.3px; color:#fff;
     background:linear-gradient(180deg, var(--vert) 0%, var(--vert-fonce) 100%);
     box-shadow:0 6px 16px rgba(47,122,73,0.45);
   }
   .btn-valider.img-err img { display:none; }
   .btn-valider.img-err .btn-fallback-texte { display:block; }
-  .btn-valider:disabled { opacity:0.35; cursor:default; }
+  .btn-valider:disabled { cursor:default; }
+  .btn-valider:disabled img { filter:grayscale(1); opacity:0.55; }
+  .btn-valider:disabled .btn-fallback-texte {
+    background:linear-gradient(180deg, #9a9a9a, #6a6a6a);
+    color:rgba(255,255,255,0.7);
+    box-shadow:none;
+  }
   .btn-valider:not(:disabled):active { transform:scale(0.98); }
 
   .btn-aide {
@@ -203,46 +225,38 @@
   .btn-aide.img-err .btn-fallback-texte { display:flex; }
 
   /* ── Résultat round ──────────────────────────────────────────────────── */
-  #ecran-resultat { padding:0; }
+  #ecran-resultat { padding:0; justify-content:center; }
   .resultat-bandeau {
-    padding:16px; text-align:center; font-weight:800; font-size:17px; color:#fff;
+    padding:4px 16px 0; text-align:center; font-weight:800; font-size:22px;
   }
-  .resultat-bandeau.correct   { background:#1a5c1a; }
-  .resultat-bandeau.incorrect { background:#8a2a10; }
+  .resultat-bandeau.correct   { color:#1a5c1a; }
+  .resultat-bandeau.incorrect { color:#8a2a10; }
   .resultat-corps { padding:20px 20px 0; display:flex; flex-direction:column; align-items:center; gap:12px; }
   .resultat-tampons { display:flex; gap:18px; align-items:center; }
   .resultat-tampon-bloc { display:flex; flex-direction:column; align-items:center; gap:6px; }
-  .resultat-tampon-bloc img, .resultat-tampon-bloc .stamp-fallback { width:88px; height:88px; }
+  .resultat-tampon-bloc img, .resultat-tampon-bloc .stamp-fallback { width:110px; height:110px; }
+  .resultat-tampons.unique .resultat-tampon-bloc img,
+  .resultat-tampons.unique .resultat-tampon-bloc .stamp-fallback { width:150px; height:150px; }
   .resultat-tampon-bloc .stamp-fallback {
     display:none; border-radius:50%; border:3px solid currentColor;
     align-items:center; justify-content:center; font-weight:800; font-size:11px; text-align:center; padding:4px;
   }
   .resultat-tampon-bloc.img-err img { display:none; }
   .resultat-tampon-bloc.img-err .stamp-fallback { display:flex; }
-  .resultat-tampon-bloc.rate img { opacity:0.4; }
-  .resultat-tampon-croix {
-    position:relative;
-  }
-  .resultat-tampon-croix::before, .resultat-tampon-croix::after {
-    content:''; position:absolute; left:6px; right:6px; top:50%; height:4px; background:#cc2020;
-    border-radius:4px;
-  }
-  .resultat-tampon-croix::before { transform:rotate(45deg); }
-  .resultat-tampon-croix::after  { transform:rotate(-45deg); }
-  .resultat-tampon-label { font-size:12px; font-weight:700; }
+  .resultat-tampon-bloc.rate img { opacity:0.5; filter:grayscale(1); }
+  .resultat-tampon-label { font-size:15px; font-weight:700; }
   .resultat-verdict { font-weight:800; font-size:15px; color:var(--texte-fonce); margin-top:2px; }
   .resultat-explication {
     font-size:13.5px; color:#444; line-height:1.55; text-align:center; padding:0 6px;
     font-style:italic;
   }
   .resultat-score {
-    margin:16px 20px 0; background:rgba(0,0,0,0.06); border-radius:12px; padding:12px;
-    text-align:center; font-weight:700; color:var(--texte-fonce);
+    margin:16px 20px 0; text-align:center; font-weight:700; font-size:15px; color:var(--texte-fonce);
   }
   .btn-suivant {
-    margin:16px 20px 20px; border:none; border-radius:14px; padding:16px;
-    background:var(--brun-fonce); color:var(--or); font-weight:800; font-size:15px;
-    border:2px solid var(--or); cursor:pointer;
+    margin:16px 20px 20px; border:1.5px solid var(--creme); border-radius:14px; padding:16px;
+    background:linear-gradient(135deg, var(--brun-cadre), var(--brun-fonce)); color:var(--creme);
+    font-weight:800; font-size:16px; cursor:pointer;
   }
   #ecran-resultat.actif { background:#fdf8ee; }
 
@@ -251,20 +265,25 @@
     align-items:center; justify-content:center; text-align:center; padding:28px; gap:16px;
     color:var(--creme);
   }
-  .titre-scale { font-size:26px; font-weight:800; color:var(--or); }
+  .titre-scale { font-size:26px; font-weight:800; color:var(--creme); }
   .sous-titre { font-size:14px; color:rgba(246,236,217,0.75); font-style:italic; }
   .regles-carte {
     background:var(--creme); color:var(--texte-fonce); border-radius:12px; padding:18px;
     text-align:left; font-size:14px; line-height:1.65; width:100%;
   }
-  .regles-carte b { color:var(--rouge); }
-  .peine-ligne { font-weight:700; margin:2px 0; }
-  .btn-principal {
-    width:100%; border:none; border-radius:14px; padding:16px; font-weight:800; font-size:16px;
-    background:var(--or); color:var(--brun-fonce); cursor:pointer;
+  .regles-carte b { color:#8a4a10; font-size:17px; }
+  .peine-ligne { font-weight:700; margin:2px 0; color:#8a4a10; }
+  .victoire-badge {
+    display:inline-block; margin-top:10px; padding:8px 18px; border-radius:999px;
+    background:var(--brun-fonce); border:1.5px solid var(--creme); color:var(--creme);
+    font-weight:800; font-size:13.5px; letter-spacing:0.2px;
   }
-  .score-final { font-size:52px; font-weight:800; color:var(--or); }
-  .etoiles { font-size:26px; letter-spacing:4px; }
+  .btn-principal {
+    width:100%; border:1.5px solid var(--creme); border-radius:14px; padding:16px; font-weight:800; font-size:16px;
+    background:linear-gradient(135deg, var(--brun-cadre), var(--brun-fonce)); color:var(--creme); cursor:pointer;
+  }
+  .score-final { font-size:52px; font-weight:800; color:var(--creme); }
+  .etoiles { font-size:26px; letter-spacing:4px; color:var(--creme); }
   .etoile-off { opacity:0.25; }
 
   /* ── Modale définitions ──────────────────────────────────────────────── */
@@ -272,13 +291,15 @@
   #modal.open { display:flex; }
   #modal-box { background:#fdf8ef; border:1.5px solid var(--or); border-radius:18px; padding:28px 24px; width:88%; max-width:370px; box-shadow:0 8px 32px rgba(0,0,0,0.25); }
   #modal-box h2 { font-size:17px; color:#1a2e1e; text-align:center; margin-bottom:18px; padding-bottom:10px; border-bottom:1px solid #e0d0a0; }
-  .def-item { margin-bottom:14px; padding:12px 14px; background:#fff; border-radius:10px; border-left:4px solid var(--or); }
-  .def-item:nth-child(2){ border-left-color:#2d6b2d; }
-  .def-item:nth-child(3){ border-left-color:#1a4a8a; }
-  .def-item:nth-child(4){ border-left-color:#7a3a10; }
-  .def-titre { font-size:13px; font-weight:bold; color:#1a2e1e; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
-  .def-texte { font-size:13px; color:#444; line-height:1.6; }
-  #modal-close { display:block; margin:18px auto 0; background:#1a2e1e; color:var(--or); border:none; border-radius:12px; padding:12px 36px; font-size:15px; font-weight:bold; cursor:pointer; }
+  .def-item { padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid #eee5d8; }
+  .def-item:last-of-type { padding-bottom:0; margin-bottom:0; border-bottom:none; }
+  .def-titre { font-size:14px; font-weight:800; color:#1a2e1e; letter-spacing:0.3px; margin-bottom:4px; }
+  .def-texte { font-size:13px; color:#555; line-height:1.6; }
+  #modal-close {
+    display:block; width:100%; margin:18px 0 0; border:1.5px solid var(--creme); border-radius:14px; padding:16px;
+    font-weight:800; font-size:16px; background:linear-gradient(135deg, var(--brun-cadre), var(--brun-fonce));
+    color:var(--creme); cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -299,26 +320,24 @@
 
   <!-- ── Intro ──────────────────────────────────────────────────────────── -->
   <div id="ecran-intro" class="ecran ecran-centre">
-    <div class="titre-scale">⚖️ LE TRIBUNAL</div>
-    <div class="sous-titre">Bagne de l'Île Nou · Nouvelle-Calédonie</div>
+    <div class="titre-scale">LE TRIBUNAL</div>
     <div class="regles-carte">
       <p><b>Vous êtes juge au tribunal du bagne.</b></p>
       <p style="margin-top:8px;">3 dossiers vous attendent. Pour chaque détenu, choisissez la bonne peine :</p>
-      <p class="peine-ligne" style="margin-top:10px;">🟢 TRANSPORTÉ — Crime politique</p>
-      <p class="peine-ligne">🔵 DÉPORTÉ — Crime grave</p>
-      <p class="peine-ligne">🟠 RELÉGUÉ — Récidiviste mineur</p>
+      <p class="peine-ligne" style="margin-top:10px;">TRANSPORTÉ — Crime politique</p>
+      <p class="peine-ligne">DÉPORTÉ — Crime grave</p>
+      <p class="peine-ligne">RELÉGUÉ — Vol répété (récidive)</p>
       <p style="margin-top:10px; font-style:italic;">Appuyez sur ? pour les définitions.</p>
-      <p style="margin-top:4px;"><b>2 bonnes réponses sur 3 = VICTOIRE !</b></p>
     </div>
+    <div class="victoire-badge">2 bonnes réponses sur 3 pour gagner</div>
     <button class="btn-principal" id="btn-commencer">COMMENCER ▶</button>
   </div>
 
   <!-- ── Jeu (un round) ─────────────────────────────────────────────────── -->
   <div id="ecran-jeu" class="ecran">
     <div class="entete">
-      <span class="entete-titre">⚖️ LE TRIBUNAL DU BAGNE</span>
-      <span class="entete-info" id="info-round">Dossier 1/3</span>
-      <span class="entete-score" id="info-score">0/0 ✓</span>
+      <span class="entete-titre">LE TRIBUNAL DU BAGNE</span>
+      <span class="entete-score" id="info-score">0/3</span>
     </div>
 
     <div class="scene-cadre">
@@ -422,18 +441,18 @@
 <!-- ── Modale définitions ──────────────────────────────────────────────── -->
 <div id="modal">
   <div id="modal-box">
-    <h2>⚖️ Les peines du bagne</h2>
+    <h2>Les peines du bagne</h2>
     <div class="def-item">
-      <div class="def-titre">🟢 Transporté</div>
+      <div class="def-titre">Transporté</div>
       <div class="def-texte">Crime politique ou de rébellion. Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.</div>
     </div>
     <div class="def-item">
-      <div class="def-titre">🔵 Déporté</div>
+      <div class="def-titre">Déporté</div>
       <div class="def-texte">Crime grave (meurtre, espionnage, actes violents). Banni définitivement dans une enceinte fortifiée, sans retour possible.</div>
     </div>
     <div class="def-item">
-      <div class="def-titre">🟠 Relégué</div>
-      <div class="def-texte">Récidiviste de crimes mineurs (vol, vagabondage). Éloignement permanent aux colonies pour protéger la société française.</div>
+      <div class="def-titre">Relégué</div>
+      <div class="def-texte">Vol répété ou vagabondage (récidive). Éloignement permanent aux colonies pour protéger la société française.</div>
     </div>
     <button id="modal-close">Fermer</button>
   </div>
@@ -463,7 +482,7 @@ const SEUIL_VICTOIRE = 2;
 const EXPLICATIONS = {
   'TRANSPORTÉ': 'Crime politique ou de rébellion : transporté en Nouvelle-Calédonie, avec possibilité de retour.',
   'DEPORTÉ':    'Crime grave : déporté définitivement dans une enceinte fortifiée, sans retour possible.',
-  'RELÉGUÉ':    'Récidiviste de crimes mineurs : relégué aux colonies pour éloigner les indésirables.',
+  'RELÉGUÉ':    'Vol répété ou vagabondage (récidive) : relégué aux colonies pour éloigner les indésirables.',
 };
 
 // ── State ───────────────────────────────────────────────────────────────
@@ -531,8 +550,7 @@ function afficherRound() {
   selection = null;
   const d = dossiers[currentIdx];
 
-  $('#info-round').textContent = `Dossier ${currentIdx + 1}/${NB_ROUNDS}`;
-  $('#info-score').textContent = `${score}/${currentIdx} ✓`;
+  $('#info-score').textContent = `${score}/${dossiers.length}`;
 
   $('#d-matricule').textContent  = d.matricule;
   $('#d-nom').textContent        = d.nom;
@@ -571,10 +589,11 @@ $('#btn-valider').addEventListener('click', () => {
   if (correct) score++;
 
   $('#resultat-bandeau').className = 'resultat-bandeau ' + (correct ? 'correct' : 'incorrect');
-  $('#resultat-bandeau').textContent = correct ? '✓  BONNE RÉPONSE !' : '✗  MAUVAISE RÉPONSE';
+  $('#resultat-bandeau').textContent = correct ? 'BONNE RÉPONSE !' : 'MAUVAISE RÉPONSE';
 
   const tamponsWrap = $('#resultat-tampons');
   tamponsWrap.innerHTML = '';
+  tamponsWrap.classList.toggle('unique', correct);
 
   if (!correct) {
     tamponsWrap.appendChild(creerBlocTampon(selection, true, 'Votre choix'));
@@ -583,7 +602,7 @@ $('#btn-valider').addEventListener('click', () => {
 
   $('#resultat-verdict').textContent      = correct ? `Peine : ${labelPeine(d.bonne_reponse)}` : `Bonne réponse : ${labelPeine(d.bonne_reponse)}`;
   $('#resultat-explication').textContent  = d.explication || EXPLICATIONS[d.bonne_reponse] || '';
-  $('#resultat-score').textContent        = `Score : ${score} / ${currentIdx + 1}`;
+  $('#resultat-score').textContent        = `Score : ${score} / ${dossiers.length}`;
   $('#btn-suivant').textContent           = currentIdx < dossiers.length - 1 ? 'DOSSIER SUIVANT →' : 'VOIR MON RÉSULTAT →';
 
   afficherEcran('resultat');
@@ -596,7 +615,6 @@ function creerBlocTampon(peine, rate, label) {
   bloc.className = 'resultat-tampon-bloc' + (rate ? ' rate' : '');
 
   const imgWrap = document.createElement('div');
-  imgWrap.className = rate ? 'resultat-tampon-croix' : '';
   const img = document.createElement('img');
   img.alt = peine;
   imgWrap.appendChild(img);
@@ -630,8 +648,8 @@ $('#btn-suivant').addEventListener('click', () => {
 
 function afficherFin() {
   const victoire = score >= SEUIL_VICTOIRE;
-  $('#fin-titre').textContent   = victoire ? '🏆 VICTOIRE !' : '⚖️ RÉSULTAT FINAL';
-  $('#fin-titre').style.color   = victoire ? '#5cd485' : 'var(--or)';
+  $('#fin-titre').textContent   = victoire ? 'VICTOIRE !' : 'RÉSULTAT FINAL';
+  $('#fin-titre').style.color   = victoire ? '#5cd485' : 'var(--creme)';
   $('#fin-score').textContent   = `${score} / ${dossiers.length}`;
   $('#fin-message').textContent = victoire ? 'Juge exemplaire !' : `Il fallait ${SEUIL_VICTOIRE} bonnes réponses sur ${dossiers.length}.`;
 

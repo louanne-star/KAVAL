@@ -5,6 +5,8 @@ import { addIcons } from 'ionicons';
 import { hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline } from 'ionicons/icons';
 import { LanguageService } from '../../services/language.service';
 
+type Vestige = { nom: string; icone: string; couleur: string; image?: string };
+
 const CONTENU = {
   fr: {
     hero: { label: 'ÎLE NOU', titreLigne1: 'BAGNE DE', titreLigne2: 'NOUVELLE-CALÉDONIE', tagline: 'Explorer. Comprendre. Se souvenir.' },
@@ -19,7 +21,7 @@ const CONTENU = {
       { nom: 'Les Ateliers', icone: 'hammer-outline', couleur: '#1a2e1e' },
       { nom: 'Caserne des surveillants', icone: 'home-outline', couleur: '#1a1a2d' },
       { nom: 'Chapelle Saint-Thomas', icone: 'prism-outline', couleur: '#2d1a2d' },
-    ],
+    ] as Vestige[],
     artisanat: {
       titre: "L'ARTISANAT",
       texte: "Les forçats de l'Île Nou étaient aussi de talentueux artisans. Leurs gravures sur nacre témoignent d'un savoir-faire unique, né de la contrainte et de la volonté de créer malgré l'adversité.",
@@ -69,7 +71,7 @@ const CONTENU = {
       { nom: 'The Workshops', icone: 'hammer-outline', couleur: '#1a2e1e' },
       { nom: 'Guards’ Barracks', icone: 'home-outline', couleur: '#1a1a2d' },
       { nom: 'Saint-Thomas Chapel', icone: 'prism-outline', couleur: '#2d1a2d' },
-    ],
+    ] as Vestige[],
     artisanat: {
       titre: 'CRAFTSMANSHIP',
       texte: "The convicts of Nou Island were also talented craftsmen. Their mother-of-pearl engravings bear witness to a unique skill, born of constraint and the will to create despite adversity.",
@@ -124,6 +126,8 @@ export class AproposPage {
   }
 
   popupOuvert: 'histoire' | 'vestiges' | null = null;
+  vestigeIndex = 0;
+  vestigeSelectionne: Vestige | null = null;
 
   ouvrirPopup(id: 'histoire' | 'vestiges') {
     this.popupOuvert = id;
@@ -131,5 +135,22 @@ export class AproposPage {
 
   fermerPopup() {
     this.popupOuvert = null;
+  }
+
+  onVestigesScroll(e: Event) {
+    const el = e.target as HTMLElement;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    const total = this.contenu().vestiges.length;
+    this.vestigeIndex = maxScroll <= 0
+      ? 0
+      : Math.round((el.scrollLeft / maxScroll) * (total - 1));
+  }
+
+  ouvrirVestige(v: Vestige) {
+    this.vestigeSelectionne = v;
+  }
+
+  fermerVestige() {
+    this.vestigeSelectionne = null;
   }
 }

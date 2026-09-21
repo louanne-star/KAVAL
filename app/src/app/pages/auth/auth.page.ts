@@ -22,10 +22,18 @@ export class AuthPage {
 
   onglet: 'connexion' | 'inscription' = 'connexion';
 
-  email      = '';
-  motDePasse = '';
+  email        = '';
+  motDePasse   = '';
+  rgpdAccepte  = false;
+  rgpdDetailOuvert = false;
   chargement = signal(false);
   erreur     = signal<string | null>(null);
+
+  // Politique de mot de passe : au moins 8 caractères, une majuscule, une
+  // minuscule et un chiffre (recommandation CNIL pour une authentification
+  // par mot de passe seul).
+  private readonly REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  private readonly REGEX_MDP   = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
   constructor(
     private auth:     AuthService,
@@ -43,11 +51,32 @@ export class AuthPage {
     this.erreur.set(null);
   }
 
+  toggleRgpdDetail() {
+    this.rgpdDetailOuvert = !this.rgpdDetailOuvert;
+  }
+
   async soumettre() {
+    this.email = this.email.trim().toLowerCase();
+
     if (!this.email || !this.motDePasse) {
-      this.erreur.set('Veuillez remplir tous les champs.');
+      this.erreur.set(this.translate.instant('auth.erreurs.champsRequis'));
       return;
     }
+    if (!this.REGEX_EMAIL.test(this.email)) {
+      this.erreur.set(this.translate.instant('auth.erreurs.emailInvalide'));
+      return;
+    }
+    if (this.onglet === 'inscription') {
+      if (!this.REGEX_MDP.test(this.motDePasse)) {
+        this.erreur.set(this.translate.instant('auth.erreurs.motDePasseCourt'));
+        return;
+      }
+      if (!this.rgpdAccepte) {
+        this.erreur.set(this.translate.instant('auth.erreurs.rgpdRequis'));
+        return;
+      }
+    }
+
     this.chargement.set(true);
     this.erreur.set(null);
 
