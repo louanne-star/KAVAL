@@ -3,6 +3,7 @@ import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { Preferences } from '@capacitor/preferences';
 import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
@@ -13,6 +14,28 @@ import { LanguageService } from '../../services/language.service';
 import { Langue } from '../../i18n/translations';
 
 type ChoixSlot = 'bonne' | 'm1' | 'm2';
+
+const CLE_INTRO_VUE = 'kaval_parcours_intro_vue';
+
+// Genre de chaque point (pour "Explore le/la ..."), en français uniquement —
+// pas nécessaire en anglais ("Explore" n'a pas besoin d'article.
+const ARTICLE_POINT: Record<string, string> = {
+  four_a_chaux:                          'le',
+  magasin_a_vivre:                       'le',
+  briqueterie:                           'la',
+  camp_est_principal:                    'le',
+  hopital_du_marais:                     "l'",
+  caserne_infanterie:                    'la',
+  batiment_officiers_administration:     'le',
+  logement_surveillants_1ere_classe:     'le',
+  logement_surveillants_militaires_maries: 'le',
+  quartier_cellulaire:                   'le',
+  boulevard_du_crime:                    'le',
+  logement_surveillant_principal:        'le',
+  chapelle_saint_thomas:                 'la',
+  chateau_eau_tour_guet:                 'le',
+  hotel_du_commandant:                   "l'",
+};
 
 @Component({
   selector: 'app-parcours',
@@ -31,6 +54,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
 
   zoneSelectionnee: JourneyZone | null = null;
   enRedirection = false;
+  introVisible = false;
   jeuOuvert = false;
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
@@ -119,6 +143,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
         this.zoneSelectionnee = zone;
         this.setJeuOuvert(false);
         this.initQuiz();
+        this.scrollHautDetail();
       } else {
         // zones() pas encore chargées (ex: reload direct sur une page détail,
         // avant que le GPS/l'itinéraire ne soit prêt) ou id invalide : jamais
@@ -129,6 +154,22 @@ export class ParcoursPage implements OnInit, OnDestroy {
       }
     });
     window.addEventListener('message', this.onMessage);
+
+    Preferences.get({ key: CLE_INTRO_VUE }).then(({ value }) => {
+      if (!value) this.introVisible = true;
+    });
+  }
+
+  fermerIntro() {
+    this.introVisible = false;
+    Preferences.set({ key: CLE_INTRO_VUE, value: '1' });
+  }
+
+  /** Article ("le"/"la"/"l'") à mettre devant le nom du point, en français uniquement. */
+  articlePoint(pointId: string): string {
+    if (this.languageService.langue() !== 'fr') return '';
+    const article = ARTICLE_POINT[pointId] ?? 'le';
+    return article === "l'" ? article : article + ' ';
   }
 
   ngOnDestroy() {
@@ -176,6 +217,15 @@ export class ParcoursPage implements OnInit, OnDestroy {
     if (!this.scrollListe) return;
     setTimeout(() => {
       this.ionContent?.scrollToPoint(0, this.scrollListe, 0);
+    });
+  }
+
+  // Le détail d'un point partage le même IonContent que la liste : sans ça,
+  // le scroll reste là où était la liste (souvent en bas) et le détail
+  // s'ouvre au milieu/en bas au lieu du haut.
+  private scrollHautDetail() {
+    setTimeout(() => {
+      this.ionContent?.scrollToPoint(0, 0, 0);
     });
   }
 

@@ -71,14 +71,18 @@ export const TRANSLATIONS = {
         bienJoue: 'Bien joué !',
         recommencer: '↺ Recommencer',
       },
-      header: {
-        eyebrow: 'KAVAL · ÎLE NOU',
-        titre: 'Parcours',
-        sousTitre: '{{n}} / {{total}} sites explorés',
-      },
       chargement: {
         titre: 'Chargement du parcours…',
         hint: 'Active ta position pour un ordre adapté à ta localisation.',
+      },
+      intro: {
+        titre: "Prêt à traverser l'histoire de l'Île Nou ?",
+        texte: "Cette page est votre guide pas-à-pas pour explorer le bagne sans vous perdre. Rendez-vous sur les lieux indiqués, lisez leur histoire et validez chaque étape pour faire progresser votre aventure.",
+      },
+      liste: {
+        journalDeBord: 'Journal de Bord',
+        validees: '{{n}}/{{total}} validées',
+        explorer: 'Explore',
       },
     },
     carte: {
@@ -257,14 +261,18 @@ export const TRANSLATIONS = {
         bienJoue: 'Well done!',
         recommencer: '↺ Restart',
       },
-      header: {
-        eyebrow: 'KAVAL · NOU ISLAND',
-        titre: 'Journey',
-        sousTitre: '{{n}} / {{total}} sites explored',
-      },
       chargement: {
         titre: 'Loading the journey…',
         hint: 'Turn on your location for an order adapted to where you are.',
+      },
+      intro: {
+        titre: 'Ready to journey through the history of Nou Island?',
+        texte: "This page is your step-by-step guide to exploring the penal colony without getting lost. Head to the indicated sites, read their history and validate each step to progress on your adventure.",
+      },
+      liste: {
+        journalDeBord: 'Logbook',
+        validees: '{{n}}/{{total}} completed',
+        explorer: 'Explore',
       },
     },
     carte: {

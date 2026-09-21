@@ -115,48 +115,68 @@
   <!-- ── Vue liste : parcours dans l'ordre calculé par proximité GPS ────── -->
   <ng-container *ngIf="!zoneSelectionnee">
 
-    <div class="parcours-header">
-      <p class="header-label">{{ 'parcours.header.eyebrow' | translate }}</p>
-      <h1 class="header-titre">{{ 'parcours.header.titre' | translate }}</h1>
-      <p class="header-sub">{{ 'parcours.header.sousTitre' | translate:{n: badgeService.badges().size, total: journeyService.zones().length} }}</p>
-      <div class="header-progress">
-        <div class="progress-bar">
-          <div class="progress-fill"
+    <!-- Fond : carrousel photo (fondu en boucle) -->
+    <div class="jdb-carrousel">
+      <div class="jdb-carrousel-img jdb-carrousel-img--1"></div>
+      <div class="jdb-carrousel-img jdb-carrousel-img--2"></div>
+      <div class="jdb-carrousel-voile"></div>
+
+      <!-- Popup d'intro (une seule fois) -->
+      <div class="jdb-intro" *ngIf="introVisible">
+        <button class="jdb-intro-close" (click)="fermerIntro()" aria-label="Fermer">✕</button>
+        <h2 class="jdb-intro-titre">{{ 'parcours.intro.titre' | translate }}</h2>
+        <p class="jdb-intro-texte">{{ 'parcours.intro.texte' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Feuille : journal de bord -->
+    <div class="jdb-sheet">
+      <div class="jdb-handle"></div>
+
+      <div class="jdb-header">
+        <h1 class="jdb-titre">{{ 'parcours.liste.journalDeBord' | translate }}</h1>
+        <span class="jdb-compte">{{ 'parcours.liste.validees' | translate:{n: badgeService.badges().size, total: journeyService.zones().length} }}</span>
+      </div>
+
+      <div class="jdb-progress" *ngIf="journeyService.zones().length > 0">
+        <div class="jdb-progress-track">
+          <div class="jdb-progress-fill"
                [style.width.%]="(badgeService.badges().size / journeyService.zones().length) * 100">
           </div>
         </div>
+        <div class="jdb-progress-flag">🚩</div>
+        <div class="jdb-progress-mystere">?</div>
       </div>
-    </div>
 
-    <!-- Zones pas encore chargées -->
-    <div class="liste-vide" *ngIf="journeyService.zones().length === 0">
-      <div class="vide-icone">🗺️</div>
-      <p>{{ 'parcours.chargement.titre' | translate }}</p>
-      <p class="vide-hint">{{ 'parcours.chargement.hint' | translate }}</p>
-    </div>
+      <!-- Zones pas encore chargées -->
+      <div class="liste-vide" *ngIf="journeyService.zones().length === 0">
+        <div class="vide-icone">🗺️</div>
+        <p>{{ 'parcours.chargement.titre' | translate }}</p>
+        <p class="vide-hint">{{ 'parcours.chargement.hint' | translate }}</p>
+      </div>
 
-    <!-- Timeline -->
-    <div class="timeline" *ngIf="journeyService.zones().length > 0">
-      <div class="timeline-item"
-           *ngFor="let z of journeyService.zones(); let last = last"
-           [class.visite]="badgeService.aBadge(z.id)"
-           [class.actif]="!badgeService.aBadge(z.id)">
+      <!-- Liste des points à explorer -->
+      <div class="jdb-liste" *ngIf="journeyService.zones().length > 0">
+        <button class="jdb-carte"
+                *ngFor="let z of journeyService.zones()"
+                [class.jdb-carte--validee]="badgeService.aBadge(z.id)"
+                (click)="selectZone(z)">
 
-        <div class="zone-bloc" (click)="selectZone(z)">
-          <div class="zone-badge" *ngIf="badgeService.aBadge(z.id)">✓</div>
+          <div class="jdb-carte-icone">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
 
-          <div class="zone-icone"><span>{{ pointsService.metaDe(z.zoneId)?.icone }}</span></div>
-
-          <div class="zone-infos">
-            <p class="zone-ordre">{{ 'commun.etape' | translate:{n: z.ordre} }} · {{ pointsService.texte(z.zoneNom, z.zoneNomEn) }}</p>
-            <h3 class="zone-nom">{{ pointsService.texte(z.nom, z.nomEn) }}</h3>
-            <p class="zone-sous-titre">{{ pointsService.texte(pointsService.metaDe(z.zoneId)?.sousTitre ?? '', pointsService.metaDe(z.zoneId)?.sousTitreEn) }}</p>
+          <div class="jdb-carte-infos">
+            <p class="jdb-carte-titre">
+              {{ 'parcours.liste.explorer' | translate }} {{ articlePoint(z.id) }}{{ pointsService.texte(z.nom, z.nomEn) }}
+            </p>
+            <p class="jdb-carte-desc">{{ pointsService.texte(z.description, z.descriptionEn) }}</p>
           </div>
-        </div>
 
-        <div class="timeline-line" *ngIf="!last"></div>
-
+          <div class="jdb-carte-statut">
+            <span *ngIf="badgeService.aBadge(z.id)" class="jdb-check">✓</span>
+          </div>
+        </button>
       </div>
+
     </div>
 
   </ng-container>
