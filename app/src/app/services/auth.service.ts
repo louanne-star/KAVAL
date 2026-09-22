@@ -74,8 +74,19 @@ export class AuthService {
     this._user.set(data.user);
   }
 
+  async mettreAJourUsername(username: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.updateUser({ data: { username } });
+    if (error) throw error;
+    const { data } = await this.supabase.client.auth.getUser();
+    this._user.set(data.user);
+  }
+
   get avatarEmoji(): string | null {
     return this._user()?.user_metadata?.['avatar_emoji'] ?? null;
+  }
+
+  get username(): string | null {
+    return this._user()?.user_metadata?.['username'] ?? null;
   }
 
   get emailInitiales(): string {

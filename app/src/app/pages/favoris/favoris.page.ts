@@ -2,6 +2,7 @@ import { Component, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { JourneyService } from '../../services/journey.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { BadgeService } from '../../services/badge.service';
@@ -13,7 +14,7 @@ import { PointsService } from '../../services/points.service';
   templateUrl: './favoris.page.html',
   styleUrls: ['./favoris.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, TranslatePipe]
 })
 export class FavorisPage implements OnInit {
 

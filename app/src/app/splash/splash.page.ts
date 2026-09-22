@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../services/auth.service';
 import { SyncService } from '../services/sync.service';
 import { BadgeService } from '../services/badge.service';
@@ -14,7 +15,7 @@ import { FavoriteService } from '../services/favorite.service';
   templateUrl: './splash.page.html',
   styleUrls: ['./splash.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, TranslatePipe]
 })
 export class SplashPage implements OnInit {
 

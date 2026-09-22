@@ -3,8 +3,10 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
 import { earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline } from 'ionicons/icons';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
+import maplibreGL from '@maplibre/maplibre-gl-leaflet';
 import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { RatingService } from '../../services/rating.service';
@@ -12,13 +14,16 @@ import { FavoriteService } from '../../services/favorite.service';
 import { CommentService } from '../../services/comment.service';
 import { AuthService } from '../../services/auth.service';
 import { PointsService, PointPopup } from '../../services/points.service';
+import { UiStateService } from '../../services/ui-state.service';
+import { LanguageService } from '../../services/language.service';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.page.html',
   styleUrls: ['./map.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, TranslatePipe]
 })
 export class MapPage implements AfterViewInit, OnDestroy {
 
@@ -27,6 +32,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
   private mapPret    = signal(false);
   zoneSelectionneeId = signal<string | null>(null);
   navCibleId         = signal<string | null>(null);
+  private pointAOuvrirId = signal<string | null>(null);
+  private routeSub?: Subscription;
 
   zoneSelectionnee = computed(() => {
     const id = this.zoneSelectionneeId();
@@ -77,7 +84,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Navigation active : cible + instruction OSRM ─────────────────────────
 
-  instructionNav = signal<{ texte: string; icone: string; distance: number } | null>(null);
+  instructionNav = signal<{ modifierKey: string; icone: string; distance: number } | null>(null);
   zoneArrivee    = signal<JourneyZone | null>(null);
 
   readonly navCibleZone = computed(() => {
@@ -104,7 +111,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   miniPopupPos         = signal<{ x: number; y: number } | null>(null);
 
   private map!: L.Map;
-  private tileNormale!:   L.TileLayer;
+  private tileNormale!:   L.MaplibreGL;
   private tileSatellite!: L.TileLayer;
   private marqueurs = new Map<string, L.Marker>();
   private overlays  = new Map<string, L.Circle>();
@@ -129,15 +136,15 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── OSRM instruction maps ─────────────────────────────────────────────────
 
-  private readonly MODIFIER_FR: Record<string, string> = {
-    'left':         'Tournez à gauche',
-    'right':        'Tournez à droite',
-    'straight':     'Continuez tout droit',
-    'slight left':  'Légèrement à gauche',
-    'slight right': 'Légèrement à droite',
-    'sharp left':   'Virage serré à gauche',
-    'sharp right':  'Virage serré à droite',
-    'uturn':        'Demi-tour',
+  private readonly MODIFIER_KEY: Record<string, string> = {
+    'left':         'left',
+    'right':        'right',
+    'straight':     'straight',
+    'slight left':  'slightLeft',
+    'slight right': 'slightRight',
+    'sharp left':   'sharpLeft',
+    'sharp right':  'sharpRight',
+    'uturn':        'uturn',
   };
 
   private readonly MODIFIER_ICONE: Record<string, string> = {
@@ -164,10 +171,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   formatDate(iso: string): string {
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-    if (diff < 60)    return 'à l\'instant';
-    if (diff < 3600)  return `il y a ${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
-    return `il y a ${Math.floor(diff / 86400)} j`;
+    if (diff < 60)    return this.translate.instant('carte.commentaires.temps.instant');
+    if (diff < 3600)  return this.translate.instant('carte.commentaires.temps.min',   { n: Math.floor(diff / 60) });
+    if (diff < 86400) return this.translate.instant('carte.commentaires.temps.heure', { n: Math.floor(diff / 3600) });
+    return this.translate.instant('carte.commentaires.temps.jour', { n: Math.floor(diff / 86400) });
   }
 
   fermerCommentaire() {
@@ -190,9 +197,56 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly pointsService: PointsService,
     private ngZone: NgZone,
     private router: Router,
+    private route: ActivatedRoute,
     readonly badgeService: BadgeService,
+    readonly uiState: UiStateService,
+    readonly languageService: LanguageService,
+    private translate: TranslateService,
   ) {
     addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline });
+
+    // Reçoit l'id d'un point à ouvrir automatiquement (ex: retour depuis sa
+    // page détail dans Parcours, via /tabs/carte?point=<id>).
+    this.routeSub = this.route.queryParamMap.subscribe(params => {
+      const id = params.get('point');
+      if (id) this.pointAOuvrirId.set(id);
+    });
+
+    // Dès que la carte et les zones sont prêtes, ouvre le point demandé comme
+    // un clic sur son marqueur (sheet + centrage), puis nettoie l'URL.
+    effect(() => {
+      const id    = this.pointAOuvrirId();
+      const zones = this.journeyService.zones();
+      if (!id || !this.mapPret() || zones.length === 0) return;
+      const zone = zones.find(z => z.id === id);
+      if (!zone) return;
+      untracked(() => {
+        this.miniPointSelectionne.set(null);
+        this.miniPopupPos.set(null);
+        this.zoneSelectionneeId.set(zone.id);
+        this.map.flyTo(zone.coords, 15, { duration: 0.8 });
+        this.pointAOuvrirId.set(null);
+        this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+      });
+    });
+
+    // Retour depuis la fiche détail d'un point (bouton "← Retour", navigation
+    // navigateur) : rouvre la fiche exactement où on l'avait laissée — même
+    // zoom, même centrage — plutôt qu'un zoom fixe arbitraire.
+    effect(() => {
+      const etat  = this.uiState.pointARouvrir();
+      const zones = this.journeyService.zones();
+      if (!etat || !this.mapPret() || zones.length === 0) return;
+      const zone = zones.find(z => z.id === etat.pointId);
+      if (!zone) return;
+      untracked(() => {
+        this.miniPointSelectionne.set(null);
+        this.miniPopupPos.set(null);
+        this.zoneSelectionneeId.set(zone.id);
+        this.map.flyTo([etat.lat, etat.lng], etat.zoom, { duration: 0.8 });
+        this.uiState.pointARouvrir.set(null);
+      });
+    });
 
     // Redessine les cercles, segments et marqueurs quand les zones, l'itinéraire ou la cible nav changent.
     effect(() => {
@@ -240,10 +294,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   ngAfterViewInit() {
-    setTimeout(async () => {
+    setTimeout(() => {
       this.initMap();
       this.mapPret.set(true);
-      await this.journeyService.initialiser();
       this.ratingService.chargerMoyennes();
     }, 200);
   }
@@ -251,6 +304,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.navAbortCtrl?.abort();
     clearTimeout(this.arriveeTimeout);
+    this.routeSub?.unsubscribe();
     this.map?.remove();
   }
 
@@ -265,10 +319,12 @@ export class MapPage implements AfterViewInit, OnDestroy {
       zoomControl:  false
     });
 
-    this.tileNormale = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      { attribution: '© OpenStreetMap © CARTO', maxZoom: 19 }
-    ).addTo(this.map);
+    // Fond de carte vectoriel coloré (style "Liberty" d'OpenFreeMap, gratuit
+    // et sans clé API — contrairement à Mapbox/CARTO/Stadia) pour un rendu
+    // moderne façon carte Snapchat, plutôt que le gris plat précédent.
+    this.tileNormale = maplibreGL({
+      style: 'https://tiles.openfreemap.org/styles/liberty'
+    }).addTo(this.map);
 
     this.tileSatellite = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -324,7 +380,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
           this.miniPointSelectionne.set(null);
           this.miniPopupPos.set(null);
           this.zoneSelectionneeId.set(zone.id);
-          this.map.flyTo(zone.coords, 15, { duration: 0.8 });
         }));
       this.marqueurs.set(zone.id, marqueur);
     });
@@ -420,20 +475,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
     }
   }
 
-  private parseInstruction(steps: any[]): { texte: string; icone: string; distance: number } | null {
+  private parseInstruction(steps: any[]): { modifierKey: string; icone: string; distance: number } | null {
     if (!steps?.length) return null;
     const premierPas    = steps[0];
     const prochainVirage = steps[1];
 
     if (!prochainVirage || prochainVirage.maneuver?.type === 'arrive') {
-      return { texte: 'Continuez tout droit', icone: '↑', distance: Math.round(premierPas.distance ?? 0) };
+      return { modifierKey: 'straight', icone: '↑', distance: Math.round(premierPas.distance ?? 0) };
     }
 
     const modifier = prochainVirage.maneuver?.modifier ?? 'straight';
     return {
-      texte:    this.MODIFIER_FR[modifier]    ?? 'Continuez tout droit',
-      icone:    this.MODIFIER_ICONE[modifier] ?? '↑',
-      distance: Math.round(premierPas.distance ?? 0),
+      modifierKey: this.MODIFIER_KEY[modifier]   ?? 'straight',
+      icone:       this.MODIFIER_ICONE[modifier] ?? '↑',
+      distance:    Math.round(premierPas.distance ?? 0),
     };
   }
 
@@ -501,6 +556,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // ── Marker icon factory ───────────────────────────────────────────────────
 
   private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
+    if (this.badgeService.aBadge(zone.id)) {
+      const pinValideeSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 46" width="32" height="46"
+          style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
+        <path d="M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z" fill="#c0553c"/>
+        <circle cx="16" cy="15" r="10" fill="#fdf8f0"/>
+        <path d="M16.00,8.80 L17.53,12.90 L21.90,13.08 L18.47,15.80 L19.64,20.02 L16.00,17.60 L12.36,20.02 L13.53,15.80 L10.10,13.08 L14.47,12.90 Z" fill="#c0553c"/>
+      </svg>`;
+      return L.divIcon({
+        className: '',
+        html: pinValideeSvg,
+        iconSize: [32, 46], iconAnchor: [16, 46]
+      });
+    }
+
     const couleur = zone.debloque || estProchain ? '#c0553c' : '#BEBEBE';
     const opacity = !zone.debloque && !estProchain ? 'opacity:0.45;' : '';
 
@@ -556,11 +625,13 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   sousTitreZone(zoneId: string): string {
-    return this.pointsService.metaDe(zoneId)?.sousTitre ?? '';
+    const meta = this.pointsService.metaDe(zoneId);
+    return this.pointsService.texte(meta?.sousTitre ?? '', meta?.sousTitreEn);
   }
 
   nomZone(zoneId: string): string {
-    return this.pointsService.metaDe(zoneId)?.nom ?? '';
+    const meta = this.pointsService.metaDe(zoneId);
+    return this.pointsService.texte(meta?.nom ?? '', meta?.nomEn);
   }
 
   private dessinerPopups(popups: PointPopup[]) {
@@ -572,7 +643,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
           this.zoneSelectionneeId.set(null);
           this.miniPointSelectionne.set(point);
           this.mettreAJourPositionMiniPopup();
-          this.map.flyTo(point.coords, 17, { duration: 0.6 });
         }))
     );
   }
@@ -660,6 +730,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   explorer(zoneId: string) {
+    const centre = this.map.getCenter();
+    this.uiState.pointARouvrir.set({ pointId: zoneId, zoom: this.map.getZoom(), lat: centre.lat, lng: centre.lng });
     this.fermerFiche();
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
   }

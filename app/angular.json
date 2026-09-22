@@ -40,10 +40,10 @@
                 "output": "/"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/global.scss", "src/theme/variables.scss", "node_modules/maplibre-gl/dist/maplibre-gl.css"],
             "scripts": [],
             "browser": "src/main.ts",
-            "allowedCommonJsDependencies": ["leaflet"]
+            "allowedCommonJsDependencies": ["leaflet", "maplibre-gl"]
           },
           "configurations": {
             "production": {
