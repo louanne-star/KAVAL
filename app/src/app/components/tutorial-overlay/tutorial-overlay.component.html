@@ -1,0 +1,27 @@
+<ng-container *ngIf="tutorialService.etapeCourante() as e">
+
+  <!-- Bandeaux sombres formant une découpe autour de la cible (si elle existe) -->
+  <ng-container *ngIf="rect as r; else voilePlein">
+    <div class="tuto-bande" [style.top.px]="0" [style.left.px]="0" [style.right.px]="0" [style.height.px]="r.top - 10"></div>
+    <div class="tuto-bande" [style.top.px]="r.bottom + 10" [style.left.px]="0" [style.right.px]="0" [style.bottom.px]="0"></div>
+    <div class="tuto-bande" [style.top.px]="r.top - 10" [style.left.px]="0" [style.width.px]="r.left - 10" [style.height.px]="r.height + 20"></div>
+    <div class="tuto-bande" [style.top.px]="r.top - 10" [style.left.px]="r.right + 10" [style.right.px]="0" [style.height.px]="r.height + 20"></div>
+    <div class="tuto-spot" [style.top.px]="r.top - 10" [style.left.px]="r.left - 10" [style.width.px]="r.width + 20" [style.height.px]="r.height + 20"></div>
+  </ng-container>
+  <ng-template #voilePlein>
+    <div class="tuto-voile"></div>
+  </ng-template>
+
+  <!-- Bulle explicative -->
+  <div class="tuto-bulle" [ngStyle]="positionBulle()">
+    <div class="tuto-pointe" *ngIf="pointeVisible()" [ngClass]="pointeClasse()" [ngStyle]="pointeStyle()"></div>
+    <div class="tuto-bulle-etape">{{ 'tuto.etape' | translate:{n: tutorialService.etapeIndex() + 1, total: tutorialService.total} }}</div>
+    <h3 class="tuto-bulle-titre">{{ e.titreKey | translate }}</h3>
+    <p class="tuto-bulle-texte">{{ e.texteKey | translate }}</p>
+    <div class="tuto-bulle-actions">
+      <button class="tuto-btn-passer" (click)="passer()">{{ 'tuto.passer' | translate }}</button>
+      <button class="tuto-btn-suivant" (click)="suivant()">{{ 'tuto.suivant' | translate }}</button>
+    </div>
+  </div>
+
+</ng-container>

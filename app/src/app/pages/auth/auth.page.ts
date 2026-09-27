@@ -10,6 +10,7 @@ import { BadgeService } from '../../services/badge.service';
 import { RatingService } from '../../services/rating.service';
 import { CommentService } from '../../services/comment.service';
 import { FavoriteService } from '../../services/favorite.service';
+import { TutorialService } from '../../services/tutorial.service';
 
 @Component({
   selector: 'app-auth',
@@ -44,6 +45,7 @@ export class AuthPage {
     private favoris:  FavoriteService,
     private router:   Router,
     private translate: TranslateService,
+    private tutorial: TutorialService,
   ) {}
 
   basculerOnglet(onglet: 'connexion' | 'inscription') {
@@ -81,10 +83,12 @@ export class AuthPage {
     this.erreur.set(null);
 
     try {
-      if (this.onglet === 'connexion') {
-        await this.auth.seConnecter(this.email, this.motDePasse);
-      } else {
+      const estInscription = this.onglet === 'inscription';
+
+      if (estInscription) {
         await this.auth.sInscrire(this.email, this.motDePasse);
+      } else {
+        await this.auth.seConnecter(this.email, this.motDePasse);
       }
 
       // Si un autre compte a déjà été utilisé sur cet appareil, on repart d'un
@@ -106,6 +110,10 @@ export class AuthPage {
           this.ratings.chargerDepuisCloud(data.ratings),
           this.favoris.chargerDepuisCloud(data.favoris),
         ]);
+      }
+
+      if (estInscription) {
+        await this.tutorial.demarrer();
       }
 
       this.router.navigate(['/tabs/carte'], { replaceUrl: true });

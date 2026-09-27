@@ -42,7 +42,7 @@
       </div>
 
       <!-- Filtres chips -->
-      <div class="rch-chips">
+      <div class="rch-chips" data-tuto="recherche-chips">
         <button class="chip" [class.chip--on]="filtre() === 'tous'"    (click)="filtre.set('tous')">{{ 'recherche.chips.tous' | translate }}</button>
         <button class="chip" [class.chip--on]="filtre() === 'visites'" (click)="filtre.set('visites')">{{ 'recherche.chips.visites' | translate }}</button>
         <button class="chip" [class.chip--on]="filtre() === 'favoris'" (click)="filtre.set('favoris')">{{ 'recherche.chips.favoris' | translate }}</button>

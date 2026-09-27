@@ -39,7 +39,7 @@
         <ng-template #miniJeuBlock>
           <ng-container *ngIf="JEUX[zone.zoneId]">
             <div class="section-titre">{{ 'parcours.miniJeu.titre' | translate }}</div>
-            <div class="contenu-card jeu-card" (click)="ouvrirJeu()">
+            <div class="contenu-card jeu-card" data-tuto="point-minijeu" (click)="ouvrirJeu()">
               <div class="contenu-icone">🎮</div>
               <div class="contenu-info">
                 <p class="contenu-label">{{ nomJeu(zone.zoneId) }}</p>
@@ -57,7 +57,7 @@
         <!-- Sections de texte du point (Histoire, Guerre médicale, ... — piloté depuis Supabase) -->
         <!-- Le mini-jeu s'intercale juste après la 1ère section (Histoire), avant les suivantes -->
         <ng-container *ngFor="let s of pointsService.sectionsDe(zone.id); let first = first">
-          <div class="section-titre">{{ pointsService.texte(s.titre, s.titreEn) }}</div>
+          <div class="section-titre" [attr.data-tuto]="first ? 'point-histoire' : null">{{ pointsService.texte(s.titre, s.titreEn) }}</div>
           <div class="histoire-card">
             <p class="histoire-texte">{{ pointsService.texte(s.texte, s.texteEn) }}</p>
           </div>
@@ -68,7 +68,7 @@
         <!-- Témoignage historique (si disponible) -->
         <ng-container *ngIf="pointsService.temoignageDe(zone.id) as t">
           <div class="section-titre">{{ 'parcours.temoignage' | translate }}</div>
-          <div class="temoignage-card">
+          <div class="temoignage-card" data-tuto="point-temoignage">
             <div class="temoignage-guillemet">"</div>
             <p class="temoignage-titre">{{ pointsService.texte(t.titre, t.titreEn) }}</p>
             <p class="temoignage-texte">{{ pointsService.texte(t.texte, t.texteEn) }}</p>
@@ -80,7 +80,7 @@
         <ng-container *ngIf="zoneQuiz.length > 0">
           <div class="section-titre">{{ 'parcours.quiz.titre' | translate }}</div>
 
-          <div class="quiz-bloc" *ngIf="!quizTermine">
+          <div class="quiz-bloc" data-tuto="point-quiz" *ngIf="!quizTermine">
             <div class="quiz-progress">{{ 'parcours.quiz.question' | translate:{n: quizIndex + 1, total: zoneQuiz.length} }}</div>
             <p class="quiz-question">{{ pointsService.texte(zoneQuiz[quizIndex].question, zoneQuiz[quizIndex].questionEn) }}</p>
 
@@ -100,7 +100,7 @@
             </button>
           </div>
 
-          <div class="quiz-bloc quiz-resultat" *ngIf="quizTermine">
+          <div class="quiz-bloc quiz-resultat" data-tuto="point-quiz" *ngIf="quizTermine">
             <p class="quiz-resultat-score">{{ quizScore }} / {{ zoneQuiz.length }}</p>
             <p class="quiz-resultat-texte">{{ (quizScore === zoneQuiz.length ? 'parcours.quiz.sansFaute' : 'parcours.quiz.bienJoue') | translate }}</p>
             <button class="quiz-suivant" (click)="recommencerQuiz()">{{ 'parcours.quiz.recommencer' | translate }}</button>
@@ -138,13 +138,11 @@
         <span class="jdb-compte">{{ 'parcours.liste.validees' | translate:{n: badgeService.badges().size, total: journeyService.zones().length} }}</span>
       </div>
 
-      <div class="jdb-progress" *ngIf="journeyService.zones().length > 0">
+      <div class="jdb-progress" data-tuto="parcours-progression" *ngIf="journeyService.zones().length > 0">
         <div class="jdb-progress-track">
-          <div class="jdb-progress-fill"
-               [style.width.%]="(badgeService.badges().size / journeyService.zones().length) * 100">
-          </div>
+          <div class="jdb-progress-fill" [style.width.%]="progressPourcent()"></div>
+          <div class="jdb-progress-flag" [style.left.%]="progressFlagPourcent()">🚩</div>
         </div>
-        <div class="jdb-progress-flag">🚩</div>
         <div class="jdb-progress-mystere">?</div>
       </div>
 

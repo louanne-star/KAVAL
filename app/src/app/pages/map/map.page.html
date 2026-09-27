@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true">
-  <div id="map-container"></div>
+  <div id="map-container" data-tuto="carte-points"></div>
 
   <!-- ── Header style Navios ─────────────────────────────────────────────── -->
   <div class="header-navios">
@@ -9,10 +9,10 @@
     </div>
 
     <div class="nav-actions">
-      <button class="nav-btn" (click)="allerVersRecherche()" [title]="'carte.recherche' | translate">
+      <button class="nav-btn" data-tuto="carte-recherche" (click)="allerVersRecherche()" [title]="'carte.recherche' | translate">
         <ion-icon name="search-outline"></ion-icon>
       </button>
-      <button class="nav-btn" (click)="allerVersFavoris()" [title]="'carte.favoris' | translate">
+      <button class="nav-btn" data-tuto="carte-favoris" (click)="allerVersFavoris()" [title]="'carte.favoris' | translate">
         <ion-icon name="heart-outline"></ion-icon>
       </button>
       <button class="nav-avatar" (click)="allerVersCompte()" [title]="'carte.monCompte' | translate">
@@ -56,12 +56,12 @@
   </div>
 
   <!-- ── Satellite toggle ─────────────────────────────────────────────────── -->
-  <button class="btn-satellite" [class.actif]="modeSatellite()" (click)="toggleModeCarte()">
+  <button class="btn-satellite" data-tuto="carte-satellite" [class.actif]="modeSatellite()" (click)="toggleModeCarte()">
     <ion-icon [name]="modeSatellite() ? 'map-outline' : 'earth-outline'" class="satellite-ion-icon"></ion-icon>
   </button>
 
   <!-- ── Recenter button ──────────────────────────────────────────────────── -->
-  <button class="btn-recentrer" (click)="recentrer()">◎</button>
+  <button class="btn-recentrer" data-tuto="carte-recentrer" (click)="recentrer()">◎</button>
 
   <!-- ── Bottom sheet style Gym Beam ─────────────────────────────────────── -->
   <div class="bottom-sheet" *ngIf="zoneSelectionnee() as zone">

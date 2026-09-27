@@ -131,13 +131,24 @@
         <!-- Paramètres -->
         <p class="list-label">{{ 'compte.section.parametres' | translate }}</p>
         <div class="list-card">
-          <button class="list-row list-row--last" (click)="changerVue('mdp')">
+          <button class="list-row" (click)="changerVue('mdp')">
             <div class="list-ico list-ico--cyan">
               <ion-icon name="lock-closed-outline"></ion-icon>
             </div>
             <div class="list-txt">
               <span class="list-name">{{ 'compte.mdp.titre' | translate }}</span>
               <span class="list-sub">{{ 'compte.mdp.sousTitre' | translate }}</span>
+            </div>
+            <span class="list-arrow">›</span>
+          </button>
+          <!-- TEMPORAIRE — bouton de test pour rejouer le tuto, à retirer avant mise en prod. -->
+          <button class="list-row list-row--last" (click)="relancerTuto()">
+            <div class="list-ico list-ico--amber">
+              <ion-icon name="school-outline"></ion-icon>
+            </div>
+            <div class="list-txt">
+              <span class="list-name">Relancer le tutoriel</span>
+              <span class="list-sub">Debug — à retirer avant prod</span>
             </div>
             <span class="list-arrow">›</span>
           </button>
