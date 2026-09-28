@@ -9,7 +9,7 @@ ion-content {
 .rch-header {
   position: relative;
   background: linear-gradient(165deg, #27476e 0%, #3a6190 100%);
-  padding: calc(env(safe-area-inset-top, 44px) + 8px) 20px 110px;
+  padding: calc(env(safe-area-inset-top, 44px) + 8px) 20px 70px;
   overflow: hidden;
 }
 
@@ -76,19 +76,15 @@ ion-content {
   text-transform: uppercase; letter-spacing: 0.8px;
 }
 
-// Fondu vers le fond de page
-.rch-fade {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 120px; pointer-events: none;
-  background: linear-gradient(to bottom, rgba(58, 97, 144, 0) 0%, #f7f7f5 100%);
-}
 
 // ── Barre de recherche sticky ─────────────────────────────────────────────────
 
 .rch-search-sticky {
   position: sticky; top: 0; z-index: 100;
+  margin-top: -28px;
   background: #f7f7f5;
-  padding: 12px 16px 0;
+  border-radius: 28px 28px 0 0;
+  padding: 24px 16px 0;
   box-shadow: 0 4px 16px rgba(15,23,42,0.06);
 }
 

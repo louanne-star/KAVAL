@@ -17,7 +17,7 @@ ion-content {
 .cp-header {
   position: relative;
   background: linear-gradient(165deg, #27476e 0%, #3a6190 100%);
-  padding: calc(env(safe-area-inset-top, 44px) + 8px) 20px 120px;
+  padding: env(safe-area-inset-top, 44px) 20px 44px;
   overflow: hidden;
 }
 
@@ -49,7 +49,7 @@ ion-content {
   font-size: 24px; width: 44px; height: 44px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; padding-right: 3px; margin-bottom: 28px;
+  cursor: pointer; padding-right: 3px; margin: 10px 0 4px;
   transition: background 0.15s;
   &:active { background: rgba(255,255,255,0.25); }
 }
@@ -65,48 +65,45 @@ ion-content {
 }
 
 .cp-avatar {
-  width: 100px; height: 100px; border-radius: 50%;
-  background: rgba(255,255,255,0.1);
+  width: 120px; height: 120px; border-radius: 50%;
+  background: #f7f7f5;
   border: 3px solid rgba(255,255,255,0.8);
   display: flex; align-items: center; justify-content: center;
-  font-size: 17px; font-weight: 800; color: #fff; letter-spacing: 1px;
-  box-shadow: 0 0 0 6px rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.2);
+  font-size: 20px; font-weight: 800; color: #27476e; letter-spacing: 1px;
+  box-shadow: 0 0 0 7px rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.2);
   user-select: none; transition: transform 0.15s;
-  &.is-emoji { font-size: 46px; }
+  &.is-emoji { font-size: 55px; }
 }
 
 .cp-avatar-btn:active .cp-avatar { transform: scale(0.93); }
 
 .cp-edit-dot {
   position: absolute; bottom: 3px; right: 3px;
-  width: 26px; height: 26px; border-radius: 50%;
+  width: 31px; height: 31px; border-radius: 50%;
   background: #fff; color: #27476e;
-  font-size: 11px; font-weight: 700;
+  font-size: 13px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .cp-email {
-  font-size: 16px; font-weight: 700; color: #fff;
+  font-size: 19px; font-weight: 700; color: #fff;
   margin: 10px 0 0; letter-spacing: -0.2px;
 }
 
 .cp-role {
-  font-size: 12px; color: rgba(255,255,255,0.6);
+  font-size: 14px; color: rgba(255,255,255,0.6);
   margin: 0;
-}
-
-// Fondu vers le fond de page
-.cp-fade {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 130px; pointer-events: none;
-  background: linear-gradient(to bottom, rgba(58, 97, 144, 0) 0%, #f7f7f5 100%);
 }
 
 // ── Content ───────────────────────────────────────────────────────────────────
 
 .cp-content {
-  padding: 20px 16px calc(env(safe-area-inset-bottom, 24px) + 48px);
+  position: relative; z-index: 5;
+  margin-top: -28px;
+  background: #f7f7f5;
+  border-radius: 28px 28px 0 0;
+  padding: 28px 16px calc(env(safe-area-inset-bottom, 24px) + 48px);
 }
 
 // ── Toasts ────────────────────────────────────────────────────────────────────

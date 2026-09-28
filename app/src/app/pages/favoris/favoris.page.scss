@@ -9,7 +9,7 @@ ion-content {
 .fv-header {
   position: relative;
   background: linear-gradient(165deg, #27476e 0%, #3a6190 100%);
-  padding: calc(env(safe-area-inset-top, 44px) + 8px) 20px 110px;
+  padding: calc(env(safe-area-inset-top, 44px) + 8px) 20px 70px;
   overflow: hidden;
 }
 
@@ -76,17 +76,15 @@ ion-content {
   text-transform: uppercase; letter-spacing: 0.8px;
 }
 
-// Fondu vers le fond de page
-.fv-fade {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 120px; pointer-events: none;
-  background: linear-gradient(to bottom, rgba(58, 97, 144, 0) 0%, #f7f7f5 100%);
-}
 
 // ── Content ───────────────────────────────────────────────────────────────────
 
 .fv-content {
-  padding: 16px 16px calc(env(safe-area-inset-bottom, 24px) + 48px);
+  position: relative; z-index: 5;
+  margin-top: -28px;
+  background: #f7f7f5;
+  border-radius: 28px 28px 0 0;
+  padding: 24px 16px calc(env(safe-area-inset-bottom, 24px) + 48px);
 }
 
 // ── Zone list ─────────────────────────────────────────────────────────────────
