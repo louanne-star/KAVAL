@@ -1,10 +1,8 @@
 ion-content {
   --background: #f0f4fb;
-  --ion-font-family: 'Montserrat', sans-serif;
-  font-family: 'Montserrat', sans-serif;
 }
 
-.page { min-height: 100vh; font-family: 'Montserrat', sans-serif; }
+.page { min-height: 100vh; }
 
 // ── Header ────────────────────────────────────────────────────────────────────
 
@@ -42,7 +40,6 @@ ion-content {
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; padding-right: 3px; margin-bottom: 20px;
-  font-family: 'Montserrat', sans-serif;
   transition: background 0.15s;
   &:active { background: rgba(255,255,255,0.25); }
 }
@@ -55,12 +52,11 @@ ion-content {
 .fv-eyebrow {
   font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.65);
   text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 4px;
-  font-family: 'Montserrat', sans-serif;
 }
 
 .fv-title {
   font-size: 38px; font-weight: 900; color: #fff;
-  margin: 0; letter-spacing: -1px; font-family: 'Montserrat', sans-serif;
+  margin: 0; letter-spacing: -1px;
 }
 
 .fv-count-badge {
@@ -73,13 +69,11 @@ ion-content {
 
 .fv-count-num {
   font-size: 26px; font-weight: 900; color: #fff; line-height: 1;
-  font-family: 'Montserrat', sans-serif;
 }
 
 .fv-count-lbl {
   font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.6);
   text-transform: uppercase; letter-spacing: 0.8px;
-  font-family: 'Montserrat', sans-serif;
 }
 
 // Wave SVG (replaces old .fv-arch)
@@ -140,10 +134,9 @@ ion-content {
 .zi-name {
   font-size: 15px; font-weight: 700; color: #0f172a;
   margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  font-family: 'Montserrat', sans-serif;
 }
 
-.zi-sub { font-size: 12px; color: #64748b; margin: 0 0 5px; font-family: 'Montserrat', sans-serif; }
+.zi-sub { font-size: 12px; color: #64748b; margin: 0 0 5px; }
 
 .zi-meta { display: flex; align-items: center; gap: 6px; }
 
@@ -175,12 +168,11 @@ ion-content {
 
 .fv-empty-h {
   font-size: 22px; font-weight: 800; color: #0f172a;
-  margin: 0 0 8px; font-family: 'Montserrat', sans-serif;
+  margin: 0 0 8px;
 }
 
 .fv-empty-p {
   font-size: 14px; color: #64748b; line-height: 1.6; margin: 0;
-  font-family: 'Montserrat', sans-serif;
 }
 
 // ── Animations ────────────────────────────────────────────────────────────────
