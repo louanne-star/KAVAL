@@ -23,20 +23,11 @@
       <div class="cp-fade" aria-hidden="true"></div>
     </div>
 
-    <!-- ── Pill tabs ─────────────────────────────────────────────────────────── -->
-    <div class="cp-tabs">
-      <button class="cp-tab" [class.cp-tab--on]="vue() === 'profil'" (click)="changerVue('profil')">{{ 'compte.tabs.profil' | translate }}</button>
-      <button class="cp-tab" [class.cp-tab--on]="vue() === 'mdp'"    (click)="changerVue('mdp')">{{ 'compte.tabs.securite' | translate }}</button>
-    </div>
-
     <!-- ── Contenu ───────────────────────────────────────────────────────────── -->
     <div class="cp-content">
 
       <div class="toast toast--ok"  *ngIf="succes()">✓ {{ succes() }}</div>
       <div class="toast toast--err" *ngIf="erreur()">⚠ {{ erreur() }}</div>
-
-      <!-- ════════ VUE PROFIL ════════════════════════════════════════════════ -->
-      <ng-container *ngIf="vue() === 'profil'">
 
         <!-- Stats -->
         <div class="stats-row">
@@ -121,10 +112,10 @@
           </div>
         </div>
 
-        <!-- Paramètres -->
-        <p class="list-label">{{ 'compte.section.parametres' | translate }}</p>
+        <!-- Sécurité -->
+        <p class="list-label">{{ 'compte.tabs.securite' | translate }}</p>
         <div class="list-card">
-          <button class="list-row" (click)="changerVue('mdp')">
+          <button class="list-row list-row--last" (click)="voirMdpSheet.set(true)">
             <div class="list-ico list-ico--cyan">
               <ion-icon name="lock-closed-outline"></ion-icon>
             </div>
@@ -134,6 +125,11 @@
             </div>
             <span class="list-arrow">›</span>
           </button>
+        </div>
+
+        <!-- Paramètres -->
+        <p class="list-label">{{ 'compte.section.parametres' | translate }}</p>
+        <div class="list-card">
           <!-- TEMPORAIRE — bouton de test pour rejouer le tuto, à retirer avant mise en prod. -->
           <button class="list-row list-row--last" (click)="relancerTuto()">
             <div class="list-ico list-ico--amber">
@@ -155,33 +151,6 @@
           </button>
         </div>
 
-      </ng-container>
-
-      <!-- ════════ VUE MDP ═══════════════════════════════════════════════════ -->
-      <ng-container *ngIf="vue() === 'mdp'">
-
-        <button class="cp-back-link" (click)="changerVue('profil')">{{ 'compte.mdp.retour' | translate }}</button>
-
-        <p class="list-label">{{ 'compte.mdp.nouveau' | translate }}</p>
-        <div class="list-card">
-          <div class="field">
-            <label class="field-label" for="f-mdp">{{ 'compte.mdp.nouveau' | translate }}</label>
-            <input id="f-mdp" class="field-input" type="password" placeholder="••••••"
-                   [(ngModel)]="nouveauMdp" autocomplete="new-password" />
-          </div>
-          <div class="field field--last">
-            <label class="field-label" for="f-mdp2">{{ 'compte.mdp.confirmer' | translate }}</label>
-            <input id="f-mdp2" class="field-input" type="password" placeholder="••••••"
-                   [(ngModel)]="confirmMdp" autocomplete="new-password" />
-          </div>
-        </div>
-
-        <button class="cp-save" (click)="modifierMdp()" [disabled]="chargement()">
-          <span *ngIf="!chargement()">{{ 'compte.action.enregistrer' | translate }}</span>
-          <span *ngIf="chargement()" class="spin"></span>
-        </button>
-
-      </ng-container>
     </div>
   </div>
 
@@ -214,6 +183,30 @@
                 [class.emoji-btn--on]="auth.avatarEmoji === e"
                 (click)="choisirEmoji(e)">{{ e }}</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ── Sheet modification mot de passe ─────────────────────────────────── -->
+  <div class="overlay overlay--centre" *ngIf="voirMdpSheet()" (click)="voirMdpSheet.set(false)">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="voirMdpSheet.set(false)" aria-label="Fermer">✕</button>
+      <h3 class="sheet-h">{{ 'compte.mdp.titre' | translate }}</h3>
+
+      <div class="field">
+        <label class="field-label" for="f-mdp">{{ 'compte.mdp.nouveau' | translate }}</label>
+        <input id="f-mdp" class="field-input" type="password" placeholder="••••••"
+               [(ngModel)]="nouveauMdp" autocomplete="new-password" />
+      </div>
+      <div class="field field--last">
+        <label class="field-label" for="f-mdp2">{{ 'compte.mdp.confirmer' | translate }}</label>
+        <input id="f-mdp2" class="field-input" type="password" placeholder="••••••"
+               [(ngModel)]="confirmMdp" autocomplete="new-password" />
+      </div>
+
+      <button class="cp-save" (click)="modifierMdp()" [disabled]="chargement()">
+        <span *ngIf="!chargement()">{{ 'compte.action.enregistrer' | translate }}</span>
+        <span *ngIf="chargement()" class="spin"></span>
+      </button>
     </div>
   </div>
 

@@ -146,7 +146,7 @@ export const TRANSLATIONS = {
     },
     compte: {
       role: 'Explorateur · KAVAL',
-      tabs:    { profil: 'Profil', securite: 'Sécurité' },
+      tabs:    { securite: 'Sécurité' },
       stats:   { visitees: 'Visitées', favoris: 'Favoris', zones: 'Zones' },
       section: { identite: 'Identité', favoris: 'Zones sauvegardées', preferences: 'Préférences', parametres: 'Paramètres' },
       identite: {
@@ -159,7 +159,6 @@ export const TRANSLATIONS = {
       mdp: {
         titre:     'Mot de passe',
         sousTitre: 'Modifier votre sécurité',
-        retour:    '‹ Profil',
         nouveau:   'Nouveau mot de passe',
         confirmer: 'Confirmer',
       },
@@ -359,7 +358,7 @@ export const TRANSLATIONS = {
     },
     compte: {
       role: 'Explorer · KAVAL',
-      tabs:    { profil: 'Profile', securite: 'Security' },
+      tabs:    { securite: 'Security' },
       stats:   { visitees: 'Visited', favoris: 'Favorites', zones: 'Zones' },
       section: { identite: 'Identity', favoris: 'Saved zones', preferences: 'Preferences', parametres: 'Settings' },
       identite: {
@@ -372,7 +371,6 @@ export const TRANSLATIONS = {
       mdp: {
         titre:     'Password',
         sousTitre: 'Update your security',
-        retour:    '‹ Profile',
         nouveau:   'New password',
         confirmer: 'Confirm',
       },
