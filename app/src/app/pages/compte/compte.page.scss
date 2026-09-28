@@ -167,24 +167,12 @@ ion-content {
   &:nth-child(2) { animation-delay: 0.1s; }
   &:nth-child(3) { animation-delay: 0.15s; }
 
-  &::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: #0ea5e9;
-    border-radius: 18px 18px 0 0;
-  }
-
-  &.stat-card--fav::before  { background: #f97316; }
-  &.stat-card--total::before { background: #8b5cf6; }
 }
 
 .stat-num {
   font-size: 30px; font-weight: 900; color: #0ea5e9;
   line-height: 1;
 }
-
-.stat-card--fav   .stat-num { color: #f97316; }
-.stat-card--total .stat-num { color: #8b5cf6; }
 
 .stat-lbl {
   font-size: 10px; font-weight: 700; color: #94a3b8;
