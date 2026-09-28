@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
@@ -44,7 +44,11 @@ export class AuthPage {
     private favoris:  FavoriteService,
     private router:   Router,
     private translate: TranslateService,
-  ) {}
+    route: ActivatedRoute,
+  ) {
+    const tab = route.snapshot.queryParamMap.get('tab');
+    if (tab === 'inscription' || tab === 'connexion') this.onglet = tab;
+  }
 
   basculerOnglet(onglet: 'connexion' | 'inscription') {
     this.onglet = onglet;

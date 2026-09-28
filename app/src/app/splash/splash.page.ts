@@ -3,7 +3,9 @@ import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Preferences } from '@capacitor/preferences';
 import { AuthService } from '../services/auth.service';
+import { CLE_ONBOARDING_TERMINE } from '../onboarding/onboarding.constants';
 import { SyncService } from '../services/sync.service';
 import { BadgeService } from '../services/badge.service';
 import { RatingService } from '../services/rating.service';
@@ -43,7 +45,8 @@ export class SplashPage implements OnInit {
         this.syncEnArrierePlan();
         this.router.navigate(['/tabs/carte'], { replaceUrl: true });
       } else {
-        this.router.navigate(['/login'], { replaceUrl: true });
+        const { value } = await Preferences.get({ key: CLE_ONBOARDING_TERMINE });
+        this.router.navigate([value ? '/login' : '/onboarding'], { replaceUrl: true });
       }
     }, 2000);
   }

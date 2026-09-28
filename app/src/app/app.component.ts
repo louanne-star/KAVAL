@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { LanguageService } from './services/language.service';
+import { BrandingService } from './services/branding.service';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +9,5 @@ import { LanguageService } from './services/language.service';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  constructor(private languageService: LanguageService) {}
+  constructor(private languageService: LanguageService, private brandingService: BrandingService) {}
 }
