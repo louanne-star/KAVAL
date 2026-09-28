@@ -9,7 +9,7 @@ const BUCKET = 'branding';
 // Supabase n'a pas répondu, et en repli si la table est vide/injoignable
 // (hors-ligne, bucket pas encore configuré...). Voir supabase/migrations_branding.sql.
 const LOGO_BLANC_LOCAL = 'assets/icon/logo-blanc.png';
-const LOGO_BADGE_LOCAL = 'assets/icon/logo.png';
+const LOGO_BADGE_LOCAL = 'assets/icon/logo-badge.png';
 
 @Injectable({ providedIn: 'root' })
 export class BrandingService {
