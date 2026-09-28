@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { personOutline, languageOutline, lockClosedOutline, trashOutline } from 'ionicons/icons';
+import { personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline } from 'ionicons/icons';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
@@ -12,6 +12,7 @@ import { JourneyService } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { PointsService } from '../../services/points.service';
 import { LanguageService } from '../../services/language.service';
+import { TutorialService } from '../../services/tutorial.service';
 import { Langue } from '../../i18n/translations';
 
 type Vue = 'profil' | 'mdp';
@@ -67,9 +68,10 @@ export class ComptePage {
     readonly pointsService:   PointsService,
     readonly languageService: LanguageService,
     private translate:        TranslateService,
+    private tutorial:         TutorialService,
     private router:           Router,
   ) {
-    addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline });
+    addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline });
   }
 
   retour() { this.router.navigate(['/tabs/carte']); }
@@ -176,5 +178,11 @@ export class ComptePage {
 
   allerVersZone(zoneId: string) {
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
+  }
+
+  // TEMPORAIRE — bouton de test pour rejouer le tuto, à retirer avant mise en prod.
+  async relancerTuto() {
+    await this.tutorial.demarrer();
+    this.router.navigate(['/tabs/carte'], { replaceUrl: true });
   }
 }

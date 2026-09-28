@@ -467,10 +467,10 @@ ion-content.parcours-content {
 }
 
 .jdb-progress-track {
+  position: relative;
   flex: 1; height: 4px;
   background: #eef1f6;
   border-radius: 2px;
-  overflow: hidden;
 }
 
 .jdb-progress-fill {
@@ -480,10 +480,14 @@ ion-content.parcours-content {
   transition: width 0.8s ease;
 }
 
+.jdb-progress-flag {
+  position: absolute;
+  top: 50%; transform: translate(-50%, -50%);
+  transition: left 0.8s ease;
+}
+
 .jdb-progress-flag,
 .jdb-progress-mystere {
-  position: absolute;
-  top: 50%; transform: translateY(-50%);
   width: 30px; height: 30px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -493,9 +497,9 @@ ion-content.parcours-content {
   box-shadow: 0 2px 8px rgba(39,71,110,0.15);
 }
 
-.jdb-progress-flag    { left: 0; }
 .jdb-progress-mystere {
-  right: 0;
+  flex-shrink: 0;
+  margin-left: 8px;
   color: #27476e;
   font-weight: 800;
   border-style: dashed;

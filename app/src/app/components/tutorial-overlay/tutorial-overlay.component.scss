@@ -1,0 +1,110 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  pointer-events: none;
+}
+
+.tuto-bande {
+  position: fixed;
+  background: rgba(10, 16, 28, 0.72);
+  pointer-events: auto;
+}
+
+.tuto-voile {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 16, 28, 0.72);
+  pointer-events: auto;
+}
+
+.tuto-spot {
+  position: fixed;
+  border-radius: 16px;
+  box-shadow: 0 0 0 3px #ffb703, 0 0 24px rgba(255, 183, 3, 0.55);
+  // auto (et non none) : bloque aussi les clics sur l'élément mis en avant.
+  // Seuls "Suivant"/"Passer" restent cliquables pendant le tuto.
+  pointer-events: auto;
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.tuto-bulle {
+  pointer-events: auto;
+  width: min(320px, calc(100vw - 32px));
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  transition: top 0.2s ease, bottom 0.2s ease, left 0.2s ease;
+}
+
+// Petit triangle qui désigne l'élément dont parle la bulle. Positionné en
+// haut (pointe vers le haut) ou en bas (pointe vers le bas) selon que la
+// bulle est placée sous ou au-dessus de sa cible — voir pointeClasse().
+.tuto-pointe {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  transform: translateX(-50%);
+  transition: left 0.2s ease;
+}
+
+.tuto-pointe--haut {
+  top: -8px;
+  border-bottom: 9px solid #fff;
+}
+
+.tuto-pointe--bas {
+  bottom: -8px;
+  border-top: 9px solid #fff;
+}
+
+.tuto-bulle-etape {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffb703;
+  margin-bottom: 4px;
+}
+
+.tuto-bulle-titre {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #27476e;
+}
+
+.tuto-bulle-texte {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #3a3a3a;
+}
+
+.tuto-bulle-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.tuto-btn-passer {
+  background: none;
+  border: none;
+  color: #8a8a8a;
+  font-size: 13px;
+  padding: 8px 4px;
+}
+
+.tuto-btn-suivant {
+  background: #27476e;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+}

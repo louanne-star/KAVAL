@@ -172,6 +172,17 @@ export class ParcoursPage implements OnInit, OnDestroy {
     return article === "l'" ? article : article + ' ';
   }
 
+  progressPourcent(): number {
+    const total = this.journeyService.zones().length;
+    return total ? (this.badgeService.badges().size / total) * 100 : 0;
+  }
+
+  // Le drapeau avance avec la progression, mais reste clampé avant le "?" de
+  // fin de piste pour ne jamais se superposer avec lui (même à 100%).
+  progressFlagPourcent(): number {
+    return Math.min(this.progressPourcent(), 94);
+  }
+
   ngOnDestroy() {
     this.paramSub?.unsubscribe();
     window.removeEventListener('message', this.onMessage);

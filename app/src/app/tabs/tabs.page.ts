@@ -9,6 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { UiStateService } from '../services/ui-state.service';
 import { JourneyService } from '../services/journey.service';
 import { LanguageService } from '../services/language.service';
+import { TutorialService } from '../services/tutorial.service';
 
 @Component({
   selector: 'app-tabs',
@@ -36,6 +37,7 @@ export class TabsPage {
     readonly uiState: UiStateService,
     readonly languageService: LanguageService,
     journeyService: JourneyService,
+    private tutorial: TutorialService,
   ) {
     addIcons({ mapOutline, listOutline, informationCircleOutline });
 
@@ -44,6 +46,11 @@ export class TabsPage {
     // donc le parcours se charge même si on atterrit/recharge directement
     // sur /tabs/parcours sans jamais passer par la carte.
     journeyService.initialiser();
+
+    // Reprend le tuto d'onboarding s'il a été démarré (inscription) mais pas
+    // terminé — ex: l'app a été relancée en plein milieu. N'affecte jamais un
+    // utilisateur qui ne l'a jamais commencé.
+    this.tutorial.reprendreSiEnCours();
 
     router.events
       .pipe(filter(e => e instanceof NavigationEnd))
