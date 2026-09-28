@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { LanguageService } from './services/language.service';
+import { BrandingService } from './services/branding.service';
 import { TutorialOverlayComponent } from './components/tutorial-overlay/tutorial-overlay.component';
 
 @Component({
@@ -9,5 +10,5 @@ import { TutorialOverlayComponent } from './components/tutorial-overlay/tutorial
   imports: [IonApp, IonRouterOutlet, TutorialOverlayComponent],
 })
 export class AppComponent {
-  constructor(private languageService: LanguageService) {}
+  constructor(private languageService: LanguageService, private brandingService: BrandingService) {}
 }

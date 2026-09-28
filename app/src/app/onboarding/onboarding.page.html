@@ -1,0 +1,149 @@
+<ion-content [fullscreen]="true" [scrollY]="false" class="onboarding-content">
+
+  <div class="piste" #piste>
+
+    <!-- ═══════════════════════ ÉCRAN 1 — BIENVENUE ═══════════════════════ -->
+    <section class="ecran ecran-hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+
+      <div class="hero-contenu">
+        <div class="hero-centre">
+          <img [src]="branding.logoBlanc()" alt="" class="hero-logo" />
+          <h1 class="hero-nom">KAVAL</h1>
+          <p class="hero-slogan">EXPLOREZ.<br>APPRENEZ.<br>AVANCEZ.</p>
+          <p class="hero-baseline">Découvrez l'île Nou autrement.</p>
+        </div>
+
+        <button class="btn-hero-commencer" (click)="suivant()">
+          <ion-icon name="map-outline"></ion-icon> COMMENCER
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ ÉCRAN 2 — LOCALISATION ═══════════════════════ -->
+    <section class="ecran ecran-clair">
+      <button class="btn-retour" (click)="precedent()">
+        <ion-icon name="arrow-back-outline"></ion-icon> Retour
+      </button>
+
+      <div class="onb-corps">
+        <div class="onb-illustration">
+          <ion-icon name="map-outline" class="onb-illustration-fond"></ion-icon>
+          <span class="onb-pulse"></span>
+          <ion-icon name="location" class="onb-illustration-pin"></ion-icon>
+        </div>
+
+        <h1>On a besoin de ta position</h1>
+        <p class="onb-texte">Pour te guider sur le parcours et t'indiquer les lieux à proximité.</p>
+
+        <button
+          type="button"
+          class="onb-toggle-permission"
+          [class.actif]="permission() === 'accordee'"
+          [class.chargement]="permission() === 'en_cours'"
+          [disabled]="permission() === 'en_cours' || permission() === 'accordee'"
+          role="switch"
+          [attr.aria-checked]="permission() === 'accordee'"
+          (click)="onToggleLocalisation()">
+          <span class="onb-toggle-label">Activer la position</span>
+          <span class="onb-toggle-switch"><span class="onb-toggle-curseur"></span></span>
+        </button>
+
+        <p class="onb-permission-erreur" *ngIf="messagePermission() as msg">{{ msg }}</p>
+
+        <!-- Filet de sécurité : si la permission était déjà accordée avant
+             l'ouverture de l'onboarding, l'avancée automatique ne se
+             déclenche pas (pas de clic sur "Autoriser") — ce bouton reste
+             le moyen explicite de continuer. -->
+        <button class="btn-onb-suivant-localisation" *ngIf="permission() === 'accordee'" (click)="suivant()">
+          Suivant <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ ÉCRAN 3 — POURQUOI SE CONNECTER ═══════════════════════ -->
+    <section class="ecran ecran-clair">
+      <button class="btn-retour" (click)="precedent()">
+        <ion-icon name="arrow-back-outline"></ion-icon> Retour
+      </button>
+
+      <div class="onb-corps">
+        <h1>Pourquoi se connecter ?</h1>
+        <p class="onb-texte">Un compte pour sauvegarder ta progression.</p>
+
+        <div class="onb-avantages">
+          <div class="onb-avantage" *ngFor="let a of avantages">
+            <div class="onb-avantage-icone"><ion-icon [name]="a.icone"></ion-icon></div>
+            <div class="onb-avantage-texte">
+              <p class="onb-avantage-num">{{ a.num }}</p>
+              <p class="onb-avantage-titre">{{ a.titre }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-onb-suivant" (click)="suivant()">Suivant <ion-icon name="arrow-forward-outline"></ion-icon></button>
+    </section>
+
+    <!-- ═══════════════════════ ÉCRAN 4 — PROJET COLLABORATIF ═══════════════════════ -->
+    <section class="ecran ecran-clair">
+      <button class="btn-retour" (click)="precedent()">
+        <ion-icon name="arrow-back-outline"></ion-icon> Retour
+      </button>
+
+      <div class="onb-corps">
+        <h1>Un projet collaboratif</h1>
+        <p class="onb-texte">Conçu avec celles et ceux qui font vivre le patrimoine de l'île.</p>
+
+        <!-- Bulles d'équipe : photo de chaque membre (chargées depuis Supabase,
+             voir EquipeService), silhouette de repli tant qu'un slot n'a pas
+             encore de photo, flottant doucement autour du logo. -->
+        <div class="onb-equipe-cluster">
+          <div class="onb-equipe-logo"><img [src]="branding.logoBadge()" alt="KAVAL" /></div>
+          <div class="onb-equipe-bulle" *ngFor="let m of equipe.bulles()">
+            <img *ngIf="m" [src]="m.photoUrl" alt="" />
+            <ion-icon *ngIf="!m" name="person-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="onb-collab-tags">
+          <div class="onb-collab-tag" *ngFor="let c of collaborateurs">
+            <span class="onb-collab-tag-role">{{ c.role }}</span>
+            <span class="onb-collab-tag-nom">{{ c.nom }}</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-onb-suivant" (click)="suivant()">Suivant <ion-icon name="arrow-forward-outline"></ion-icon></button>
+    </section>
+
+    <!-- ═══════════════════════ ÉCRAN 5 — PRÊT À DÉCOUVRIR ═══════════════════════ -->
+    <section class="ecran ecran-photo">
+      <div class="ecran-photo-bg"></div>
+      <div class="ecran-photo-overlay ecran-photo-overlay-fort"></div>
+
+      <button class="btn-retour btn-retour-clair" (click)="precedent()">
+        <ion-icon name="arrow-back-outline"></ion-icon> Retour
+      </button>
+
+      <div class="ecran-photo-contenu ecran-photo-contenu-centre">
+        <img [src]="branding.logoBadge()" alt="KAVAL" class="onb-logo-final" />
+        <h1>Prêt à découvrir KAVAL ?</h1>
+        <p class="onb-texte onb-texte-clair">Rejoins l'aventure et explore l'île Nou.</p>
+
+        <button class="btn-onb-clair" (click)="terminer('inscription')">
+          Créer un compte <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+        <button class="btn-onb-lien-clair" (click)="terminer('connexion')">Déjà un compte ? Se connecter</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Pagination -->
+  <div class="onb-dots" [class.onb-dots-clair]="indexActif() === 0 || indexActif() === 4">
+    <span *ngFor="let e of ecrans" [class.actif]="indexActif() === e" (click)="allerA(e)"></span>
+  </div>
+
+</ion-content>

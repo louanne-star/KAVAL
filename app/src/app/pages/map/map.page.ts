@@ -16,6 +16,7 @@ import { AuthService } from '../../services/auth.service';
 import { PointsService, PointPopup } from '../../services/points.service';
 import { UiStateService } from '../../services/ui-state.service';
 import { LanguageService } from '../../services/language.service';
+import { BrandingService } from '../../services/branding.service';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -201,6 +202,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly badgeService: BadgeService,
     readonly uiState: UiStateService,
     readonly languageService: LanguageService,
+    readonly brandingService: BrandingService,
     private translate: TranslateService,
   ) {
     addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, carOutline, walkOutline });
