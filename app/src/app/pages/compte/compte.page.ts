@@ -15,8 +15,6 @@ import { LanguageService } from '../../services/language.service';
 import { TutorialService } from '../../services/tutorial.service';
 import { Langue } from '../../i18n/translations';
 
-type Vue = 'profil' | 'mdp';
-
 @Component({
   selector: 'app-compte',
   templateUrl: './compte.page.html',
@@ -34,12 +32,12 @@ export class ComptePage {
   ];
 
   // Navigation
-  vue          = signal<Vue>('profil');
   chargement   = signal(false);
   erreur       = signal<string | null>(null);
   succes       = signal<string | null>(null);
   confirmSuppr = signal(false);
   voirPicker   = signal(false);
+  voirMdpSheet = signal(false);
 
   // Identité (le pseudonyme vit dans user_metadata Supabase, propre à chaque compte)
   readonly username = computed(() => this.auth.username);
@@ -75,12 +73,6 @@ export class ComptePage {
   }
 
   retour() { this.router.navigate(['/tabs/carte']); }
-
-  changerVue(v: Vue) {
-    this.vue.set(v);
-    this.erreur.set(null);
-    this.succes.set(null);
-  }
 
   // ── Avatar ──────────────────────────────────────────────────────────────────
 
@@ -145,8 +137,9 @@ export class ComptePage {
       await this.auth.modifierMotDePasse(this.nouveauMdp);
       this.nouveauMdp = '';
       this.confirmMdp = '';
+      this.voirMdpSheet.set(false);
       this.succes.set(this.translate.instant('compte.messages.mdpOk'));
-      setTimeout(() => { this.succes.set(null); this.vue.set('profil'); }, 2000);
+      setTimeout(() => this.succes.set(null), 2000);
     } catch {
       this.erreur.set(this.translate.instant('compte.messages.mdpErreur'));
     } finally {
