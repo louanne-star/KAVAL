@@ -5,12 +5,6 @@
   pointer-events: none;
 }
 
-.tuto-bande {
-  position: fixed;
-  background: rgba(10, 16, 28, 0.72);
-  pointer-events: auto;
-}
-
 .tuto-voile {
   position: fixed;
   inset: 0;
@@ -20,12 +14,19 @@
 
 .tuto-spot {
   position: fixed;
-  border-radius: 16px;
-  box-shadow: 0 0 0 3px #ffb703, 0 0 24px rgba(255, 183, 3, 0.55);
+  // Le voile sombre est le box-shadow massif (9999px) qui déborde de cet
+  // élément dans toutes les directions : il épouse donc automatiquement le
+  // border-radius (rond, coins arrondis...) fixé par spotStyle() d'après la
+  // vraie forme de la cible — plus de coins carrés non assombris qui
+  // dépassaient d'un halo rond.
+  box-shadow:
+    0 0 0 3px #ffb703,
+    0 0 24px rgba(255, 183, 3, 0.55),
+    0 0 0 9999px rgba(10, 16, 28, 0.72);
   // auto (et non none) : bloque aussi les clics sur l'élément mis en avant.
   // Seuls "Suivant"/"Passer" restent cliquables pendant le tuto.
   pointer-events: auto;
-  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
 }
 
 .tuto-bulle {
