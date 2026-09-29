@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 310" width="260" height="310">
+  <circle cx="130" cy="118" r="108" fill="#3498db"/>
+  <circle cx="130" cy="118" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+  <g transform="translate(80,68) scale(0.1953125)" fill="#ffffff"><path d="M440.9 136.3a4 4 0 000-6.91L288.16 40.65a64.14 64.14 0 00-64.33 0L71.12 129.39a4 4 0 000 6.91L254 243.88a4 4 0 004.06 0zM54 163.51a4 4 0 00-6 3.49v173.89a48 48 0 0023.84 41.39L234 479.51a4 4 0 006-3.46V274.3a4 4 0 00-2-3.46zM272 275v201a4 4 0 006 3.46l162.15-97.23A48 48 0 00464 340.89V167a4 4 0 00-6-3.45l-184 108a4 4 0 00-2 3.45z"/></g>
+  <text x="130" y="252" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="16" fill="#1a1a1a"><tspan x="130" dy="0">Gardien du</tspan><tspan x="130" dy="18">Magasin à Vivre</tspan></text>
+  <text x="130" y="292" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#6b7280">Hôpital du Marais</text>
+</svg>

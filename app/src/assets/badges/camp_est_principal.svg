@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 310" width="260" height="310">
+  <circle cx="130" cy="118" r="108" fill="#e74c3c"/>
+  <circle cx="130" cy="118" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+  <g transform="translate(80,68) scale(0.1953125)" fill="#ffffff"><path d="M256 60c-70 0-120 40-120 40v60h20v260h30V240h60v180h30V240h60v180h30V160h20v-60s-50-40-120-40z"/></g>
+  <text x="130" y="258" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="16" fill="#1a1a1a"><tspan x="130" dy="0">Bâtisseur du Camp Est</tspan></text>
+  <text x="130" y="282" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#6b7280">Camp Est</text>
+</svg>

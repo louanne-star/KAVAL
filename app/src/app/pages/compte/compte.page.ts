@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline } from 'ionicons/icons';
+import { personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline, heartOutline } from 'ionicons/icons';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
@@ -69,7 +69,7 @@ export class ComptePage {
     private tutorial:         TutorialService,
     private router:           Router,
   ) {
-    addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline });
+    addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline, heartOutline });
   }
 
   retour() { this.router.navigate(['/tabs/carte']); }

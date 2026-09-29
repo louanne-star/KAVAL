@@ -48,10 +48,9 @@
              (click)="allerVersZone(z.id)">
 
           <div class="zc-top">
-            <div class="zc-ico" [ngClass]="'ico-' + z.id">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
+            <img class="zc-ico badge-point-icone" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
             <div class="zc-badges">
-              <span *ngIf="badgeService.aBadge(z.id)">🏅</span>
-              <span class="zc-heart" *ngIf="favoriteService.estFavori(z.id)">♡</span>
+              <ion-icon class="zc-heart" *ngIf="favoriteService.estFavori(z.id)" name="heart"></ion-icon>
             </div>
           </div>
 
@@ -60,10 +59,6 @@
 
           <div class="zc-footer">
             <span class="zc-stars">{{ starsFor(ratingService.getMoyenne(z.id)?.moyenne ?? null) }}</span>
-            <button class="zc-map" (click)="allerVersCarte(z.id); $event.stopPropagation()"
-                    [attr.aria-label]="'recherche.voirCarteAria' | translate">
-              <ion-icon name="map-outline"></ion-icon>
-            </button>
           </div>
 
         </div>

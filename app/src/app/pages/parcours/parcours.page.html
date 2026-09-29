@@ -3,7 +3,7 @@
   <!-- Badge win overlay -->
   <div class="badge-overlay" *ngIf="badgeAnimation">
     <div class="badge-win-card">
-      <div class="badge-emoji">🏅</div>
+      <img class="badge-emoji" *ngIf="zoneSelectionnee" [src]="'assets/badges/' + zoneSelectionnee.id + '.svg'" alt="" />
       <h2 class="badge-titre">{{ 'parcours.badge.titre' | translate }}</h2>
       <p class="badge-sous">{{ 'parcours.badge.sousTitre' | translate }}</p>
     </div>
@@ -27,7 +27,7 @@
 
       <div class="detail-header" [class]="'detail-header zone-' + zone.zoneId" [style.--couleur]="zone.couleurZone">
         <button class="btn-retour" (click)="retourListe()">{{ 'parcours.retour' | translate }}</button>
-        <div class="detail-icone">{{ pointsService.metaDe(zone.zoneId)?.icone }}</div>
+        <img class="detail-icone badge-point-icone" [src]="'assets/badges/' + zone.id + '-icon.svg'" alt="" />
         <div class="detail-badge-pill">{{ pointsService.texte(zone.zoneNom, zone.zoneNomEn) }} · {{ 'commun.etape' | translate:{n: zone.ordre} }}</div>
         <h1 class="detail-titre">{{ pointsService.texte(zone.nom, zone.nomEn) }}</h1>
         <p class="detail-sous-titre">{{ pointsService.texte(pointsService.metaDe(zone.zoneId)?.sousTitre ?? '', pointsService.metaDe(zone.zoneId)?.sousTitreEn) }}</p>
@@ -48,7 +48,8 @@
                 </p>
               </div>
               <div class="contenu-tag" [class.badge-earned]="badgeService.aBadge(zone.id)">
-                {{ badgeService.aBadge(zone.id) ? '🏅' : ('parcours.miniJeu.jouer' | translate) }}
+                <img *ngIf="badgeService.aBadge(zone.id); else jouerLabel" class="contenu-tag-badge" [src]="'assets/badges/' + zone.id + '-icon.svg'" alt="" />
+                <ng-template #jouerLabel>{{ 'parcours.miniJeu.jouer' | translate }}</ng-template>
               </div>
             </div>
           </ng-container>
@@ -160,7 +161,7 @@
                 [class.jdb-carte--validee]="badgeService.aBadge(z.id)"
                 (click)="selectZone(z)">
 
-          <div class="jdb-carte-icone">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
+          <img class="jdb-carte-icone badge-point-icone" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
 
           <div class="jdb-carte-infos">
             <p class="jdb-carte-titre">

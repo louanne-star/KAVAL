@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 310" width="260" height="310">
+  <circle cx="130" cy="118" r="108" fill="#27ae60"/>
+  <circle cx="130" cy="118" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+  <g transform="translate(80,68) scale(0.1953125)" fill="#ffffff"><path d="M368 192h-16v-80a96 96 0 10-192 0v80h-16a64.07 64.07 0 00-64 64v176a64.07 64.07 0 0064 64h224a64.07 64.07 0 0064-64V256a64.07 64.07 0 00-64-64zm-48 0H192v-80a64 64 0 11128 0z"/></g>
+  <text x="130" y="258" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="16" fill="#1a1a1a"><tspan x="130" dy="0">Geôlier du Quartier</tspan></text>
+  <text x="130" y="282" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#6b7280">Zone Pénitentiaire</text>
+</svg>

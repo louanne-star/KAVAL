@@ -30,19 +30,21 @@
                [style.animation-delay]="i * 70 + 'ms'"
                (click)="allerVersCarte(z.id)">
 
-            <div class="zi-ico" [ngClass]="'ico-' + z.id">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
+            <img class="zi-ico badge-point-icone" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
 
             <div class="zi-info">
               <div class="zi-name">{{ pointsService.texte(z.nom, z.nomEn) }}</div>
               <div class="zi-sub">{{ pointsService.texte(pointsService.metaDe(z.zoneId)?.sousTitre ?? '', pointsService.metaDe(z.zoneId)?.sousTitreEn) }}</div>
               <div class="zi-meta">
                 <span class="zi-stars">{{ starsFor(ratingService.getMoyenne(z.id)?.moyenne ?? null) }}</span>
-                <span class="zi-badge" *ngIf="badgeService.aBadge(z.id)">🏅</span>
+                <img class="zi-badge" *ngIf="badgeService.aBadge(z.id)" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
               </div>
             </div>
 
             <button class="zi-heart" (click)="toggleFavori(z.id); $event.stopPropagation()"
-                    [attr.aria-label]="'favoris.retirerAria' | translate">♡</button>
+                    [attr.aria-label]="'favoris.retirerAria' | translate">
+              <ion-icon name="heart"></ion-icon>
+            </button>
 
           </div>
         </div>
@@ -50,7 +52,7 @@
 
       <ng-template #aucun>
         <div class="fv-empty">
-          <div class="fv-empty-ico">♡</div>
+          <div class="fv-empty-ico"><ion-icon name="heart-outline"></ion-icon></div>
           <h2 class="fv-empty-h">{{ 'favoris.vide.titre' | translate }}</h2>
           <p class="fv-empty-p">{{ 'favoris.vide.texte' | translate }}</p>
         </div>

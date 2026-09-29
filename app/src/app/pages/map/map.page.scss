@@ -225,7 +225,8 @@ ion-content {
 }
 
 .arrivee-badge {
-  font-size: 24px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
 }
 
@@ -367,9 +368,9 @@ ion-content {
 }
 
 .sheet-statut {
-  font-size: 13px;
-  color: #bbb;
-  &.unlocked { color: #27ae60; }
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .sheet-nom-row {

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 310" width="260" height="310">
+  <circle cx="130" cy="118" r="108" fill="#27ae60"/>
+  <circle cx="130" cy="118" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+  <g transform="translate(80,68) scale(0.1953125)" fill="#ffffff"><path d="M432 230.7a79.44 79.44 0 00-32-6.7H112a79.51 79.51 0 00-32 6.69A80.09 80.09 0 0032 304v112a16 16 0 0032 0v-8a8.1 8.1 0 018-8h368a8.1 8.1 0 018 8v8a16 16 0 0032 0V304a80.09 80.09 0 00-48-73.3zM376 80H136a56 56 0 00-56 56v72a4 4 0 005.11 3.84A95.5 95.5 0 01112 208h4.23a4 4 0 004-3.55A32 32 0 01152 176h56a32 32 0 0131.8 28.45 4 4 0 004 3.55h24.46a4 4 0 004-3.55A32 32 0 01304 176h56a32 32 0 0131.8 28.45 4 4 0 004 3.55h4.2a95.51 95.51 0 0126.89 3.85A4 4 0 00432 208v-72a56 56 0 00-56-56z"/></g>
+  <text x="130" y="258" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="16" fill="#1a1a1a"><tspan x="130" dy="0">Arpenteur du Boulevard</tspan></text>
+  <text x="130" y="282" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#6b7280">Zone Pénitentiaire</text>
+</svg>

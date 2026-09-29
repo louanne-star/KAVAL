@@ -26,8 +26,9 @@ ion-content.parcours-content {
 }
 
 .badge-emoji {
-  font-size: 72px;
+  width: 140px;
   display: block;
+  margin: 0 auto;
   animation: badgePop 0.7s ease 0.15s both;
 }
 
@@ -114,7 +115,7 @@ ion-content.parcours-content {
   display: inline-block;
 }
 
-.detail-icone { font-size: 56px; margin-bottom: 12px; display: block; }
+.detail-icone { width: 64px; height: 64px; margin-bottom: 12px; }
 
 .detail-badge-pill {
   font-size: 11px;
@@ -205,6 +206,8 @@ ion-content.parcours-content {
 .contenu-sous { font-size: 12px; color: #aaa; margin: 0; }
 
 .contenu-tag {
+  display: flex;
+  align-items: center;
   font-size: 11px;
   font-weight: 600;
   color: #aaa;
@@ -213,6 +216,8 @@ ion-content.parcours-content {
   border-radius: 10px;
   white-space: nowrap;
 }
+
+.contenu-tag-badge { width: 22px; height: 22px; }
 
 .badge-earned {
   background: rgba(39,71,110,0.1);
@@ -541,8 +546,6 @@ ion-content.parcours-content {
   width: 48px; height: 48px;
   border-radius: 14px;
   background: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
   box-shadow: 0 2px 8px rgba(39,71,110,0.08);
 }
 

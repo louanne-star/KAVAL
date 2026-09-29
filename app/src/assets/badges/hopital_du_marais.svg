@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 310" width="260" height="310">
+  <circle cx="130" cy="118" r="108" fill="#3498db"/>
+  <circle cx="130" cy="118" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+  <g transform="translate(80,68) scale(0.1953125)" fill="#ffffff"><path d="M336 64H176a16 16 0 00-16 16v16h192V80a16 16 0 00-16-16z" fill="none"/><path d="M432 96h-48V80a48.05 48.05 0 00-48-48H176a48.05 48.05 0 00-48 48v16H80a64.07 64.07 0 00-64 64v256a64 64 0 0064 64h352a64 64 0 0064-64V160a64.07 64.07 0 00-64-64zm-96 208h-64v64a16 16 0 01-32 0v-64h-64a16 16 0 010-32h64v-64a16 16 0 0132 0v64h64a16 16 0 010 32zm16-208H160V80a16 16 0 0116-16h160a16 16 0 0116 16z"/></g>
+  <text x="130" y="258" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="16" fill="#1a1a1a"><tspan x="130" dy="0">Soignant de l'Hôpital</tspan></text>
+  <text x="130" y="282" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#6b7280">Hôpital du Marais</text>
+</svg>

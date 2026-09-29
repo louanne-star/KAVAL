@@ -49,7 +49,6 @@ export const TRANSLATIONS = {
       effacerAria: 'Effacer',
       chips: { tous: 'Tout voir', visites: 'Visités 🏅', favoris: 'Favoris ♡' },
       vide: { titre: 'Aucun résultat', texte: 'Aucune zone ne correspond à votre recherche.' },
-      voirCarteAria: 'Voir sur la carte',
     },
     parcours: {
       badge: { titre: 'Badge obtenu !', sousTitre: 'Tu as traversé la rivière' },
@@ -261,7 +260,6 @@ export const TRANSLATIONS = {
       effacerAria: 'Clear',
       chips: { tous: 'View all', visites: 'Visited 🏅', favoris: 'Favorites ♡' },
       vide: { titre: 'No results', texte: 'No zone matches your search.' },
-      voirCarteAria: 'View on map',
     },
     parcours: {
       badge: { titre: 'Badge earned!', sousTitre: 'You crossed the river' },

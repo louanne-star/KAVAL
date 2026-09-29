@@ -2,6 +2,8 @@ import { Component, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { heart, heartOutline } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { JourneyService } from '../../services/journey.service';
 import { FavoriteService } from '../../services/favorite.service';
@@ -29,7 +31,9 @@ export class FavorisPage implements OnInit {
     readonly ratingService:   RatingService,
     readonly pointsService:   PointsService,
     private router:           Router,
-  ) {}
+  ) {
+    addIcons({ heart, heartOutline });
+  }
 
   ngOnInit() {
     this.ratingService.chargerMoyennes();

@@ -74,7 +74,7 @@
             <button class="list-row" *ngFor="let z of zonesFavorites(); let last = last"
                     [class.list-row--last]="last"
                     (click)="allerVersZone(z.id)">
-              <div class="list-ico" [ngClass]="'ico-' + z.id">{{ pointsService.metaDe(z.zoneId)?.icone }}</div>
+              <img class="list-ico badge-point-icone" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
               <div class="list-txt">
                 <span class="list-name">{{ z.nom }}</span>
                 <span class="list-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</span>
@@ -84,7 +84,7 @@
           </ng-container>
           <ng-template #noFav>
             <div class="list-row list-row--last list-row--static">
-              <div class="list-ico list-ico--dim">♡</div>
+              <div class="list-ico list-ico--dim"><ion-icon name="heart-outline"></ion-icon></div>
               <span class="list-name list-name--dim">{{ 'compte.favorisVide' | translate }}</span>
             </div>
           </ng-template>

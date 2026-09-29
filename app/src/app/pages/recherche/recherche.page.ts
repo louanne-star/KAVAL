@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { heart } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { JourneyService } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
@@ -47,7 +49,9 @@ export class RecherchePage implements OnInit {
     readonly ratingService:   RatingService,
     readonly pointsService:   PointsService,
     private router:           Router,
-  ) {}
+  ) {
+    addIcons({ heart });
+  }
 
   ngOnInit() {
     this.ratingService.chargerMoyennes();
@@ -59,10 +63,6 @@ export class RecherchePage implements OnInit {
 
   allerVersZone(zoneId: string) {
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
-  }
-
-  allerVersCarte(zoneId: string) {
-    this.router.navigate(['/tabs/carte'], { queryParams: { zone: zoneId } });
   }
 
   starsFor(note: number | null): string {

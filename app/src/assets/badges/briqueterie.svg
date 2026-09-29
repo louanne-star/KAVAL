@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 310" width="260" height="310">
+  <circle cx="130" cy="118" r="108" fill="#3498db"/>
+  <circle cx="130" cy="118" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+  <g transform="translate(80,68) scale(0.1953125)" fill="#ffffff"><rect x="40" y="90" width="130" height="70" rx="6"/><rect x="190" y="90" width="130" height="70" rx="6"/><rect x="340" y="90" width="130" height="70" rx="6"/><rect x="105" y="180" width="130" height="70" rx="6"/><rect x="255" y="180" width="130" height="70" rx="6"/><rect x="40" y="270" width="130" height="70" rx="6"/><rect x="190" y="270" width="130" height="70" rx="6"/><rect x="340" y="270" width="130" height="70" rx="6"/></g>
+  <text x="130" y="252" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="16" fill="#1a1a1a"><tspan x="130" dy="0">Artisan de</tspan><tspan x="130" dy="18">la Briqueterie</tspan></text>
+  <text x="130" y="292" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#6b7280">Hôpital du Marais</text>
+</svg>
