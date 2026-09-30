@@ -11,6 +11,7 @@ import { BadgeService } from '../services/badge.service';
 import { RatingService } from '../services/rating.service';
 import { CommentService } from '../services/comment.service';
 import { FavoriteService } from '../services/favorite.service';
+import { BrandingService } from '../services/branding.service';
 
 @Component({
   selector: 'app-splash',
@@ -31,6 +32,7 @@ export class SplashPage implements OnInit {
     private ratings:  RatingService,
     private comments: CommentService,
     private favoris:  FavoriteService,
+    readonly branding: BrandingService,
   ) {}
 
   async ngOnInit() {

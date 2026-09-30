@@ -323,13 +323,13 @@
     <div class="titre-scale">LE TRIBUNAL</div>
     <div class="regles-carte">
       <p><b>Vous êtes juge au tribunal du bagne.</b></p>
-      <p style="margin-top:8px;">3 dossiers vous attendent. Pour chaque détenu, choisissez la bonne peine :</p>
-      <p class="peine-ligne" style="margin-top:10px;">TRANSPORTÉ — Crime politique</p>
-      <p class="peine-ligne">DÉPORTÉ — Crime grave</p>
+      <p style="margin-top:8px;">5 dossiers vous attendent. Pour chaque détenu, choisissez la bonne peine :</p>
+      <p class="peine-ligne" style="margin-top:10px;">TRANSPORTÉ — Crime grave (droit commun)</p>
+      <p class="peine-ligne">DÉPORTÉ — Crime politique</p>
       <p class="peine-ligne">RELÉGUÉ — Vol répété (récidive)</p>
       <p style="margin-top:10px; font-style:italic;">Appuyez sur ? pour les définitions.</p>
     </div>
-    <div class="victoire-badge">2 bonnes réponses sur 3 pour gagner</div>
+    <div class="victoire-badge">3 bonnes réponses sur 5 pour gagner</div>
     <button class="btn-principal" id="btn-commencer">COMMENCER ▶</button>
   </div>
 
@@ -373,7 +373,7 @@
       <div class="dossier-carte">
         <div class="dossier-entete">ADMINISTRATION PÉNITENTIAIRE DE L'ÎLE NOU</div>
         <div class="dossier-ligne"><b>MATRICULE : <span id="d-matricule"></span></b></div>
-        <div class="dossier-ligne">NOM : <span id="d-nom"></span> (<span id="d-age"></span> ans)</div>
+        <div class="dossier-ligne">NOM : <span id="d-nom"></span> <span id="d-age-wrap">(<span id="d-age"></span> ans)</span></div>
         <div class="dossier-label-accusation">DOSSIER D'ACCUSATION :</div>
         <div class="dossier-accusation" id="d-accusation"></div>
 
@@ -444,11 +444,11 @@
     <h2>Les peines du bagne</h2>
     <div class="def-item">
       <div class="def-titre">Transporté</div>
-      <div class="def-texte">Crime politique ou de rébellion. Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.</div>
+      <div class="def-texte">Crime grave de droit commun (meurtre, vol violent, agression...). Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.</div>
     </div>
     <div class="def-item">
       <div class="def-titre">Déporté</div>
-      <div class="def-texte">Crime grave (meurtre, espionnage, actes violents). Banni définitivement dans une enceinte fortifiée, sans retour possible.</div>
+      <div class="def-texte">Crime politique ou de rébellion contre l'État (insurrection, espionnage...). Banni définitivement dans une enceinte fortifiée, sans retour possible.</div>
     </div>
     <div class="def-item">
       <div class="def-titre">Relégué</div>
@@ -476,12 +476,12 @@ const UI_IMG = {
   condamne: `${BUCKET_URL}/badge-condamne.png`,
 };
 
-const NB_ROUNDS      = 3;
-const SEUIL_VICTOIRE = 2;
+const NB_ROUNDS      = 5;
+const SEUIL_VICTOIRE = 3;
 
 const EXPLICATIONS = {
-  'TRANSPORTÉ': 'Crime politique ou de rébellion : transporté en Nouvelle-Calédonie, avec possibilité de retour.',
-  'DEPORTÉ':    'Crime grave : déporté définitivement dans une enceinte fortifiée, sans retour possible.',
+  'TRANSPORTÉ': 'Crime grave de droit commun : transporté en Nouvelle-Calédonie, avec possibilité de retour.',
+  'DEPORTÉ':    'Crime politique ou de rébellion contre l\'État : déporté définitivement dans une enceinte fortifiée, sans retour possible.',
   'RELÉGUÉ':    'Vol répété ou vagabondage (récidive) : relégué aux colonies pour éloigner les indésirables.',
 };
 
@@ -554,8 +554,11 @@ function afficherRound() {
 
   $('#d-matricule').textContent  = d.matricule;
   $('#d-nom').textContent        = d.nom;
-  $('#d-age').textContent        = d.age;
   $('#d-accusation').textContent = d.accusation;
+
+  const ageConnu = d.age !== null && d.age !== undefined;
+  $('#d-age-wrap').style.display = ageConnu ? '' : 'none';
+  if (ageConnu) $('#d-age').textContent = d.age;
 
   const photoWrap = $('#photo-wrap');
   const photoUrl  = d.photo ? `${BUCKET_URL}/${d.photo}` : null;
