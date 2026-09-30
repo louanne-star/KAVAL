@@ -106,7 +106,10 @@ export class JourneyService {
   // ── Persistence ────────────────────────────────────────────────────────────
 
   // Reconstruit la liste des vrai points depuis Supabase/cache (chargé au préalable via PointsService).
-  private sourcePoints(): Omit<JourneyZone, 'ordre' | 'debloque'>[] {
+  // ordreCurateur = ordre éditorial (colonne points.ordre) : utilisé pour trier les points À
+  // L'INTÉRIEUR d'une même zone (voir regrouperParZone) — distinct de JourneyZone.ordre, qui est
+  // la position finale dans le tour une fois les zones elles-mêmes réordonnées.
+  private sourcePoints(): (Omit<JourneyZone, 'ordre' | 'debloque'> & { ordreCurateur: number })[] {
     const zonesMeta = new Map(this.pointsService.zones().map(z => [z.id, z]));
     return this.pointsService.pointsVrai().map(p => {
       const zone = zonesMeta.get(p.zoneId);
@@ -122,6 +125,7 @@ export class JourneyService {
         zoneId: p.zoneId,
         zoneNom: zone?.nom ?? '',
         zoneNomEn: zone?.nomEn,
+        ordreCurateur: p.ordre ?? Number.MAX_SAFE_INTEGER,
       };
     });
   }
@@ -136,7 +140,8 @@ export class JourneyService {
       .map((id, i) => {
         const src = source.find(z => z.id === id);
         if (!src) return null;
-        return { ...src, ordre: i + 1, debloque: true } as JourneyZone;
+        const { ordreCurateur, ...rest } = src;
+        return { ...rest, ordre: i + 1, debloque: true } as JourneyZone;
       })
       .filter((z): z is JourneyZone => z !== null);
 
@@ -210,39 +215,119 @@ export class JourneyService {
     this.construireRoute(lat, lng);
   }
 
-  // ── Route construction (nearest-neighbor TSP) ─────────────────────────────
+  // ── Route construction (ordre optimal des zones, points curatés par zone) ──
+  //
+  // L'ancien algorithme (plus-proche-voisin glouton point par point) pouvait
+  // choisir une zone proche mais géographiquement excentrée (ex. camp_est, en
+  // impasse au bout de la presqu'île) avant d'avoir fini les zones centrales,
+  // forçant un aller-retour de plusieurs kilomètres. On ordonne maintenant les
+  // ZONES de façon optimale (permutation exhaustive, réaliste vu leur petit
+  // nombre), et à l'intérieur de chaque zone on respecte l'ordre curaté en
+  // base (points.ordre) plutôt que de le recalculer.
 
   private construireRoute(lat: number, lng: number) {
     const source = this.sourcePoints();
-    const ordered = this.voisinLePlusProche(lat, lng, source);
+    const groupes = this.regrouperParZone(source);
+    const ordreZones = this.meilleurOrdreZones(lat, lng, groupes);
 
-    const zones: JourneyZone[] = ordered.map((src, i) => ({
-      ...src, ordre: i + 1, debloque: true
-    }));
+    const ordered = ordreZones.flatMap(zoneId => groupes.get(zoneId)!);
+    const zones: JourneyZone[] = ordered.map((src, i) => {
+      const { ordreCurateur, ...rest } = src;
+      return { ...rest, ordre: i + 1, debloque: true };
+    });
 
     this.zones.set(zones);
     this.sauvegarderEtat();
     this.fetcherItineraires(zones);
   }
 
-  private voisinLePlusProche<T extends { coords: [number, number] }>(
-    startLat: number, startLng: number,
+  // Regroupe les points sources par zoneId, chaque groupe trié par ordre curaté
+  // (repli sur l'id si ordre absent/dupliqué, pour ne jamais planter).
+  private regrouperParZone<T extends { zoneId: string; ordreCurateur: number; id: string }>(
     sources: T[]
-  ): T[] {
-    const restants  = [...sources];
-    const ordonnes: T[] = [];
+  ): Map<string, T[]> {
+    const groupes = new Map<string, T[]>();
+    for (const src of sources) {
+      const groupe = groupes.get(src.zoneId);
+      if (groupe) groupe.push(src);
+      else groupes.set(src.zoneId, [src]);
+    }
+    groupes.forEach(groupe => groupe.sort((a, b) =>
+      a.ordreCurateur - b.ordreCurateur || a.id.localeCompare(b.id)
+    ));
+    return groupes;
+  }
+
+  // Nombre max de zones pour lequel on teste toutes les permutations (8! = 40320,
+  // négligeable) ; au-delà, repli sur un plus-proche-voisin au niveau zone pour
+  // éviter une explosion factorielle.
+  private readonly MAX_ZONES_PERMUTATION = 8;
+
+  private meilleurOrdreZones<T extends { coords: [number, number] }>(
+    startLat: number, startLng: number,
+    groupes: Map<string, T[]>
+  ): string[] {
+    const zoneIds = [...groupes.keys()].sort();
+    if (zoneIds.length <= 1) return zoneIds;
+
+    if (zoneIds.length > this.MAX_ZONES_PERMUTATION) {
+      return this.voisinLePlusProcheZones(startLat, startLng, zoneIds, groupes);
+    }
+
+    let meilleur = zoneIds;
+    let meilleureDistance = Infinity;
+
+    for (const permutation of this.permutations(zoneIds)) {
+      let lat = startLat, lng = startLng, distance = 0;
+      for (const zoneId of permutation) {
+        const groupe = groupes.get(zoneId)!;
+        const entree = groupe[0], sortie = groupe[groupe.length - 1];
+        distance += this.haversine(lat, lng, entree.coords[0], entree.coords[1]);
+        lat = sortie.coords[0]; lng = sortie.coords[1];
+      }
+      if (distance < meilleureDistance) {
+        meilleureDistance = distance;
+        meilleur = permutation;
+      }
+    }
+    return meilleur;
+  }
+
+  // Repli pour un grand nombre de zones : plus-proche-voisin appliqué aux zones
+  // (point d'entrée pour la distance, point de sortie pour avancer).
+  private voisinLePlusProcheZones<T extends { coords: [number, number] }>(
+    startLat: number, startLng: number,
+    zoneIds: string[],
+    groupes: Map<string, T[]>
+  ): string[] {
+    const restants = [...zoneIds];
+    const ordonnes: string[] = [];
     let lat = startLat, lng = startLng;
     while (restants.length > 0) {
       let closest = 0, minDist = Infinity;
-      restants.forEach((z, i) => {
-        const d = this.haversine(lat, lng, z.coords[0], z.coords[1]);
+      restants.forEach((zoneId, i) => {
+        const entree = groupes.get(zoneId)![0];
+        const d = this.haversine(lat, lng, entree.coords[0], entree.coords[1]);
         if (d < minDist) { minDist = d; closest = i; }
       });
-      const zone = restants.splice(closest, 1)[0];
-      ordonnes.push(zone);
-      lat = zone.coords[0]; lng = zone.coords[1];
+      const zoneId = restants.splice(closest, 1)[0];
+      const sortie = groupes.get(zoneId)![groupes.get(zoneId)!.length - 1];
+      ordonnes.push(zoneId);
+      lat = sortie.coords[0]; lng = sortie.coords[1];
     }
     return ordonnes;
+  }
+
+  private permutations<T>(items: T[]): T[][] {
+    if (items.length <= 1) return [items];
+    const resultats: T[][] = [];
+    items.forEach((item, i) => {
+      const reste = [...items.slice(0, i), ...items.slice(i + 1)];
+      for (const suite of this.permutations(reste)) {
+        resultats.push([item, ...suite]);
+      }
+    });
+    return resultats;
   }
 
   // ── OSRM real-road routing ─────────────────────────────────────────────────
@@ -254,8 +339,18 @@ export class JourneyService {
     Promise.all(promises).then(segments => this.segmentsItineraire.set(segments));
   }
 
+  // Au-delà de ce ratio (distance OSRM / distance à vol d'oiseau), on considère que
+  // le détour est absurde plutôt que réel — observé en pratique : dans le cluster
+  // dense de la zone Pénitentiaire (bâtiments à 20-30m les uns des autres), OSRM
+  // piéton fait parfois sortir jusqu'à la rue publique et revenir faute de chemin
+  // direct cartographié, x3 à x6 la distance réelle. Ça donne un tracé en zigzag
+  // qui semble "cassé" visuellement alors qu'il est techniquement continu — une
+  // ligne droite est alors plus fidèle et plus lisible que ce faux détour.
+  private readonly SEUIL_DETOUR_ABSURDE = 2.5;
+
   private async fetcherSegment(a: JourneyZone, b: JourneyZone): Promise<SegmentItineraire> {
-    const fallback: SegmentItineraire = { coordonnees: [a.coords, b.coords], distance: 0, duree: 0 };
+    const distanceDirecte = this.haversine(a.coords[0], a.coords[1], b.coords[0], b.coords[1]);
+    const fallback: SegmentItineraire = { coordonnees: [a.coords, b.coords], distance: distanceDirecte, duree: 0 };
     try {
       const waypoints = `${a.coords[1]},${a.coords[0]};${b.coords[1]},${b.coords[0]}`;
       const resp = await fetch(
@@ -265,9 +360,11 @@ export class JourneyService {
       if (!resp.ok) return fallback;
       const data = await resp.json();
       if (data.code !== 'Ok' || !data.routes?.[0]) return fallback;
+      const distance = data.routes[0].distance;
+      if (distanceDirecte > 15 && distance > distanceDirecte * this.SEUIL_DETOUR_ABSURDE) return fallback;
       const coordonnees = (data.routes[0].geometry.coordinates as [number, number][])
         .map(([lng, lat]) => [lat, lng] as [number, number]);
-      return { coordonnees, distance: data.routes[0].distance, duree: data.routes[0].duration };
+      return { coordonnees, distance, duree: data.routes[0].duration };
     } catch {
       return fallback;
     }

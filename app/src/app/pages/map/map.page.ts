@@ -714,11 +714,25 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // ── UI actions ────────────────────────────────────────────────────────────
 
   recentrer() {
+    // En plus de recentrer, rapproche le zoom actuel de 50% (borné au maxZoom
+    // de la carte) plutôt qu'un niveau fixe, pour "resserrer" quelle que soit
+    // l'échelle à laquelle l'utilisateur regardait la carte.
+    const zoomCible = Math.min(this.map.getZoom() * 1.5, this.map.getMaxZoom());
+
+    // Cible le prochain point à valider (là où l'utilisateur doit se rendre),
+    // pas sa position GPS — sauf s'il n'y a plus de point à faire (parcours
+    // terminé), auquel cas on recentre sur lui.
+    const prochain = this.prochaineZoneSansBadge();
+    if (prochain) {
+      this.map.flyTo(prochain.coords as L.LatLngExpression, zoomCible, { duration: 0.8 });
+      return;
+    }
+
     const pos = this.journeyService.positionUtilisateur();
     if (pos) {
-      this.map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { duration: 0.8 });
+      this.map.flyTo([pos.coords.latitude, pos.coords.longitude], zoomCible, { duration: 0.8 });
     } else {
-      this.map.flyTo([-22.2660, 166.4083], 14, { duration: 0.8 });
+      this.map.flyTo([-22.2660, 166.4083], zoomCible, { duration: 0.8 });
     }
   }
 
