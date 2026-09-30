@@ -101,6 +101,13 @@ ion-content {
   50% { box-shadow: 0 0 60px rgba(127, 179, 224, 0.4), inset 0 0 30px rgba(127, 179, 224, 0.1); }
 }
 
+.logo-img {
+  width: 72px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(127, 179, 224, 0.5));
+}
+
 .logo-text-block {
   display: flex;
   flex-direction: column;
