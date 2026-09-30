@@ -18,6 +18,12 @@ import { UiStateService } from '../../services/ui-state.service';
 import { LanguageService } from '../../services/language.service';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
+// Points "phares" : chacun a son propre mini-jeu dédié (contrairement aux
+// autres points d'une même zone, qui n'en ont pas) — c'est ce qui leur vaut
+// l'étoile sur la carte. Liste à étendre au fur et à mesure des mini-jeux
+// à venir (boulangerie, logement des surveillants mariés...).
+const POINTS_PHARES = new Set(['camp_est_principal', 'hopital_du_marais']);
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.page.html',
@@ -555,13 +561,20 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Marker icon factory ───────────────────────────────────────────────────
 
-  private creerIcone(zone: JourneyZone, estProchain: boolean): L.DivIcon {
+  private readonly PIN_PATH  = 'M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z';
+  private readonly STAR_PATH = 'M16 8.3l1.9 4.2 4.4.4-3.4 3 1 4.4-3.9-2.4-3.9 2.4 1-4.4-3.4-3 4.4-.4z';
+
+  // estActuel = le point où l'on en est dans le parcours (le plus proche pas
+  // encore validé) — pas un état lié au clic sur le point, qui n'affecte que
+  // la fiche du bas, pas la couleur du marqueur.
+  private creerIcone(zone: JourneyZone, estActuel: boolean): L.DivIcon {
     if (this.badgeService.aBadge(zone.id)) {
+      // Validé : le check remplace l'étoile, point phare ou non.
       const pinValideeSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 46" width="32" height="46"
           style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
-        <path d="M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z" fill="#c0553c"/>
-        <circle cx="16" cy="15" r="10" fill="#fdf8f0"/>
-        <path d="M16.00,8.80 L17.53,12.90 L21.90,13.08 L18.47,15.80 L19.64,20.02 L16.00,17.60 L12.36,20.02 L13.53,15.80 L10.10,13.08 L14.47,12.90 Z" fill="#c0553c"/>
+        <path d="${this.PIN_PATH}" fill="#009245"/>
+        <circle cx="16" cy="15" r="9.5" fill="#fff"/>
+        <path d="M11.2 15.2l3.1 3.1 6.3-6.6" fill="none" stroke="#009245" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>`;
       return L.divIcon({
         className: '',
@@ -570,20 +583,23 @@ export class MapPage implements AfterViewInit, OnDestroy {
       });
     }
 
-    const couleur = zone.debloque || estProchain ? '#c0553c' : '#BEBEBE';
-    const opacity = !zone.debloque && !estProchain ? 'opacity:0.45;' : '';
+    const couleur = estActuel ? '#D64B24' : '#B3B3B3';
+    const etoile = POINTS_PHARES.has(zone.id)
+      ? `<path d="${this.STAR_PATH}" fill="${estActuel ? '#FCEE21' : '#FCEEA3'}" stroke="${estActuel ? '#FCEEA3' : '#FCEEC2'}" stroke-width="0.6"/>`
+      : '';
 
     const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 46" width="32" height="46"
-        style="${opacity}filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
-      <path d="M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z" fill="${couleur}"/>
+        style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
+      <path d="${this.PIN_PATH}" fill="${couleur}"/>
+      ${etoile}
     </svg>`;
 
-    if (estProchain) {
+    if (estActuel) {
       return L.divIcon({
         className: '',
         html: `<div style="position:relative;">
           <div style="position:absolute;width:46px;height:46px;border-radius:50%;top:-7px;left:-7px;
-            border:2px solid rgba(192,85,60,0.4);animation:pulsation 1.8s ease-out infinite;pointer-events:none;"></div>
+            border:2px solid rgba(214,75,36,0.4);animation:pulsation 1.8s ease-out infinite;pointer-events:none;"></div>
           ${pinSvg}
         </div>`,
         iconSize: [32, 46], iconAnchor: [16, 46]
@@ -658,14 +674,15 @@ export class MapPage implements AfterViewInit, OnDestroy {
   }
 
   private creerMiniMarqueur(_point: PointPopup): L.DivIcon {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="22" height="22"
+        style="filter:drop-shadow(0 2px 8px rgba(0,0,0,0.25));cursor:pointer;animation:miniAppear 0.35s cubic-bezier(0.34,1.56,0.64,1) both;">
+      <circle cx="11" cy="11" r="10.25" fill="#009293" stroke="rgba(255,255,255,0.75)" stroke-width="1.5"/>
+      <circle cx="11" cy="7" r="1.3" fill="#fff"/>
+      <rect x="9.8" y="9.5" width="2.4" height="7" rx="1.2" fill="#fff"/>
+    </svg>`;
     return L.divIcon({
       className: '',
-      html: `<div style="
-        width:22px;height:22px;border-radius:50%;
-        background:#d06248;border:1.5px solid rgba(255,255,255,0.75);
-        box-shadow:0 2px 8px rgba(0,0,0,0.25);cursor:pointer;
-        animation:miniAppear 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
-      "></div>`,
+      html: svg,
       iconSize: [22, 22],
       iconAnchor: [11, 11]
     });
