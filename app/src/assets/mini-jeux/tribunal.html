@@ -276,10 +276,10 @@
   .victoire-badge {
     display:inline-block; margin-top:10px; padding:8px 18px; border-radius:999px;
     background:var(--brun-fonce); border:1.5px solid var(--creme); color:var(--creme);
-    font-weight:800; font-size:13.5px; letter-spacing:0.2px;
+    font-weight:600; font-size:14px; letter-spacing:0.3px;
   }
   .btn-principal {
-    width:100%; border:1.5px solid var(--creme); border-radius:14px; padding:16px; font-weight:800; font-size:16px;
+    width:100%; border:none; border-radius:14px; padding:16px; font-weight:800; font-size:16px;
     background:linear-gradient(135deg, var(--brun-cadre), var(--brun-fonce)); color:var(--creme); cursor:pointer;
   }
   .score-final { font-size:52px; font-weight:800; color:var(--creme); }
@@ -309,34 +309,34 @@
   <!-- ── Chargement ─────────────────────────────────────────────────────── -->
   <div id="ecran-chargement" class="ecran actif">
     <div class="spinner"></div>
-    <p>Ouverture des dossiers du bagne…</p>
+    <p data-i18n="chargement">Ouverture des dossiers du bagne…</p>
   </div>
 
   <!-- ── Erreur ─────────────────────────────────────────────────────────── -->
   <div id="ecran-erreur" class="ecran">
-    <p>⚠ Impossible de charger les dossiers du tribunal.</p>
-    <button class="btn-reessayer" id="btn-reessayer">Réessayer</button>
+    <p data-i18n="erreurTexte">⚠ Impossible de charger les dossiers du tribunal.</p>
+    <button class="btn-reessayer" id="btn-reessayer" data-i18n="btnReessayer">Réessayer</button>
   </div>
 
   <!-- ── Intro ──────────────────────────────────────────────────────────── -->
   <div id="ecran-intro" class="ecran ecran-centre">
-    <div class="titre-scale">LE TRIBUNAL</div>
+    <div class="titre-scale" data-i18n="titreIntro">LE TRIBUNAL</div>
     <div class="regles-carte">
-      <p><b>Vous êtes juge au tribunal du bagne.</b></p>
-      <p style="margin-top:8px;">5 dossiers vous attendent. Pour chaque détenu, choisissez la bonne peine :</p>
-      <p class="peine-ligne" style="margin-top:10px;">TRANSPORTÉ — Crime grave (droit commun)</p>
-      <p class="peine-ligne">DÉPORTÉ — Crime politique</p>
-      <p class="peine-ligne">RELÉGUÉ — Vol répété (récidive)</p>
-      <p style="margin-top:10px; font-style:italic;">Appuyez sur ? pour les définitions.</p>
+      <p><b data-i18n="introJuge">Vous êtes juge au tribunal du bagne.</b></p>
+      <p style="margin-top:8px;" data-i18n="introDossiers">5 dossiers vous attendent. Pour chaque détenu, choisissez la bonne peine :</p>
+      <p class="peine-ligne" style="margin-top:10px;" data-i18n="regleTransporte">TRANSPORTÉ — Crime grave (droit commun)</p>
+      <p class="peine-ligne" data-i18n="regleDeporte">DÉPORTÉ — Crime politique</p>
+      <p class="peine-ligne" data-i18n="regleRelegue">RELÉGUÉ — Vol répété (récidive)</p>
+      <p style="margin-top:10px; font-style:italic;" data-i18n="introAide">Appuyez sur ? pour les définitions.</p>
     </div>
-    <div class="victoire-badge">3 bonnes réponses sur 5 pour gagner</div>
-    <button class="btn-principal" id="btn-commencer">COMMENCER ▶</button>
+    <div class="victoire-badge" data-i18n="victoireBadge">3 bonnes réponses sur 5 pour gagner</div>
+    <button class="btn-principal" id="btn-commencer" data-i18n="btnCommencer">COMMENCER ▶</button>
   </div>
 
   <!-- ── Jeu (un round) ─────────────────────────────────────────────────── -->
   <div id="ecran-jeu" class="ecran">
     <div class="entete">
-      <span class="entete-titre">LE TRIBUNAL DU BAGNE</span>
+      <span class="entete-titre" data-i18n="enteteTitre">LE TRIBUNAL DU BAGNE</span>
       <span class="entete-score" id="info-score">0/3</span>
     </div>
 
@@ -371,41 +371,41 @@
 
     <div class="dossier-zone">
       <div class="dossier-carte">
-        <div class="dossier-entete">ADMINISTRATION PÉNITENTIAIRE DE L'ÎLE NOU</div>
-        <div class="dossier-ligne"><b>MATRICULE : <span id="d-matricule"></span></b></div>
-        <div class="dossier-ligne">NOM : <span id="d-nom"></span> <span id="d-age-wrap">(<span id="d-age"></span> ans)</span></div>
-        <div class="dossier-label-accusation">DOSSIER D'ACCUSATION :</div>
+        <div class="dossier-entete" data-i18n="dossierEntete">ADMINISTRATION PÉNITENTIAIRE DE L'ÎLE NOU</div>
+        <div class="dossier-ligne"><b><span data-i18n="lblMatricule">MATRICULE : </span><span id="d-matricule"></span></b></div>
+        <div class="dossier-ligne"><span data-i18n="lblNom">NOM : </span><span id="d-nom"></span> <span id="d-age-wrap">(<span id="d-age"></span> <span data-i18n="lblAns">ans</span>)</span></div>
+        <div class="dossier-label-accusation" data-i18n="lblAccusation">DOSSIER D'ACCUSATION :</div>
         <div class="dossier-accusation" id="d-accusation"></div>
 
         <div class="stamp-condamne">
           <img alt="Tampon Condamné" />
-          <div class="stamp-fallback">★ CONDAMNÉ ★</div>
+          <div class="stamp-fallback" data-i18n="stampCondamne">★ CONDAMNÉ ★</div>
         </div>
       </div>
 
-      <div class="choix-label">CHOISISSEZ UN TAMPON CI-DESSOUS</div>
+      <div class="choix-label" data-i18n="choixLabel">CHOISISSEZ UN TAMPON CI-DESSOUS</div>
 
       <div class="stamps-row" id="stamps-row">
         <button class="stamp-btn" data-peine="TRANSPORTÉ">
           <img alt="Tampon Transporté" />
-          <div class="stamp-fallback">TRANS­PORTÉ</div>
-          <span class="stamp-nom">TRANSPORTÉ</span>
+          <div class="stamp-fallback" data-i18n="stampTransporte">TRANS­PORTÉ</div>
+          <span class="stamp-nom" data-i18n="stampTransporte">TRANSPORTÉ</span>
         </button>
         <button class="stamp-btn" data-peine="DEPORTÉ">
           <img alt="Tampon Déporté" />
-          <div class="stamp-fallback">DÉPORTÉ</div>
-          <span class="stamp-nom">DÉPORTÉ</span>
+          <div class="stamp-fallback" data-i18n="stampDeporte">DÉPORTÉ</div>
+          <span class="stamp-nom" data-i18n="stampDeporte">DÉPORTÉ</span>
         </button>
         <button class="stamp-btn" data-peine="RELÉGUÉ">
           <img alt="Tampon Relégué" />
-          <div class="stamp-fallback">RELÉGUÉ</div>
-          <span class="stamp-nom">RELÉGUÉ</span>
+          <div class="stamp-fallback" data-i18n="stampRelegue">RELÉGUÉ</div>
+          <span class="stamp-nom" data-i18n="stampRelegue">RELÉGUÉ</span>
         </button>
       </div>
 
       <button class="btn-valider" id="btn-valider" disabled>
         <img alt="Valider" />
-        <span class="btn-fallback-texte">VALIDER</span>
+        <span class="btn-fallback-texte" data-i18n="btnValider">VALIDER</span>
       </button>
     </div>
 
@@ -433,7 +433,7 @@
     <div class="score-final" id="fin-score"></div>
     <div class="etoiles" id="fin-etoiles"></div>
     <div class="sous-titre" id="fin-message"></div>
-    <button class="btn-principal" id="btn-rejouer">▶ REJOUER</button>
+    <button class="btn-principal" id="btn-rejouer" data-i18n="btnRejouer">▶ REJOUER</button>
   </div>
 
 </div>
@@ -441,20 +441,20 @@
 <!-- ── Modale définitions ──────────────────────────────────────────────── -->
 <div id="modal">
   <div id="modal-box">
-    <h2>Les peines du bagne</h2>
+    <h2 data-i18n="modalTitre">Les peines du bagne</h2>
     <div class="def-item">
-      <div class="def-titre">Transporté</div>
-      <div class="def-texte">Crime grave de droit commun (meurtre, vol violent, agression...). Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.</div>
+      <div class="def-titre" data-i18n="defTitreTransporte">Transporté</div>
+      <div class="def-texte" data-i18n="defTexteTransporte">Crime grave de droit commun (meurtre, vol violent, agression...). Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.</div>
     </div>
     <div class="def-item">
-      <div class="def-titre">Déporté</div>
-      <div class="def-texte">Crime politique ou de rébellion contre l'État (insurrection, espionnage...). Banni définitivement dans une enceinte fortifiée, sans retour possible.</div>
+      <div class="def-titre" data-i18n="defTitreDeporte">Déporté</div>
+      <div class="def-texte" data-i18n="defTexteDeporte">Crime politique ou de rébellion contre l'État (insurrection, espionnage...). Banni définitivement dans une enceinte fortifiée, sans retour possible.</div>
     </div>
     <div class="def-item">
-      <div class="def-titre">Relégué</div>
-      <div class="def-texte">Vol répété ou vagabondage (récidive). Éloignement permanent aux colonies pour protéger la société française.</div>
+      <div class="def-titre" data-i18n="defTitreRelegue">Relégué</div>
+      <div class="def-texte" data-i18n="defTexteRelegue">Vol répété ou vagabondage (récidive). Éloignement permanent aux colonies pour protéger la société française.</div>
     </div>
-    <button id="modal-close">Fermer</button>
+    <button id="modal-close" data-i18n="modalFermer">Fermer</button>
   </div>
 </div>
 
@@ -465,25 +465,163 @@
 const SUPABASE_URL      = 'https://onuavovmdbfigwfbagtd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9udWF2b3ZtZGJmaWd3ZmJhZ3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNzc4NzQsImV4cCI6MjA5Nzg1Mzg3NH0.J3FL0tb9S0xjIobkCo3Q833bg1GAFqUnxsj3nkptDNI';
 const BUCKET_URL = `${SUPABASE_URL}/storage/v1/object/public/tribunal`;
+
+// ── Langue (alignée sur le choix FR/EN fait dans le reste de l'app KAVAL,
+// stocké par LanguageService via @capacitor/preferences ; en mode web,
+// Capacitor Preferences écrit directement dans localStorage) ───────────────
+const LANG = localStorage.getItem('CapacitorStorage.kaval_langue') === 'en' ? 'en' : 'fr';
+document.documentElement.lang = LANG;
+
+// Les images avec du texte dessus (tampons, bouton valider, badge condamné)
+// ont une variante anglaise dans le bucket, nommée avec le suffixe "-en"
+// avant l'extension (ex : "btn-valider.png" → "btn-valider-en.png").
+function urlImgLangue(chemin) {
+  return `${BUCKET_URL}/${LANG === 'en' ? chemin.replace(/(\.[a-z0-9]+)$/i, '-en$1') : chemin}`;
+}
+
 const TAMPON_URLS = {
-  'TRANSPORTÉ': `${BUCKET_URL}/tampons/transporte.png`,
-  'DEPORTÉ':    `${BUCKET_URL}/tampons/deporte.png`,
-  'RELÉGUÉ':    `${BUCKET_URL}/tampons/relegue.png`,
+  'TRANSPORTÉ': urlImgLangue('tampons/transporte.png'),
+  'DEPORTÉ':    urlImgLangue('tampons/deporte.png'),
+  'RELÉGUÉ':    urlImgLangue('tampons/relegue.png'),
 };
 const UI_IMG = {
-  valider:  `${BUCKET_URL}/btn-valider.png`,
+  valider:  urlImgLangue('btn-valider.png'),
   infos:    `${BUCKET_URL}/btn-infos.png`,
-  condamne: `${BUCKET_URL}/badge-condamne.png`,
+  condamne: urlImgLangue('badge-condamne.png'),
 };
 
 const NB_ROUNDS      = 5;
 const SEUIL_VICTOIRE = 3;
 
-const EXPLICATIONS = {
-  'TRANSPORTÉ': 'Crime grave de droit commun : transporté en Nouvelle-Calédonie, avec possibilité de retour.',
-  'DEPORTÉ':    'Crime politique ou de rébellion contre l\'État : déporté définitivement dans une enceinte fortifiée, sans retour possible.',
-  'RELÉGUÉ':    'Vol répété ou vagabondage (récidive) : relégué aux colonies pour éloigner les indésirables.',
+const I18N = {
+  fr: {
+    chargement: 'Ouverture des dossiers du bagne…',
+    erreurTexte: '⚠ Impossible de charger les dossiers du tribunal.',
+    btnReessayer: 'Réessayer',
+    titreIntro: 'LE TRIBUNAL',
+    introJuge: 'Vous êtes juge au tribunal du bagne.',
+    introDossiers: '5 dossiers vous attendent. Pour chaque détenu, choisissez la bonne peine :',
+    regleTransporte: 'TRANSPORTÉ — Crime grave (droit commun)',
+    regleDeporte: 'DÉPORTÉ — Crime politique',
+    regleRelegue: 'RELÉGUÉ — Vol répété (récidive)',
+    introAide: 'Appuyez sur ? pour les définitions.',
+    victoireBadge: '3 bonnes réponses sur 5 pour gagner',
+    btnCommencer: 'COMMENCER ▶',
+    enteteTitre: 'LE TRIBUNAL DU BAGNE',
+    dossierEntete: "ADMINISTRATION PÉNITENTIAIRE DE L'ÎLE NOU",
+    lblMatricule: 'MATRICULE : ',
+    lblNom: 'NOM : ',
+    lblAns: 'ans',
+    lblAccusation: "DOSSIER D'ACCUSATION :",
+    stampCondamne: '★ CONDAMNÉ ★',
+    choixLabel: 'CHOISISSEZ UN TAMPON CI-DESSOUS',
+    stampTransporte: 'TRANSPORTÉ',
+    stampDeporte: 'DÉPORTÉ',
+    stampRelegue: 'RELÉGUÉ',
+    btnValider: 'VALIDER',
+    btnRejouer: '▶ REJOUER',
+    modalTitre: 'Les peines du bagne',
+    defTitreTransporte: 'Transporté',
+    defTexteTransporte: 'Crime grave de droit commun (meurtre, vol violent, agression...). Le condamné purge sa peine en travaillant en Nouvelle-Calédonie, avec possibilité de retour en France.',
+    defTitreDeporte: 'Déporté',
+    defTexteDeporte: "Crime politique ou de rébellion contre l'État (insurrection, espionnage...). Banni définitivement dans une enceinte fortifiée, sans retour possible.",
+    defTitreRelegue: 'Relégué',
+    defTexteRelegue: 'Vol répété ou vagabondage (récidive). Éloignement permanent aux colonies pour protéger la société française.',
+    modalFermer: 'Fermer',
+    bonneReponse: 'BONNE RÉPONSE !',
+    mauvaiseReponse: 'MAUVAISE RÉPONSE',
+    votreChoix: 'Votre choix',
+    bonneReponseLabel: 'Bonne réponse',
+    peine: 'Peine',
+    bonneReponseDeux: 'Bonne réponse',
+    score: 'Score',
+    dossierSuivant: 'DOSSIER SUIVANT →',
+    voirResultat: 'VOIR MON RÉSULTAT →',
+    victoire: 'VICTOIRE !',
+    resultatFinal: 'RÉSULTAT FINAL',
+    jugeExemplaire: 'Juge exemplaire !',
+    ilFallait: n => `Il fallait ${SEUIL_VICTOIRE} bonnes réponses sur ${n}.`,
+    labelPeine: { 'TRANSPORTÉ': 'TRANSPORTÉ', 'DEPORTÉ': 'DÉPORTÉ', 'RELÉGUÉ': 'RELÉGUÉ' },
+  },
+  en: {
+    chargement: "Opening the penal colony's files…",
+    erreurTexte: "⚠ Unable to load the court's files.",
+    btnReessayer: 'Try again',
+    titreIntro: 'THE TRIAL',
+    introJuge: 'You are a judge at the penal colony trial.',
+    introDossiers: 'Five files await you. For each prisoner, choose the correct sentence:',
+    regleTransporte: 'TRANSPORTED — Serious crime (ordinary law)',
+    regleDeporte: 'DEPORTED — Political crime',
+    regleRelegue: 'RELEGATED — Repeated theft (reoffending)',
+    introAide: 'Tap ? for the definitions.',
+    victoireBadge: '3 correct answers out of 5 to win',
+    btnCommencer: 'START ▶',
+    enteteTitre: 'THE PENAL COLONY TRIAL',
+    dossierEntete: 'ÎLE NOU PENITENTIARY ADMINISTRATION',
+    lblMatricule: 'FILE NO.: ',
+    lblNom: 'NAME: ',
+    lblAns: 'years old',
+    lblAccusation: 'CHARGE SHEET:',
+    stampCondamne: '★ CONVICT ★',
+    choixLabel: 'CHOOSE A STAMP BELOW',
+    stampTransporte: 'TRANSPORTED',
+    stampDeporte: 'DEPORTED',
+    stampRelegue: 'RELEGATED',
+    btnValider: 'CONFIRM',
+    btnRejouer: '▶ PLAY AGAIN',
+    modalTitre: "The penal colony's sentences",
+    defTitreTransporte: 'Transported',
+    defTexteTransporte: 'A serious ordinary-law crime (murder, violent robbery, assault...). The convict serves his sentence working in New Caledonia, with a possibility of returning to France.',
+    defTitreDeporte: 'Deported',
+    defTexteDeporte: 'A political crime or rebellion against the State (uprising, espionage...). Permanently banished within a fortified enclosure, with no possibility of return.',
+    defTitreRelegue: 'Relegated',
+    defTexteRelegue: 'Repeated theft or vagrancy (reoffending). Permanent banishment to the colonies to protect French society.',
+    modalFermer: 'Close',
+    bonneReponse: 'CORRECT ANSWER!',
+    mauvaiseReponse: 'WRONG ANSWER',
+    votreChoix: 'Your answer',
+    bonneReponseLabel: 'Correct answer',
+    peine: 'Sentence',
+    bonneReponseDeux: 'Correct answer',
+    score: 'Score',
+    dossierSuivant: 'NEXT FILE →',
+    voirResultat: 'SEE MY RESULT →',
+    victoire: 'VICTORY!',
+    resultatFinal: 'FINAL RESULT',
+    jugeExemplaire: 'Exemplary judge!',
+    ilFallait: n => `You needed ${SEUIL_VICTOIRE} correct answers out of ${n}.`,
+    labelPeine: { 'TRANSPORTÉ': 'TRANSPORTED', 'DEPORTÉ': 'DEPORTED', 'RELÉGUÉ': 'RELEGATED' },
+  },
 };
+const T = I18N[LANG];
+
+// Applique les textes statiques (data-i18n) dès le chargement du script.
+document.querySelectorAll('[data-i18n]').forEach(el => {
+  const key = el.dataset.i18n;
+  if (T[key] !== undefined) el.textContent = T[key];
+});
+
+function labelPeine(p) { return T.labelPeine[p] || p; }
+
+// Texte du dossier selon la langue : Supabase stocke accusation/explication
+// en français, et accusation_en/explication_en en anglais (facultatifs — si
+// absents pour un dossier, on retombe sur le texte français).
+function texteDossier(d, champFr, champEn) {
+  return (LANG === 'en' && d[champEn]) ? d[champEn] : d[champFr];
+}
+
+const EXPLICATIONS = {
+  fr: {
+    'TRANSPORTÉ': 'Crime grave de droit commun : transporté en Nouvelle-Calédonie, avec possibilité de retour.',
+    'DEPORTÉ':    'Crime politique ou de rébellion contre l\'État : déporté définitivement dans une enceinte fortifiée, sans retour possible.',
+    'RELÉGUÉ':    'Vol répété ou vagabondage (récidive) : relégué aux colonies pour éloigner les indésirables.',
+  },
+  en: {
+    'TRANSPORTÉ': 'A serious ordinary-law crime: transported to New Caledonia, with a possibility of return.',
+    'DEPORTÉ':    'A political crime or rebellion against the State: deported permanently within a fortified enclosure, with no possibility of return.',
+    'RELÉGUÉ':    'Repeated theft or vagrancy (reoffending): relegated to the colonies to banish the undesirable.',
+  },
+}[LANG];
 
 // ── State ───────────────────────────────────────────────────────────────
 let dossiers = [];
@@ -554,7 +692,7 @@ function afficherRound() {
 
   $('#d-matricule').textContent  = d.matricule;
   $('#d-nom').textContent        = d.nom;
-  $('#d-accusation').textContent = d.accusation;
+  $('#d-accusation').textContent = texteDossier(d, 'accusation', 'accusation_en');
 
   const ageConnu = d.age !== null && d.age !== undefined;
   $('#d-age-wrap').style.display = ageConnu ? '' : 'none';
@@ -592,26 +730,26 @@ $('#btn-valider').addEventListener('click', () => {
   if (correct) score++;
 
   $('#resultat-bandeau').className = 'resultat-bandeau ' + (correct ? 'correct' : 'incorrect');
-  $('#resultat-bandeau').textContent = correct ? 'BONNE RÉPONSE !' : 'MAUVAISE RÉPONSE';
+  $('#resultat-bandeau').textContent = correct ? T.bonneReponse : T.mauvaiseReponse;
 
   const tamponsWrap = $('#resultat-tampons');
   tamponsWrap.innerHTML = '';
   tamponsWrap.classList.toggle('unique', correct);
 
   if (!correct) {
-    tamponsWrap.appendChild(creerBlocTampon(selection, true, 'Votre choix'));
+    tamponsWrap.appendChild(creerBlocTampon(selection, true, T.votreChoix));
   }
-  tamponsWrap.appendChild(creerBlocTampon(d.bonne_reponse, false, correct ? null : 'Bonne réponse'));
+  tamponsWrap.appendChild(creerBlocTampon(d.bonne_reponse, false, correct ? null : T.bonneReponseLabel));
 
-  $('#resultat-verdict').textContent      = correct ? `Peine : ${labelPeine(d.bonne_reponse)}` : `Bonne réponse : ${labelPeine(d.bonne_reponse)}`;
-  $('#resultat-explication').textContent  = d.explication || EXPLICATIONS[d.bonne_reponse] || '';
-  $('#resultat-score').textContent        = `Score : ${score} / ${dossiers.length}`;
-  $('#btn-suivant').textContent           = currentIdx < dossiers.length - 1 ? 'DOSSIER SUIVANT →' : 'VOIR MON RÉSULTAT →';
+  $('#resultat-verdict').textContent = correct
+    ? `${T.peine} : ${labelPeine(d.bonne_reponse)}`
+    : `${T.bonneReponseDeux} : ${labelPeine(d.bonne_reponse)}`;
+  $('#resultat-explication').textContent = texteDossier(d, 'explication', 'explication_en') || EXPLICATIONS[d.bonne_reponse] || '';
+  $('#resultat-score').textContent = `${T.score} : ${score} / ${dossiers.length}`;
+  $('#btn-suivant').textContent    = currentIdx < dossiers.length - 1 ? T.dossierSuivant : T.voirResultat;
 
   afficherEcran('resultat');
 });
-
-function labelPeine(p) { return p === 'DEPORTÉ' ? 'DÉPORTÉ' : p; }
 
 function creerBlocTampon(peine, rate, label) {
   const bloc = document.createElement('div');
@@ -651,10 +789,10 @@ $('#btn-suivant').addEventListener('click', () => {
 
 function afficherFin() {
   const victoire = score >= SEUIL_VICTOIRE;
-  $('#fin-titre').textContent   = victoire ? 'VICTOIRE !' : 'RÉSULTAT FINAL';
+  $('#fin-titre').textContent   = victoire ? T.victoire : T.resultatFinal;
   $('#fin-titre').style.color   = victoire ? '#5cd485' : 'var(--creme)';
   $('#fin-score').textContent   = `${score} / ${dossiers.length}`;
-  $('#fin-message').textContent = victoire ? 'Juge exemplaire !' : `Il fallait ${SEUIL_VICTOIRE} bonnes réponses sur ${dossiers.length}.`;
+  $('#fin-message').textContent = victoire ? T.jugeExemplaire : T.ilFallait(dossiers.length);
 
   const etoiles = $('#fin-etoiles');
   etoiles.innerHTML = '';
