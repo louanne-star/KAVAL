@@ -1,0 +1,81 @@
+<ion-content [fullscreen]="true">
+  <div class="auth-container">
+
+    <!-- Logo -->
+    <div class="auth-logo">
+      <span class="logo-shell">🐚</span>
+      <span class="logo-name">KAVAL</span>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+
+      <!-- Vérification du lien en cours -->
+      <div class="auth-etat" *ngIf="etat() === 'verification'">
+        <span class="auth-loader auth-loader--sombre"></span>
+      </div>
+
+      <!-- Lien invalide / expiré -->
+      <div class="auth-etat" *ngIf="etat() === 'invalide'">
+        <p class="auth-etat-titre">{{ 'auth.reinit.invalideTitre' | translate }}</p>
+        <p class="auth-etat-texte">{{ 'auth.reinit.invalideTexte' | translate }}</p>
+        <a class="auth-btn auth-btn--lien" routerLink="/mot-de-passe-oublie">
+          {{ 'auth.reinit.redemander' | translate }}
+        </a>
+      </div>
+
+      <!-- Succès -->
+      <div class="auth-etat" *ngIf="etat() === 'succes'">
+        <p class="auth-etat-titre">{{ 'auth.reinit.succesTitre' | translate }}</p>
+        <p class="auth-etat-texte">{{ 'auth.reinit.succesTexte' | translate }}</p>
+      </div>
+
+      <!-- Formulaire du nouveau mot de passe -->
+      <form *ngIf="etat() === 'formulaire'" (ngSubmit)="soumettre()" #form="ngForm">
+
+        <h1 class="auth-titre">{{ 'auth.reinit.titre' | translate }}</h1>
+
+        <div class="auth-champ">
+          <label class="auth-label">{{ 'auth.reinit.nouveau' | translate }}</label>
+          <input class="auth-input"
+                 type="password"
+                 placeholder="••••••••"
+                 [(ngModel)]="nouveauMdp"
+                 name="nouveauMdp"
+                 autocomplete="new-password"
+                 minlength="8"
+                 required />
+          <p class="auth-aide">{{ 'auth.mdpAide' | translate }}</p>
+        </div>
+
+        <div class="auth-champ">
+          <label class="auth-label">{{ 'auth.reinit.confirmer' | translate }}</label>
+          <input class="auth-input"
+                 type="password"
+                 placeholder="••••••••"
+                 [(ngModel)]="confirmMdp"
+                 name="confirmMdp"
+                 autocomplete="new-password"
+                 minlength="8"
+                 required />
+        </div>
+
+        <!-- Erreur -->
+        <div class="auth-erreur" *ngIf="erreur()">
+          ⚠ {{ erreur() }}
+        </div>
+
+        <!-- Bouton -->
+        <button class="auth-btn" type="submit" [disabled]="chargement()">
+          <span *ngIf="!chargement()">
+            {{ 'auth.reinit.bouton' | translate }}
+          </span>
+          <span *ngIf="chargement()" class="auth-loader"></span>
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+</ion-content>

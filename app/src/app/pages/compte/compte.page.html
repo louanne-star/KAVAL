@@ -192,13 +192,13 @@
 
       <div class="field">
         <label class="field-label" for="f-mdp">{{ 'compte.mdp.nouveau' | translate }}</label>
-        <input id="f-mdp" class="field-input" type="password" placeholder="••••••"
-               [(ngModel)]="nouveauMdp" autocomplete="new-password" />
+        <input id="f-mdp" class="field-input" type="password" placeholder="••••••••"
+               [(ngModel)]="nouveauMdp" autocomplete="new-password" minlength="8" />
       </div>
       <div class="field field--last">
         <label class="field-label" for="f-mdp2">{{ 'compte.mdp.confirmer' | translate }}</label>
-        <input id="f-mdp2" class="field-input" type="password" placeholder="••••••"
-               [(ngModel)]="confirmMdp" autocomplete="new-password" />
+        <input id="f-mdp2" class="field-input" type="password" placeholder="••••••••"
+               [(ngModel)]="confirmMdp" autocomplete="new-password" minlength="8" />
       </div>
 
       <button class="cp-save" (click)="modifierMdp()" [disabled]="chargement()">

@@ -56,6 +56,9 @@
           <p class="auth-aide" *ngIf="onglet === 'inscription'">
             {{ 'auth.mdpAide' | translate }}
           </p>
+          <a class="auth-oublie" *ngIf="onglet === 'connexion'" routerLink="/mot-de-passe-oublie">
+            {{ 'auth.motDePasseOublie' | translate }}
+          </a>
         </div>
 
         <!-- RGPD (inscription uniquement) -->

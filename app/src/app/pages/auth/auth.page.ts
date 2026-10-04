@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { REGEX_MDP } from '../../shared/password-policy';
 import { AuthService } from '../../services/auth.service';
 import { SyncService } from '../../services/sync.service';
 import { BadgeService } from '../../services/badge.service';
@@ -17,7 +19,7 @@ import { TutorialService } from '../../services/tutorial.service';
   templateUrl: './auth.page.html',
   styleUrls: ['./auth.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe]
+  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe, RouterLink]
 })
 export class AuthPage {
 
@@ -30,11 +32,7 @@ export class AuthPage {
   chargement = signal(false);
   erreur     = signal<string | null>(null);
 
-  // Politique de mot de passe : au moins 8 caractères, une majuscule, une
-  // minuscule et un chiffre (recommandation CNIL pour une authentification
-  // par mot de passe seul).
   private readonly REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  private readonly REGEX_MDP   = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
   constructor(
     private auth:     AuthService,
@@ -73,7 +71,7 @@ export class AuthPage {
       return;
     }
     if (this.onglet === 'inscription') {
-      if (!this.REGEX_MDP.test(this.motDePasse)) {
+      if (!REGEX_MDP.test(this.motDePasse)) {
         this.erreur.set(this.translate.instant('auth.erreurs.motDePasseCourt'));
         return;
       }

@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline, heartOutline } from 'ionicons/icons';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { REGEX_MDP } from '../../shared/password-policy';
 import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { JourneyService } from '../../services/journey.service';
@@ -127,7 +128,7 @@ export class ComptePage {
       this.erreur.set(this.translate.instant('compte.messages.mdpMismatch'));
       return;
     }
-    if (this.nouveauMdp.length < 6) {
+    if (!REGEX_MDP.test(this.nouveauMdp)) {
       this.erreur.set(this.translate.instant('compte.messages.mdpTropCourt'));
       return;
     }

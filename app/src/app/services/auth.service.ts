@@ -61,6 +61,29 @@ export class AuthService {
     if (error) throw error;
   }
 
+  /**
+   * Envoie l'e-mail de réinitialisation. Ne renvoie jamais d'erreur si
+   * l'adresse n'existe pas (comportement natif de Supabase) : ça évite de
+   * laisser un attaquant deviner quels e-mails ont un compte chez nous.
+   */
+  async demanderReinitialisation(email: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`,
+    });
+    if (error) throw error;
+  }
+
+  /**
+   * À appeler sur la page de réinitialisation : confirme qu'une session de
+   * récupération valide a bien été établie à partir du lien reçu par e-mail
+   * (sans dépendre du timing de l'évènement PASSWORD_RECOVERY, qui peut être
+   * émis avant que la page n'ait fini de s'initialiser).
+   */
+  async verifierSessionRecuperation(): Promise<boolean> {
+    const { data } = await this.supabase.client.auth.getSession();
+    return data.session !== null;
+  }
+
   async supprimerCompte(): Promise<void> {
     const { error } = await this.supabase.client.rpc('delete_account');
     if (error) throw error;
