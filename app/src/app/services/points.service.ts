@@ -82,6 +82,7 @@ export interface PointImage {
   pointId: string;
   chemin: string;
   ordre: number;
+  banniere: boolean;
 }
 
 interface CachePoints {
@@ -185,7 +186,7 @@ export class PointsService {
         texte: r.texte, texteEn: r.texte_en, ordre: r.ordre
       }));
       const images: PointImage[] = img.map((r: any) => ({
-        id: r.id, pointId: r.point_id, chemin: r.chemin, ordre: r.ordre
+        id: r.id, pointId: r.point_id, chemin: r.chemin, ordre: r.ordre, banniere: r.banniere ?? false
       }));
 
       this.zones.set(zones);
@@ -243,6 +244,27 @@ export class PointsService {
 
   imagesDe(pointId: string): PointImage[] {
     return this.images().filter(i => i.pointId === pointId);
+  }
+
+  /**
+   * Image à utiliser en bannière derrière le titre : automatique s'il n'y a
+   * qu'une seule photo, sinon celle marquée `banniere` en base. Si un point a
+   * plusieurs photos mais qu'aucune n'est encore marquée bannière (décision
+   * pas encore prise), ne retourne rien — le point garde son fond bleu par
+   * défaut tant que le choix n'est pas fait.
+   */
+  banniereDe(pointId: string): PointImage | undefined {
+    const imgs = this.imagesDe(pointId);
+    if (imgs.length === 1) return imgs[0];
+    return imgs.find(i => i.banniere);
+  }
+
+  /** Carrousel sous le mini-jeu : toutes les photos du point, bannière en dernière position. Vide si pas de bannière ou une seule photo. */
+  carrouselDe(pointId: string): PointImage[] {
+    const imgs = this.imagesDe(pointId);
+    const banniere = this.banniereDe(pointId);
+    if (!banniere || imgs.length < 2) return [];
+    return [...imgs.filter(i => i.id !== banniere.id), banniere];
   }
 
   /** Reconstruit l'URL publique à partir du chemin stocké en base (bucket Storage "photos"). */
