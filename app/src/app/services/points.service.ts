@@ -77,6 +77,13 @@ export interface PointSection {
   ordre: number;
 }
 
+export interface PointImage {
+  id: string;
+  pointId: string;
+  chemin: string;
+  ordre: number;
+}
+
 interface CachePoints {
   zones:       ZoneMeta[];
   vrais:       PointVrai[];
@@ -84,9 +91,11 @@ interface CachePoints {
   temoignages: Temoignage[];
   quiz:        QuizQuestion[];
   sections:    PointSection[];
+  images:      PointImage[];
 }
 
 const CLE_CACHE = 'kaval_points_cache_v2';
+const BUCKET_PHOTOS = 'photos';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 // Charge le contenu des zones/points depuis Supabase (source de vérité) et le
@@ -101,6 +110,7 @@ export class PointsService {
   readonly temoignages  = signal<Temoignage[]>([]);
   readonly quiz         = signal<QuizQuestion[]>([]);
   readonly sections     = signal<PointSection[]>([]);
+  readonly images       = signal<PointImage[]>([]);
   readonly pret         = signal(false);
   readonly erreur       = signal<string | null>(null);
 
@@ -134,10 +144,11 @@ export class PointsService {
           return [];
         }
       };
-      const [t, q, s] = await Promise.all([
+      const [t, q, s, img] = await Promise.all([
         chargerOptionnel(this.supabase.client.from('temoignages').select('*')),
         chargerOptionnel(this.supabase.client.from('quiz_questions').select('*').order('ordre')),
         chargerOptionnel(this.supabase.client.from('point_sections').select('*').order('ordre')),
+        chargerOptionnel(this.supabase.client.from('point_images').select('*').order('ordre')),
       ]);
 
       const zones: ZoneMeta[] = (z.data ?? []).map((r: any) => ({
@@ -173,6 +184,9 @@ export class PointsService {
         id: r.id, pointId: r.point_id, titre: r.titre, titreEn: r.titre_en,
         texte: r.texte, texteEn: r.texte_en, ordre: r.ordre
       }));
+      const images: PointImage[] = img.map((r: any) => ({
+        id: r.id, pointId: r.point_id, chemin: r.chemin, ordre: r.ordre
+      }));
 
       this.zones.set(zones);
       this.pointsVrai.set(vrais);
@@ -180,8 +194,9 @@ export class PointsService {
       this.temoignages.set(temoignages);
       this.quiz.set(quiz);
       this.sections.set(sections);
+      this.images.set(images);
       this.erreur.set(null);
-      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages, quiz, sections }) });
+      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages, quiz, sections, images }) });
     } catch {
       const chargeDepuisCache = await this.chargerDepuisCache();
       if (!chargeDepuisCache) {
@@ -202,6 +217,7 @@ export class PointsService {
     this.temoignages.set(cache.temoignages ?? []);
     this.quiz.set(cache.quiz ?? []);
     this.sections.set(cache.sections ?? []);
+    this.images.set(cache.images ?? []);
     return true;
   }
 
@@ -223,5 +239,14 @@ export class PointsService {
 
   sectionsDe(pointId: string): PointSection[] {
     return this.sections().filter(s => s.pointId === pointId);
+  }
+
+  imagesDe(pointId: string): PointImage[] {
+    return this.images().filter(i => i.pointId === pointId);
+  }
+
+  /** Reconstruit l'URL publique à partir du chemin stocké en base (bucket Storage "photos"). */
+  urlImage(chemin: string): string {
+    return this.supabase.client.storage.from(BUCKET_PHOTOS).getPublicUrl(chemin).data.publicUrl;
   }
 }

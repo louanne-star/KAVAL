@@ -142,6 +142,48 @@ ion-content.parcours-content {
 
 .detail-contenu { padding: 24px 16px 100px; }
 
+// ── Galerie photo ────────────────────────────────────────────────────────────
+
+.photos-bande {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin: 0 0 20px;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.photos-vignette {
+  flex: 0 0 auto;
+  width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid #ebebeb;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+
+.image-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(10,14,20,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 12px;
+    object-fit: contain;
+  }
+}
+
 .histoire-card {
   background: #fff;
   border-radius: 16px;

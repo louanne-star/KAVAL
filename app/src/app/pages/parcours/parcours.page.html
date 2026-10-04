@@ -1,5 +1,10 @@
 <ion-content [fullscreen]="true" class="parcours-content">
 
+  <!-- Photo agrandie (plein écran) -->
+  <div class="image-overlay" *ngIf="imageAgrandie()" (click)="fermerImageAgrandie()">
+    <img [src]="imageAgrandie()" alt="" />
+  </div>
+
   <!-- Badge win overlay -->
   <div class="badge-overlay" *ngIf="badgeAnimation">
     <div class="badge-win-card">
@@ -34,6 +39,15 @@
       </div>
 
       <div class="detail-contenu">
+
+        <!-- Galerie photo du point (si des photos ont été associées en base) -->
+        <div class="photos-bande" *ngIf="pointsService.imagesDe(zone.id).length > 0">
+          <img class="photos-vignette"
+               *ngFor="let img of pointsService.imagesDe(zone.id)"
+               [src]="pointsService.urlImage(img.chemin)"
+               (click)="agrandirImage(img.chemin)"
+               alt="" />
+        </div>
 
         <!-- Bloc mini-jeu, réutilisé pour être inséré juste après la 1ère section -->
         <ng-template #miniJeuBlock>

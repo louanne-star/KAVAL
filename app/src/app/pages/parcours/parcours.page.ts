@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ViewChild, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -56,6 +56,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   enRedirection = false;
   introVisible = false;
   jeuOuvert = false;
+  imageAgrandie = signal<string | null>(null);
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
 
@@ -301,4 +302,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
 
   ouvrirJeu() { this.setJeuOuvert(true); }
   fermerJeu() { this.setJeuOuvert(false); }
+
+  agrandirImage(chemin: string) { this.imageAgrandie.set(this.pointsService.urlImage(chemin)); }
+  fermerImageAgrandie() { this.imageAgrandie.set(null); }
 }
