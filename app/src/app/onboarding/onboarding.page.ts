@@ -8,7 +8,7 @@ import {
   mapOutline, saveOutline, refreshOutline, ribbonOutline, sparklesOutline,
   personOutline, location,
 } from 'ionicons/icons';
-import { Preferences } from '@capacitor/preferences';
+import { Preferences } from '../core/preferences';
 import { CLE_ONBOARDING_TERMINE } from './onboarding.constants';
 import { BrandingService } from '../services/branding.service';
 import { EquipeService } from '../services/equipe.service';

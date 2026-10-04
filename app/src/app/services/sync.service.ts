@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Preferences } from '@capacitor/preferences';
+import { Preferences } from '../core/preferences';
 import { SupabaseService } from './supabase';
 import { AuthService } from './auth.service';
 

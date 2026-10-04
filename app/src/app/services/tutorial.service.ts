@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Preferences } from '@capacitor/preferences';
+import { Preferences } from '../core/preferences';
 import { JourneyService } from './journey.service';
 
 export interface EtapeTuto {

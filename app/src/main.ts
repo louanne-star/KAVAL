@@ -5,6 +5,8 @@ import { provideTranslateService } from '@ngx-translate/core';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+import { isDevMode } from '@angular/core';
+import { provideServiceWorker } from '@angular/service-worker';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -12,5 +14,9 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
   ],
 });

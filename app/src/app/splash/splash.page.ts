@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Preferences } from '@capacitor/preferences';
+import { Preferences } from '../core/preferences';
 import { AuthService } from '../services/auth.service';
 import { CLE_ONBOARDING_TERMINE } from '../onboarding/onboarding.constants';
 import { SyncService } from '../services/sync.service';

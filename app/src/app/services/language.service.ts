@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Preferences } from '@capacitor/preferences';
+import { Preferences } from '../core/preferences';
 import { TranslateService } from '@ngx-translate/core';
 import { TRANSLATIONS, Langue } from '../i18n/translations';
 

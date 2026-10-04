@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Preferences } from '@capacitor/preferences';
+import { Preferences } from '../core/preferences';
 import { SupabaseService } from './supabase';
 
 const CLE_CACHE = 'kaval_branding_cache';
