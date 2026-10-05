@@ -77,16 +77,25 @@
         <ng-container *ngIf="pointsService.sectionsDe(zone.id).length === 0" [ngTemplateOutlet]="miniJeuBlock"></ng-container>
 
         <!-- Carrousel photo (si le point a plusieurs photos avec une bannière choisie) -->
-        <ng-container *ngIf="pointsService.carrouselDe(zone.id).length > 0">
-          <div class="section-titre">{{ 'parcours.galerie.titre' | translate }}</div>
-          <p class="galerie-intro">{{ 'parcours.galerie.intro' | translate }}</p>
-          <div class="photos-bande">
-            <img class="photos-vignette"
-                 *ngFor="let img of pointsService.carrouselDe(zone.id)"
-                 [src]="pointsService.urlImage(img.chemin)"
-                 (click)="agrandirImage(img.chemin)"
-                 alt="" />
-          </div>
+        <ng-container *ngIf="pointsService.carrouselDe(zone.id) as photos">
+          <ng-container *ngIf="photos.length > 0">
+            <div class="section-titre">{{ 'parcours.galerie.titre' | translate }}</div>
+            <p class="galerie-intro">{{ 'parcours.galerie.intro' | translate }}</p>
+            <div class="carrousel" #carrouselEl (scroll)="onScrollCarrousel($event)">
+              <div class="carrousel-carte"
+                   *ngFor="let img of photos; let i = index"
+                   [class.carrousel-carte--actif]="i === carrouselIndex()"
+                   (click)="agrandirImage(img.chemin)">
+                <img [src]="pointsService.urlImage(img.chemin)" alt="" />
+              </div>
+            </div>
+            <div class="carrousel-dots" *ngIf="photos.length > 1">
+              <span class="dot"
+                    *ngFor="let img of photos; let i = index"
+                    [class.dot--actif]="i === carrouselIndex()"
+                    (click)="allerVersPhoto(carrouselEl, i)"></span>
+            </div>
+          </ng-container>
         </ng-container>
 
         <!-- Témoignage historique (si disponible) -->

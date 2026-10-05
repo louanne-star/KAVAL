@@ -16,6 +16,8 @@ import { Langue } from '../../i18n/translations';
 type ChoixSlot = 'bonne' | 'm1' | 'm2';
 
 const CLE_INTRO_VUE = 'kaval_parcours_intro_vue';
+// Doit correspondre au "gap" de .carrousel dans parcours.page.scss.
+const CARROUSEL_GAP = 12;
 
 // Genre de chaque point (pour "Explore le/la ..."), en français uniquement —
 // pas nécessaire en anglais ("Explore" n'a pas besoin d'article.
@@ -57,6 +59,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   introVisible = false;
   jeuOuvert = false;
   imageAgrandie = signal<string | null>(null);
+  carrouselIndex = signal(0);
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
 
@@ -146,6 +149,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
         this.enRedirection = false;
         this.zoneSelectionnee = zone;
         this.setJeuOuvert(false);
+        this.carrouselIndex.set(0);
         this.initQuiz();
         this.scrollHautDetail();
       } else {
@@ -308,4 +312,20 @@ export class ParcoursPage implements OnInit, OnDestroy {
 
   agrandirImage(chemin: string) { this.imageAgrandie.set(this.pointsService.urlImage(chemin)); }
   fermerImageAgrandie() { this.imageAgrandie.set(null); }
+
+  // Carte centrée la plus proche du scroll actuel, pour mettre à jour les points de pagination.
+  onScrollCarrousel(e: Event) {
+    const el = e.target as HTMLElement;
+    const carte = el.children[0] as HTMLElement | undefined;
+    if (!carte) return;
+    const pas = carte.offsetWidth + CARROUSEL_GAP;
+    const i = Math.round(el.scrollLeft / pas);
+    this.carrouselIndex.set(Math.max(0, Math.min(i, el.children.length - 1)));
+  }
+
+  allerVersPhoto(el: HTMLElement, i: number) {
+    (el.children[i] as HTMLElement | undefined)?.scrollIntoView({
+      behavior: 'smooth', inline: 'center', block: 'nearest',
+    });
+  }
 }
