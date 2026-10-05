@@ -6,7 +6,8 @@
 --
 -- Ce script :
 --  1. Corrige les coordonnées GPS du point popup "École primaire des enfants
---     des surveillants" (jusqu'ici approximatives).
+--     des surveillants" et du point "Hôpital du Marais" (jusqu'ici
+--     approximatives).
 --  2. Crée le nouveau point "Les Ateliers de l'Île Nou" (bâtiment en H),
 --     avec son Histoire, son Anecdote, son témoignage, son quiz (fr + en),
 --     et rattache les 3 photos déjà présentes dans le bucket "photos"
@@ -19,6 +20,18 @@
 
 update points set lat = -22.261861, lng = 166.403667
 where id = 'ecole_primaire_surveillants';
+
+-- ── 1bis. Hôpital du Marais (vraies coordonnées) ────────────────────────────
+-- 22°15'59.4"S 166°23'51.2"E
+
+update points set lat = -22.266500, lng = 166.397556
+where id = 'hopital_du_marais';
+
+-- ── 1ter. Magasin à vivre / Théâtre de l'Île (vraies coordonnées) ──────────
+-- 22°15'42.7"S 166°24'03.6"E
+
+update points set lat = -22.261861, lng = 166.401000
+where id = 'magasin_a_vivre';
 
 -- ── 2. Nouveau point : Les Ateliers de l'Île Nou ────────────────────────────
 -- 22°15'39.7"S 166°24'08.0"E
