@@ -191,8 +191,8 @@ export const TRANSLATIONS = {
         enregistrer:   'Enregistrer',
         annuler:       'Annuler',
         supprimer:     'Supprimer',
+        supprimerCompte: 'Supprimer mon compte',
         deconnexion:   'Se déconnecter',
-        supprimerAria: 'Supprimer le compte',
       },
       supprSheet: {
         titre: 'Supprimer le compte ?',
@@ -474,8 +474,8 @@ export const TRANSLATIONS = {
         enregistrer:   'Save',
         annuler:       'Cancel',
         supprimer:     'Delete',
+        supprimerCompte: 'Delete my account',
         deconnexion:   'Log out',
-        supprimerAria: 'Delete account',
       },
       supprSheet: {
         titre: 'Delete account?',

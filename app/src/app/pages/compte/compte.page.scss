@@ -262,27 +262,28 @@ ion-content {
 
 // ── Bottom actions ────────────────────────────────────────────────────────────
 
-.cp-actions { display: flex; gap: 8px; margin-top: 24px; }
+.cp-actions { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
 
 .cp-logout {
-  flex: 1; height: 52px; background: #fff;
+  width: 100%; height: 52px; background: #fff;
   border: 1px solid rgba(15,23,42,0.1);
   border-radius: 16px;
   font-size: 15px; font-weight: 600; color: #0f172a;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(15,23,42,0.06);
   transition: background 0.12s, transform 0.12s;
   &:active { background: #f4f4f1; transform: scale(0.98); }
 }
 
 .cp-delete {
-  width: 52px; height: 52px;
-  background: #fdedeb; border: 1px solid #f6c9c2;
-  border-radius: 16px; color: #e74c3c; font-size: 20px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0;
-  transition: background 0.12s, transform 0.12s;
-  &:active { background: #fadcd6; transform: scale(0.95); }
+  background: none; border: none;
+  color: #e74c3c;
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin: 0 auto; padding: 8px;
+  cursor: pointer;
+  transition: opacity 0.12s;
+  ion-icon { font-size: 16px; }
+  &:active { opacity: 0.6; }
 }
 
 // ── Sécurité ──────────────────────────────────────────────────────────────────
