@@ -10,7 +10,7 @@
     <div class="badge-win-card">
       <img class="badge-emoji" *ngIf="zoneSelectionnee" [src]="'assets/badges/' + zoneSelectionnee.id + '.svg'" alt="" />
       <h2 class="badge-titre">{{ 'parcours.badge.titre' | translate }}</h2>
-      <p class="badge-sous">{{ 'parcours.badge.sousTitre' | translate }}</p>
+      <p class="badge-sous">{{ sousTitreBadge() }}</p>
     </div>
   </div>
 

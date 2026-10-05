@@ -5,7 +5,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { Preferences } from '../../core/preferences';
 import { IonContent } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { PointsService, QuizQuestion } from '../../services/points.service';
@@ -100,6 +100,31 @@ export class ParcoursPage implements OnInit, OnDestroy {
     return this.JEUX_NOMS[this.languageService.langue()][pointId] ?? '';
   }
 
+  // Phrase du badge de victoire : une par mini-jeu, pas une seule phrase
+  // générique ("Tu as traversé la rivière" n'a aucun sens après le jeu de
+  // mémoire ou le tribunal). Repli sur 'parcours.badge.sousTitre' (générique)
+  // si un point n'a pas (encore) de mini-jeu associé ici.
+  private readonly BADGE_SOUS_TITRES: Record<Langue, Record<string, string>> = {
+    fr: {
+      camp_est_principal: 'Tu as rendu ton verdict.',
+      magasin_a_vivre:    'Tu as reconnecté les forçats.',
+      boulangerie:         'Tu as traversé la rivière.',
+      hopital_du_marais:   'Tu as testé ta mémoire.',
+    },
+    en: {
+      camp_est_principal: 'You delivered your verdict.',
+      magasin_a_vivre:    'You reconnected the convicts.',
+      boulangerie:         'You crossed the river.',
+      hopital_du_marais:   'You tested your memory.',
+    },
+  };
+
+  sousTitreBadge(): string {
+    if (!this.zoneSelectionnee) return '';
+    const parLangue = this.BADGE_SOUS_TITRES[this.languageService.langue()];
+    return parLangue[this.zoneSelectionnee.id] ?? this.translate.instant('parcours.badge.sousTitre');
+  }
+
   private paramSub?: Subscription;
   private readonly onMessage = (e: MessageEvent) => {
     if (e.data?.type === 'jeuTermine' && this.zoneSelectionnee) {
@@ -127,6 +152,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
     readonly pointsService: PointsService,
     readonly languageService: LanguageService,
     private uiState: UiStateService,
+    private translate: TranslateService,
   ) {}
 
   ngOnInit() {

@@ -72,7 +72,7 @@ export const TRANSLATIONS = {
       vide: { titre: 'Aucun résultat', texte: 'Aucune zone ne correspond à votre recherche.' },
     },
     parcours: {
-      badge: { titre: 'Badge obtenu !', sousTitre: 'Tu as traversé la rivière' },
+      badge: { titre: 'Badge obtenu !', sousTitre: 'Défi réussi !' },
       retour: '← Retour',
       fermerJeu: '✕ Fermer',
       miniJeu: {
@@ -355,7 +355,7 @@ export const TRANSLATIONS = {
       vide: { titre: 'No results', texte: 'No zone matches your search.' },
     },
     parcours: {
-      badge: { titre: 'Badge earned!', sousTitre: 'You crossed the river' },
+      badge: { titre: 'Badge earned!', sousTitre: 'Challenge completed!' },
       retour: '← Back',
       fermerJeu: '✕ Close',
       miniJeu: {
