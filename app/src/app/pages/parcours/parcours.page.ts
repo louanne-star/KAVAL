@@ -70,28 +70,31 @@ export class ParcoursPage implements OnInit, OnDestroy {
   quizScore = 0;
   quizTermine = false;
 
-  // Mini-jeu disponible pour tous les vrai points d'une zone visuelle donnée
+  // Mini-jeu disponible pour un point précis (id du point, pas la zone géographique).
   readonly JEUX: Record<string, string> = {
-    penitencier: 'assets/mini-jeux/river_jump.html',
-    camp_est:    'assets/mini-jeux/tribunal.html',
-    hopital:     'assets/mini-jeux/bagne-connect.html',
+    camp_est_principal: 'assets/mini-jeux/tribunal.html',
+    magasin_a_vivre:    'assets/mini-jeux/bagne-connect.html',
+    boulangerie:         'assets/mini-jeux/river_jump.html',
+    hopital_du_marais:   'assets/mini-jeux/memoire.html',
   };
 
   private readonly JEUX_NOMS: Record<Langue, Record<string, string>> = {
     fr: {
-      penitencier: 'Traverse la Rivière',
-      camp_est:    'Le tribunal',
-      hopital:     'Connexion des forçats',
+      camp_est_principal: 'Le tribunal',
+      magasin_a_vivre:    'Connexion des forçats',
+      boulangerie:         'Traverse la Rivière',
+      hopital_du_marais:   'Mémoire du Bagne',
     },
     en: {
-      penitencier: 'Cross the River',
-      camp_est:    'The Trial',
-      hopital:     'Convicts Connect',
+      camp_est_principal: 'The Trial',
+      magasin_a_vivre:    'Convicts Connect',
+      boulangerie:         'Cross the River',
+      hopital_du_marais:   'Memory of the Penal Colony',
     },
   };
 
-  nomJeu(zoneId: string): string {
-    return this.JEUX_NOMS[this.languageService.langue()][zoneId] ?? '';
+  nomJeu(pointId: string): string {
+    return this.JEUX_NOMS[this.languageService.langue()][pointId] ?? '';
   }
 
   private paramSub?: Subscription;
@@ -205,7 +208,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   private jeuUrlCache: { jeu: string; url: SafeResourceUrl } | null = null;
 
   get jeuUrl(): SafeResourceUrl | null {
-    const jeu = this.zoneSelectionnee ? this.JEUX[this.zoneSelectionnee.zoneId] : null;
+    const jeu = this.zoneSelectionnee ? this.JEUX[this.zoneSelectionnee.id] : null;
     if (!jeu) return null;
     if (this.jeuUrlCache?.jeu !== jeu) {
       this.jeuUrlCache = { jeu, url: this.sanitizer.bypassSecurityTrustResourceUrl(jeu) };
