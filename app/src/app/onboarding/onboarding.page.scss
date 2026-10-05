@@ -5,8 +5,7 @@
 
 // Pas de font-family ici : on hérite de la police système par défaut
 // d'Ionic (--ion-default-font), la même que sur les pages Carte/Parcours
-// (ex: le point "Camp Est") qui ne la surchargent pas non plus. Montserrat
-// n'est utilisée que sur Compte/Favoris/Recherche, pas ici.
+// (ex: le point "Camp Est") qui ne la surchargent pas non plus.
 .onboarding-content {
   --background: #fffcf7;
 }
@@ -58,8 +57,12 @@ h1 {
 
 // ── Écrans clairs (localisation, connexion, projet) ───────────────────────────
 
+// Grain léger façon papier, en plus du fond crème uni — juste assez perceptible
+// pour casser le plat sans distraire du contenu.
 .ecran-clair {
-  background: #fffcf7;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(39,71,110,0.05) 1px, transparent 0) 0 0 / 20px 20px,
+    #fffcf7;
   padding: 76px 24px 120px;
   justify-content: center;
 }
@@ -152,7 +155,6 @@ h1 {
 .ecran-photo-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/assets/apropos/img.jpg');
   background-size: cover;
   background-position: center;
 }
@@ -191,7 +193,6 @@ h1 {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/assets/apropos/img.jpg');
   background-size: cover;
   background-position: center;
 }
@@ -286,13 +287,11 @@ h1 {
     0 10px 26px rgba(23,59,99,0.55),
     0 0 26px rgba(53,197,200,0.35),
     0 0 46px rgba(53,197,200,0.18);
-
-  ion-icon { font-size: 17px; }
 }
 
 .onb-logo-final {
-  width: 56px;
-  height: 56px;
+  width: 100px;
+  height: 100px;
   border-radius: 15px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
   margin-bottom: 18px;
@@ -596,4 +595,43 @@ h1 {
 .onb-dots-clair span {
   background: rgba(255,255,255,0.35);
   &.actif { background: #ffffff; }
+}
+
+// ── Bascule de langue ─────────────────────────────────────────────────────────
+
+.onb-lang-toggle {
+  position: fixed;
+  top: calc(18px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+  background: rgba(255,255,255,0.7);
+  border-radius: 10px;
+  padding: 3px;
+  backdrop-filter: blur(6px);
+
+  button {
+    width: 34px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
+
+    &.actif { background: #27476e; color: #fff; }
+  }
+}
+
+.onb-lang-toggle-clair {
+  background: rgba(255,255,255,0.15);
+
+  button {
+    color: rgba(255,255,255,0.75);
+    &.actif { background: #ffffff; color: #27476e; }
+  }
 }

@@ -234,6 +234,53 @@ export const TRANSLATIONS = {
         fin:                  { titre: 'Vous êtes prêt(e) !', texte: "Bonne exploration de l'Île Nou. 🚩" },
       },
     },
+    onboarding: {
+      retour: 'Retour',
+      suivant: 'Suivant',
+      hero: {
+        slogan1: 'EXPLOREZ.',
+        slogan2: 'APPRENEZ.',
+        slogan3: 'AVANCEZ.',
+        baseline: "Découvrez l'île Nou autrement.",
+        commencer: 'COMMENCER',
+      },
+      localisation: {
+        titre: 'On a besoin de ta position',
+        texte: "Pour te guider sur le parcours et t'indiquer les lieux à proximité.",
+        activer: 'Activer la position',
+        erreurs: {
+          requise:      'Autorise ta position pour continuer.',
+          indisponible: 'Géolocalisation indisponible sur cet appareil.',
+          refusee:      'Autorisation refusée. Vérifie les réglages de ton navigateur, puis réessaie.',
+          introuvable:  'Position introuvable. Vérifie que ta localisation est activée.',
+          expiree:      'La demande a expiré. Réessaie.',
+        },
+      },
+      connexion: {
+        titre: 'Pourquoi se connecter ?',
+        texte: 'Un compte pour sauvegarder ta progression.',
+        avantages: {
+          progression:   'Sauvegarder ta progression',
+          parcours:      'Retrouver ton parcours',
+          badges:        'Débloquer tes récompenses',
+          personnaliser: 'Personnaliser ton expérience',
+        },
+      },
+      collaboratif: {
+        titre: 'Un projet collaboratif',
+        texte: "Né d'une collaboration entre étudiants, historiens et passionnés du patrimoine de l'île.",
+        roles: {
+          encadrement: 'Encadrement',
+          sources:     'Sources historiques',
+        },
+      },
+      fin: {
+        titre: 'Prêt à découvrir KAVAL ?',
+        texte: "Rejoins l'aventure et explore l'île Nou.",
+        creerCompte: 'Créer un compte',
+        dejaCompte:  'Déjà un compte ? Se connecter',
+      },
+    },
   },
   en: {
     commun: {
@@ -468,6 +515,53 @@ export const TRANSLATIONS = {
         recherche:            { titre: 'Search or filter', texte: 'Search for a specific point, or filter visited and favorite sites.' },
         aproposTab:           { titre: 'About tab', texte: 'For more information about the app and the Île Nou penal colony, check this tab.' },
         fin:                  { titre: "You're all set!", texte: 'Enjoy exploring Île Nou. 🚩' },
+      },
+    },
+    onboarding: {
+      retour: 'Back',
+      suivant: 'Next',
+      hero: {
+        slogan1: 'EXPLORE.',
+        slogan2: 'LEARN.',
+        slogan3: 'MOVE FORWARD.',
+        baseline: 'Discover Île Nou differently.',
+        commencer: 'GET STARTED',
+      },
+      localisation: {
+        titre: 'We need your location',
+        texte: 'To guide you along the trail and show you nearby sites.',
+        activer: 'Enable location',
+        erreurs: {
+          requise:      'Allow your location to continue.',
+          indisponible: 'Geolocation is unavailable on this device.',
+          refusee:      'Permission denied. Check your browser settings, then try again.',
+          introuvable:  'Location not found. Check that your location is enabled.',
+          expiree:      'The request timed out. Try again.',
+        },
+      },
+      connexion: {
+        titre: 'Why sign in?',
+        texte: 'An account to save your progress.',
+        avantages: {
+          progression:   'Save your progress',
+          parcours:      'Resume your trail',
+          badges:        'Unlock your rewards',
+          personnaliser: 'Personalise your experience',
+        },
+      },
+      collaboratif: {
+        titre: 'A collaborative project',
+        texte: 'Born from a collaboration between students, historians and heritage enthusiasts of the island.',
+        roles: {
+          encadrement: 'Supervision',
+          sources:     'Historical sources',
+        },
+      },
+      fin: {
+        titre: 'Ready to discover KAVAL?',
+        texte: 'Join the adventure and explore Île Nou.',
+        creerCompte: 'Create an account',
+        dejaCompte:  'Already have an account? Sign in',
       },
     },
   },

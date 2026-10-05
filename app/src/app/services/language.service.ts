@@ -13,11 +13,23 @@ export class LanguageService {
   constructor(private translate: TranslateService) {
     this.translate.setTranslation('fr', TRANSLATIONS.fr);
     this.translate.setTranslation('en', TRANSLATIONS.en);
-    this.translate.use('fr');
+
+    // Tant qu'aucune préférence n'a été enregistrée (premier lancement), on
+    // devine la langue depuis celle du téléphone/navigateur plutôt que de
+    // forcer le français à un touriste anglophone — l'app ne gérant que
+    // fr/en, tout ce qui n'est pas français bascule sur l'anglais.
+    const devinee = this.detecterLangueNavigateur();
+    this.langue.set(devinee);
+    this.translate.use(devinee);
 
     Preferences.get({ key: CLE }).then(({ value }) => {
       if (value === 'en' || value === 'fr') this.changerLangue(value);
     });
+  }
+
+  private detecterLangueNavigateur(): Langue {
+    const nav = typeof navigator !== 'undefined' ? navigator.language : '';
+    return nav?.toLowerCase().startsWith('fr') ? 'fr' : 'en';
   }
 
   changerLangue(langue: Langue): void {

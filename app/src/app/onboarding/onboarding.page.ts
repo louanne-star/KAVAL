@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, signal } fr
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import {
   arrowForwardOutline, arrowBackOutline, checkmarkCircle,
@@ -12,6 +13,7 @@ import { Preferences } from '../core/preferences';
 import { CLE_ONBOARDING_TERMINE } from './onboarding.constants';
 import { BrandingService } from '../services/branding.service';
 import { EquipeService } from '../services/equipe.service';
+import { LanguageService } from '../services/language.service';
 
 type EtatPermission = 'inconnu' | 'en_cours' | 'accordee' | 'refusee' | 'indisponible';
 
@@ -25,7 +27,7 @@ const NB_ECRANS = 5;
   templateUrl: './onboarding.page.html',
   styleUrls: ['./onboarding.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslatePipe],
 })
 export class OnboardingPage implements AfterViewInit, OnDestroy {
 
@@ -38,21 +40,28 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
   messagePermission = signal<string | null>(null);
 
   readonly avantages = [
-    { num: '01', titre: 'Sauvegarder ta progression', icone: 'save-outline' },
-    { num: '02', titre: 'Retrouver ton parcours', icone: 'refresh-outline' },
-    { num: '03', titre: 'Débloquer tes badges', icone: 'ribbon-outline' },
-    { num: '04', titre: 'Personnaliser ton expérience', icone: 'sparkles-outline' },
+    { num: '01', cle: 'progression',   icone: 'save-outline' },
+    { num: '02', cle: 'parcours',      icone: 'refresh-outline' },
+    { num: '03', cle: 'badges',        icone: 'ribbon-outline' },
+    { num: '04', cle: 'personnaliser', icone: 'sparkles-outline' },
   ];
 
+  // nom : raison sociale, ne se traduit pas. role : clé de traduction.
   readonly collaborateurs = [
-    { role: 'Encadrement', nom: 'Université de la Nouvelle-Calédonie' },
-    { role: 'Sources historiques', nom: 'Association Témoignage d\'Un Passé' },
+    { role: 'encadrement', nom: 'Université de la Nouvelle-Calédonie' },
+    { role: 'sources',     nom: 'Association Témoignage d\'Un Passé' },
   ];
 
   private scrollTimeout?: ReturnType<typeof setTimeout>;
   private readonly onScrollBound = () => this.onScroll();
 
-  constructor(private router: Router, readonly branding: BrandingService, readonly equipe: EquipeService) {
+  constructor(
+    private router: Router,
+    private translate: TranslateService,
+    readonly branding: BrandingService,
+    readonly equipe: EquipeService,
+    readonly languageService: LanguageService,
+  ) {
     addIcons({
       arrowForwardOutline, arrowBackOutline, checkmarkCircle,
       mapOutline, saveOutline, refreshOutline, ribbonOutline, sparklesOutline,
@@ -92,7 +101,7 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
       // (ou au-delà) tant que la permission n'est pas accordée.
       if (i > INDEX_ECRAN_LOCALISATION && this.permission() !== 'accordee') {
         this.allerA(INDEX_ECRAN_LOCALISATION);
-        this.messagePermission.set('Autorise ta position pour continuer.');
+        this.messagePermission.set(this.translate.instant('onboarding.localisation.erreurs.requise'));
         return;
       }
 
@@ -103,7 +112,7 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
   allerA(i: number) {
     const cible = Math.max(0, Math.min(NB_ECRANS - 1, i));
     if (cible > INDEX_ECRAN_LOCALISATION && this.permission() !== 'accordee') {
-      this.messagePermission.set('Autorise ta position pour continuer.');
+      this.messagePermission.set(this.translate.instant('onboarding.localisation.erreurs.requise'));
       return;
     }
     const el = this.pisteRef.nativeElement;
@@ -124,7 +133,7 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
   demanderPermission() {
     if (!('geolocation' in navigator)) {
       this.permission.set('indisponible');
-      this.messagePermission.set('Géolocalisation indisponible sur cet appareil.');
+      this.messagePermission.set(this.translate.instant('onboarding.localisation.erreurs.indisponible'));
       return;
     }
 
@@ -140,15 +149,19 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
       (err) => {
         this.permission.set('refusee');
         if (err.code === err.PERMISSION_DENIED) {
-          this.messagePermission.set('Autorisation refusée. Vérifie les réglages de ton navigateur, puis réessaie.');
+          this.messagePermission.set(this.translate.instant('onboarding.localisation.erreurs.refusee'));
         } else if (err.code === err.POSITION_UNAVAILABLE) {
-          this.messagePermission.set('Position introuvable. Vérifie que ta localisation est activée.');
+          this.messagePermission.set(this.translate.instant('onboarding.localisation.erreurs.introuvable'));
         } else {
-          this.messagePermission.set('La demande a expiré. Réessaie.');
+          this.messagePermission.set(this.translate.instant('onboarding.localisation.erreurs.expiree'));
         }
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
     );
+  }
+
+  changerLangue(langue: 'fr' | 'en') {
+    this.languageService.changerLangue(langue);
   }
 
   async terminer(destination: 'inscription' | 'connexion') {
