@@ -47,12 +47,12 @@
 
         <!-- Bloc mini-jeu, réutilisé pour être inséré juste après la 1ère section -->
         <ng-template #miniJeuBlock>
-          <ng-container *ngIf="JEUX[zone.zoneId]">
+          <ng-container *ngIf="JEUX[zone.id]">
             <div class="section-titre">{{ 'parcours.miniJeu.titre' | translate }}</div>
             <div class="contenu-card jeu-card" data-tuto="point-minijeu" (click)="ouvrirJeu()">
               <div class="contenu-icone">🎮</div>
               <div class="contenu-info">
-                <p class="contenu-label">{{ nomJeu(zone.zoneId) }}</p>
+                <p class="contenu-label">{{ nomJeu(zone.id) }}</p>
                 <p class="contenu-sous">
                   {{ (badgeService.aBadge(zone.id) ? 'parcours.miniJeu.dejaComplete' : 'parcours.miniJeu.description') | translate }}
                 </p>
