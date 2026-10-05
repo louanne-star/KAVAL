@@ -144,8 +144,9 @@
         <!-- Actions -->
         <div class="cp-actions">
           <button class="cp-logout" (click)="seDeconnecter()">{{ 'compte.action.deconnexion' | translate }}</button>
-          <button class="cp-delete" (click)="confirmSuppr.set(true)" [attr.aria-label]="'compte.action.supprimerAria' | translate">
+          <button class="cp-delete" (click)="confirmSuppr.set(true)">
             <ion-icon name="trash-outline"></ion-icon>
+            {{ 'compte.action.supprimerCompte' | translate }}
           </button>
         </div>
 
