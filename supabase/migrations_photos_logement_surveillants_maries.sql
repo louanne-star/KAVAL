@@ -13,7 +13,14 @@
 -- (sinon rien ne s'affiche, voir migrations_point_images_bannieres.sql).
 -- "la caserne des surveillants maries_result.avif" est choisie comme
 -- bannière (vue d'ensemble du bâtiment).
+--
+-- L'ancienne photo unique du point (FE909B83...) est retirée, jugée moins
+-- bonne que les 6 nouvelles.
 -- ─────────────────────────────────────────────────────────────────────────────
+
+delete from point_images
+where point_id = 'logement_surveillants_militaires_maries'
+  and chemin = 'FE909B83-06B7-40A6-9E5B-122531F6A3B7_result_result.avif';
 
 insert into point_images (point_id, chemin, ordre) values
   ('logement_surveillants_militaires_maries', 'caserne des suveillants maries_result.avif',                        2),
