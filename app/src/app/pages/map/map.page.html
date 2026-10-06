@@ -150,12 +150,10 @@
   </div>
 
   <!-- ── Mini-point popup ─────────────────────────────────────────────────── -->
-  <div class="mini-popup-overlay" *ngIf="miniPointSelectionne()" (click)="fermerMiniPoint()"></div>
   <div class="mini-popup-card" *ngIf="miniPointSelectionne() as mp"
        [style.left.px]="miniPopupPos()?.x ?? 0"
        [style.top.px]="miniPopupPos()?.y ?? 0"
-       [class.mini-popup-card--pret]="miniPopupPos()"
-       (click)="$event.stopPropagation()">
+       [class.mini-popup-card--pret]="miniPopupPos()">
     <div class="mini-popup-top">
       <div class="mini-popup-icone">{{ mp.icone }}</div>
       <div class="mini-popup-nom">{{ pointsService.texte(mp.nom, mp.nomEn) }}</div>

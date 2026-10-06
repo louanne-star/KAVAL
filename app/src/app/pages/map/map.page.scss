@@ -1022,16 +1022,9 @@ ion-content {
 
 // ── Mini-point popup card ─────────────────────────────────────────────────────
 
-.mini-popup-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1002;
-}
-
 .mini-popup-card {
   position: absolute;
   z-index: 1003;
-  cursor: default;
   display: flex;
   flex-direction: column;
   gap: 16px;

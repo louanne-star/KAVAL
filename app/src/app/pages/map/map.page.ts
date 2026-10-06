@@ -476,6 +476,11 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
     // Garde la bulle du mini-point collée à son marqueur pendant les pans/zooms.
     this.map.on('move', () => this.ngZone.run(() => this.mettreAJourPositionMiniPopup()));
+
+    // Ferme le mini-point au tap sur une zone vide de la carte (pas de conflit avec
+    // le drag/pan : Leaflet ne déclenche 'click' que sur un vrai tap, et les clics sur
+    // un marqueur ne remontent pas jusqu'au click de la carte).
+    this.map.on('click', () => this.ngZone.run(() => this.fermerMiniPoint()));
   }
 
   // ── Zone layer update ─────────────────────────────────────────────────────
