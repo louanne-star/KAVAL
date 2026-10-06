@@ -154,12 +154,17 @@
        [style.left.px]="miniPopupPos()?.x ?? 0"
        [style.top.px]="miniPopupPos()?.y ?? 0"
        [class.mini-popup-card--pret]="miniPopupPos()">
-    <div class="mini-popup-icone">{{ mp.icone }}</div>
-    <div class="mini-popup-corps">
-      <div class="mini-popup-nom">{{ pointsService.texte(mp.nom, mp.nomEn) }}</div>
-      <div class="mini-popup-desc">{{ pointsService.texte(mp.description, mp.descriptionEn) }}</div>
+    <div class="mini-popup-top">
+      <div class="mini-popup-icone">{{ mp.icone }}</div>
+      <div class="mini-popup-corps">
+        <div class="mini-popup-nom">{{ pointsService.texte(mp.nom, mp.nomEn) }}</div>
+        <div class="mini-popup-desc">{{ pointsService.texte(mp.description, mp.descriptionEn) }}</div>
+      </div>
+      <button class="mini-popup-close" (click)="fermerMiniPoint()">✕</button>
     </div>
-    <button class="mini-popup-close" (click)="fermerMiniPoint()">✕</button>
+    <div class="mini-popup-photos" *ngIf="pointsService.imagesDe(mp.id).length > 0">
+      <img *ngFor="let img of pointsService.imagesDe(mp.id)" [src]="pointsService.urlImage(img.chemin)" alt="" />
+    </div>
   </div>
 
   <!-- ── Modale commentaires communauté ─────────────────────────────────── -->

@@ -1026,8 +1026,8 @@ ion-content {
   position: absolute;
   z-index: 1003;
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
   width: max-content;
   max-width: min(280px, calc(100vw - 32px));
   background: #ffffff;
@@ -1067,6 +1067,12 @@ ion-content {
   to   { opacity: 1; transform: translate(-50%, calc(-100% - 16px)) scale(1); }
 }
 
+.mini-popup-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 .mini-popup-icone {
   font-size: 26px;
   flex-shrink: 0;
@@ -1075,6 +1081,25 @@ ion-content {
 .mini-popup-corps {
   flex: 1;
   min-width: 0;
+}
+
+.mini-popup-photos {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
+  img {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 10px;
+    scroll-snap-align: start;
+  }
 }
 
 
