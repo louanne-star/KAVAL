@@ -2,7 +2,7 @@ import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracke
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { earthOutline, mapOutline, searchOutline, heartOutline, heart, carOutline, walkOutline } from 'ionicons/icons';
+import { earthOutline, mapOutline, searchOutline, heartOutline, heart, carOutline, walkOutline, chatbubbleEllipsesOutline, send } from 'ionicons/icons';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
@@ -209,7 +209,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly languageService: LanguageService,
     private translate: TranslateService,
   ) {
-    addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, heart, carOutline, walkOutline });
+    addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, heart, carOutline, walkOutline, chatbubbleEllipsesOutline, send });
 
     // Reçoit l'id d'un point à ouvrir automatiquement (ex: retour depuis sa
     // page détail dans Parcours, via /tabs/carte?point=<id>).
@@ -814,12 +814,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   async noterZone(zoneId: string, note: number) {
     await this.ratingService.noter(zoneId, note);
-  }
-
-  starsFor(note: number | null): string {
-    if (!note) return '☆☆☆☆☆';
-    const n = Math.round(note);
-    return '★'.repeat(n) + '☆'.repeat(5 - n);
   }
 
   async recommencer() {

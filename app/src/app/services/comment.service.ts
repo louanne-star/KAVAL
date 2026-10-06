@@ -7,6 +7,7 @@ export interface CommentaireCommunaute {
   initiales: string;
   texte:     string;
   date:      string;
+  note:      number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,13 +25,27 @@ export class CommentService {
 
   async chargerCommentairesZone(zoneId: string): Promise<void> {
     try {
-      const { data } = await this.supabase.client
-        .from('user_comments')
-        .select('user_id, initiales, comment, updated_at')
-        .eq('zone_id', zoneId)
-        .not('comment', 'is', null)
-        .order('updated_at', { ascending: false });
+      // Les notes sont stockées à part (user_ratings) : on les récupère en
+      // parallèle pour afficher la note de chaque auteur à côté de son
+      // commentaire, sans dupliquer la donnée dans user_comments.
+      const [{ data }, { data: notesData }] = await Promise.all([
+        this.supabase.client
+          .from('user_comments')
+          .select('user_id, initiales, comment, updated_at')
+          .eq('zone_id', zoneId)
+          .not('comment', 'is', null)
+          .order('updated_at', { ascending: false }),
+        this.supabase.client
+          .from('user_ratings')
+          .select('user_id, rating')
+          .eq('zone_id', zoneId),
+      ]);
       if (!data) return;
+
+      const noteParUser = new Map(
+        (notesData as { user_id: string; rating: number }[] | null ?? [])
+          .map(r => [r.user_id, r.rating]),
+      );
 
       const comments: CommentaireCommunaute[] = (data as any[])
         .filter(r => r.comment?.trim())
@@ -39,6 +54,7 @@ export class CommentService {
           initiales: r.initiales ?? '?',
           texte:     r.comment,
           date:      r.updated_at,
+          note:      noteParUser.get(r.user_id) ?? null,
         }));
 
       this._commentairesZone.set({ ...this._commentairesZone(), [zoneId]: comments });

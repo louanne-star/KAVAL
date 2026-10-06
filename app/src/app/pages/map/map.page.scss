@@ -417,17 +417,24 @@ ion-content {
 .sheet-rating {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
+  margin-bottom: 4px;
 }
 
-.rating-communaute {
+.rating-row {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.rating-moy-chiffre {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
 }
 
 .rating-stars-moy {
-  font-size: 13px;
+  font-size: 12px;
   color: #c9a84c;
   letter-spacing: 1px;
 }
@@ -437,11 +444,7 @@ ion-content {
   color: #aaa;
 }
 
-.ma-note-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.ma-note-row { align-items: center; }
 
 .ma-note-label {
   font-size: 12px;
@@ -470,18 +473,26 @@ ion-content {
 }
 
 .btn-commentaire {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
   background: none;
   border: none;
-  font-size: 12px;
-  color: #bbb;
-  cursor: pointer;
   padding: 0;
-  font-style: italic;
-  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9aa1ac;
+  cursor: pointer;
   transition: color 0.15s;
 
-  &:hover { color: #888; }
-  &.avec-commentaire { color: #3498db; font-style: normal; font-weight: 600; }
+  ion-icon { font-size: 14px; }
+  &:hover { color: #27476e; }
+}
+
+.btn-commentaire-count {
+  color: #27476e;
+  font-weight: 700;
 }
 
 // ── Modale commentaire ────────────────────────────────────────────────────────
@@ -495,19 +506,19 @@ ion-content {
   -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;
-  padding: 0 0 80px;
+  padding: 0 12px 96px;
   animation: fonduEntree 0.2s ease;
 }
 
 .commentaire-card {
   background: #fff;
-  border-radius: 24px 24px 0 0;
+  border-radius: 24px;
   padding: 20px 20px 24px;
   width: 100%;
   max-height: 72vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
   animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -539,58 +550,50 @@ ion-content {
 }
 
 .commentaire-textarea {
-  width: 100%;
-  border: 1.5px solid #e8e8e8;
-  border-radius: 12px;
-  padding: 12px 14px;
+  flex: 1;
+  border: none;
+  background: #f5f6f8;
+  border-radius: 20px;
+  padding: 11px 16px;
   font-size: 14px;
   color: #27476e;
-  line-height: 1.6;
+  line-height: 1.4;
   resize: none;
   font-family: inherit;
   box-sizing: border-box;
   outline: none;
-  transition: border-color 0.2s;
+  max-height: 90px;
+  transition: background 0.2s;
 
-  &:focus { border-color: #3498db; }
-  &::placeholder { color: #bbb; }
+  &:focus { background: #eef0f4; }
+  &::placeholder { color: #aaa; }
 }
 
-.commentaire-actions {
+.commentaire-envoyer {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #27476e;
+  color: #fff;
+  font-size: 18px;
   display: flex;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.commentaire-annuler {
-  flex: 0 0 auto;
-  background: #f5f5f5;
-  color: #888;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
-  font-size: 14px;
-  font-weight: 600;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-}
+  transition: background 0.15s, transform 0.1s;
 
-.commentaire-sauver {
-  flex: 1;
-  background: linear-gradient(135deg, #27476e, #3a6190);
-  color: #c9a84c;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 0;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(39,71,110,0.25);
+  ion-icon { margin-left: 1px; }
+
+  &:active { transform: scale(0.92); }
+  &[disabled] { background: #d9dce3; cursor: default; }
 }
 
 // ── Liste commentaires communauté ─────────────────────────────────────────────
 
 .comm-liste {
-  flex: 1;
+  flex: 0 1 auto;
   overflow-y: auto;
   max-height: 220px;
   margin-bottom: 12px;
@@ -609,9 +612,8 @@ ion-content {
   display: flex;
   gap: 10px;
   padding: 10px 0;
-  border-bottom: 1px solid #f8f8f8;
+  border-bottom: 1px solid #f5f5f5;
   &:last-child { border-bottom: none; }
-  &.comm-moi { background: #fafff8; border-radius: 10px; padding: 10px 8px; margin: 2px 0; }
 }
 
 .comm-avatar {
@@ -635,7 +637,8 @@ ion-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .comm-auteur {
@@ -644,9 +647,17 @@ ion-content {
   color: #333;
 }
 
-.comm-date {
+.comm-note-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 11px;
-  color: #bbb;
+  font-weight: 700;
+  color: #c9a84c;
+  border: 1px solid #ecdfb9;
+  border-radius: 999px;
+  padding: 2px 8px;
+  flex-shrink: 0;
 }
 
 .comm-texte {
@@ -654,17 +665,19 @@ ion-content {
   color: #555;
   line-height: 1.4;
   word-break: break-word;
+  margin-bottom: 4px;
 }
 
-.comm-mon-form { flex-shrink: 0; }
-
-.comm-form-label {
+.comm-date {
   font-size: 11px;
-  font-weight: 600;
-  color: #aaa;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
+  color: #bbb;
+}
+
+.comm-mon-form {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
 }
 
 // ── Navigation en direct ──────────────────────────────────────────────────────

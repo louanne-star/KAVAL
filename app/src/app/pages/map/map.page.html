@@ -86,24 +86,32 @@
 
           <!-- Notes + commentaires communauté -->
           <div class="sheet-rating">
-            <div class="rating-communaute" *ngIf="ratingService.getMoyenne(zone.id) as m; else aucunAvis">
-              <span class="rating-stars-moy">{{ starsFor(m.moyenne) }}</span>
-              <span class="rating-info">{{ m.moyenne | number:'1.1-1' }} · {{ m.nb }} {{ (m.nb > 1 ? 'commun.avisPluriel' : 'commun.avisSingulier') | translate }}</span>
+            <div class="rating-row" *ngIf="ratingService.getMoyenne(zone.id) as m; else aucunAvis">
+              <span class="rating-moy-chiffre">{{ m.moyenne | number:'1.1-1' }}</span>
+              <span class="rating-stars-moy">★</span>
+              <span class="rating-info">{{ m.nb }} {{ (m.nb > 1 ? 'commun.avisPluriel' : 'commun.avisSingulier') | translate }}</span>
             </div>
             <ng-template #aucunAvis>
-              <span class="rating-info">{{ 'carte.fiche.aucunAvis' | translate }}</span>
+              <div class="rating-row">
+                <span class="rating-info">{{ 'carte.fiche.aucunAvis' | translate }}</span>
+              </div>
             </ng-template>
-            <div class="ma-note-row">
+
+            <div class="rating-row ma-note-row">
               <span class="ma-note-label">{{ 'carte.fiche.maNote' | translate }}</span>
               <div class="stars-row">
                 <button *ngFor="let s of [1,2,3,4,5]"
+                        type="button"
                         class="star-btn"
                         [class.lit]="(ratingService.getNote(zone.id) ?? 0) >= s"
                         (click)="noterZone(zone.id, s)">★</button>
               </div>
             </div>
-            <button class="btn-commentaire" (click)="ouvrirCommentaire(zone.id)">
-              {{ 'carte.fiche.commentaires' | translate }}<span *ngIf="commentService.getCommentairesZone(zone.id).length > 0"> ({{ commentService.getCommentairesZone(zone.id).length }})</span>
+
+            <button class="btn-commentaire" type="button" (click)="ouvrirCommentaire(zone.id)">
+              <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+              <span>{{ 'carte.fiche.commentaires' | translate }}</span>
+              <span class="btn-commentaire-count" *ngIf="commentService.getCommentairesZone(zone.id).length > 0">{{ commentService.getCommentairesZone(zone.id).length }}</span>
             </button>
           </div>
         </div>
@@ -159,7 +167,12 @@
     <div class="commentaire-card" (click)="$event.stopPropagation()">
 
       <div class="commentaire-header">
-        <span class="commentaire-titre">{{ 'carte.commentaires.titre' | translate }}</span>
+        <span class="commentaire-titre" *ngIf="commentService.getCommentairesZone(zoneId).length as n; else titreVide">
+          {{ (n > 1 ? 'carte.commentaires.comptePluriel' : 'carte.commentaires.compteSingulier') | translate:{n} }}
+        </span>
+        <ng-template #titreVide>
+          <span class="commentaire-titre">{{ 'carte.commentaires.titre' | translate }}</span>
+        </ng-template>
         <button class="commentaire-close" (click)="fermerCommentaire()">✕</button>
       </div>
 
@@ -177,27 +190,30 @@
           <div class="comm-corps">
             <div class="comm-meta">
               <span class="comm-auteur">{{ c.userId === authService.userId ? ('carte.commentaires.moi' | translate) : c.initiales }}</span>
-              <span class="comm-date">{{ formatDate(c.date) }}</span>
+              <span class="comm-note-pill" *ngIf="c.note">★ {{ c.note }}</span>
             </div>
             <div class="comm-texte">{{ c.texte }}</div>
+            <div class="comm-date">{{ formatDate(c.date) }}</div>
           </div>
         </div>
       </div>
 
       <!-- Ajouter un commentaire -->
       <div class="comm-mon-form">
-        <div class="comm-form-label">{{ 'carte.commentaires.ajouter' | translate }}</div>
         <textarea class="commentaire-textarea"
-                  rows="3"
+                  rows="1"
                   [placeholder]="'carte.commentaires.placeholder' | translate"
                   [value]="brouillonCommentaire"
                   (input)="brouillonCommentaire = $any($event.target).value"
                   maxlength="300">
         </textarea>
-        <div class="commentaire-actions">
-          <button class="commentaire-annuler" (click)="fermerCommentaire()">{{ 'carte.commentaires.fermer' | translate }}</button>
-          <button class="commentaire-sauver" [disabled]="!brouillonCommentaire.trim()" (click)="sauvegarderCommentaire(zoneId)">{{ 'carte.commentaires.publier' | translate }}</button>
-        </div>
+        <button class="commentaire-envoyer"
+                type="button"
+                [disabled]="!brouillonCommentaire.trim()"
+                [title]="'carte.commentaires.publier' | translate"
+                (click)="sauvegarderCommentaire(zoneId)">
+          <ion-icon name="send"></ion-icon>
+        </button>
       </div>
 
     </div>
