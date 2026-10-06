@@ -121,6 +121,9 @@ end $$;
 insert into point_images (point_id, chemin, ordre) values
   ('ateliers', 'batiment en H des ateliers_result.avif', 1),
   ('ateliers', 'batiment H_result.avif',                 2),
-  ('ateliers', 'IMG_4818_result_result.avif',             3)
+  ('ateliers', 'atelier1.jpg',                            3)
 on conflict (point_id, chemin) do update set
   ordre = excluded.ordre;
+
+delete from point_images
+where point_id = 'ateliers' and chemin = 'IMG_4818_result_result.avif';
