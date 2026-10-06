@@ -583,7 +583,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
       });
     }
 
-    const couleur = estActuel ? '#D64B24' : '#B3B3B3';
+    const couleur = estActuel ? '#D64B24' : '#6B6B6B';
     const etoile = POINTS_PHARES.has(zone.id)
       ? `<path d="${this.STAR_PATH}" fill="${estActuel ? '#FCEE21' : '#FCEEA3'}" stroke="${estActuel ? '#FCEEA3' : '#FCEEC2'}" stroke-width="0.6"/>`
       : '';
@@ -591,6 +591,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 46" width="32" height="46"
         style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.3))">
       <path d="${this.PIN_PATH}" fill="${couleur}"/>
+      <circle cx="16" cy="15" r="8.4" fill="none" stroke="#D9D9D9" stroke-width="2.2"/>
       ${etoile}
     </svg>`;
 
