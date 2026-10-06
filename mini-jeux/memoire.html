@@ -10,6 +10,7 @@ body {
   background:#0B1F3A;
   display:flex; align-items:center; justify-content:center;
   min-height:100vh; overflow:hidden; touch-action:manipulation;
+  font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 canvas { display:block; }
 </style>
@@ -21,12 +22,19 @@ const canvas = document.getElementById('c');
 const ctx    = canvas.getContext('2d');
 const W = Math.min(window.innerWidth,  420);
 const H = Math.min(window.innerHeight, 896);
-canvas.width = W; canvas.height = H;
+
+// Résolution réelle du canvas = taille CSS × devicePixelRatio, sinon le
+// navigateur agrandit un bitmap trop petit sur un écran haute densité
+// (téléphone récent) et les images/texte ressortent flous/pixelisés.
+const DPR = window.devicePixelRatio || 1;
+canvas.width  = Math.round(W * DPR);
+canvas.height = Math.round(H * DPR);
+canvas.style.width  = W + 'px';
+canvas.style.height = H + 'px';
+ctx.scale(DPR, DPR);
 
 // ── Palette bleue ─────────────────────────────────────────────────────────────
 const COL = {
-  bg:      '#D6E4F2',          // fond canevas bleu pâle
-  hdrBg:   '#0B1F3A',          // header bleu marine profond
   blue1:   '#0B1F3A',
   blue2:   '#1B3E70',
   blue3:   '#2E6BAB',
@@ -37,54 +45,73 @@ const COL = {
   grey:    '#4A6080',
 };
 
-// ── 5 paires avec images ──────────────────────────────────────────────────────
-const PAIRS = [
+// ── Config Supabase (clé publique anon — lecture seule, RLS "using (true)") ────
+// Mêmes identifiants que le reste de l'app (voir environment.prod.ts) et même
+// mécanisme que le Tribunal du Bagne (voir tribunal.html) : une table pilote
+// le contenu (ici les 5 paires), un bucket Storage public héberge les images.
+const SUPABASE_URL      = 'https://onuavovmdbfigwfbagtd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9udWF2b3ZtZGJmaWd3ZmJhZ3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNzc4NzQsImV4cCI6MjA5Nzg1Mzg3NH0.J3FL0tb9S0xjIobkCo3Q833bg1GAFqUnxsj3nkptDNI';
+const BUCKET_URL = `${SUPABASE_URL}/storage/v1/object/public/memoire`;
+
+// ── 5 paires avec images ────────────────────────────────────────────────────
+// Repli si Supabase est injoignable ou si memoire_paires est encore vide
+// (voir migrations_memoire.sql) : le jeu reste jouable hors-ligne.
+const PAIRS_REPLI = [
   { id:0, key:'nacre',    label:'Nacre'    },
   { id:1, key:'chaine',   label:'Chaîne'   },
   { id:2, key:'brique',   label:'Brique'   },
   { id:3, key:'chapelle', label:'Chapelle' },
   { id:4, key:'lampe',    label:'Lampe'    },
 ];
+let PAIRS = PAIRS_REPLI;
+
+async function chargerPaires() {
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/memoire_paires?select=cle,label,ordre&order=ordre.asc`,
+      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+    );
+    if (!resp.ok) throw new Error('http ' + resp.status);
+    const lignes = await resp.json();
+    if (Array.isArray(lignes) && lignes.length > 0) {
+      PAIRS = lignes.map((l, i) => ({ id:i, key:l.cle, label:l.label }));
+    }
+  } catch {
+    // Hors-ligne ou bucket/table pas encore configurés : PAIRS reste sur PAIRS_REPLI.
+  }
+}
 
 // ── Chargement images ─────────────────────────────────────────────────────────
 const IMG = {};
-const IMG_KEYS = ['verso', 'fond', ...PAIRS.map(p => p.key)];
+let IMG_KEYS = ['verso', ...PAIRS.map(p => p.key)];
 
-// Canvas offscreen pré-floutée pour le fond
-let fondBlur = null;
+// ── Fond dégradé animé ──────────────────────────────────────────────────────
+// Même principe que #jeu dans tribunal.html (dégradé diagonal qui ondule),
+// transposé en canvas puisque ce jeu se dessine entièrement sur <canvas> —
+// remplace l'ancienne photo floutée (plus de fond.png à charger/uploader).
+// Blanc cassé / bleu clair : mêmes teintes que le fond carte et le remplissage
+// "water" ailleurs dans l'app (#f7f2e7 / #cfe3ee, voir map.page.ts).
+const FOND_COULEURS = ['#F7F2E7', '#CFE3EE', '#F7F2E7'];
 
-function buildBlurredBg(img) {
-  const oc = document.createElement('canvas');
-  oc.width = W; oc.height = H;
-  const octx = oc.getContext('2d');
-  // Cover-fit
-  const ir = img.naturalWidth / img.naturalHeight;
-  const cr = W / H;
-  let sx, sy, sw, sh;
-  if (ir > cr) {
-    sh = img.naturalHeight; sw = sh * cr; sx = (img.naturalWidth - sw) / 2; sy = 0;
-  } else {
-    sw = img.naturalWidth; sh = sw / cr; sx = 0; sy = (img.naturalHeight - sh) / 2;
-  }
-  octx.filter = 'blur(1px)';
-  octx.drawImage(img, sx, sy, sw, sh, -24, -24, W + 48, H + 48);
-  octx.filter = 'none';
-  // assombrir légèrement pour le contraste
-  octx.fillStyle = 'rgba(10,20,50,0.38)';
-  octx.fillRect(0, 0, W, H);
-  fondBlur = oc;
+function drawFondAnime(t) {
+  const periode = 16000; // ~16s, comme degradeMouvant côté tribunal.html
+  const angle = Math.PI * 0.25 + Math.sin((t / periode) * Math.PI * 2) * 0.35;
+  const diag = Math.sqrt(W*W + H*H);
+  const cx = W/2, cy = H/2;
+  const dx = Math.cos(angle) * diag/2, dy = Math.sin(angle) * diag/2;
+  const grad = ctx.createLinearGradient(cx-dx, cy-dy, cx+dx, cy+dy);
+  FOND_COULEURS.forEach((c, i) => grad.addColorStop(i/(FOND_COULEURS.length-1), c));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
 }
 
 function loadImages(cb) {
   let loaded = 0;
   IMG_KEYS.forEach(key => {
     const img = new Image();
-    img.onload  = () => {
-      if (key === 'fond') buildBlurredBg(img);
-      if (++loaded === IMG_KEYS.length) cb();
-    };
+    img.onload  = () => { if (++loaded === IMG_KEYS.length) cb(); };
     img.onerror = () => { if (++loaded === IMG_KEYS.length) cb(); };
-    img.src = `img_memo/${key}.png`;
+    img.src = `${BUCKET_URL}/${key}.png`;
     IMG[key] = img;
   });
 }
@@ -130,8 +157,8 @@ function shuffle(arr) {
 function init() {
   const deck = [];
   PAIRS.forEach(p => {
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#27ae60'});
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#27ae60'});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#FFFFFF', flipStart:0, flipFrom:false});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#FFFFFF', flipStart:0, flipFrom:false});
   });
   shuffle(deck);
   cards      = deck;
@@ -176,6 +203,15 @@ function imgOk(key) {
   return im && im.complete && im.naturalWidth > 0;
 }
 
+// Retournement : lance une animation visuelle (scale horizontal) sans
+// attendre — la face affichée pendant l'anim est l'ancienne, puis la
+// nouvelle à mi-course (voir drawCard), comme une vraie carte qui pivote.
+const FLIP_MS = 300;
+function declencherFlip(c) {
+  c.flipFrom  = c.faceUp;
+  c.flipStart = performance.now();
+}
+
 // ── Interaction ───────────────────────────────────────────────────────────────
 function onTap(tx, ty) {
   if (state === 'win') { init(); return; }
@@ -186,6 +222,7 @@ function onTap(tx, ty) {
   const c = cards[i];
   if (c.faceUp || c.matched || flipped.includes(i) || flipped.length >= 2) return;
 
+  declencherFlip(c);
   c.faceUp = true;
   flipped.push(i);
 
@@ -197,7 +234,7 @@ function onTap(tx, ty) {
       if (cards[a].id === cards[b].id) {
         cards[a].matched = cards[b].matched = true;
         cards[a].flash = cards[b].flash = 45;
-        cards[a].flashColor = cards[b].flashColor = '#27ae60';
+        cards[a].flashColor = cards[b].flashColor = '#FFFFFF';
         pairsFound++;
         flipped = [];
         state = 'play';
@@ -207,8 +244,9 @@ function onTap(tx, ty) {
         }, 900);
       } else {
         cards[a].flash = cards[b].flash = 35;
-        cards[a].flashColor = cards[b].flashColor = '#c0392b';
+        cards[a].flashColor = cards[b].flashColor = '#9A2A1A';
         setTimeout(() => {
+          declencherFlip(cards[a]); declencherFlip(cards[b]);
           cards[a].faceUp = cards[b].faceUp = false;
           flipped = [];
           state = 'play';
@@ -251,7 +289,7 @@ function drawFace(x, y, s, card) {
   } else {
     ctx.fillStyle = '#c8daf0'; ctx.fillRect(x, y, s, s);
     ctx.fillStyle = COL.text;
-    ctx.font = `bold ${Math.floor(s*0.15)}px Georgia, serif`;
+    ctx.font = `bold ${Math.floor(s*0.15)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(card.label, x+s/2, y+s/2);
   }
@@ -260,31 +298,56 @@ function drawFace(x, y, s, card) {
   rr(x+1.5, y+1.5, s-3, s-3, 11); ctx.stroke();
 }
 
-function drawCard(i) {
+function drawCard(i, now) {
   const c = cards[i];
   const {x, y} = cardPos(i);
 
   ctx.fillStyle = 'rgba(11,31,58,0.22)';
   rr(x+3, y+6, C_S, C_S, 13); ctx.fill();
 
-  if (c.faceUp || c.matched) {
+  // Halo lumineux doux pour une paire trouvée — dessiné avant la carte pour
+  // qu'il déborde visuellement tout autour d'elle (pas de vert, pas de coche).
+  if (c.matched) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,255,255,0.95)';
+    ctx.shadowBlur  = Math.floor(C_S * 0.26);
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+    ctx.lineWidth   = 3;
+    rr(x+1.5, y+1.5, C_S-3, C_S-3, 11); ctx.stroke();
+    ctx.restore();
+  }
+
+  // Retournement : scale horizontal qui passe par 0 à mi-course, moment où
+  // la face affichée bascule de l'ancienne à la nouvelle (comme une vraie
+  // carte vue de profil).
+  let faceVisible = c.faceUp || c.matched;
+  let scaleX = 1;
+  if (c.flipStart) {
+    const p = Math.min(1, (now - c.flipStart) / FLIP_MS);
+    scaleX = Math.abs(Math.cos(p * Math.PI));
+    faceVisible = p < 0.5 ? c.flipFrom : (c.faceUp || c.matched);
+    if (p >= 1) c.flipStart = 0;
+  }
+
+  ctx.save();
+  ctx.translate(x + C_S/2, y);
+  ctx.scale(Math.max(scaleX, 0.04), 1);
+  ctx.translate(-(x + C_S/2), -y);
+
+  if (faceVisible) {
     drawFace(x, y, C_S, c);
     if (c.matched) {
+      // Légère éclaircie de la carte elle-même, en plus du halo autour.
       ctx.save();
-      ctx.globalAlpha = 0.22;
-      ctx.fillStyle = '#27ae60';
+      ctx.globalAlpha = 0.16;
+      ctx.fillStyle = '#FFFFFF';
       rr(x, y, C_S, C_S, 12); ctx.fill();
       ctx.restore();
-      const ck = Math.floor(C_S * 0.28);
-      ctx.fillStyle = '#F2EDE4';
-      ctx.font = `bold ${ck}px sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('✓', x + C_S - ck*0.62, y + ck*0.62);
-      ctx.textBaseline = 'alphabetic';
     }
   } else {
     drawBack(x, y, C_S);
   }
+  ctx.restore();
 
   if (c.flash > 0) {
     ctx.globalAlpha = (c.flash / 45) * 0.50;
@@ -296,92 +359,69 @@ function drawCard(i) {
 }
 
 // ── HUD header & footer ───────────────────────────────────────────────────────
-function shadow(blur, color) {
-  ctx.shadowBlur  = blur;
-  ctx.shadowColor = color;
-}
-function noShadow() { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
-
 function drawHUD() {
   // Titre principal
-  ctx.fillStyle   = '#FFFFFF';
-  ctx.font        = `bold ${Math.floor(W*0.060)}px Georgia, serif`;
+  ctx.fillStyle   = COL.text;
+  ctx.font        = `bold ${Math.floor(W*0.060)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textAlign   = 'center';
   ctx.textBaseline = 'middle';
-  shadow(14, 'rgba(0,0,0,0.85)');
   ctx.fillText('Mémoire du Bagne', W/2, HDR * 0.38);
 
   // Sous-titre
-  ctx.fillStyle = COL.accent;
-  ctx.font      = `bold ${Math.floor(W*0.033)}px Georgia, serif`;
-  shadow(10, 'rgba(0,0,0,0.80)');
+  ctx.fillStyle = COL.grey;
+  ctx.font      = `bold ${Math.floor(W*0.033)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.fillText('Île Nou · Nouvelle-Calédonie', W/2, HDR * 0.72);
-
-  noShadow();
 
   // Compteurs (footer)
   const sy = GY + GRID_H + Math.floor(FTR * 0.46);
-  ctx.fillStyle   = '#FFFFFF';
-  ctx.font        = `bold ${Math.floor(W*0.040)}px Georgia, serif`;
+  ctx.fillStyle   = COL.text;
+  ctx.font        = `bold ${Math.floor(W*0.040)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textBaseline = 'middle';
-  shadow(10, 'rgba(0,0,0,0.80)');
   ctx.textAlign = 'left';
   ctx.fillText(`Essais : ${moves}`, PAD, sy);
   ctx.textAlign = 'right';
   ctx.fillText(`Paires : ${pairsFound} / 5`, W - PAD, sy);
 
   if (moves === 0) {
-    ctx.fillStyle = 'rgba(255,255,255,0.82)';
-    ctx.font      = `bold ${Math.floor(W*0.030)}px Georgia, serif`;
+    ctx.fillStyle = COL.grey;
+    ctx.font      = `bold ${Math.floor(W*0.030)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
     ctx.textAlign = 'center';
-    shadow(8, 'rgba(0,0,0,0.75)');
     ctx.fillText('Retrouvez les 5 paires d\'objets du bagne', W/2, sy + Math.floor(FTR*0.46));
   }
 
-  noShadow();
   ctx.textBaseline = 'alphabetic';
 }
 
 // ── Écran victoire ────────────────────────────────────────────────────────────
-function drawWin() {
-  if (fondBlur) {
-    ctx.drawImage(fondBlur, 0, 0);
-    ctx.fillStyle = 'rgba(10,20,50,0.45)';
-    ctx.fillRect(0, 0, W, H);
-  } else {
-    ctx.fillStyle = 'rgba(214,228,242,0.97)';
-    ctx.fillRect(0, 0, W, H);
-  }
+function drawWin(t) {
+  drawFondAnime(t);
 
   ctx.textAlign = 'center';
 
   const tS = Math.floor(W * 0.28);
   const tx = W/2 - tS/2, ty = H * 0.18;
-  if (imgOk('nacre')) {
+  const cleTrophee = PAIRS[0]?.key;
+  if (cleTrophee && imgOk(cleTrophee)) {
     ctx.save(); clip(tx, ty, tS, tS, 14);
-    imgCover(IMG['nacre'], tx, ty, tS, tS);
+    imgCover(IMG[cleTrophee], tx, ty, tS, tS);
     ctx.restore();
     ctx.strokeStyle = COL.blue3; ctx.lineWidth = 2.5;
     rr(tx+1, ty+1, tS-2, tS-2, 13); ctx.stroke();
   }
 
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = `bold ${Math.floor(W*0.068)}px Georgia, serif`;
+  ctx.fillStyle = COL.text;
+  ctx.font = `bold ${Math.floor(W*0.068)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textBaseline = 'middle';
-  shadow(16, 'rgba(0,0,0,0.85)');
   ctx.fillText('Félicitations !', W/2, H * 0.46);
 
   const elapsed = Math.floor((Date.now() - startTime) / 1000);
   const stars = moves <= 8 ? 3 : moves <= 13 ? 2 : 1;
-  noShadow();
   ctx.font = `${Math.floor(W*0.075)}px serif`;
   ctx.fillText('⭐'.repeat(stars) + '☆'.repeat(3-stars), W/2, H * 0.535);
 
-  ctx.fillStyle = COL.accent;
-  ctx.font = `bold ${Math.floor(W*0.040)}px Georgia, serif`;
-  shadow(10, 'rgba(0,0,0,0.80)');
+  ctx.fillStyle = COL.grey;
+  ctx.font = `bold ${Math.floor(W*0.040)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.fillText(`${moves} essais  ·  ${elapsed} s`, W/2, H * 0.595);
-  noShadow();
 
   const bW = Math.floor(W * 0.56), bH = 54;
   const bx = W/2 - bW/2, by = H * 0.648;
@@ -390,7 +430,7 @@ function drawWin() {
   ctx.strokeStyle = COL.accent; ctx.lineWidth = 2;
   rr(bx, by, bW, bH, 14); ctx.stroke();
   ctx.fillStyle = COL.accent;
-  ctx.font = `bold ${Math.floor(W*0.046)}px Georgia, serif`;
+  ctx.font = `bold ${Math.floor(W*0.046)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.fillText('▶  Rejouer', W/2, by + bH/2 + 1);
 
   ctx.textBaseline = 'alphabetic';
@@ -398,32 +438,29 @@ function drawWin() {
 
 // ── Chargement ────────────────────────────────────────────────────────────────
 function drawLoading() {
-  ctx.fillStyle = COL.hdrBg;
+  ctx.fillStyle = FOND_COULEURS[0];
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = `bold ${Math.floor(W*0.045)}px Georgia, serif`;
+  ctx.fillStyle = COL.text;
+  ctx.font = `bold ${Math.floor(W*0.045)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(0,0,0,0.7)';
   ctx.fillText('Chargement…', W/2, H/2);
-  ctx.shadowBlur = 0;
 }
 
 // ── Boucle ────────────────────────────────────────────────────────────────────
-function loop() {
-  if (fondBlur) {
-    ctx.drawImage(fondBlur, 0, 0);
-  } else {
-    ctx.fillStyle = COL.bg;
-    ctx.fillRect(0, 0, W, H);
-  }
+function loop(t) {
+  const now = t || performance.now();
+  drawFondAnime(now);
   drawHUD();
-  for (let i=0; i<cards.length; i++) drawCard(i);
-  if (state === 'win') drawWin();
+  for (let i=0; i<cards.length; i++) drawCard(i, now);
+  if (state === 'win') drawWin(now);
   requestAnimationFrame(loop);
 }
 
 drawLoading();
-loadImages(() => { init(); loop(); });
+chargerPaires().then(() => {
+  IMG_KEYS = ['verso', ...PAIRS.map(p => p.key)];
+  loadImages(() => { init(); loop(); });
+});
 </script>
 </body>
 </html>
