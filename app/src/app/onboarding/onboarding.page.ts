@@ -50,6 +50,7 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
   readonly collaborateurs = [
     { role: 'encadrement', nom: 'Université de la Nouvelle-Calédonie' },
     { role: 'sources',     nom: 'Association Témoignage d\'Un Passé' },
+    { role: 'ouvrages',    nom: '« Le bagne en héritage » · « Le Mémorial du bagne calédonien »' },
   ];
 
   private scrollTimeout?: ReturnType<typeof setTimeout>;

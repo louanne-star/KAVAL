@@ -6,6 +6,7 @@ import { hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutli
 import { LanguageService } from '../../services/language.service';
 
 type Vestige = { nom: string; icone: string; couleur: string; image?: string };
+type Credit = { role: string; nom?: string; lien?: string; html?: string };
 
 const CONTENU = {
   fr: {
@@ -45,7 +46,11 @@ const CONTENU = {
       { role: 'Équipe Stratégie & UX', nom: 'Marie-Loane Diemene, Graig Moury & Anaelle Watanabe' },
       { role: 'Encadrement', nom: 'Université de la Nouvelle-Calédonie' },
       { role: 'Sources historiques', nom: "Association Témoignage d'Un Passé" },
-    ],
+      {
+        role: 'Ouvrages de référence',
+        html: "« Le bagne en héritage — Destins de familles issues de la colonisation pénale », Les Nouvelles Calédoniennes &amp; Association Témoignage d'un Passé, avec <strong>Louis-José Barbançon</strong> et <strong>Evelyne Henriot</strong> ; témoignages recueillis par <strong>Bérengère Bourgeot</strong> et <strong>Gilles Caprais</strong>.<br><br>« <a href=\"https://auventdesiles.pf/catalogue/collections/beaux-livres/le-memorial-du-bagne-caledonien-entre-les-chaines-et-la-terre/\" target=\"_blank\" rel=\"noopener\">Le Mémorial du bagne calédonien — Entre les chaînes et la terre</a> », Au Vent des Îles.",
+      },
+    ] as Credit[],
     enSavoirPlus: 'En savoir plus',
     popups: {
       histoire: {
@@ -95,7 +100,11 @@ const CONTENU = {
       { role: 'Strategy & UX Team', nom: 'Marie-Loane Diemene, Graig Moury & Anaelle Watanabe' },
       { role: 'Supervision', nom: 'University of New Caledonia' },
       { role: 'Historical sources', nom: "Association Témoignage d'Un Passé" },
-    ],
+      {
+        role: 'Reference books',
+        html: '"Le bagne en héritage — Destins de familles issues de la colonisation pénale", Les Nouvelles Calédoniennes &amp; Association Témoignage d\'un Passé, with <strong>Louis-José Barbançon</strong> and <strong>Evelyne Henriot</strong>; testimonies collected by <strong>Bérengère Bourgeot</strong> and <strong>Gilles Caprais</strong>.<br><br>"<a href="https://auventdesiles.pf/catalogue/collections/beaux-livres/le-memorial-du-bagne-caledonien-entre-les-chaines-et-la-terre/" target="_blank" rel="noopener">Le Mémorial du bagne calédonien — Entre les chaînes et la terre</a>", Au Vent des Îles.',
+      },
+    ] as Credit[],
     enSavoirPlus: 'Learn more',
     popups: {
       histoire: {

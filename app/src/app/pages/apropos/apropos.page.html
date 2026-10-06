@@ -112,7 +112,9 @@
       <div class="credits-list">
         <div class="credit-item" *ngFor="let c of contenu().credits">
           <p class="credit-role">{{ c.role }}</p>
-          <p class="credit-nom">{{ c.nom }}</p>
+          <p class="credit-nom credit-nom--mixte" *ngIf="c.html" [innerHTML]="c.html"></p>
+          <p class="credit-nom" *ngIf="!c.html && !c.lien">{{ c.nom }}</p>
+          <a class="credit-nom credit-lien" *ngIf="c.lien" [href]="c.lien" target="_blank" rel="noopener">{{ c.nom }}</a>
         </div>
       </div>
     </div>

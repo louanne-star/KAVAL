@@ -279,6 +279,7 @@ export const TRANSLATIONS = {
         roles: {
           encadrement: 'Encadrement',
           sources:     'Sources historiques',
+          ouvrages:    'Ouvrages de référence',
         },
       },
       fin: {
@@ -569,6 +570,7 @@ export const TRANSLATIONS = {
         roles: {
           encadrement: 'Supervision',
           sources:     'Historical sources',
+          ouvrages:    'Reference books',
         },
       },
       fin: {
