@@ -160,9 +160,13 @@
       <button class="mini-popup-close" (click)="fermerMiniPoint()">✕</button>
     </div>
 
-    <div class="mini-popup-badge-disparu" *ngIf="mp.disparu">
+    <div class="mini-popup-badge mini-popup-badge--disparu" *ngIf="mp.disparu">
       <ion-icon name="time-outline"></ion-icon>
       {{ 'carte.lieuDisparu' | translate }}
+    </div>
+    <div class="mini-popup-badge mini-popup-badge--vestiges" *ngIf="mp.vestiges">
+      <ion-icon name="eye-outline"></ion-icon>
+      {{ 'carte.vestigesVisibles' | translate }}
     </div>
 
     <div class="mini-popup-desc">{{ pointsService.texte(mp.description, mp.descriptionEn) }}</div>

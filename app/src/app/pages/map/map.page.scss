@@ -1093,7 +1093,7 @@ ion-content {
   line-height: 1.25;
 }
 
-.mini-popup-badge-disparu {
+.mini-popup-badge {
   align-self: flex-start;
   display: flex;
   align-items: center;
@@ -1102,12 +1102,20 @@ ion-content {
   padding: 0 12px;
   margin: -8px 0 0;
   border-radius: 15px;
-  background: rgba(53,197,200,0.14);
-  color: #173B63;
   font-size: 12px;
   font-weight: 600;
 
   ion-icon { font-size: 14px; }
+
+  &--disparu {
+    background: rgba(53,197,200,0.14);
+    color: #173B63;
+  }
+
+  &--vestiges {
+    background: rgba(76,175,109,0.14);
+    color: #1a5c1a;
+  }
 }
 
 .mini-popup-desc {
