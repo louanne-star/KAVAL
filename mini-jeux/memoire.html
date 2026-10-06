@@ -148,8 +148,8 @@ function shuffle(arr) {
 function init() {
   const deck = [];
   PAIRS.forEach(p => {
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#27ae60'});
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#27ae60'});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#4CAF6D'});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#4CAF6D'});
   });
   shuffle(deck);
   cards      = deck;
@@ -215,7 +215,7 @@ function onTap(tx, ty) {
       if (cards[a].id === cards[b].id) {
         cards[a].matched = cards[b].matched = true;
         cards[a].flash = cards[b].flash = 45;
-        cards[a].flashColor = cards[b].flashColor = '#27ae60';
+        cards[a].flashColor = cards[b].flashColor = '#4CAF6D';
         pairsFound++;
         flipped = [];
         state = 'play';
@@ -225,7 +225,7 @@ function onTap(tx, ty) {
         }, 900);
       } else {
         cards[a].flash = cards[b].flash = 35;
-        cards[a].flashColor = cards[b].flashColor = '#c0392b';
+        cards[a].flashColor = cards[b].flashColor = '#9A2A1A';
         setTimeout(() => {
           cards[a].faceUp = cards[b].faceUp = false;
           flipped = [];
@@ -288,17 +288,31 @@ function drawCard(i) {
   if (c.faceUp || c.matched) {
     drawFace(x, y, C_S, c);
     if (c.matched) {
+      // Même vert que "bonne réponse" dans le quiz (parcours.page.scss :
+      // bordure #2f7a49, fond translucide rgba(76,175,109,…)) — cohérent
+      // avec le reste de l'app plutôt qu'un vert/✓ inventés pour ce jeu.
       ctx.save();
-      ctx.globalAlpha = 0.22;
-      ctx.fillStyle = '#27ae60';
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = '#4CAF6D';
       rr(x, y, C_S, C_S, 12); ctx.fill();
       ctx.restore();
-      const ck = Math.floor(C_S * 0.28);
-      ctx.fillStyle = '#F2EDE4';
-      ctx.font = `bold ${ck}px sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('✓', x + C_S - ck*0.62, y + ck*0.62);
-      ctx.textBaseline = 'alphabetic';
+      ctx.strokeStyle = '#2F7A49'; ctx.lineWidth = 3;
+      rr(x+1.5, y+1.5, C_S-3, C_S-3, 11); ctx.stroke();
+
+      // Badge rond façon "checkmark-circle" (ionicons) au lieu d'un ✓ nu.
+      const r = Math.floor(C_S * 0.15);
+      const bx = x + C_S - r*1.3, by = y + r*1.3;
+      ctx.fillStyle = '#2F7A49';
+      ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = COL.accent; ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.strokeStyle = COL.accent; ctx.lineWidth = Math.max(2, r*0.22);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(bx - r*0.45, by);
+      ctx.lineTo(bx - r*0.1,  by + r*0.4);
+      ctx.lineTo(bx + r*0.5,  by - r*0.4);
+      ctx.stroke();
     }
   } else {
     drawBack(x, y, C_S);
