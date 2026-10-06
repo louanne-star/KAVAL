@@ -37,18 +37,45 @@ const COL = {
   grey:    '#4A6080',
 };
 
-// ── 5 paires avec images ──────────────────────────────────────────────────────
-const PAIRS = [
+// ── Config Supabase (clé publique anon — lecture seule, RLS "using (true)") ────
+// Mêmes identifiants que le reste de l'app (voir environment.prod.ts) et même
+// mécanisme que le Tribunal du Bagne (voir tribunal.html) : une table pilote
+// le contenu (ici les 5 paires), un bucket Storage public héberge les images.
+const SUPABASE_URL      = 'https://onuavovmdbfigwfbagtd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9udWF2b3ZtZGJmaWd3ZmJhZ3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNzc4NzQsImV4cCI6MjA5Nzg1Mzg3NH0.J3FL0tb9S0xjIobkCo3Q833bg1GAFqUnxsj3nkptDNI';
+const BUCKET_URL = `${SUPABASE_URL}/storage/v1/object/public/memoire`;
+
+// ── 5 paires avec images ────────────────────────────────────────────────────
+// Repli si Supabase est injoignable ou si memoire_paires est encore vide
+// (voir migrations_memoire.sql) : le jeu reste jouable hors-ligne.
+const PAIRS_REPLI = [
   { id:0, key:'nacre',    label:'Nacre'    },
   { id:1, key:'chaine',   label:'Chaîne'   },
   { id:2, key:'brique',   label:'Brique'   },
   { id:3, key:'chapelle', label:'Chapelle' },
   { id:4, key:'lampe',    label:'Lampe'    },
 ];
+let PAIRS = PAIRS_REPLI;
+
+async function chargerPaires() {
+  try {
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/memoire_paires?select=cle,label,ordre&order=ordre.asc`,
+      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+    );
+    if (!resp.ok) throw new Error('http ' + resp.status);
+    const lignes = await resp.json();
+    if (Array.isArray(lignes) && lignes.length > 0) {
+      PAIRS = lignes.map((l, i) => ({ id:i, key:l.cle, label:l.label }));
+    }
+  } catch {
+    // Hors-ligne ou bucket/table pas encore configurés : PAIRS reste sur PAIRS_REPLI.
+  }
+}
 
 // ── Chargement images ─────────────────────────────────────────────────────────
 const IMG = {};
-const IMG_KEYS = ['verso', 'fond', ...PAIRS.map(p => p.key)];
+let IMG_KEYS = ['verso', 'fond', ...PAIRS.map(p => p.key)];
 
 // Canvas offscreen pré-floutée pour le fond
 let fondBlur = null;
@@ -84,7 +111,7 @@ function loadImages(cb) {
       if (++loaded === IMG_KEYS.length) cb();
     };
     img.onerror = () => { if (++loaded === IMG_KEYS.length) cb(); };
-    img.src = `img_memo/${key}.png`;
+    img.src = `${BUCKET_URL}/${key}.png`;
     IMG[key] = img;
   });
 }
@@ -357,9 +384,10 @@ function drawWin() {
 
   const tS = Math.floor(W * 0.28);
   const tx = W/2 - tS/2, ty = H * 0.18;
-  if (imgOk('nacre')) {
+  const cleTrophee = PAIRS[0]?.key;
+  if (cleTrophee && imgOk(cleTrophee)) {
     ctx.save(); clip(tx, ty, tS, tS, 14);
-    imgCover(IMG['nacre'], tx, ty, tS, tS);
+    imgCover(IMG[cleTrophee], tx, ty, tS, tS);
     ctx.restore();
     ctx.strokeStyle = COL.blue3; ctx.lineWidth = 2.5;
     rr(tx+1, ty+1, tS-2, tS-2, 13); ctx.stroke();
@@ -423,7 +451,10 @@ function loop() {
 }
 
 drawLoading();
-loadImages(() => { init(); loop(); });
+chargerPaires().then(() => {
+  IMG_KEYS = ['verso', 'fond', ...PAIRS.map(p => p.key)];
+  loadImages(() => { init(); loop(); });
+});
 </script>
 </body>
 </html>
