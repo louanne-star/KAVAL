@@ -325,12 +325,147 @@ export class MapPage implements AfterViewInit, OnDestroy {
       zoomControl:  false
     });
 
-    // Fond de carte vectoriel coloré (style "Liberty" d'OpenFreeMap, gratuit
-    // et sans clé API — contrairement à Mapbox/CARTO/Stadia) pour un rendu
-    // moderne façon carte Snapchat, plutôt que le gris plat précédent.
+    // Fond de carte vectoriel sobre (style "Positron" d'OpenFreeMap, gratuit
+    // et sans clé API — contrairement à Mapbox/CARTO/Stadia), avec une ombre
+    // ajoutée sous les bâtiments pour un effet de relief façon carte Snap —
+    // la bascule maplibre-gl-leaflet ne supportant pas l'inclinaison de
+    // caméra (pitch), on simule le volume avec un fill-translate plutôt
+    // qu'une vraie extrusion 3D.
     this.tileNormale = maplibreGL({
-      style: 'https://tiles.openfreemap.org/styles/liberty'
+      style: 'https://tiles.openfreemap.org/styles/positron'
     }).addTo(this.map);
+
+    this.tileNormale.getMaplibreMap().on('load', () => {
+      const gl = this.tileNormale.getMaplibreMap();
+
+      // Petits arbres dispersés aléatoirement sur les zones de parc/bois,
+      // façon cartes Snap — pas de données de points d'arbres individuels
+      // dans les tuiles OpenMapTiles, donc on sème des points au hasard à
+      // l'intérieur des polygones, avec 3 tailles/variantes pour un rendu
+      // naturel plutôt qu'une grille régulière.
+      const dessinerArbre = (r: number, teinte: string, teinteClaire: string) => {
+        const t = Math.ceil(r * 2.6);
+        const canvas = document.createElement('canvas');
+        canvas.width = t; canvas.height = t;
+        const ctx = canvas.getContext('2d')!;
+        const cx = t / 2, cy = t / 2;
+        ctx.beginPath();
+        ctx.ellipse(cx + 1.5, cy + r * 0.85, r * 0.85, r * 0.4, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(70, 65, 40, 0.18)';
+        ctx.fill();
+        const degrade = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
+        degrade.addColorStop(0, teinteClaire);
+        degrade.addColorStop(1, teinte);
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = degrade;
+        ctx.fill();
+        return ctx.getImageData(0, 0, t, t);
+      };
+      gl.addImage('arbre-s', dessinerArbre(4.5, '#6cad57', '#9ed083'));
+      gl.addImage('arbre-m', dessinerArbre(6,   '#5fa84a', '#92c877'));
+      gl.addImage('arbre-l', dessinerArbre(7.5, '#549c40', '#86bd6c'));
+
+      const dansAnneau = (pt: [number, number], anneau: [number, number][]) => {
+        let dedans = false;
+        for (let i = 0, j = anneau.length - 1; i < anneau.length; j = i++) {
+          const [xi, yi] = anneau[i], [xj, yj] = anneau[j];
+          const croise = (yi > pt[1]) !== (yj > pt[1]) &&
+            pt[0] < ((xj - xi) * (pt[1] - yi)) / (yj - yi) + xi;
+          if (croise) dedans = !dedans;
+        }
+        return dedans;
+      };
+      const dansPolygone = (pt: [number, number], geometrie: GeoJSON.Geometry) => {
+        const polygones = geometrie.type === 'Polygon' ? [geometrie.coordinates] : geometrie.type === 'MultiPolygon' ? geometrie.coordinates : [];
+        return polygones.some(([exterieur, ...trous]) =>
+          dansAnneau(pt, exterieur as [number, number][]) && !trous.some(t => dansAnneau(pt, t as [number, number][]))
+        );
+      };
+
+      gl.addSource('arbres', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+      gl.addLayer({
+        id: 'arbres',
+        type: 'symbol',
+        source: 'arbres',
+        minzoom: 15,
+        layout: {
+          'icon-image': ['get', 'variante'],
+          'icon-size': 1,
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+        },
+      }, 'building');
+
+      const polygonesSemes = new Set<string>();
+      const arbresSemés: GeoJSON.Feature[] = [];
+      const variantes = ['arbre-s', 'arbre-m', 'arbre-l'];
+
+      const semerArbres = () => {
+        const zones = gl.queryRenderedFeatures(undefined, { layers: ['park', 'landcover_wood'] });
+        let ajoutes = false;
+        for (const zone of zones) {
+          const anneaux = zone.geometry.type === 'Polygon' ? [zone.geometry.coordinates[0]]
+            : zone.geometry.type === 'MultiPolygon' ? zone.geometry.coordinates.map(p => p[0])
+            : [];
+          if (anneaux.length === 0) continue;
+
+          const cle = `${zone.layer.id}:${zone.id ?? JSON.stringify(anneaux[0]?.[0])}`;
+          if (polygonesSemes.has(cle)) continue;
+          polygonesSemes.add(cle);
+
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          anneaux.forEach(a => a.forEach(([x, y]) => {
+            minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+            minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+          }));
+          if (!isFinite(minX)) continue;
+
+          let posees = 0;
+          for (let essai = 0; essai < 400 && posees < 45; essai++) {
+            const pt: [number, number] = [minX + Math.random() * (maxX - minX), minY + Math.random() * (maxY - minY)];
+            if (!dansPolygone(pt, zone.geometry)) continue;
+            arbresSemés.push({
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: pt },
+              properties: { variante: variantes[Math.floor(Math.random() * variantes.length)] },
+            });
+            posees++;
+            ajoutes = true;
+          }
+        }
+        if (ajoutes) {
+          (gl.getSource('arbres') as maplibregl.GeoJSONSource).setData({ type: 'FeatureCollection', features: arbresSemés });
+        }
+      };
+
+      gl.once('idle', semerArbres);
+      gl.on('moveend', semerArbres);
+
+      gl.addLayer({
+        id: 'building-shadow',
+        type: 'fill',
+        source: 'openmaptiles',
+        'source-layer': 'building',
+        minzoom: 14,
+        paint: {
+          'fill-color': 'rgba(120, 95, 60, 0.32)',
+          'fill-translate': [3, 5],
+          'fill-translate-anchor': 'viewport',
+        },
+      }, 'building');
+
+      // Repasse la palette grise de "Positron" sur des tons pastel chauds
+      // (crème/beige/vert tendre), façon carte Snap, plutôt que le gris froid
+      // d'origine du style.
+      gl.setPaintProperty('background',           'background-color', '#f7f2e7');
+      gl.setPaintProperty('landuse_residential',   'fill-color',       '#f3ebd9');
+      gl.setPaintProperty('park',                  'fill-color',       '#def0c6');
+      gl.setPaintProperty('landcover_wood',        'fill-color',       '#d3ebbc');
+      gl.setPaintProperty('water',                 'fill-color',       '#cfe3ee');
+      gl.setPaintProperty('building',              'fill-color',       '#ecdfc3');
+      gl.setPaintProperty('building',              'fill-outline-color', '#d9c9a0');
+    });
 
     this.tileSatellite = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
