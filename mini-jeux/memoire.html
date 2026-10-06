@@ -22,7 +22,16 @@ const canvas = document.getElementById('c');
 const ctx    = canvas.getContext('2d');
 const W = Math.min(window.innerWidth,  420);
 const H = Math.min(window.innerHeight, 896);
-canvas.width = W; canvas.height = H;
+
+// Résolution réelle du canvas = taille CSS × devicePixelRatio, sinon le
+// navigateur agrandit un bitmap trop petit sur un écran haute densité
+// (téléphone récent) et les images/texte ressortent flous/pixelisés.
+const DPR = window.devicePixelRatio || 1;
+canvas.width  = Math.round(W * DPR);
+canvas.height = Math.round(H * DPR);
+canvas.style.width  = W + 'px';
+canvas.style.height = H + 'px';
+ctx.scale(DPR, DPR);
 
 // ── Palette bleue ─────────────────────────────────────────────────────────────
 const COL = {
@@ -148,8 +157,8 @@ function shuffle(arr) {
 function init() {
   const deck = [];
   PAIRS.forEach(p => {
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#4CAF6D', flipStart:0, flipFrom:false});
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#4CAF6D', flipStart:0, flipFrom:false});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#FFFFFF', flipStart:0, flipFrom:false});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#FFFFFF', flipStart:0, flipFrom:false});
   });
   shuffle(deck);
   cards      = deck;
@@ -225,7 +234,7 @@ function onTap(tx, ty) {
       if (cards[a].id === cards[b].id) {
         cards[a].matched = cards[b].matched = true;
         cards[a].flash = cards[b].flash = 45;
-        cards[a].flashColor = cards[b].flashColor = '#4CAF6D';
+        cards[a].flashColor = cards[b].flashColor = '#FFFFFF';
         pairsFound++;
         flipped = [];
         state = 'play';
