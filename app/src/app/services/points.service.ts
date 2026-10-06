@@ -41,6 +41,7 @@ export interface PointPopup {
   descriptionEn?: string;
   coords: [number, number];
   icone: string;
+  disparu: boolean;
 }
 
 export interface Temoignage {
@@ -168,7 +169,8 @@ export class PointsService {
         .map((r: any) => ({
           id: r.id, zoneId: r.zone_id, nom: r.nom, nomEn: r.nom_en,
           description: r.description, descriptionEn: r.description_en,
-          coords: [r.lat, r.lng] as [number, number], icone: r.icone ?? '📍'
+          coords: [r.lat, r.lng] as [number, number], icone: r.icone ?? '📍',
+          disparu: r.disparu ?? false
         }));
       const temoignages: Temoignage[] = t.map((r: any) => ({
         pointId: r.point_id, titre: r.titre, titreEn: r.titre_en,

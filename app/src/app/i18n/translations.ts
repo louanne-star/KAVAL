@@ -113,6 +113,7 @@ export const TRANSLATIONS = {
       recherche: 'Recherche',
       favoris: 'Favoris',
       monCompte: 'Mon compte',
+      lieuDisparu: 'Lieu disparu',
       gps: {
         positionRequise: 'Active ta position pour lancer la navigation guidée.',
         nonDisponible:   'Géolocalisation non disponible sur cet appareil.',
@@ -404,6 +405,7 @@ export const TRANSLATIONS = {
       recherche: 'Search',
       favoris: 'Favorites',
       monCompte: 'My account',
+      lieuDisparu: 'Site no longer exists',
       gps: {
         positionRequise: 'Turn on your location to start guided navigation.',
         nonDisponible:   'Geolocation is not available on this device.',

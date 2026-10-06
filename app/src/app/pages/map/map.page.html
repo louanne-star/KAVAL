@@ -156,15 +156,38 @@
        [class.mini-popup-card--pret]="miniPopupPos()">
     <div class="mini-popup-top">
       <div class="mini-popup-icone">{{ mp.icone }}</div>
-      <div class="mini-popup-corps">
-        <div class="mini-popup-nom">{{ pointsService.texte(mp.nom, mp.nomEn) }}</div>
-        <div class="mini-popup-desc">{{ pointsService.texte(mp.description, mp.descriptionEn) }}</div>
-      </div>
+      <div class="mini-popup-nom">{{ pointsService.texte(mp.nom, mp.nomEn) }}</div>
       <button class="mini-popup-close" (click)="fermerMiniPoint()">✕</button>
     </div>
-    <div class="mini-popup-photos" *ngIf="pointsService.imagesDe(mp.id).length > 0">
-      <img *ngFor="let img of pointsService.imagesDe(mp.id)" [src]="pointsService.urlImage(img.chemin)" alt="" />
+
+    <div class="mini-popup-badge-disparu" *ngIf="mp.disparu">
+      <ion-icon name="time-outline"></ion-icon>
+      {{ 'carte.lieuDisparu' | translate }}
     </div>
+
+    <div class="mini-popup-desc">{{ pointsService.texte(mp.description, mp.descriptionEn) }}</div>
+
+    <ng-container *ngIf="pointsService.imagesDe(mp.id) as photos">
+      <div class="mini-popup-carrousel" *ngIf="photos.length > 0">
+        <div class="mini-popup-carrousel-img">
+          <img [src]="pointsService.urlImage(photos[miniPopupPhotoIndex() % photos.length].chemin)" alt="" />
+          <ng-container *ngIf="photos.length > 1">
+            <button class="mini-popup-carrousel-fleche mini-popup-carrousel-fleche--gauche"
+                    (click)="photoMiniPopupPrecedente(photos.length); $event.stopPropagation()">
+              <ion-icon name="chevron-back-outline"></ion-icon>
+            </button>
+            <button class="mini-popup-carrousel-fleche mini-popup-carrousel-fleche--droite"
+                    (click)="photoMiniPopupSuivante(photos.length); $event.stopPropagation()">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </ng-container>
+        </div>
+        <div class="mini-popup-carrousel-dots" *ngIf="photos.length > 1">
+          <span class="mini-popup-dot" *ngFor="let img of photos; let i = index"
+                [class.mini-popup-dot--actif]="i === (miniPopupPhotoIndex() % photos.length)"></span>
+        </div>
+      </div>
+    </ng-container>
   </div>
 
   <!-- ── Modale commentaires communauté ─────────────────────────────────── -->

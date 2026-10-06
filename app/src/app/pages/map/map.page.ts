@@ -2,7 +2,7 @@ import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracke
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { earthOutline, mapOutline, searchOutline, heartOutline, heart, carOutline, walkOutline, chatbubbleEllipsesOutline, send } from 'ionicons/icons';
+import { earthOutline, mapOutline, searchOutline, heartOutline, heart, carOutline, walkOutline, chatbubbleEllipsesOutline, send, timeOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
@@ -115,6 +115,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   modeTransport        = signal<'foot' | 'driving'>('foot');
   miniPointSelectionne = signal<PointPopup | null>(null);
   miniPopupPos         = signal<{ x: number; y: number } | null>(null);
+  miniPopupPhotoIndex  = signal(0);
 
   private map!: L.Map;
   private tileNormale!:   L.MaplibreGL;
@@ -209,7 +210,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     readonly languageService: LanguageService,
     private translate: TranslateService,
   ) {
-    addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, heart, carOutline, walkOutline, chatbubbleEllipsesOutline, send });
+    addIcons({ earthOutline, mapOutline, searchOutline, heartOutline, heart, carOutline, walkOutline, chatbubbleEllipsesOutline, send, timeOutline, chevronBackOutline, chevronForwardOutline });
 
     // Reçoit l'id d'un point à ouvrir automatiquement (ex: retour depuis sa
     // page détail dans Parcours, via /tabs/carte?point=<id>).
@@ -794,6 +795,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
         .on('click', () => this.ngZone.run(() => {
           this.zoneSelectionneeId.set(null);
           this.miniPointSelectionne.set(point);
+          this.miniPopupPhotoIndex.set(0);
           this.mettreAJourPositionMiniPopup();
         }))
     );
@@ -827,6 +829,14 @@ export class MapPage implements AfterViewInit, OnDestroy {
   fermerMiniPoint() {
     this.miniPointSelectionne.set(null);
     this.miniPopupPos.set(null);
+  }
+
+  photoMiniPopupSuivante(nbPhotos: number) {
+    this.miniPopupPhotoIndex.set((this.miniPopupPhotoIndex() + 1) % nbPhotos);
+  }
+
+  photoMiniPopupPrecedente(nbPhotos: number) {
+    this.miniPopupPhotoIndex.set((this.miniPopupPhotoIndex() - 1 + nbPhotos) % nbPhotos);
   }
 
   toggleModeTransport() {
