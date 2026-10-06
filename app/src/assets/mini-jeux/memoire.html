@@ -81,7 +81,10 @@ let IMG_KEYS = ['verso', ...PAIRS.map(p => p.key)];
 // Même principe que #jeu dans tribunal.html (dégradé diagonal qui ondule),
 // transposé en canvas puisque ce jeu se dessine entièrement sur <canvas> —
 // remplace l'ancienne photo floutée (plus de fond.png à charger/uploader).
-const FOND_COULEURS = [COL.blue1, COL.blue2, COL.blue3, COL.blue2, COL.blue1];
+// Terracotta plutôt que bleu (les cartes sont déjà bleues, voir COL.blue*) :
+// même teinte que l'accent carte/itinéraire du reste de l'app (#D64B24,
+// voir map.page.ts), pour que le fond contraste au lieu de se fondre.
+const FOND_COULEURS = ['#2B1811', '#6B3420', '#D64B24', '#6B3420', '#2B1811'];
 
 function drawFondAnime(t) {
   const periode = 16000; // ~16s, comme degradeMouvant côté tribunal.html
