@@ -150,10 +150,12 @@
   </div>
 
   <!-- ── Mini-point popup ─────────────────────────────────────────────────── -->
+  <div class="mini-popup-overlay" *ngIf="miniPointSelectionne()" (click)="fermerMiniPoint()"></div>
   <div class="mini-popup-card" *ngIf="miniPointSelectionne() as mp"
        [style.left.px]="miniPopupPos()?.x ?? 0"
        [style.top.px]="miniPopupPos()?.y ?? 0"
-       [class.mini-popup-card--pret]="miniPopupPos()">
+       [class.mini-popup-card--pret]="miniPopupPos()"
+       (click)="$event.stopPropagation()">
     <div class="mini-popup-top">
       <div class="mini-popup-icone">{{ mp.icone }}</div>
       <div class="mini-popup-nom">{{ pointsService.texte(mp.nom, mp.nomEn) }}</div>
@@ -173,7 +175,7 @@
 
     <ng-container *ngIf="pointsService.imagesDe(mp.id) as photos">
       <div class="mini-popup-carrousel" *ngIf="photos.length > 0">
-        <div class="mini-popup-carrousel-img">
+        <div class="mini-popup-carrousel-img" (click)="agrandirImage(photos[miniPopupPhotoIndex() % photos.length].chemin)">
           <img [src]="pointsService.urlImage(photos[miniPopupPhotoIndex() % photos.length].chemin)" alt="" />
           <ng-container *ngIf="photos.length > 1">
             <button class="mini-popup-carrousel-fleche mini-popup-carrousel-fleche--gauche"
@@ -192,6 +194,11 @@
         </div>
       </div>
     </ng-container>
+  </div>
+
+  <!-- Photo agrandie (plein écran) -->
+  <div class="image-overlay" *ngIf="imageAgrandie()" (click)="fermerImageAgrandie()">
+    <img [src]="imageAgrandie()" alt="" />
   </div>
 
   <!-- ── Modale commentaires communauté ─────────────────────────────────── -->

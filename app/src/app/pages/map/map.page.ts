@@ -116,6 +116,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   miniPointSelectionne = signal<PointPopup | null>(null);
   miniPopupPos         = signal<{ x: number; y: number } | null>(null);
   miniPopupPhotoIndex  = signal(0);
+  imageAgrandie        = signal<string | null>(null);
 
   private map!: L.Map;
   private tileNormale!:   L.MaplibreGL;
@@ -838,6 +839,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
   photoMiniPopupPrecedente(nbPhotos: number) {
     this.miniPopupPhotoIndex.set((this.miniPopupPhotoIndex() - 1 + nbPhotos) % nbPhotos);
   }
+
+  agrandirImage(chemin: string) { this.imageAgrandie.set(this.pointsService.urlImage(chemin)); }
+  fermerImageAgrandie() { this.imageAgrandie.set(null); }
 
   toggleModeTransport() {
     this.modeTransport.set(this.modeTransport() === 'foot' ? 'driving' : 'foot');
