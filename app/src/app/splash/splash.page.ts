@@ -12,6 +12,7 @@ import { RatingService } from '../services/rating.service';
 import { CommentService } from '../services/comment.service';
 import { FavoriteService } from '../services/favorite.service';
 import { BrandingService } from '../services/branding.service';
+import { RewardService } from '../services/reward.service';
 
 @Component({
   selector: 'app-splash',
@@ -32,6 +33,7 @@ export class SplashPage implements OnInit {
     private ratings:  RatingService,
     private comments: CommentService,
     private favoris:  FavoriteService,
+    private rewards:  RewardService,
     readonly branding: BrandingService,
   ) {}
 
@@ -61,10 +63,16 @@ export class SplashPage implements OnInit {
           this.ratings.reinitialiser(),
           this.comments.reinitialiser(),
           this.favoris.reinitialiser(),
+          this.rewards.reinitialiser(),
         ]);
       }
 
       const data = await this.sync.syncAll();
+      await Promise.all([
+        this.rewards.chargerTotalJeux(),
+        this.rewards.chargerJeuxGagnes(),
+        this.rewards.chargerRecompense(),
+      ]);
       if (!data) return;
       await Promise.all([
         this.badges.chargerDepuisCloud(data.badges),

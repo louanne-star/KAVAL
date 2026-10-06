@@ -32,6 +32,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/reinitialiser-mot-de-passe/reinitialiser-mot-de-passe.page').then(m => m.ReinitialiserMotDePassePage),
   },
   {
+    path: 'verifier/:code',
+    loadComponent: () => import('./pages/verifier-recompense/verifier-recompense.page').then(m => m.VerifierRecompensePage),
+  },
+  {
     path: 'compte',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/compte/compte.page').then(m => m.ComptePage),

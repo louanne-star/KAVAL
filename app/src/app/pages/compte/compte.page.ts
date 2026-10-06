@@ -1,4 +1,5 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, effect } from '@angular/core';
+import * as QRCode from 'qrcode';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { JourneyService } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
+import { RewardService } from '../../services/reward.service';
 import { PointsService } from '../../services/points.service';
 import { LanguageService } from '../../services/language.service';
 import { TutorialService } from '../../services/tutorial.service';
@@ -59,6 +61,11 @@ export class ComptePage {
 
   readonly totalZones = computed(() => this.journeyService.zones().length);
 
+  // Récompense : QR code généré dès qu'un code existe (regénéré uniquement
+  // si le code change, pas à chaque cycle de détection de changement).
+  qrDataUrl = signal<string | null>(null);
+  private dernierCodeQr: string | null = null;
+
   constructor(
     readonly auth:            AuthService,
     readonly favoriteService: FavoriteService,
@@ -66,14 +73,33 @@ export class ComptePage {
     readonly badgeService:    BadgeService,
     readonly pointsService:   PointsService,
     readonly languageService: LanguageService,
+    readonly rewardService:   RewardService,
     private translate:        TranslateService,
     private tutorial:         TutorialService,
     private router:           Router,
   ) {
     addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline, heartOutline });
+
+    effect(() => {
+      const code = this.rewardService.recompense()?.code ?? null;
+      if (code === this.dernierCodeQr) return;
+      this.dernierCodeQr = code;
+      if (!code) { this.qrDataUrl.set(null); return; }
+      const url = `${window.location.origin}/verifier/${code}`;
+      QRCode.toDataURL(url, { margin: 1, width: 240, color: { dark: '#27476e', light: '#ffffff' } })
+        .then(dataUrl => this.qrDataUrl.set(dataUrl))
+        .catch(() => this.qrDataUrl.set(null));
+    });
   }
 
   retour() { this.router.navigate(['/tabs/carte']); }
+
+  formatDateRecompense(iso: string | null): string {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString(this.languageService.langue() === 'en' ? 'en-US' : 'fr-FR', {
+      day: 'numeric', month: 'long', year: 'numeric',
+    });
+  }
 
   // ── Avatar ──────────────────────────────────────────────────────────────────
 

@@ -167,6 +167,64 @@ ion-content {
   overflow: hidden;
 }
 
+// ── Récompense ────────────────────────────────────────────────────────────────
+
+.recompense-card {
+  background: #fff;
+  border: 1px solid rgba(15,23,42,0.07);
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 12px rgba(15,23,42,0.06);
+}
+
+.recompense-progress-row { display: flex; justify-content: center; }
+
+.recompense-progress-txt {
+  font-size: 13px; font-weight: 700; color: #4a5568;
+}
+
+.recompense-barre {
+  height: 6px; border-radius: 3px; background: #eef0f4;
+  margin-top: 10px; overflow: hidden;
+}
+
+.recompense-barre-remplie {
+  height: 100%; background: linear-gradient(90deg, #27476e, #3a6190);
+  border-radius: 3px; transition: width 0.3s ease;
+}
+
+.recompense-card--gagnee {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 4px;
+  border-color: #e9d7a8;
+  background: linear-gradient(180deg, #fffdf6 0%, #fff 100%);
+}
+
+.recompense-felicitations {
+  font-size: 17px; font-weight: 800; color: #27476e; margin: 0;
+}
+
+.recompense-texte {
+  font-size: 13px; color: #7c8491; margin: 0 0 8px; line-height: 1.5;
+}
+
+.recompense-qr {
+  width: 180px; height: 180px;
+  border-radius: 12px;
+  border: 1px solid rgba(15,23,42,0.08);
+  margin-bottom: 8px;
+}
+
+.recompense-code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 15px; font-weight: 700; letter-spacing: 2px;
+  color: #c9a84c; margin: 0;
+}
+
+.recompense-deja-utilisee {
+  font-size: 13px; color: #9aa1ac; margin: 0;
+}
+
 // ── Rows ──────────────────────────────────────────────────────────────────────
 
 .list-row {

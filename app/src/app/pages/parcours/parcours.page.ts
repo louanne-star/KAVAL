@@ -8,6 +8,7 @@ import { IonContent } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
+import { RewardService } from '../../services/reward.service';
 import { PointsService, QuizQuestion } from '../../services/points.service';
 import { UiStateService } from '../../services/ui-state.service';
 import { LanguageService } from '../../services/language.service';
@@ -131,6 +132,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
       this.ngZone.run(async () => {
         this.setJeuOuvert(false);
         await this.badgeService.gagnerBadge(this.zoneSelectionnee!.id);
+        await this.rewardService.gagnerJeu(this.zoneSelectionnee!.id);
         clearTimeout(this.badgeAnimTimeout);
         this.badgeAnimation = false;
         setTimeout(() => {
@@ -149,6 +151,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
     private ngZone: NgZone,
     readonly journeyService: JourneyService,
     readonly badgeService: BadgeService,
+    readonly rewardService: RewardService,
     readonly pointsService: PointsService,
     readonly languageService: LanguageService,
     private uiState: UiStateService,

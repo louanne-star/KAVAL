@@ -1,0 +1,95 @@
+:host {
+  display: block;
+  --ion-background-color: #f3ede1;
+}
+
+.verif-container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px 40px;
+}
+
+.verif-logo {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 28px;
+}
+
+.logo-shell { font-size: 26px; }
+.logo-name {
+  font-family: Georgia, serif; font-size: 20px; font-weight: 700; color: #27476e;
+  letter-spacing: 1px;
+}
+
+.verif-card {
+  width: 100%; max-width: 380px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px 24px;
+  box-shadow: 0 8px 30px rgba(15,23,42,0.1);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+.verif-icone {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: #fff;
+  margin-bottom: 14px;
+}
+.verif-icone--ok  { background: #3f7a52; }
+.verif-icone--err { background: #a8362a; }
+
+.verif-titre {
+  font-size: 20px; font-weight: 800; color: #27476e; margin: 0 0 8px;
+}
+
+.verif-texte {
+  font-size: 14px; color: #4a5568; margin: 2px 0;
+  strong { color: #27476e; }
+}
+
+.verif-sous-texte {
+  font-size: 12.5px; color: #9aa1ac; line-height: 1.5; margin: 10px 0 18px;
+}
+
+.verif-succes {
+  font-size: 13px; font-weight: 700; color: #3f7a52; margin-top: 10px;
+}
+
+form { width: 100%; }
+
+.verif-pin-input {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid #e8e8e8; border-radius: 12px;
+  padding: 13px 16px; font-size: 16px; text-align: center; letter-spacing: 3px;
+  color: #27476e; outline: none;
+  transition: border-color 0.2s;
+  &:focus { border-color: #3498db; }
+}
+
+.verif-erreur {
+  font-size: 12.5px; color: #a8362a; margin-top: 8px;
+}
+
+.verif-btn {
+  width: 100%; margin-top: 14px;
+  background: linear-gradient(135deg, #27476e, #3a6190);
+  color: #fff; border: none; border-radius: 12px;
+  padding: 14px 0; font-size: 15px; font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(39,71,110,0.25);
+  &[disabled] { opacity: 0.6; cursor: default; }
+}
+
+.verif-loader {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 3px solid rgba(39,71,110,0.15); border-top-color: #27476e;
+  animation: tourner 0.7s linear infinite;
+}
+.verif-loader--btn {
+  width: 18px; height: 18px; margin: 0 auto;
+  border-color: rgba(255,255,255,0.3); border-top-color: #fff;
+}
+
+@keyframes tourner { to { transform: rotate(360deg); } }

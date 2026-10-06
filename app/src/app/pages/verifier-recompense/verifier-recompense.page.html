@@ -1,0 +1,58 @@
+<ion-content [fullscreen]="true">
+  <div class="verif-container">
+
+    <div class="verif-logo">
+      <span class="logo-shell">🐚</span>
+      <span class="logo-name">KAVAL</span>
+    </div>
+
+    <div class="verif-card">
+
+      <!-- Chargement -->
+      <ng-container *ngIf="statut() === 'chargement'">
+        <div class="verif-loader"></div>
+      </ng-container>
+
+      <!-- Introuvable -->
+      <ng-container *ngIf="statut() === 'introuvable'">
+        <div class="verif-icone verif-icone--err">✕</div>
+        <h1 class="verif-titre">Code introuvable</h1>
+        <p class="verif-texte">Ce QR code ne correspond à aucune récompense Kaval.</p>
+      </ng-container>
+
+      <!-- Déjà utilisée -->
+      <ng-container *ngIf="statut() === 'deja_utilisee'">
+        <div class="verif-icone verif-icone--err">✕</div>
+        <h1 class="verif-titre">Déjà utilisée</h1>
+        <p class="verif-texte" *ngIf="pseudo()">{{ pseudo() }}</p>
+        <p class="verif-texte" *ngIf="utiliseeLe()">Validée le {{ formatDate(utiliseeLe()) }}</p>
+        <p class="verif-succes" *ngIf="succesValidation()">✓ Entrée validée avec succès.</p>
+      </ng-container>
+
+      <!-- Valide, à confirmer -->
+      <ng-container *ngIf="statut() === 'valide'">
+        <div class="verif-icone verif-icone--ok">✓</div>
+        <h1 class="verif-titre">Code valide</h1>
+        <p class="verif-texte" *ngIf="pseudo()">Gagnant·e : <strong>{{ pseudo() }}</strong></p>
+        <p class="verif-sous-texte">Vérifiez que cette personne correspond bien au visiteur devant vous, puis entrez le PIN du musée pour valider l'entrée.</p>
+
+        <form (ngSubmit)="valider()" #f="ngForm">
+          <input class="verif-pin-input"
+                 type="password"
+                 inputmode="numeric"
+                 placeholder="PIN du musée"
+                 [(ngModel)]="pin"
+                 name="pin"
+                 required />
+          <div class="verif-erreur" *ngIf="erreurPin()">⚠ {{ erreurPin() }}</div>
+          <button class="verif-btn" type="submit" [disabled]="validation() || !pin.trim()">
+            <span *ngIf="!validation()">Valider l'entrée</span>
+            <span *ngIf="validation()" class="verif-loader verif-loader--btn"></span>
+          </button>
+        </form>
+      </ng-container>
+
+    </div>
+
+  </div>
+</ion-content>

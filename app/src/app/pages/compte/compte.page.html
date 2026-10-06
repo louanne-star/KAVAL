@@ -43,6 +43,33 @@
           </div>
         </div>
 
+        <!-- Récompense de fin de parcours -->
+        <p class="list-label">{{ 'compte.recompense.titre' | translate }}</p>
+        <div class="recompense-card" *ngIf="!rewardService.recompense()">
+          <div class="recompense-progress-row">
+            <span class="recompense-progress-txt">
+              {{ 'compte.recompense.progression' | translate:{n: rewardService.jeuxGagnes().size, total: rewardService.totalJeux()} }}
+            </span>
+          </div>
+          <div class="recompense-barre" *ngIf="rewardService.totalJeux() > 0">
+            <div class="recompense-barre-remplie"
+                 [style.width.%]="(rewardService.jeuxGagnes().size / rewardService.totalJeux()) * 100"></div>
+          </div>
+        </div>
+
+        <div class="recompense-card recompense-card--gagnee" *ngIf="rewardService.recompense() as r">
+          <ng-container *ngIf="!r.utiliseeLe; else dejaUtilisee">
+            <p class="recompense-felicitations">{{ 'compte.recompense.felicitations' | translate }}</p>
+            <p class="recompense-texte">{{ 'compte.recompense.texte' | translate }}</p>
+            <img class="recompense-qr" *ngIf="qrDataUrl()" [src]="qrDataUrl()" alt="QR code" />
+            <p class="recompense-code">{{ r.code }}</p>
+          </ng-container>
+          <ng-template #dejaUtilisee>
+            <p class="recompense-felicitations">{{ 'compte.recompense.felicitations' | translate }}</p>
+            <p class="recompense-deja-utilisee">{{ 'compte.recompense.dejaUtilisee' | translate:{date: formatDateRecompense(r.utiliseeLe)} }}</p>
+          </ng-template>
+        </div>
+
         <!-- Identité -->
         <p class="list-label">{{ 'compte.section.identite' | translate }}</p>
         <div class="list-card">

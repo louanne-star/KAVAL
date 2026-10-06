@@ -20,9 +20,9 @@ import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
 // Points "phares" : chacun a son propre mini-jeu dédié (contrairement aux
 // autres points d'une même zone, qui n'en ont pas) — c'est ce qui leur vaut
-// l'étoile sur la carte. Liste à étendre au fur et à mesure des mini-jeux
-// à venir (boulangerie, logement des surveillants mariés...).
-const POINTS_PHARES = new Set(['camp_est_principal', 'hopital_du_marais']);
+// l'étoile sur la carte. Doit rester synchronisé avec les clés de JEUX dans
+// parcours.page.ts à chaque nouveau mini-jeu.
+const POINTS_PHARES = new Set(['camp_est_principal', 'magasin_a_vivre', 'boulangerie', 'hopital_du_marais']);
 
 @Component({
   selector: 'app-map',

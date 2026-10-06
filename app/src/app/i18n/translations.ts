@@ -173,6 +173,13 @@ export const TRANSLATIONS = {
       tabs:    { securite: 'Sécurité' },
       stats:   { visitees: 'Visitées', favoris: 'Favoris', zones: 'Zones' },
       section: { identite: 'Identité', favoris: 'Zones sauvegardées', preferences: 'Préférences', parametres: 'Paramètres' },
+      recompense: {
+        titre: 'Récompense',
+        progression: '{{n}}/{{total}} mini-jeux gagnés',
+        felicitations: 'Félicitations !',
+        texte: "Présente ce code à l'accueil du musée pour ton entrée gratuite.",
+        dejaUtilisee: 'Déjà utilisée le {{date}}.',
+      },
       identite: {
         placeholder:    'Ajouter un pseudonyme',
         label:          "Nom d'utilisateur",
@@ -456,6 +463,13 @@ export const TRANSLATIONS = {
       tabs:    { securite: 'Security' },
       stats:   { visitees: 'Visited', favoris: 'Favorites', zones: 'Zones' },
       section: { identite: 'Identity', favoris: 'Saved zones', preferences: 'Preferences', parametres: 'Settings' },
+      recompense: {
+        titre: 'Reward',
+        progression: '{{n}}/{{total}} mini-games won',
+        felicitations: 'Congratulations!',
+        texte: 'Show this code at the museum desk for your free entry.',
+        dejaUtilisee: 'Already used on {{date}}.',
+      },
       identite: {
         placeholder:    'Add a nickname',
         label:          'Username',
