@@ -26,7 +26,6 @@ canvas.width = W; canvas.height = H;
 
 // ── Palette bleue ─────────────────────────────────────────────────────────────
 const COL = {
-  hdrBg:   '#0B1F3A',          // header bleu marine profond
   blue1:   '#0B1F3A',
   blue2:   '#1B3E70',
   blue3:   '#2E6BAB',
@@ -81,10 +80,9 @@ let IMG_KEYS = ['verso', ...PAIRS.map(p => p.key)];
 // Même principe que #jeu dans tribunal.html (dégradé diagonal qui ondule),
 // transposé en canvas puisque ce jeu se dessine entièrement sur <canvas> —
 // remplace l'ancienne photo floutée (plus de fond.png à charger/uploader).
-// Terracotta plutôt que bleu (les cartes sont déjà bleues, voir COL.blue*) :
-// même teinte que l'accent carte/itinéraire du reste de l'app (#D64B24,
-// voir map.page.ts), pour que le fond contraste au lieu de se fondre.
-const FOND_COULEURS = ['#2B1811', '#6B3420', '#D64B24', '#6B3420', '#2B1811'];
+// Blanc cassé / bleu clair : mêmes teintes que le fond carte et le remplissage
+// "water" ailleurs dans l'app (#f7f2e7 / #cfe3ee, voir map.page.ts).
+const FOND_COULEURS = ['#F7F2E7', '#CFE3EE', '#F7F2E7'];
 
 function drawFondAnime(t) {
   const periode = 16000; // ~16s, comme degradeMouvant côté tribunal.html
@@ -316,57 +314,42 @@ function drawCard(i) {
 }
 
 // ── HUD header & footer ───────────────────────────────────────────────────────
-function shadow(blur, color) {
-  ctx.shadowBlur  = blur;
-  ctx.shadowColor = color;
-}
-function noShadow() { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
-
 function drawHUD() {
   // Titre principal
-  ctx.fillStyle   = '#FFFFFF';
+  ctx.fillStyle   = COL.text;
   ctx.font        = `bold ${Math.floor(W*0.060)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textAlign   = 'center';
   ctx.textBaseline = 'middle';
-  shadow(14, 'rgba(0,0,0,0.85)');
   ctx.fillText('Mémoire du Bagne', W/2, HDR * 0.38);
 
   // Sous-titre
-  ctx.fillStyle = COL.accent;
+  ctx.fillStyle = COL.grey;
   ctx.font      = `bold ${Math.floor(W*0.033)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
-  shadow(10, 'rgba(0,0,0,0.80)');
   ctx.fillText('Île Nou · Nouvelle-Calédonie', W/2, HDR * 0.72);
-
-  noShadow();
 
   // Compteurs (footer)
   const sy = GY + GRID_H + Math.floor(FTR * 0.46);
-  ctx.fillStyle   = '#FFFFFF';
+  ctx.fillStyle   = COL.text;
   ctx.font        = `bold ${Math.floor(W*0.040)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textBaseline = 'middle';
-  shadow(10, 'rgba(0,0,0,0.80)');
   ctx.textAlign = 'left';
   ctx.fillText(`Essais : ${moves}`, PAD, sy);
   ctx.textAlign = 'right';
   ctx.fillText(`Paires : ${pairsFound} / 5`, W - PAD, sy);
 
   if (moves === 0) {
-    ctx.fillStyle = 'rgba(255,255,255,0.82)';
+    ctx.fillStyle = COL.grey;
     ctx.font      = `bold ${Math.floor(W*0.030)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
     ctx.textAlign = 'center';
-    shadow(8, 'rgba(0,0,0,0.75)');
     ctx.fillText('Retrouvez les 5 paires d\'objets du bagne', W/2, sy + Math.floor(FTR*0.46));
   }
 
-  noShadow();
   ctx.textBaseline = 'alphabetic';
 }
 
 // ── Écran victoire ────────────────────────────────────────────────────────────
 function drawWin(t) {
   drawFondAnime(t);
-  ctx.fillStyle = 'rgba(10,20,50,0.45)';
-  ctx.fillRect(0, 0, W, H);
 
   ctx.textAlign = 'center';
 
@@ -381,23 +364,19 @@ function drawWin(t) {
     rr(tx+1, ty+1, tS-2, tS-2, 13); ctx.stroke();
   }
 
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = COL.text;
   ctx.font = `bold ${Math.floor(W*0.068)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textBaseline = 'middle';
-  shadow(16, 'rgba(0,0,0,0.85)');
   ctx.fillText('Félicitations !', W/2, H * 0.46);
 
   const elapsed = Math.floor((Date.now() - startTime) / 1000);
   const stars = moves <= 8 ? 3 : moves <= 13 ? 2 : 1;
-  noShadow();
   ctx.font = `${Math.floor(W*0.075)}px serif`;
   ctx.fillText('⭐'.repeat(stars) + '☆'.repeat(3-stars), W/2, H * 0.535);
 
-  ctx.fillStyle = COL.accent;
+  ctx.fillStyle = COL.grey;
   ctx.font = `bold ${Math.floor(W*0.040)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
-  shadow(10, 'rgba(0,0,0,0.80)');
   ctx.fillText(`${moves} essais  ·  ${elapsed} s`, W/2, H * 0.595);
-  noShadow();
 
   const bW = Math.floor(W * 0.56), bH = 54;
   const bx = W/2 - bW/2, by = H * 0.648;
@@ -414,14 +393,12 @@ function drawWin(t) {
 
 // ── Chargement ────────────────────────────────────────────────────────────────
 function drawLoading() {
-  ctx.fillStyle = COL.hdrBg;
+  ctx.fillStyle = FOND_COULEURS[0];
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = COL.text;
   ctx.font = `bold ${Math.floor(W*0.045)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(0,0,0,0.7)';
   ctx.fillText('Chargement…', W/2, H/2);
-  ctx.shadowBlur = 0;
 }
 
 // ── Boucle ────────────────────────────────────────────────────────────────────
