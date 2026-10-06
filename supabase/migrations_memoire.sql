@@ -17,7 +17,9 @@
 --
 -- Fichiers attendus dans le bucket "memoire" (à uploader manuellement, ce
 -- sont les mêmes fichiers déjà embarqués dans assets/mini-jeux/img_memo/) :
---   verso.png, fond.png, nacre.png, chaine.png, brique.png, chapelle.png, lampe.png
+--   verso.png, nacre.png, chaine.png, brique.png, chapelle.png, lampe.png
+-- (plus de fond.png : le fond est désormais un dégradé animé dessiné en
+-- canvas, comme dans tribunal.html, pas une photo.)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 create table if not exists memoire_paires (
