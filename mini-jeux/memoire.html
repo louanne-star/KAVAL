@@ -148,8 +148,8 @@ function shuffle(arr) {
 function init() {
   const deck = [];
   PAIRS.forEach(p => {
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#4CAF6D'});
-    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#4CAF6D'});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#4CAF6D', flipStart:0, flipFrom:false});
+    deck.push({...p, faceUp:false, matched:false, flash:0, flashColor:'#4CAF6D', flipStart:0, flipFrom:false});
   });
   shuffle(deck);
   cards      = deck;
@@ -194,6 +194,15 @@ function imgOk(key) {
   return im && im.complete && im.naturalWidth > 0;
 }
 
+// Retournement : lance une animation visuelle (scale horizontal) sans
+// attendre — la face affichée pendant l'anim est l'ancienne, puis la
+// nouvelle à mi-course (voir drawCard), comme une vraie carte qui pivote.
+const FLIP_MS = 300;
+function declencherFlip(c) {
+  c.flipFrom  = c.faceUp;
+  c.flipStart = performance.now();
+}
+
 // ── Interaction ───────────────────────────────────────────────────────────────
 function onTap(tx, ty) {
   if (state === 'win') { init(); return; }
@@ -204,6 +213,7 @@ function onTap(tx, ty) {
   const c = cards[i];
   if (c.faceUp || c.matched || flipped.includes(i) || flipped.length >= 2) return;
 
+  declencherFlip(c);
   c.faceUp = true;
   flipped.push(i);
 
@@ -227,6 +237,7 @@ function onTap(tx, ty) {
         cards[a].flash = cards[b].flash = 35;
         cards[a].flashColor = cards[b].flashColor = '#9A2A1A';
         setTimeout(() => {
+          declencherFlip(cards[a]); declencherFlip(cards[b]);
           cards[a].faceUp = cards[b].faceUp = false;
           flipped = [];
           state = 'play';
@@ -278,45 +289,56 @@ function drawFace(x, y, s, card) {
   rr(x+1.5, y+1.5, s-3, s-3, 11); ctx.stroke();
 }
 
-function drawCard(i) {
+function drawCard(i, now) {
   const c = cards[i];
   const {x, y} = cardPos(i);
 
   ctx.fillStyle = 'rgba(11,31,58,0.22)';
   rr(x+3, y+6, C_S, C_S, 13); ctx.fill();
 
-  if (c.faceUp || c.matched) {
+  // Halo lumineux doux pour une paire trouvée — dessiné avant la carte pour
+  // qu'il déborde visuellement tout autour d'elle (pas de vert, pas de coche).
+  if (c.matched) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,255,255,0.95)';
+    ctx.shadowBlur  = Math.floor(C_S * 0.26);
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+    ctx.lineWidth   = 3;
+    rr(x+1.5, y+1.5, C_S-3, C_S-3, 11); ctx.stroke();
+    ctx.restore();
+  }
+
+  // Retournement : scale horizontal qui passe par 0 à mi-course, moment où
+  // la face affichée bascule de l'ancienne à la nouvelle (comme une vraie
+  // carte vue de profil).
+  let faceVisible = c.faceUp || c.matched;
+  let scaleX = 1;
+  if (c.flipStart) {
+    const p = Math.min(1, (now - c.flipStart) / FLIP_MS);
+    scaleX = Math.abs(Math.cos(p * Math.PI));
+    faceVisible = p < 0.5 ? c.flipFrom : (c.faceUp || c.matched);
+    if (p >= 1) c.flipStart = 0;
+  }
+
+  ctx.save();
+  ctx.translate(x + C_S/2, y);
+  ctx.scale(Math.max(scaleX, 0.04), 1);
+  ctx.translate(-(x + C_S/2), -y);
+
+  if (faceVisible) {
     drawFace(x, y, C_S, c);
     if (c.matched) {
-      // Même vert que "bonne réponse" dans le quiz (parcours.page.scss :
-      // bordure #2f7a49, fond translucide rgba(76,175,109,…)) — cohérent
-      // avec le reste de l'app plutôt qu'un vert/✓ inventés pour ce jeu.
+      // Légère éclaircie de la carte elle-même, en plus du halo autour.
       ctx.save();
-      ctx.globalAlpha = 0.18;
-      ctx.fillStyle = '#4CAF6D';
+      ctx.globalAlpha = 0.16;
+      ctx.fillStyle = '#FFFFFF';
       rr(x, y, C_S, C_S, 12); ctx.fill();
       ctx.restore();
-      ctx.strokeStyle = '#2F7A49'; ctx.lineWidth = 3;
-      rr(x+1.5, y+1.5, C_S-3, C_S-3, 11); ctx.stroke();
-
-      // Badge rond façon "checkmark-circle" (ionicons) au lieu d'un ✓ nu.
-      const r = Math.floor(C_S * 0.15);
-      const bx = x + C_S - r*1.3, by = y + r*1.3;
-      ctx.fillStyle = '#2F7A49';
-      ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle = COL.accent; ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.strokeStyle = COL.accent; ctx.lineWidth = Math.max(2, r*0.22);
-      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(bx - r*0.45, by);
-      ctx.lineTo(bx - r*0.1,  by + r*0.4);
-      ctx.lineTo(bx + r*0.5,  by - r*0.4);
-      ctx.stroke();
     }
   } else {
     drawBack(x, y, C_S);
   }
+  ctx.restore();
 
   if (c.flash > 0) {
     ctx.globalAlpha = (c.flash / 45) * 0.50;
@@ -417,10 +439,11 @@ function drawLoading() {
 
 // ── Boucle ────────────────────────────────────────────────────────────────────
 function loop(t) {
-  drawFondAnime(t || 0);
+  const now = t || performance.now();
+  drawFondAnime(now);
   drawHUD();
-  for (let i=0; i<cards.length; i++) drawCard(i);
-  if (state === 'win') drawWin(t || 0);
+  for (let i=0; i<cards.length; i++) drawCard(i, now);
+  if (state === 'win') drawWin(now);
   requestAnimationFrame(loop);
 }
 
