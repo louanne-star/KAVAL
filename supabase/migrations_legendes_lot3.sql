@@ -12,7 +12,7 @@
 
 update point_images set legende =
   'Magasin des vivres, logement et bureaux du comptable, aile ouest. Album Leloup, collection Kakou, ANC.'
-where point_id = 'magasin_a_vivre' and chemin = 'magasin des vivres_result.avif';
+where point_id = 'magasin_a_vivre' and chemin = 'magasin-des-vivres_result.avif';
 
 update point_images set legende =
   'La chapelle Saint-Thomas vers 1893, avec son clocher en briques de près de 9 m, dans le style caractéristique de la Pénitentiaire. Cliché Théotime Bray, ANOM.'
