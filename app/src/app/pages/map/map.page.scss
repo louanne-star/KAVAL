@@ -1216,15 +1216,15 @@ ion-content {
   z-index: 1100;
   background: rgba(10,14,20,0.92);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 24px;
   overflow-y: auto;
 }
 
 .image-overlay-contenu {
   max-width: 100%;
-  margin: auto;
+  margin: auto 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
