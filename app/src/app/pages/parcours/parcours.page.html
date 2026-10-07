@@ -29,7 +29,7 @@
            [class]="'detail-header zone-' + zone.zoneId"
            [class.a-banniere]="pointsService.banniereDe(zone.id)"
            [style.--couleur]="zone.couleurZone"
-           [style.background-image]="pointsService.banniereDe(zone.id) ? 'url(' + pointsService.urlImage(pointsService.banniereDe(zone.id)!.chemin) + ')' : null"
+           [style.background-image]="pointsService.banniereDe(zone.id) ? 'url(&quot;' + pointsService.urlImage(pointsService.banniereDe(zone.id)!.chemin) + '&quot;)' : null"
            (click)="pointsService.banniereDe(zone.id) && agrandirImage(pointsService.banniereDe(zone.id)!)">
         <button class="btn-retour" (click)="retourListe(); $event.stopPropagation()">{{ 'parcours.retour' | translate }}</button>
         <img class="detail-icone badge-point-icone" [src]="'assets/badges/' + zone.id + '-icon.svg'" alt="" />
