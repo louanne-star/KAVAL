@@ -4,21 +4,21 @@
 --
 -- Ajoute Histoire + Anecdote (point_sections), le témoignage (temoignages)
 -- et les 5 questions de quiz (quiz_questions) pour 'four_a_chaux', qui
--- n'avait jusqu'ici aucun contenu. Les 2 paragraphes d'Histoire donnés sont
--- fusionnés en un seul texte (comme pour les autres points, une section =
--- un paragraphe affiché). Titre du témoignage absent du texte fourni :
--- "Pénurie de chaux et de sable" choisi pour résumer la citation.
+-- n'avait jusqu'ici aucun contenu. Textes Histoire/Anecdote/Témoignage
+-- repris dans leur version raccourcie fournie par l'utilisateur. Titre du
+-- témoignage absent du texte fourni : "Pénurie de chaux et de sable" choisi
+-- pour résumer la citation.
 -- Tout en fr + en, comme les autres points (voir migrations_points_v2.sql).
 -- ─────────────────────────────────────────────────────────────────────────────
 
 insert into point_sections (point_id, titre, titre_en, texte, texte_en, ordre) values
   ('four_a_chaux', 'Histoire', 'History',
-   'Dans les premières années du bagne, la construction avançait à peine : l''île Nou ne possédait ni chaux ni sable. Ces matériaux indispensables devaient être transportés par chalands depuis la presqu''île Ducos, une navigation rendue périlleuse par les vents forts, en l''absence de chaloupe à vapeur. Tout changea fin 1870 avec l''ouverture du four à chaux au Camp Est : désormais alimentés en quantité suffisante, les chantiers purent s''accélérer. C''est grâce à ce four que la plupart des grands bâtiments du bagne — hôpital du Marais, casernes, chapelles — ont pu être construits en dur.',
-   'In the early years of the penal colony, construction barely progressed: Île Nou had neither lime nor sand. These essential materials had to be shipped by barge from the Ducos peninsula, a crossing made treacherous by strong winds in the absence of a steam launch. Everything changed at the end of 1870 with the opening of the lime kiln at East Camp: now supplied with lime in sufficient quantity, building work could speed up. It was thanks to this kiln that most of the penal colony''s major buildings — the Marais Hospital, barracks, chapels — could be built in solid stone.',
+   'Dans les premières années du bagne, la construction était paralysée : l''île Nou ne possédait ni chaux ni sable. Ces matériaux devaient être transportés par chalands depuis la presqu''île Ducos, une navigation périlleuse par vent fort. L''ouverture du four à chaux fin 1870 changea tout, permettant enfin de construire en dur les grands bâtiments du bagne.',
+   'In the early years of the penal colony, construction was paralysed: Île Nou had neither lime nor sand. These materials had to be shipped by barge from the Ducos peninsula, a crossing made dangerous by strong winds. The opening of the lime kiln at the end of 1870 changed everything, finally allowing the penal colony''s major buildings to be built in solid stone.',
    1),
   ('four_a_chaux', 'Anecdote', 'Anecdote',
-   'Les forçats qui travaillaient aux carrières et au four à chaux produisaient les matériaux qui servaient à bâtir leurs propres cellules — un détail que n''ont pas manqué de relever amèrement ceux qui en ont laissé des témoignages.',
-   'The convicts who worked the quarries and the lime kiln produced the very materials used to build their own cells — a detail bitterly noted by those who left accounts of it.',
+   'Les forçats produisaient de leurs mains enchaînées les matériaux qui servaient à bâtir les murs de leur propre prison.',
+   'With their own chained hands, the convicts produced the very materials used to build the walls of their own prison.',
    2)
 on conflict (point_id, titre) do update set
   titre_en = excluded.titre_en, texte = excluded.texte, texte_en = excluded.texte_en, ordre = excluded.ordre;
@@ -27,8 +27,8 @@ insert into temoignages (point_id, titre, titre_en, auteur, auteur_en, texte, te
   ('four_a_chaux',
    'Pénurie de chaux et de sable', 'Shortage of lime and sand',
    'Archives de l''Administration pénitentiaire', 'Penitentiary Administration archives',
-   'Les chantiers se trouvent à court de chaux et de sable faute de moyens rapides de transport. L''île Nou est en effet dépourvue de sable et il faut le transporter par chalands depuis la presqu''île Ducos ; en l''absence de chaloupe à vapeur, la navigation est rendue difficile par vent fort.',
-   'The building sites are running short of lime and sand for lack of fast means of transport. Île Nou has no sand of its own and it must be shipped by barge from the Ducos peninsula; in the absence of a steam launch, the crossing is made difficult by strong winds.')
+   'Les chantiers se trouvent à court de chaux et de sable faute de moyens rapides de transport. L''île Nou est en effet dépourvue de sable et il faut le transporter par chalands depuis la presqu''île Ducos.',
+   'The building sites are running short of lime and sand for lack of fast means of transport. Île Nou has no sand of its own and it must be shipped by barge from the Ducos peninsula.')
 on conflict (point_id) do update set
   titre = excluded.titre, titre_en = excluded.titre_en,
   auteur = excluded.auteur, auteur_en = excluded.auteur_en,
