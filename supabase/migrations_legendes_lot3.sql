@@ -35,7 +35,7 @@ update point_images set legende =
 where point_id = 'logement_surveillants_militaires_maries' and chemin = 'la caserne des surveillants maries_result.avif';
 
 update point_images set legende =
-  'À l''arrière, dans une cour commune, deux dépendances en maçonnerie couvertes de tôles (26 m de long) abritent les cuisines. Cliché Théotime Bray, ANOM.'
+  'À l''arrière, dans une cour commune, deux dépendances en maçonnerie couvertes de tôles, de 26 m de long sur 6 m de large, abritent les cuisines. Cliché Théotime Bray, ANOM.'
 where point_id = 'logement_surveillants_militaires_maries' and chemin = 'la caserne des surveillants maries2_result.avif';
 
 update point_images set legende =
