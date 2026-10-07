@@ -18,7 +18,7 @@ canvas { position:relative; display:block; background:transparent; }
 </head>
 <body>
 <div id="stage">
-  <img id="bg" src="bg-riviere.gif" alt="">
+  <img id="bg" src="bg-riviere.png" alt="">
   <canvas id="c"></canvas>
 </div>
 <script>
@@ -126,6 +126,38 @@ function makeRocks() {
 
 let rocks, playerRock, state, jump, waveT, particles;
 let aideOuverte = false;
+
+// ── Reflets animés sur l'eau ────────────────────────────────────────────
+// Le fond est désormais une photo statique (bg-riviere.png) : ces taches
+// de lumière qui dérivent doucement et pulsent donnent l'impression d'une
+// eau qui bouge, sans avoir à déformer l'image elle-même. Synchronisées
+// sur waveT, la même horloge que le balancement des planches.
+function makeVagues() {
+  return Array.from({ length: 12 }, () => ({
+    x: W * (0.16 + Math.random() * 0.68),
+    y: H * (0.06 + Math.random() * 0.88),
+    r: 16 + Math.random() * 36,
+    sp: 0.006 + Math.random() * 0.01,
+    ph: Math.random() * Math.PI * 2,
+    drift: 6 + Math.random() * 14,
+  }));
+}
+const vagues = makeVagues();
+
+function drawVagues(t) {
+  ctx.save();
+  vagues.forEach(v => {
+    const alpha = Math.max(0, 0.16 + Math.sin(t * v.sp + v.ph) * 0.09);
+    const dx = Math.sin(t * v.sp * 0.6 + v.ph) * v.drift;
+    const dy = Math.cos(t * v.sp * 0.5 + v.ph) * (v.drift * 0.4);
+    const g = ctx.createRadialGradient(v.x + dx, v.y + dy, 0, v.x + dx, v.y + dy, v.r);
+    g.addColorStop(0, `rgba(255,255,255,${alpha})`);
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(v.x + dx, v.y + dy, v.r, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.restore();
+}
 
 function resetGame() {
   rocks = makeRocks();
@@ -419,6 +451,7 @@ function update() {
 // ── RENDER ────────────────────────────────────────────────────────
 function render() {
   ctx.clearRect(0,0,W,H);
+  drawVagues(waveT);
   drawPlatform(W*0.5, H*0.11, IMAGES.depart);
   drawPlatform(W*0.5, H*0.88, IMAGES.arrivee);
   rocks.forEach((r, i) => drawRock(r, i));
