@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracked, NgZone } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracked, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
@@ -117,6 +117,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
   miniPopupPos         = signal<{ x: number; y: number } | null>(null);
   miniPopupPhotoIndex  = signal(0);
   imageAgrandie        = signal<PointImage | null>(null);
+
+  @ViewChild('miniPopupEl') miniPopupEl?: ElementRef<HTMLDivElement>;
 
   private map!: L.Map;
   private tileNormale!:   L.MaplibreGL;
@@ -803,6 +805,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
           this.miniPointSelectionne.set(point);
           this.miniPopupPhotoIndex.set(0);
           this.mettreAJourPositionMiniPopup();
+          setTimeout(() => this.recentrerPourMiniPopup(), 0);
         }))
     );
   }
@@ -812,9 +815,33 @@ export class MapPage implements AfterViewInit, OnDestroy {
     const point = this.miniPointSelectionne();
     if (!point) { this.miniPopupPos.set(null); return; }
     const { x, y } = this.map.latLngToContainerPoint(point.coords as L.LatLngExpression);
-    const marge = 90; // demi-largeur approx. de la bulle, pour éviter qu'elle sorte de l'écran
+    const marge = 170; // demi-largeur max de la carte (321px), pour éviter qu'elle sorte de l'écran
     const xBorne = Math.min(Math.max(x, marge), window.innerWidth - marge);
     this.miniPopupPos.set({ x: xBorne, y });
+  }
+
+  // Décale la carte si besoin pour que la mini-carte (qui s'ouvre au-dessus du
+  // marqueur) soit entièrement visible, sans que l'utilisateur ait à glisser
+  // la carte lui-même. Mesure la position réelle de la carte après rendu
+  // Angular (d'où le setTimeout à l'appel) et la recentre dans une zone sûre
+  // qui évite le header en haut et la barre d'onglets en bas.
+  private recentrerPourMiniPopup() {
+    const el = this.miniPopupEl?.nativeElement;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const SAFE_HAUT = 80, SAFE_BAS = 90, SAFE_COTE = 16;
+    const limiteHaut  = SAFE_HAUT;
+    const limiteBas   = window.innerHeight - SAFE_BAS;
+    const limiteGauche = SAFE_COTE;
+    const limiteDroite = window.innerWidth - SAFE_COTE;
+
+    let dx = 0, dy = 0;
+    if (rect.top < limiteHaut)        dy = -(limiteHaut - rect.top);
+    else if (rect.bottom > limiteBas) dy = rect.bottom - limiteBas;
+    if (rect.left < limiteGauche)         dx = -(limiteGauche - rect.left);
+    else if (rect.right > limiteDroite)   dx = rect.right - limiteDroite;
+
+    if (dx !== 0 || dy !== 0) this.map.panBy([dx, dy], { animate: true });
   }
 
   private creerMiniMarqueur(_point: PointPopup): L.DivIcon {
