@@ -9,7 +9,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { RewardService } from '../../services/reward.service';
-import { PointsService, QuizQuestion } from '../../services/points.service';
+import { PointsService, QuizQuestion, PointImage } from '../../services/points.service';
 import { UiStateService } from '../../services/ui-state.service';
 import { LanguageService } from '../../services/language.service';
 import { Langue } from '../../i18n/translations';
@@ -59,7 +59,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   enRedirection = false;
   introVisible = false;
   jeuOuvert = false;
-  imageAgrandie = signal<string | null>(null);
+  imageAgrandie = signal<PointImage | null>(null);
   carrouselIndex = signal(0);
   badgeAnimation = false;
   private badgeAnimTimeout?: ReturnType<typeof setTimeout>;
@@ -339,7 +339,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
   ouvrirJeu() { this.setJeuOuvert(true); }
   fermerJeu() { this.setJeuOuvert(false); }
 
-  agrandirImage(chemin: string) { this.imageAgrandie.set(this.pointsService.urlImage(chemin)); }
+  agrandirImage(img: PointImage) { this.imageAgrandie.set(img); }
   fermerImageAgrandie() { this.imageAgrandie.set(null); }
 
   // Carte centrée la plus proche du scroll actuel, pour mettre à jour les points de pagination.

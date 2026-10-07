@@ -1,8 +1,13 @@
 <ion-content [fullscreen]="true" class="parcours-content">
 
   <!-- Photo agrandie (plein écran) -->
-  <div class="image-overlay" *ngIf="imageAgrandie()" (click)="fermerImageAgrandie()">
-    <img [src]="imageAgrandie()" alt="" />
+  <div class="image-overlay" *ngIf="imageAgrandie() as img" (click)="fermerImageAgrandie()">
+    <div class="image-overlay-contenu">
+      <img [src]="pointsService.urlImage(img.chemin)" alt="" />
+      <p class="image-overlay-legende" *ngIf="pointsService.texte(img.legende ?? '', img.legendeEn)">
+        {{ pointsService.texte(img.legende ?? '', img.legendeEn) }}
+      </p>
+    </div>
   </div>
 
   <!-- Badge win overlay -->
@@ -35,7 +40,7 @@
            [class.a-banniere]="pointsService.banniereDe(zone.id)"
            [style.--couleur]="zone.couleurZone"
            [style.background-image]="pointsService.banniereDe(zone.id) ? 'url(' + pointsService.urlImage(pointsService.banniereDe(zone.id)!.chemin) + ')' : null"
-           (click)="pointsService.banniereDe(zone.id) && agrandirImage(pointsService.banniereDe(zone.id)!.chemin)">
+           (click)="pointsService.banniereDe(zone.id) && agrandirImage(pointsService.banniereDe(zone.id)!)">
         <button class="btn-retour" (click)="retourListe(); $event.stopPropagation()">{{ 'parcours.retour' | translate }}</button>
         <img class="detail-icone badge-point-icone" [src]="'assets/badges/' + zone.id + '-icon.svg'" alt="" />
         <div class="detail-badge-pill">{{ pointsService.texte(zone.zoneNom, zone.zoneNomEn) }} · {{ 'commun.etape' | translate:{n: zone.ordre} }}</div>
@@ -85,7 +90,7 @@
               <div class="carrousel-carte"
                    *ngFor="let img of photos; let i = index"
                    [class.carrousel-carte--actif]="i === carrouselIndex()"
-                   (click)="agrandirImage(img.chemin)">
+                   (click)="agrandirImage(img)">
                 <img [src]="pointsService.urlImage(img.chemin)" alt="" />
               </div>
             </div>
