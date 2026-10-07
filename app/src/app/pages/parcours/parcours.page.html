@@ -1,15 +1,5 @@
 <ion-content [fullscreen]="true" class="parcours-content">
 
-  <!-- Photo agrandie (plein écran) -->
-  <div class="image-overlay" *ngIf="imageAgrandie() as img" (click)="fermerImageAgrandie()">
-    <div class="image-overlay-contenu">
-      <img [src]="pointsService.urlImage(img.chemin)" alt="" />
-      <p class="image-overlay-legende" *ngIf="pointsService.texte(img.legende ?? '', img.legendeEn)">
-        {{ pointsService.texte(img.legende ?? '', img.legendeEn) }}
-      </p>
-    </div>
-  </div>
-
   <!-- Badge win overlay -->
   <div class="badge-overlay" *ngIf="badgeAnimation">
     <div class="badge-win-card">
@@ -220,3 +210,13 @@
   </ng-container>
 
 </ion-content>
+
+<!-- Photo agrandie (plein écran) -->
+<div class="image-overlay" *ngIf="imageAgrandie() as img" (click)="fermerImageAgrandie()">
+  <div class="image-overlay-contenu">
+    <img [src]="pointsService.urlImage(img.chemin)" alt="" />
+    <p class="image-overlay-legende" *ngIf="pointsService.texte(img.legende ?? '', img.legendeEn)">
+      {{ pointsService.texte(img.legende ?? '', img.legendeEn) }}
+    </p>
+  </div>
+</div>

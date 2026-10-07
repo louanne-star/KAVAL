@@ -196,16 +196,6 @@
     </div>
   </div>
 
-  <!-- Photo agrandie (plein écran) -->
-  <div class="image-overlay" *ngIf="imageAgrandie() as img" (click)="fermerImageAgrandie()">
-    <div class="image-overlay-contenu">
-      <img [src]="pointsService.urlImage(img.chemin)" alt="" />
-      <p class="image-overlay-legende" *ngIf="pointsService.texte(img.legende ?? '', img.legendeEn)">
-        {{ pointsService.texte(img.legende ?? '', img.legendeEn) }}
-      </p>
-    </div>
-  </div>
-
   <!-- ── Modale commentaires communauté ─────────────────────────────────── -->
   <div class="commentaire-overlay" *ngIf="commentaireOuvert() as zoneId" (click)="fermerCommentaire()">
     <div class="commentaire-card" (click)="$event.stopPropagation()">
@@ -283,3 +273,13 @@
   </div>
 
 </ion-content>
+
+<!-- Photo agrandie (plein écran) -->
+<div class="image-overlay" *ngIf="imageAgrandie() as img" (click)="fermerImageAgrandie()">
+  <div class="image-overlay-contenu">
+    <img [src]="pointsService.urlImage(img.chemin)" alt="" />
+    <p class="image-overlay-legende" *ngIf="pointsService.texte(img.legende ?? '', img.legendeEn)">
+      {{ pointsService.texte(img.legende ?? '', img.legendeEn) }}
+    </p>
+  </div>
+</div>
