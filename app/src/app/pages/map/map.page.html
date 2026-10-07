@@ -160,38 +160,40 @@
       <button class="mini-popup-close" (click)="fermerMiniPoint()">✕</button>
     </div>
 
-    <div class="mini-popup-badge mini-popup-badge--disparu" *ngIf="mp.disparu">
-      <ion-icon name="time-outline"></ion-icon>
-      {{ 'carte.lieuDisparu' | translate }}
-    </div>
-    <div class="mini-popup-badge mini-popup-badge--vestiges" *ngIf="mp.vestiges">
-      <ion-icon name="eye-outline"></ion-icon>
-      {{ 'carte.vestigesVisibles' | translate }}
-    </div>
-
-    <div class="mini-popup-desc">{{ pointsService.texte(mp.description, mp.descriptionEn) }}</div>
-
-    <ng-container *ngIf="pointsService.imagesDe(mp.id) as photos">
-      <div class="mini-popup-carrousel" *ngIf="photos.length > 0">
-        <div class="mini-popup-carrousel-img" (click)="agrandirImage(photos[miniPopupPhotoIndex() % photos.length])">
-          <img [src]="pointsService.urlImage(photos[miniPopupPhotoIndex() % photos.length].chemin)" alt="" />
-          <ng-container *ngIf="photos.length > 1">
-            <button class="mini-popup-carrousel-fleche mini-popup-carrousel-fleche--gauche"
-                    (click)="photoMiniPopupPrecedente(photos.length); $event.stopPropagation()">
-              <ion-icon name="chevron-back-outline"></ion-icon>
-            </button>
-            <button class="mini-popup-carrousel-fleche mini-popup-carrousel-fleche--droite"
-                    (click)="photoMiniPopupSuivante(photos.length); $event.stopPropagation()">
-              <ion-icon name="chevron-forward-outline"></ion-icon>
-            </button>
-          </ng-container>
-        </div>
-        <div class="mini-popup-carrousel-dots" *ngIf="photos.length > 1">
-          <span class="mini-popup-dot" *ngFor="let img of photos; let i = index"
-                [class.mini-popup-dot--actif]="i === (miniPopupPhotoIndex() % photos.length)"></span>
-        </div>
+    <div class="mini-popup-scroll">
+      <div class="mini-popup-badge mini-popup-badge--disparu" *ngIf="mp.disparu">
+        <ion-icon name="time-outline"></ion-icon>
+        {{ 'carte.lieuDisparu' | translate }}
       </div>
-    </ng-container>
+      <div class="mini-popup-badge mini-popup-badge--vestiges" *ngIf="mp.vestiges">
+        <ion-icon name="eye-outline"></ion-icon>
+        {{ 'carte.vestigesVisibles' | translate }}
+      </div>
+
+      <div class="mini-popup-desc">{{ pointsService.texte(mp.description, mp.descriptionEn) }}</div>
+
+      <ng-container *ngIf="pointsService.imagesDe(mp.id) as photos">
+        <div class="mini-popup-carrousel" *ngIf="photos.length > 0">
+          <div class="mini-popup-carrousel-img" (click)="agrandirImage(photos[miniPopupPhotoIndex() % photos.length])">
+            <img [src]="pointsService.urlImage(photos[miniPopupPhotoIndex() % photos.length].chemin)" alt="" />
+            <ng-container *ngIf="photos.length > 1">
+              <button class="mini-popup-carrousel-fleche mini-popup-carrousel-fleche--gauche"
+                      (click)="photoMiniPopupPrecedente(photos.length); $event.stopPropagation()">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </button>
+              <button class="mini-popup-carrousel-fleche mini-popup-carrousel-fleche--droite"
+                      (click)="photoMiniPopupSuivante(photos.length); $event.stopPropagation()">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
+            </ng-container>
+          </div>
+          <div class="mini-popup-carrousel-dots" *ngIf="photos.length > 1">
+            <span class="mini-popup-dot" *ngFor="let img of photos; let i = index"
+                  [class.mini-popup-dot--actif]="i === (miniPopupPhotoIndex() % photos.length)"></span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
   </div>
 
   <!-- Photo agrandie (plein écran) -->

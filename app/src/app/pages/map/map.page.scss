@@ -1066,6 +1066,18 @@ ion-content {
   to   { opacity: 1; transform: translate(-50%, calc(-100% - 16px)) scale(1); }
 }
 
+// Scrolle en interne (badges + description + carrousel) quand le contenu
+// dépasse la hauteur disponible, pour que la description ne soit jamais
+// tronquée — le header (titre/fermer) reste toujours visible au-dessus.
+.mini-popup-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: min(50vh, 420px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .mini-popup-top {
   display: flex;
   align-items: center;
@@ -1100,7 +1112,6 @@ ion-content {
   gap: 6px;
   height: 30px;
   padding: 0 12px;
-  margin: -8px 0 0;
   border-radius: 15px;
   font-size: 12px;
   font-weight: 600;
@@ -1122,12 +1133,6 @@ ion-content {
   font-size: 13px;
   color: #173B63;
   line-height: 1.6;
-  margin: -8px 0 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
-  overflow: hidden;
 }
 
 .mini-popup-close {
