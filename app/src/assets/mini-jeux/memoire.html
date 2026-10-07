@@ -45,6 +45,38 @@ const COL = {
   grey:    '#4A6080',
 };
 
+// ── Langue (alignée sur le choix FR/EN fait dans le reste de l'app KAVAL,
+// stocké par LanguageService via @capacitor/preferences ; en mode web,
+// Capacitor Preferences écrit directement dans localStorage) ───────────────
+const LANG = localStorage.getItem('CapacitorStorage.kaval_langue') === 'en' ? 'en' : 'fr';
+document.documentElement.lang = LANG;
+
+const I18N = {
+  fr: {
+    titre: 'Mémoire du Bagne',
+    sousTitre: 'Île Nou · Nouvelle-Calédonie',
+    essais: n => `Essais : ${n}`,
+    paires: n => `Paires : ${n} / 5`,
+    instructions: "Retrouvez les 5 paires d'objets du bagne",
+    chargement: 'Chargement…',
+    felicitations: 'Félicitations !',
+    bilan: (n, s) => `${n} essais  ·  ${s} s`,
+    rejouer: '▶  Rejouer',
+  },
+  en: {
+    titre: 'Bagne Memory',
+    sousTitre: 'Île Nou · New Caledonia',
+    essais: n => `Tries: ${n}`,
+    paires: n => `Pairs: ${n} / 5`,
+    instructions: 'Find the 5 penal colony object pairs',
+    chargement: 'Loading…',
+    felicitations: 'Congratulations!',
+    bilan: (n, s) => `${n} tries  ·  ${s} s`,
+    rejouer: '▶  Play again',
+  },
+};
+const T = I18N[LANG];
+
 // ── Config Supabase (clé publique anon — lecture seule, RLS "using (true)") ────
 // Mêmes identifiants que le reste de l'app (voir environment.prod.ts) et même
 // mécanisme que le Tribunal du Bagne (voir tribunal.html) : une table pilote
@@ -57,24 +89,24 @@ const BUCKET_URL = `${SUPABASE_URL}/storage/v1/object/public/memoire`;
 // Repli si Supabase est injoignable ou si memoire_paires est encore vide
 // (voir migrations_memoire.sql) : le jeu reste jouable hors-ligne.
 const PAIRS_REPLI = [
-  { id:0, key:'nacre',    label:'Nacre'    },
-  { id:1, key:'chaine',   label:'Chaîne'   },
-  { id:2, key:'brique',   label:'Brique'   },
-  { id:3, key:'chapelle', label:'Chapelle' },
-  { id:4, key:'lampe',    label:'Lampe'    },
+  { id:0, key:'nacre',    label:'Nacre',    labelEn:'Mother-of-pearl' },
+  { id:1, key:'chaine',   label:'Chaîne',   labelEn:'Chain'           },
+  { id:2, key:'brique',   label:'Brique',   labelEn:'Brick'           },
+  { id:3, key:'chapelle', label:'Chapelle', labelEn:'Chapel'          },
+  { id:4, key:'lampe',    label:'Lampe',    labelEn:'Lamp'            },
 ];
-let PAIRS = PAIRS_REPLI;
+let PAIRS = PAIRS_REPLI.map(p => ({ ...p, label: LANG === 'en' ? p.labelEn : p.label }));
 
 async function chargerPaires() {
   try {
     const resp = await fetch(
-      `${SUPABASE_URL}/rest/v1/memoire_paires?select=cle,label,ordre&order=ordre.asc`,
+      `${SUPABASE_URL}/rest/v1/memoire_paires?select=cle,label,label_en,ordre&order=ordre.asc`,
       { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
     );
     if (!resp.ok) throw new Error('http ' + resp.status);
     const lignes = await resp.json();
     if (Array.isArray(lignes) && lignes.length > 0) {
-      PAIRS = lignes.map((l, i) => ({ id:i, key:l.cle, label:l.label }));
+      PAIRS = lignes.map((l, i) => ({ id:i, key:l.cle, label: (LANG === 'en' && l.label_en) ? l.label_en : l.label }));
     }
   } catch {
     // Hors-ligne ou bucket/table pas encore configurés : PAIRS reste sur PAIRS_REPLI.
@@ -399,12 +431,12 @@ function drawHUD() {
   ctx.font        = `bold ${Math.floor(W*0.060)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textAlign   = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('Mémoire du Bagne', W/2, HDR * 0.38);
+  ctx.fillText(T.titre, W/2, HDR * 0.38);
 
   // Sous-titre
   ctx.fillStyle = COL.grey;
   ctx.font      = `bold ${Math.floor(W*0.033)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
-  ctx.fillText('Île Nou · Nouvelle-Calédonie', W/2, HDR * 0.72);
+  ctx.fillText(T.sousTitre, W/2, HDR * 0.72);
 
   // Compteurs (footer)
   const sy = GY + GRID_H + Math.floor(FTR * 0.46);
@@ -412,15 +444,15 @@ function drawHUD() {
   ctx.font        = `bold ${Math.floor(W*0.040)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  ctx.fillText(`Essais : ${moves}`, PAD, sy);
+  ctx.fillText(T.essais(moves), PAD, sy);
   ctx.textAlign = 'right';
-  ctx.fillText(`Paires : ${pairsFound} / 5`, W - PAD, sy);
+  ctx.fillText(T.paires(pairsFound), W - PAD, sy);
 
   if (moves === 0) {
     ctx.fillStyle = COL.grey;
     ctx.font      = `bold ${Math.floor(W*0.030)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('Retrouvez les 5 paires d\'objets du bagne', W/2, sy + Math.floor(FTR*0.46));
+    ctx.fillText(T.instructions, W/2, sy + Math.floor(FTR*0.46));
   }
 
   ctx.textBaseline = 'alphabetic';
@@ -447,7 +479,7 @@ function drawWin(t) {
   ctx.fillStyle = COL.text;
   ctx.font = `bold ${Math.floor(W*0.068)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textBaseline = 'middle';
-  ctx.fillText('Félicitations !', W/2, H * 0.46);
+  ctx.fillText(T.felicitations, W/2, H * 0.46);
 
   const elapsed = Math.floor((Date.now() - startTime) / 1000);
   const stars = moves <= 8 ? 3 : moves <= 13 ? 2 : 1;
@@ -456,7 +488,7 @@ function drawWin(t) {
 
   ctx.fillStyle = COL.grey;
   ctx.font = `bold ${Math.floor(W*0.040)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
-  ctx.fillText(`${moves} essais  ·  ${elapsed} s`, W/2, H * 0.595);
+  ctx.fillText(T.bilan(moves, elapsed), W/2, H * 0.595);
 
   const bW = Math.floor(W * 0.56), bH = 54;
   const bx = W/2 - bW/2, by = H * 0.648;
@@ -466,7 +498,7 @@ function drawWin(t) {
   rr(bx, by, bW, bH, 14); ctx.stroke();
   ctx.fillStyle = COL.accent;
   ctx.font = `bold ${Math.floor(W*0.046)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
-  ctx.fillText('▶  Rejouer', W/2, by + bH/2 + 1);
+  ctx.fillText(T.rejouer, W/2, by + bH/2 + 1);
 
   ctx.textBaseline = 'alphabetic';
 }
@@ -478,7 +510,7 @@ function drawLoading() {
   ctx.fillStyle = COL.text;
   ctx.font = `bold ${Math.floor(W*0.045)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('Chargement…', W/2, H/2);
+  ctx.fillText(T.chargement, W/2, H/2);
 }
 
 // ── Boucle ────────────────────────────────────────────────────────────────────

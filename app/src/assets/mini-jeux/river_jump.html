@@ -30,6 +30,50 @@ const H = Math.min(window.innerHeight, 720);
 canvas.width = W; canvas.height = H;
 stage.style.width = W + 'px'; stage.style.height = H + 'px';
 
+// ── Langue (alignée sur le choix FR/EN du reste de l'app KAVAL, voir
+// tribunal.html pour le même mécanisme) ──────────────────────────────────
+const LANG = localStorage.getItem('CapacitorStorage.kaval_langue') === 'en' ? 'en' : 'fr';
+document.documentElement.lang = LANG;
+const I18N = {
+  fr: {
+    aideTitre: 'Comment jouer',
+    aideLignes: [
+      'Touche une planche quand elle',
+      "sort de l'eau pour sauter dessus.",
+      '',
+      'Chaque planche finit par recouler :',
+      'ne traîne pas trop avant de sauter.',
+      '',
+      "Atteins le ponton d'arrivée",
+      'pour terminer la traversée.',
+    ],
+    aideFermer: "(touche l'écran pour fermer)",
+    hud: ["Touche les cailloux quand ils sortent de l'eau !", 'Saute au bon moment !', 'Attention au timing !', 'Continue !', 'Presque arrivé !'],
+    victoireTitre: 'Traversée réussie !',
+    victoireSous: 'Bravo champion !',
+    rejouer: '▶ Rejouer',
+  },
+  en: {
+    aideTitre: 'How to play',
+    aideLignes: [
+      'Tap a log when it',
+      'surfaces to jump on it.',
+      '',
+      'Every log eventually sinks back:',
+      "don't wait too long before jumping.",
+      '',
+      'Reach the arrival dock',
+      'to complete the crossing.',
+    ],
+    aideFermer: '(tap the screen to close)',
+    hud: ['Tap the rocks when they surface!', 'Jump at the right moment!', 'Watch your timing!', 'Keep going!', 'Almost there!'],
+    victoireTitre: 'Crossing successful!',
+    victoireSous: 'Well done, champion!',
+    rejouer: '▶ Play again',
+  },
+};
+const T = I18N[LANG];
+
 // ── SPRITES ──────────────────────────────────────────────────────
 function chargerImage(src) {
   return new Promise(resolve => {
@@ -286,23 +330,13 @@ function drawAide() {
   ctx.beginPath(); ctx.roundRect(cx-cw/2, cy-ch/2, cw, ch, 16); ctx.stroke();
 
   ctx.fillStyle = '#ffd27a'; ctx.font = 'bold 17px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('Comment jouer', cx, cy-ch/2+34);
+  ctx.fillText(T.aideTitre, cx, cy-ch/2+34);
 
   ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.font = '13px sans-serif';
-  const lignes = [
-    'Touche une planche quand elle',
-    "sort de l'eau pour sauter dessus.",
-    '',
-    'Chaque planche finit par recouler :',
-    'ne traîne pas trop avant de sauter.',
-    '',
-    "Atteins le ponton d'arrivée",
-    'pour terminer la traversée.',
-  ];
-  lignes.forEach((l, i) => ctx.fillText(l, cx, cy-ch/2+62+i*18));
+  T.aideLignes.forEach((l, i) => ctx.fillText(l, cx, cy-ch/2+62+i*18));
 
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '11px sans-serif';
-  ctx.fillText('(touche l\'écran pour fermer)', cx, cy+ch/2-14);
+  ctx.fillText(T.aideFermer, cx, cy+ch/2-14);
 }
 
 function drawPlayer(x, y, squishY) {
@@ -347,7 +381,7 @@ function drawHUD() {
   ctx.fillStyle='rgba(0,0,0,0.45)';
   ctx.beginPath(); ctx.roundRect(W/2-130,6,260,30,15); ctx.fill();
   ctx.fillStyle='#fff'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
-  const msgs=['Touche les cailloux quand ils sortent de l\'eau !','Saute au bon moment !','Attention au timing !','Continue !','Presque arrivé !'];
+  const msgs = T.hud;
   ctx.fillText(msgs[Math.min(playerRock+1, msgs.length-1)], W/2, 26);
 }
 
@@ -407,7 +441,7 @@ function render() {
   drawHUD();
   drawBoutonAide();
 
-  if (state==='win')  drawOverlay('🎉','Traversée réussie !','Bravo champion !','▶ Rejouer','#1560c0');
+  if (state==='win')  drawOverlay('🎉', T.victoireTitre, T.victoireSous, T.rejouer, '#1560c0');
   if (aideOuverte) drawAide();
 }
 

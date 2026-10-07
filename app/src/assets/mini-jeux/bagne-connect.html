@@ -252,16 +252,16 @@
 
 <div class="page">
   <header>
-    <div class="eyebrow">Bagne de l'île sèche</div>
-    <h1>Connexion des forçats</h1>
-    <div class="subtitle">Relie chaque paire — nul ne s'évade seul</div>
-    <p class="instructions">Fais glisser d'un symbole à son identique pour tracer une chaîne. Les chaînes ne peuvent jamais se croiser.</p>
+    <div class="eyebrow" data-i18n="eyebrow">Bagne de l'île sèche</div>
+    <h1 data-i18n="titre">Connexion des forçats</h1>
+    <div class="subtitle" data-i18n="sousTitre">Relie chaque paire — nul ne s'évade seul</div>
+    <p class="instructions" data-i18n="instructions">Fais glisser d'un symbole à son identique pour tracer une chaîne. Les chaînes ne peuvent jamais se croiser.</p>
   </header>
 
   <div class="board-frame">
     <div class="toolbar">
-      <span class="label">Niveau moyen · 7 paires</span>
-      <button class="reset-btn" id="resetBtn">Recommencer</button>
+      <span class="label" data-i18n="niveau">Niveau moyen · 7 paires</span>
+      <button class="reset-btn" id="resetBtn" data-i18n="recommencer">Recommencer</button>
     </div>
 
     <div class="grid-wrap" id="gridWrap">
@@ -270,19 +270,55 @@
     </div>
   </div>
 
-  <footer>Astuce : les gardiens ont posé leurs cadenas sur certaines cases — impossible d'y faire passer une autre chaîne.</footer>
+  <footer data-i18n="astuce">Astuce : les gardiens ont posé leurs cadenas sur certaines cases — impossible d'y faire passer une autre chaîne.</footer>
 </div>
 
 <div class="overlay" id="overlay">
   <div class="victory-card">
-    <h2>Évasion réussie</h2>
-    <p>Tous les forçats sont enchaînés ensemble. La cour du bagne est enfin silencieuse.</p>
-    <button class="replay-btn" id="replayBtn">Rejouer</button>
+    <h2 data-i18n="victoireTitre">Évasion réussie</h2>
+    <p data-i18n="victoireTexte">Tous les forçats sont enchaînés ensemble. La cour du bagne est enfin silencieuse.</p>
+    <button class="replay-btn" id="replayBtn" data-i18n="rejouer">Rejouer</button>
   </div>
 </div>
 
 <script>
 (function(){
+  // ── Langue (alignée sur le choix FR/EN du reste de l'app KAVAL, voir
+  // tribunal.html pour le même mécanisme) ──────────────────────────────────
+  const LANG = localStorage.getItem('CapacitorStorage.kaval_langue') === 'en' ? 'en' : 'fr';
+  document.documentElement.lang = LANG;
+  const I18N = {
+    fr: {
+      eyebrow: "Bagne de l'île sèche",
+      titre: 'Connexion des forçats',
+      sousTitre: "Relie chaque paire — nul ne s'évade seul",
+      instructions: "Fais glisser d'un symbole à son identique pour tracer une chaîne. Les chaînes ne peuvent jamais se croiser.",
+      niveau: 'Niveau moyen · 7 paires',
+      recommencer: 'Recommencer',
+      astuce: "Astuce : les gardiens ont posé leurs cadenas sur certaines cases — impossible d'y faire passer une autre chaîne.",
+      victoireTitre: 'Évasion réussie',
+      victoireTexte: 'Tous les forçats sont enchaînés ensemble. La cour du bagne est enfin silencieuse.',
+      rejouer: 'Rejouer',
+    },
+    en: {
+      eyebrow: 'The Dry Island penal colony',
+      titre: 'Connect the Convicts',
+      sousTitre: 'Link every pair — no one escapes alone',
+      instructions: 'Drag from one symbol to its match to draw a chain. Chains can never cross.',
+      niveau: 'Medium level · 7 pairs',
+      recommencer: 'Restart',
+      astuce: "Tip: the guards have locked some cells with padlocks — no other chain can pass through them.",
+      victoireTitre: 'Escape successful',
+      victoireTexte: 'All the convicts are now chained together. The penal colony yard is finally silent.',
+      rejouer: 'Play again',
+    },
+  };
+  const T = I18N[LANG];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (T[key] !== undefined) el.textContent = T[key];
+  });
+
   const N = 6;
 
   // Pair definitions: id, css color var, endpoints [{r,c},{r,c}]
