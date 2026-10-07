@@ -85,6 +85,8 @@ export interface PointImage {
   chemin: string;
   ordre: number;
   banniere: boolean;
+  legende?: string;
+  legendeEn?: string;
 }
 
 interface CachePoints {
@@ -189,7 +191,8 @@ export class PointsService {
         texte: r.texte, texteEn: r.texte_en, ordre: r.ordre
       }));
       const images: PointImage[] = img.map((r: any) => ({
-        id: r.id, pointId: r.point_id, chemin: r.chemin, ordre: r.ordre, banniere: r.banniere ?? false
+        id: r.id, pointId: r.point_id, chemin: r.chemin, ordre: r.ordre, banniere: r.banniere ?? false,
+        legende: r.legende, legendeEn: r.legende_en
       }));
 
       this.zones.set(zones);

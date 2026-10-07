@@ -173,7 +173,7 @@
 
     <ng-container *ngIf="pointsService.imagesDe(mp.id) as photos">
       <div class="mini-popup-carrousel" *ngIf="photos.length > 0">
-        <div class="mini-popup-carrousel-img" (click)="agrandirImage(photos[miniPopupPhotoIndex() % photos.length].chemin)">
+        <div class="mini-popup-carrousel-img" (click)="agrandirImage(photos[miniPopupPhotoIndex() % photos.length])">
           <img [src]="pointsService.urlImage(photos[miniPopupPhotoIndex() % photos.length].chemin)" alt="" />
           <ng-container *ngIf="photos.length > 1">
             <button class="mini-popup-carrousel-fleche mini-popup-carrousel-fleche--gauche"
@@ -195,8 +195,13 @@
   </div>
 
   <!-- Photo agrandie (plein écran) -->
-  <div class="image-overlay" *ngIf="imageAgrandie()" (click)="fermerImageAgrandie()">
-    <img [src]="imageAgrandie()" alt="" />
+  <div class="image-overlay" *ngIf="imageAgrandie() as img" (click)="fermerImageAgrandie()">
+    <div class="image-overlay-contenu">
+      <img [src]="pointsService.urlImage(img.chemin)" alt="" />
+      <p class="image-overlay-legende" *ngIf="pointsService.texte(img.legende ?? '', img.legendeEn)">
+        {{ pointsService.texte(img.legende ?? '', img.legendeEn) }}
+      </p>
+    </div>
   </div>
 
   <!-- ── Modale commentaires communauté ─────────────────────────────────── -->

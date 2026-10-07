@@ -13,7 +13,7 @@ import { RatingService } from '../../services/rating.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { CommentService } from '../../services/comment.service';
 import { AuthService } from '../../services/auth.service';
-import { PointsService, PointPopup } from '../../services/points.service';
+import { PointsService, PointPopup, PointImage } from '../../services/points.service';
 import { UiStateService } from '../../services/ui-state.service';
 import { LanguageService } from '../../services/language.service';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
@@ -116,7 +116,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
   miniPointSelectionne = signal<PointPopup | null>(null);
   miniPopupPos         = signal<{ x: number; y: number } | null>(null);
   miniPopupPhotoIndex  = signal(0);
-  imageAgrandie        = signal<string | null>(null);
+  imageAgrandie        = signal<PointImage | null>(null);
 
   private map!: L.Map;
   private tileNormale!:   L.MaplibreGL;
@@ -845,7 +845,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.miniPopupPhotoIndex.set((this.miniPopupPhotoIndex() - 1 + nbPhotos) % nbPhotos);
   }
 
-  agrandirImage(chemin: string) { this.imageAgrandie.set(this.pointsService.urlImage(chemin)); }
+  agrandirImage(img: PointImage) { this.imageAgrandie.set(img); }
   fermerImageAgrandie() { this.imageAgrandie.set(null); }
 
   toggleModeTransport() {
