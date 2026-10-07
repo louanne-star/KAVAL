@@ -90,9 +90,15 @@ ion-content.parcours-content {
 // ── Détail zone ───────────────────────────────────────────────────────────────
 
 .detail-header {
+  position: relative;
   background: linear-gradient(160deg, #27476e 0%, #3a6190 100%);
   padding: 56px 24px 32px;
   color: #fff;
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 // Bannière photo d'un point (même principe que zone-camp_est ci-dessus, mais
@@ -102,6 +108,15 @@ ion-content.parcours-content {
   background-size: cover;
   background-position: center;
   cursor: pointer;
+
+  // Assombrit légèrement la photo pour garder le texte lisible quelle que
+  // soit sa luminosité, un peu plus foncé en bas où se trouvent titre/sous-titre.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10,22,38,0.45) 0%, rgba(10,22,38,0.5) 40%, rgba(10,22,38,0.78) 100%);
+  }
 }
 
 .btn-retour {
