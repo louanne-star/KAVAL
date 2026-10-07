@@ -95,13 +95,6 @@ ion-content.parcours-content {
   color: #fff;
 }
 
-// Photo de fond spécifique à chaque zone
-.detail-header.zone-camp_est {
-  background-image: url('/assets/images/Photo%20camp-est.jpg');
-  background-size: cover;
-  background-position: center 20%;
-}
-
 // Bannière photo d'un point (même principe que zone-camp_est ci-dessus, mais
 // dynamique par point — voir pointsService.banniereDe() et le binding
 // [style.background-image] dans le template)
