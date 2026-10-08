@@ -656,9 +656,11 @@ ion-content.parcours-content {
   &.jdb-carte--halo-vert      { background: radial-gradient(circle at 88% 15%, rgba(140,205,165,0.34), transparent 72%), #f7f9fc; }
   &.jdb-carte--halo-sable     { background: radial-gradient(circle at 88% 15%, rgba(221,190,115,0.32), transparent 72%), #f7f9fc; }
 
+  // Étape validée : pas d'aplat de fond (ça ressemblait à une ligne
+  // sélectionnée dans une liste) — juste une fine bordure verte, le halo
+  // de la carte reste visible dessous.
   &.jdb-carte--validee {
-    background: #eef3fb;
-    border-color: rgba(39,71,110,0.25);
+    border-color: rgba(46,160,91,0.4);
   }
 }
 
@@ -741,7 +743,7 @@ ion-content.parcours-content {
   display: flex; align-items: center; justify-content: center;
   width: 26px; height: 26px;
   border-radius: 50%;
-  background: #27476e;
+  background: #2ea05b;
   color: #fff;
   font-size: 13px; font-weight: 800;
 }
