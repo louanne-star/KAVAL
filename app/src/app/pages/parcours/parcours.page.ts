@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone, ViewChild, signal } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ViewChild, ViewChildren, QueryList, ElementRef, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -50,9 +50,16 @@ const ARTICLE_POINT: Record<string, string> = {
   standalone: true,
   imports: [CommonModule, IonContent, IonIcon, TranslatePipe]
 })
-export class ParcoursPage implements OnInit, OnDestroy {
+export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(IonContent) private ionContent?: IonContent;
+  // Cartes de la liste "journal de bord" : révélées (fondu + léger slide) au
+  // fur et à mesure qu'elles entrent dans le viewport, plutôt que toutes
+  // visibles d'un coup — IntersectionObserver plutôt qu'un scroll-listener
+  // pour ne rien calculer à chaque frame de scroll.
+  @ViewChildren('carteReveal') private carteRevealEls?: QueryList<ElementRef<HTMLElement>>;
+  private carteRevealSub?: Subscription;
+  private carteRevealObserver?: IntersectionObserver;
   // Position de scroll de la liste au moment où on ouvre un point, pour la
   // restaurer au retour (le composant n'est jamais détruit entre-temps :
   // même route, seul le query param "zone" change).
@@ -251,8 +258,34 @@ export class ParcoursPage implements OnInit, OnDestroy {
     return Math.min(this.progressPourcent(), 94);
   }
 
+  ngAfterViewInit() {
+    // Hors zone Angular : on ne fait que (dés)observer des éléments et
+    // toggle une classe CSS, aucune détection de changement nécessaire.
+    this.ngZone.runOutsideAngular(() => {
+      this.carteRevealObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('jdb-carte--visible');
+          this.carteRevealObserver?.unobserve(entry.target);
+        }
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+      const observerNouvellesCartes = () => {
+        this.carteRevealEls?.forEach(ref => {
+          if (!ref.nativeElement.classList.contains('jdb-carte--visible')) {
+            this.carteRevealObserver!.observe(ref.nativeElement);
+          }
+        });
+      };
+      observerNouvellesCartes();
+      this.carteRevealSub = this.carteRevealEls?.changes.subscribe(observerNouvellesCartes);
+    });
+  }
+
   ngOnDestroy() {
     this.paramSub?.unsubscribe();
+    this.carteRevealSub?.unsubscribe();
+    this.carteRevealObserver?.disconnect();
     window.removeEventListener('message', this.onMessage);
     clearTimeout(this.badgeAnimTimeout);
     this.uiState.navMasquee.set(false); // filet de sécurité si on quitte pendant que le jeu est ouvert
