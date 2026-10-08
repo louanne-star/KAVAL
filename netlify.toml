@@ -4,4 +4,4 @@
   publish = "www"
 
 [build.environment]
-  NODE_VERSION = "22.11.0"
+  NODE_VERSION = "22.12.0"
