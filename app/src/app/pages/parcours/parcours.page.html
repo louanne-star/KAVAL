@@ -167,6 +167,10 @@
         <div class="jdb-progress-mystere">?</div>
       </div>
 
+      <div class="jdb-liste-titre" *ngIf="journeyService.zones().length > 0">
+        📍 {{ 'parcours.liste.itineraire' | translate }}
+      </div>
+
       <!-- Zones pas encore chargées -->
       <div class="liste-vide" *ngIf="journeyService.zones().length === 0">
         <div class="vide-icone">🗺️</div>
