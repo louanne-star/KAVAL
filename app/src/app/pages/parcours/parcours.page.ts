@@ -20,6 +20,11 @@ import { Langue } from '../../i18n/translations';
 type ChoixSlot = 'bonne' | 'm1' | 'm2';
 
 const CLE_INTRO_VUE = 'kaval_parcours_intro_vue';
+// Révélation progressive au scroll des cartes de la liste : seulement la
+// toute première fois qu'on ouvre cette page (voir premiereOuverture plus
+// bas) — les fois suivantes, simple animation d'entrée à chaque affichage
+// de la liste, comme sur la page à propos.
+const CLE_LISTE_REVELEE = 'kaval_parcours_liste_revelee';
 // Doit correspondre au "gap" de .carrousel dans parcours.page.scss.
 const CARROUSEL_GAP = 12;
 
@@ -68,6 +73,11 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   zoneSelectionnee: JourneyZone | null = null;
   enRedirection = false;
   introVisible = false;
+  // Par défaut on suppose "première fois" (cartes cachées jusqu'au scroll) :
+  // si Preferences confirme que la liste a déjà été révélée avant, on bascule
+  // à false, ce qui active l'animation d'entrée simple (rejouée à chaque
+  // ouverture de la page, comme sur la page à propos).
+  premiereOuverture = true;
   jeuOuvert = false;
   imageAgrandie = signal<PointImage | null>(null);
   carrouselIndex = signal(0);
@@ -209,6 +219,14 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     window.addEventListener('message', this.onMessage);
+
+    Preferences.get({ key: CLE_LISTE_REVELEE }).then(({ value }) => {
+      if (value) {
+        this.premiereOuverture = false;
+      } else {
+        Preferences.set({ key: CLE_LISTE_REVELEE, value: '1' });
+      }
+    });
 
     // Jamais pendant le tuto guidé (qui visite déjà cette page) — seulement
     // à la toute première ouverture "libre" de Parcours une fois le tuto fini.

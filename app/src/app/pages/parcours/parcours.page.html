@@ -179,7 +179,7 @@
       </div>
 
       <!-- Liste des points à explorer -->
-      <div class="jdb-liste" *ngIf="journeyService.zones().length > 0">
+      <div class="jdb-liste" [class.jdb-liste--premiere-fois]="premiereOuverture" *ngIf="journeyService.zones().length > 0">
         <button class="jdb-carte"
                 #carteReveal
                 *ngFor="let z of journeyService.zones()"
