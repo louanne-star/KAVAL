@@ -259,6 +259,12 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Lu une seule fois, à l'arrivée sur la page : permet de savoir si on
+    // atterrit directement sur un point précis (ex: "Explorer" depuis la
+    // carte) plutôt que sur la liste, pour ne jamais déclencher le popup
+    // d'intro dans ce cas (voir plus bas).
+    const zoneInitiale = this.route.snapshot.queryParamMap.get('zone');
+
     this.paramSub = this.route.queryParamMap.subscribe(params => {
       const zoneId = params.get('zone');
       if (!zoneId) {
@@ -300,14 +306,15 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // Jamais pendant le tuto guidé (qui visite déjà cette page) — seulement
-    // à la toute première ouverture "libre" de Parcours une fois le tuto fini.
-    // On attend la reprise éventuelle du tuto (asynchrone, lancée par
-    // TabsPage) avant de lire `actif()`, sinon on risque de la consulter
-    // avant qu'elle ait fini de la positionner à true.
+    // Jamais pendant le tuto guidé (qui visite déjà cette page), ni quand on
+    // atterrit directement sur un point précis (ex: "Explorer" depuis la
+    // carte) — seulement à la toute première ouverture "libre" de la liste
+    // une fois le tuto fini. On attend la reprise éventuelle du tuto
+    // (asynchrone, lancée par TabsPage) avant de lire `actif()`, sinon on
+    // risque de la consulter avant qu'elle ait fini de la positionner à true.
     this.tutorial.reprendreSiEnCours().then(() =>
       Preferences.get({ key: CLE_INTRO_VUE }).then(({ value }) => {
-        if (!value && !this.tutorial.actif()) this.introVisible = true;
+        if (!value && !zoneInitiale && !this.tutorial.actif()) this.introVisible = true;
       })
     );
   }
