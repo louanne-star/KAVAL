@@ -101,7 +101,7 @@
             <button class="list-row" *ngFor="let z of zonesFavorites(); let last = last"
                     [class.list-row--last]="last"
                     (click)="allerVersZone(z.id)">
-              <img class="list-ico badge-point-icone" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
+              <img class="list-ico badge-point-icone" [src]="badgeService.badgeImageUrl(z.id)" alt="" />
               <div class="list-txt">
                 <span class="list-name">{{ z.nom }}</span>
                 <span class="list-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</span>

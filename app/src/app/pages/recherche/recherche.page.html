@@ -48,7 +48,7 @@
              (click)="allerVersZone(z.id)">
 
           <div class="zc-top">
-            <img class="zc-ico badge-point-icone" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
+            <img class="zc-ico badge-point-icone" [src]="badgeService.badgeImageUrl(z.id)" alt="" />
             <div class="zc-badges">
               <ion-icon class="zc-heart" *ngIf="favoriteService.estFavori(z.id)" name="heart"></ion-icon>
             </div>

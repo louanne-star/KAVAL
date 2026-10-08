@@ -47,7 +47,7 @@
       <div class="arrivee-titre">{{ 'carte.arrivee.titre' | translate }}</div>
       <div class="arrivee-nom">{{ pointsService.texte(zone.nom, zone.nomEn) }}</div>
     </div>
-    <img class="arrivee-badge" [src]="'assets/badges/' + zone.id + '-icon.svg'" alt="" />
+    <img class="arrivee-badge" [src]="badgeService.badgeImageUrl(zone.id)" alt="" />
     <button class="arrivee-close" (click)="fermerArrivee()">✕</button>
   </div>
 
@@ -71,7 +71,7 @@
         <div class="sheet-info">
           <div class="sheet-badge-row">
             <span class="sheet-etape">{{ 'commun.etape' | translate:{n: zone.ordre} }}</span>
-            <img class="sheet-statut" *ngIf="badgeService.aBadge(zone.id)" [src]="'assets/badges/' + zone.id + '-icon.svg'" alt="" />
+            <img class="sheet-statut" *ngIf="badgeService.aBadge(zone.id)" [src]="badgeService.badgeImageUrl(zone.id)" alt="" />
           </div>
           <div class="sheet-nom-row">
             <h2 class="sheet-nom">{{ pointsService.texte(zone.nom, zone.nomEn) }}</h2>

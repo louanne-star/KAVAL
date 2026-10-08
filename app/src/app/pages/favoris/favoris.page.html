@@ -30,14 +30,14 @@
                [style.animation-delay]="i * 70 + 'ms'"
                (click)="allerVersCarte(z.id)">
 
-            <img class="zi-ico badge-point-icone" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
+            <img class="zi-ico badge-point-icone" [src]="badgeService.badgeImageUrl(z.id)" alt="" />
 
             <div class="zi-info">
               <div class="zi-name">{{ pointsService.texte(z.nom, z.nomEn) }}</div>
               <div class="zi-sub">{{ pointsService.texte(pointsService.metaDe(z.zoneId)?.sousTitre ?? '', pointsService.metaDe(z.zoneId)?.sousTitreEn) }}</div>
               <div class="zi-meta">
                 <span class="zi-stars">{{ starsFor(ratingService.getMoyenne(z.id)?.moyenne ?? null) }}</span>
-                <img class="zi-badge" *ngIf="badgeService.aBadge(z.id)" [src]="'assets/badges/' + z.id + '-icon.svg'" alt="" />
+                <img class="zi-badge" *ngIf="badgeService.aBadge(z.id)" [src]="badgeService.badgeImageUrl(z.id)" alt="" />
               </div>
             </div>
 
