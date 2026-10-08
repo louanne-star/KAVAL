@@ -209,13 +209,17 @@ export class ParcoursPage implements OnInit, OnDestroy {
     return article === "l'" ? article : article + ' ';
   }
 
-  // Halo pastel en fond de carte d'étape, qui tourne sur 4 teintes dans
-  // l'ordre du parcours (turquoise, lavande, vert, sable) pour casser le
-  // monochrome bleu sans transformer l'app en patchwork multicolore.
-  private static readonly HALOS = ['turquoise', 'lavande', 'vert', 'sable'];
-  haloClasse(ordre: number): string {
-    const i = ((ordre - 1) % ParcoursPage.HALOS.length + ParcoursPage.HALOS.length) % ParcoursPage.HALOS.length;
-    return 'jdb-carte--halo-' + ParcoursPage.HALOS[i];
+  // Halo pastel en fond de carte d'étape, une teinte fixe par zone (pas par
+  // étape) pour casser le monochrome bleu sans transformer l'app en
+  // patchwork multicolore : Camp Est = sable, Hôpital du Marais = lavande,
+  // Zone Pénitentiaire = turquoise.
+  private static readonly HALOS_PAR_ZONE: Record<string, string> = {
+    camp_est: 'sable',
+    hopital: 'lavande',
+    penitencier: 'turquoise',
+  };
+  haloClasse(zoneId: string): string {
+    return 'jdb-carte--halo-' + (ParcoursPage.HALOS_PAR_ZONE[zoneId] ?? 'turquoise');
   }
 
   progressPourcent(): number {

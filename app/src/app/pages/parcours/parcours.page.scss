@@ -653,7 +653,6 @@ ion-content.parcours-content {
   // aplat de couleur — la carte doit rester lisible comme "blanche".
   &.jdb-carte--halo-turquoise { background: radial-gradient(circle at 88% 15%, rgba(90,210,213,0.32), transparent 72%), #f7f9fc; }
   &.jdb-carte--halo-lavande   { background: radial-gradient(circle at 88% 15%, rgba(178,160,230,0.32), transparent 72%), #f7f9fc; }
-  &.jdb-carte--halo-vert      { background: radial-gradient(circle at 88% 15%, rgba(140,205,165,0.34), transparent 72%), #f7f9fc; }
   &.jdb-carte--halo-sable     { background: radial-gradient(circle at 88% 15%, rgba(221,190,115,0.32), transparent 72%), #f7f9fc; }
 
   // Étape validée : pas d'aplat de fond (ça ressemblait à une ligne
@@ -663,7 +662,6 @@ ion-content.parcours-content {
   &.jdb-carte--validee { border-color: rgba(39,71,110,0.25); }
   &.jdb-carte--halo-turquoise.jdb-carte--validee { border-color: rgba(53,197,200,0.6); }
   &.jdb-carte--halo-lavande.jdb-carte--validee   { border-color: rgba(154,135,214,0.6); }
-  &.jdb-carte--halo-vert.jdb-carte--validee      { border-color: rgba(108,181,140,0.6); }
   &.jdb-carte--halo-sable.jdb-carte--validee     { border-color: rgba(201,168,76,0.6); }
 }
 
@@ -702,7 +700,6 @@ ion-content.parcours-content {
 // Teinte du numéro accordée au halo de sa carte.
 .jdb-carte--halo-turquoise .jdb-carte-numero { color: #1d9a9d; }
 .jdb-carte--halo-lavande   .jdb-carte-numero { color: #7a6bb0; }
-.jdb-carte--halo-vert      .jdb-carte-numero { color: #3f8f66; }
 .jdb-carte--halo-sable     .jdb-carte-numero { color: #ab8a3f; }
 
 .jdb-carte-infos { flex: 1; min-width: 0; }
@@ -737,7 +734,6 @@ ion-content.parcours-content {
 // Teinte du badge accordée au halo de sa carte, comme le numéro d'étape.
 .jdb-carte--halo-turquoise .jdb-carte-jeu { color: #178487; background: rgba(53,197,200,0.16); }
 .jdb-carte--halo-lavande   .jdb-carte-jeu { color: #6657a3; background: rgba(154,135,214,0.18); }
-.jdb-carte--halo-vert      .jdb-carte-jeu { color: #357555; background: rgba(108,181,140,0.18); }
 .jdb-carte--halo-sable     .jdb-carte-jeu { color: #93762f; background: rgba(201,168,76,0.2); }
 
 .jdb-carte-statut { flex-shrink: 0; }
@@ -754,6 +750,5 @@ ion-content.parcours-content {
 // Même teinte que le halo de la carte, comme le numéro et le badge mini-jeu.
 .jdb-carte--halo-turquoise .jdb-check { background: #178487; }
 .jdb-carte--halo-lavande   .jdb-check { background: #6657a3; }
-.jdb-carte--halo-vert      .jdb-check { background: #357555; }
 .jdb-carte--halo-sable     .jdb-check { background: #93762f; }
 

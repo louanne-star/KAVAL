@@ -185,7 +185,7 @@
       <div class="jdb-liste" *ngIf="journeyService.zones().length > 0">
         <button class="jdb-carte"
                 *ngFor="let z of journeyService.zones()"
-                [class]="'jdb-carte ' + haloClasse(z.ordre)"
+                [class]="'jdb-carte ' + haloClasse(z.zoneId)"
                 [class.jdb-carte--validee]="badgeService.aBadge(z.id)"
                 (click)="selectZone(z)">
 
