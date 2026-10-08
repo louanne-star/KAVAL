@@ -59,7 +59,7 @@ const CONTENU = {
       { role: 'Sources historiques', nom: "Association Témoignage d'Un Passé" },
       {
         role: 'Ouvrages de référence',
-        html: "« Le bagne en héritage — Destins de familles issues de la colonisation pénale », Les Nouvelles Calédoniennes &amp; Association Témoignage d'un Passé, avec <strong>Louis-José Barbançon</strong> et <strong>Evelyne Henriot</strong> ; témoignages recueillis par <strong>Bérengère Bourgeot</strong> et <strong>Gilles Caprais</strong>.<br><br>« <a href=\"https://auventdesiles.pf/catalogue/collections/beaux-livres/le-memorial-du-bagne-caledonien-entre-les-chaines-et-la-terre/\" target=\"_blank\" rel=\"noopener\">Le Mémorial du bagne calédonien — Entre les chaînes et la terre</a> », Au Vent des Îles.",
+        html: "« Le bagne en héritage : Destins de familles issues de la colonisation pénale », Les Nouvelles Calédoniennes &amp; Association Témoignage d'un Passé, avec <strong>Louis-José Barbançon</strong> et <strong>Evelyne Henriot</strong> ; témoignages recueillis par <strong>Bérengère Bourgeot</strong> et <strong>Gilles Caprais</strong>.<br><br>« <a href=\"https://auventdesiles.pf/catalogue/collections/beaux-livres/le-memorial-du-bagne-caledonien-entre-les-chaines-et-la-terre/\" target=\"_blank\" rel=\"noopener\">Le Mémorial du bagne calédonien : Entre les chaînes et la terre</a> », Au Vent des Îles.",
       },
     ] as Credit[],
     enSavoirPlus: 'En savoir plus',
@@ -113,7 +113,7 @@ const CONTENU = {
       { role: 'Historical sources', nom: "Association Témoignage d'Un Passé" },
       {
         role: 'Reference books',
-        html: '"Le bagne en héritage — Destins de familles issues de la colonisation pénale", Les Nouvelles Calédoniennes &amp; Association Témoignage d\'un Passé, with <strong>Louis-José Barbançon</strong> and <strong>Evelyne Henriot</strong>; testimonies collected by <strong>Bérengère Bourgeot</strong> and <strong>Gilles Caprais</strong>.<br><br>"<a href="https://auventdesiles.pf/catalogue/collections/beaux-livres/le-memorial-du-bagne-caledonien-entre-les-chaines-et-la-terre/" target="_blank" rel="noopener">Le Mémorial du bagne calédonien — Entre les chaînes et la terre</a>", Au Vent des Îles.',
+        html: '"Le bagne en héritage: Destins de familles issues de la colonisation pénale", Les Nouvelles Calédoniennes &amp; Association Témoignage d\'un Passé, with <strong>Louis-José Barbançon</strong> and <strong>Evelyne Henriot</strong>; testimonies collected by <strong>Bérengère Bourgeot</strong> and <strong>Gilles Caprais</strong>.<br><br>"<a href="https://auventdesiles.pf/catalogue/collections/beaux-livres/le-memorial-du-bagne-caledonien-entre-les-chaines-et-la-terre/" target="_blank" rel="noopener">Le Mémorial du bagne calédonien: Entre les chaînes et la terre</a>", Au Vent des Îles.',
       },
     ] as Credit[],
     enSavoirPlus: 'Learn more',

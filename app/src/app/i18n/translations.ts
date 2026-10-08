@@ -4,7 +4,7 @@ export const TRANSLATIONS = {
       etape: 'Étape {{n}}',
       avisSingulier: 'avis',
       avisPluriel: 'avis',
-      syncErreur: 'Synchronisation impossible — nouvelle tentative au prochain lancement.',
+      syncErreur: 'Synchronisation impossible, nouvelle tentative au prochain lancement.',
     },
     tabs: {
       carte: 'Carte',
@@ -79,7 +79,7 @@ export const TRANSLATIONS = {
       fermerJeu: '✕ Fermer',
       miniJeu: {
         titre: 'Mini-jeu',
-        dejaComplete: 'Déjà complété — rejoue !',
+        dejaComplete: 'Déjà complété, rejoue !',
         description: 'Saute de rocher en rocher pour gagner un badge',
         jouer: 'Jouer →',
       },
@@ -304,7 +304,7 @@ export const TRANSLATIONS = {
       etape: 'Step {{n}}',
       avisSingulier: 'review',
       avisPluriel: 'reviews',
-      syncErreur: "Sync failed — we'll try again next time you open the app.",
+      syncErreur: "Sync failed, we'll try again next time you open the app.",
     },
     tabs: {
       carte: 'Map',
@@ -379,7 +379,7 @@ export const TRANSLATIONS = {
       fermerJeu: '✕ Close',
       miniJeu: {
         titre: 'Mini-game',
-        dejaComplete: 'Already completed — play again!',
+        dejaComplete: 'Already completed, play again!',
         description: 'Jump from rock to rock to earn a badge',
         jouer: 'Play →',
       },
