@@ -258,6 +258,10 @@ ion-content {
   &.list-ico--cyan   { background: #f0f4f9;  ion-icon { color: #27476e; } }
   &.list-ico--amber  { background: #f5eed8;  ion-icon { color: #a9822f; } }
   &.list-ico--dim    { background: #f4f4f1; font-size: 14px; color: #94a3b8; }
+
+  // Image du badge (voir badge-point-icone dans global.scss) : déjà un
+  // visuel plein, pas besoin du fond/arrondi utilisé pour les ion-icon.
+  &.badge-point-icone { border-radius: 0; background: none; }
 }
 
 // Zone colors
