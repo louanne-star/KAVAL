@@ -199,6 +199,7 @@
               {{ 'parcours.liste.explorer' | translate }} {{ articlePoint(z.id) }}{{ pointsService.texte(z.nom, z.nomEn) }}
             </p>
             <p class="jdb-carte-desc">{{ pointsService.texte(z.description, z.descriptionEn) }}</p>
+            <span class="jdb-carte-jeu" *ngIf="JEUX[z.id]">🎮 {{ 'parcours.miniJeu.titre' | translate }}</span>
           </div>
 
           <div class="jdb-carte-statut">
