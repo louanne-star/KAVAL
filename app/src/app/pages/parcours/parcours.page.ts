@@ -30,6 +30,11 @@ type Personnage = {
   nomEn: string;
   sousTitre: string;
   sousTitreEn: string;
+  // Chemin dans le bucket Storage "photos" (comme PointImage.chemin) — pas
+  // encore de photo pour tous les personnages, repli sur une icône générique.
+  photo?: string;
+  legende?: string;
+  legendeEn?: string;
   paragraphes: Paragraphe[];
   paragraphesEn: Paragraphe[];
 };
@@ -147,6 +152,9 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
       nomEn: 'Raoul Tellier, known as “The Escape King”',
       sousTitre: 'Matricule 13204. Condamné. Évadé récidiviste.',
       sousTitreEn: 'Prisoner No. 13204. Convict. Repeat escapee.',
+      photo: 'raoul tellier_result.avif',
+      legende: 'Raoul Tellier, matricule 13 204. Collection Louis-Georges Viale.',
+      legendeEn: 'Raoul Tellier, prisoner No. 13,204. Louis-Georges Viale Collection.',
       paragraphes: [
         { texte: 'Certains hommes se résignent. Raoul Tellier, lui, décide que non.' },
         { texte: 'Entre 1883 et 1931, il s’évade seize fois du bagne calédonien. Seize tentatives, seize paris contre l’impossible, face aux chiens, aux Canaques lancés à sa poursuite, aux gardiens armés et à la mer elle-même. Ses évasions cumulées lui valent 86 ans de travaux forcés supplémentaires. La justice veut l’enterrer vivant sous les peines, mais Tellier continue.' },

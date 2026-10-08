@@ -250,13 +250,19 @@
 <div class="personnage-overlay" *ngIf="personnagePopupOuvert && zoneSelectionnee as zone" (click)="fermerPersonnage()">
   <div class="personnage-popup-card" (click)="$event.stopPropagation()">
     <button class="personnage-popup-close" (click)="fermerPersonnage()" aria-label="Fermer">✕</button>
-    <div class="personnage-popup-header">
-      <div class="personnage-popup-portrait">
-        <ion-icon name="person-outline"></ion-icon>
+    <div class="personnage-popup-header" *ngIf="PERSONNAGES[zone.id] as personnage">
+      <div class="personnage-popup-portrait-col">
+        <div class="personnage-popup-portrait">
+          <img *ngIf="personnage.photo" [src]="pointsService.urlImage(personnage.photo)" alt="" />
+          <ion-icon *ngIf="!personnage.photo" name="person-outline"></ion-icon>
+        </div>
+        <p class="personnage-popup-credit" *ngIf="pointsService.texte(personnage.legende ?? '', personnage.legendeEn)">
+          {{ pointsService.texte(personnage.legende ?? '', personnage.legendeEn) }}
+        </p>
       </div>
       <div>
-        <h2 class="personnage-popup-nom">{{ pointsService.texte(PERSONNAGES[zone.id].nom, PERSONNAGES[zone.id].nomEn) }}</h2>
-        <p class="personnage-popup-sous">{{ pointsService.texte(PERSONNAGES[zone.id].sousTitre, PERSONNAGES[zone.id].sousTitreEn) }}</p>
+        <h2 class="personnage-popup-nom">{{ pointsService.texte(personnage.nom, personnage.nomEn) }}</h2>
+        <p class="personnage-popup-sous">{{ pointsService.texte(personnage.sousTitre, personnage.sousTitreEn) }}</p>
       </div>
     </div>
     <div class="personnage-popup-texte">
