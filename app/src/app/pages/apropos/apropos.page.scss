@@ -463,6 +463,7 @@
 }
 
 .vestige-popup-visuel {
+  position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 14px;
@@ -471,6 +472,7 @@
   justify-content: center;
   overflow: hidden;
   margin-bottom: 14px;
+  touch-action: pan-y;
 }
 
 .vestige-popup-img {
@@ -490,4 +492,54 @@
   color: #1a2e1e;
   text-align: center;
   margin: 0;
+}
+
+.vestige-popup-legende {
+  font-size: 12.5px;
+  font-style: italic;
+  color: #888;
+  text-align: center;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+.vestige-popup-fleche {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(26,46,30,0.45);
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+
+  &--gauche { left: 8px; }
+  &--droite { right: 8px; }
+}
+
+.vestige-popup-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 12px;
+
+  span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.15);
+
+    &.active {
+      background: #1a2e1e;
+      width: 18px;
+      border-radius: 3px;
+    }
+  }
 }

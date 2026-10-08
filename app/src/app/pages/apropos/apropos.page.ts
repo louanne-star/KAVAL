@@ -2,11 +2,14 @@ import { Component, computed } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline } from 'ionicons/icons';
+import { hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { LanguageService } from '../../services/language.service';
 
-type Vestige = { nom: string; icone: string; couleur: string; image?: string };
+type Vestige = { nom: string; icone: string; couleur: string; image?: string; legende?: string };
 type Credit = { role: string; nom?: string; lien?: string; html?: string };
+
+// Mêmes photos que les points « vrai » correspondants (bucket Storage "photos").
+const PHOTOS = 'https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/photos/';
 
 const CONTENU = {
   fr: {
@@ -17,11 +20,11 @@ const CONTENU = {
     },
     vestigesTitre: 'LES VESTIGES',
     vestiges: [
-      { nom: 'La Boulangerie', icone: 'flame-outline', couleur: '#2d1a0a' },
-      { nom: 'Magasin des vivres', icone: 'storefront-outline', couleur: '#0a1a2d' },
-      { nom: 'Les Ateliers', icone: 'hammer-outline', couleur: '#1a2e1e' },
-      { nom: 'Caserne des surveillants', icone: 'home-outline', couleur: '#1a1a2d' },
-      { nom: 'Chapelle Saint-Thomas', icone: 'prism-outline', couleur: '#2d1a2d' },
+      { nom: 'La Boulangerie', icone: 'flame-outline', couleur: '#2d1a0a', image: PHOTOS + 'boulangerie_result.avif', legende: "Vue de la boulangerie vers 1872 : cheminées pas encore rallongées, rampes d'accès pas encore opérationnelles. Au premier plan, le photographe Ernest Robin pose devant un réverbère à poulie. Album Robin, bibliothèque Bernheim." },
+      { nom: 'Magasin des vivres', icone: 'storefront-outline', couleur: '#0a1a2d', image: PHOTOS + 'magasin-des-vivres_result.avif', legende: 'Magasin des vivres, logement et bureaux du comptable, aile ouest. Album Leloup, collection Kakou, ANC.' },
+      { nom: 'Les Ateliers', icone: 'hammer-outline', couleur: '#1a2e1e', image: PHOTOS + encodeURIComponent('batiment H_result.avif'), legende: 'Le bâtiment en H des ateliers, façade nord-ouest. Cliché Théotime Bray, ANOM.' },
+      { nom: 'Caserne des surveillants', icone: 'home-outline', couleur: '#1a1a2d', image: PHOTOS + encodeURIComponent('la caserne des surveillants maries_result.avif'), legende: 'La caserne des surveillants mariés et ses dépendances. Collection musée Ernest Cognacq, fonds Ubaud, Saint-Martin-de-Ré.' },
+      { nom: 'Chapelle Saint-Thomas', icone: 'prism-outline', couleur: '#2d1a2d', image: PHOTOS + 'chapelle_result.avif', legende: 'La chapelle Saint-Thomas vers 1893, avec son clocher en briques de près de 9 m, dans le style caractéristique de la Pénitentiaire. Cliché Théotime Bray, ANOM.' },
     ] as Vestige[],
     artisanat: {
       titre: "L'ARTISANAT",
@@ -71,11 +74,11 @@ const CONTENU = {
     },
     vestigesTitre: 'THE REMAINS',
     vestiges: [
-      { nom: 'The Bakery', icone: 'flame-outline', couleur: '#2d1a0a' },
-      { nom: 'Provisions Store', icone: 'storefront-outline', couleur: '#0a1a2d' },
-      { nom: 'The Workshops', icone: 'hammer-outline', couleur: '#1a2e1e' },
-      { nom: 'Guards’ Barracks', icone: 'home-outline', couleur: '#1a1a2d' },
-      { nom: 'Saint-Thomas Chapel', icone: 'prism-outline', couleur: '#2d1a2d' },
+      { nom: 'The Bakery', icone: 'flame-outline', couleur: '#2d1a0a', image: PHOTOS + 'boulangerie_result.avif', legende: "View of the bakery around 1872: the chimneys not yet extended, the access ramps not yet in use. In the foreground, photographer Ernest Robin poses in front of a pulley streetlamp. Robin album, Bernheim library." },
+      { nom: 'Provisions Store', icone: 'storefront-outline', couleur: '#0a1a2d', image: PHOTOS + 'magasin-des-vivres_result.avif', legende: "Provisions store, accountant's lodging and offices, west wing. Leloup album, Kakou collection, ANC." },
+      { nom: 'The Workshops', icone: 'hammer-outline', couleur: '#1a2e1e', image: PHOTOS + encodeURIComponent('batiment H_result.avif'), legende: 'The H-shaped workshop building, north-west façade. Photograph by Théotime Bray, ANOM.' },
+      { nom: 'Guards’ Barracks', icone: 'home-outline', couleur: '#1a1a2d', image: PHOTOS + encodeURIComponent('la caserne des surveillants maries_result.avif'), legende: "The married guards' barracks and its outbuildings. Musée Ernest Cognacq collection, Ubaud fund, Saint-Martin-de-Ré." },
+      { nom: 'Saint-Thomas Chapel', icone: 'prism-outline', couleur: '#2d1a2d', image: PHOTOS + 'chapelle_result.avif', legende: 'Saint-Thomas chapel around 1893, with its brick bell tower nearly 9 m high, in the style characteristic of the Penitentiary. Photograph by Théotime Bray, ANOM.' },
     ] as Vestige[],
     artisanat: {
       titre: 'CRAFTSMANSHIP',
@@ -131,12 +134,16 @@ export class AproposPage {
   readonly contenu = computed(() => CONTENU[this.languageService.langue()]);
 
   constructor(private languageService: LanguageService) {
-    addIcons({ hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline });
+    addIcons({ hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline, chevronBackOutline, chevronForwardOutline });
   }
 
   popupOuvert: 'histoire' | 'vestiges' | null = null;
   vestigeIndex = 0;
-  vestigeSelectionne: Vestige | null = null;
+  vestigePopupIndex: number | null = null;
+
+  get vestigeSelectionne(): Vestige | null {
+    return this.vestigePopupIndex === null ? null : this.contenu().vestiges[this.vestigePopupIndex] ?? null;
+  }
 
   ouvrirPopup(id: 'histoire' | 'vestiges') {
     this.popupOuvert = id;
@@ -155,11 +162,38 @@ export class AproposPage {
       : Math.round((el.scrollLeft / maxScroll) * (total - 1));
   }
 
-  ouvrirVestige(v: Vestige) {
-    this.vestigeSelectionne = v;
+  ouvrirVestige(i: number) {
+    this.vestigePopupIndex = i;
   }
 
   fermerVestige() {
-    this.vestigeSelectionne = null;
+    this.vestigePopupIndex = null;
+  }
+
+  vestigeSuivant() {
+    if (this.vestigePopupIndex === null) return;
+    const total = this.contenu().vestiges.length;
+    this.vestigePopupIndex = (this.vestigePopupIndex + 1) % total;
+  }
+
+  vestigePrecedent() {
+    if (this.vestigePopupIndex === null) return;
+    const total = this.contenu().vestiges.length;
+    this.vestigePopupIndex = (this.vestigePopupIndex - 1 + total) % total;
+  }
+
+  // Swipe tactile sur la photo agrandie — seuil en pixels avant de considérer
+  // le geste comme volontaire plutôt qu'un simple tap qui tremble.
+  private readonly SEUIL_SWIPE = 40;
+  private touchStartX = 0;
+
+  onVestigeTouchStart(e: TouchEvent) {
+    this.touchStartX = e.touches[0].clientX;
+  }
+
+  onVestigeTouchEnd(e: TouchEvent) {
+    const deltaX = e.changedTouches[0].clientX - this.touchStartX;
+    if (deltaX > this.SEUIL_SWIPE) this.vestigePrecedent();
+    else if (deltaX < -this.SEUIL_SWIPE) this.vestigeSuivant();
   }
 }
