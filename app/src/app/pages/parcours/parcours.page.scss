@@ -638,7 +638,7 @@ ion-content.parcours-content {
   gap: 14px;
   width: 100%;
   text-align: left;
-  background: #f7f9fc;
+  background: #fff;
   border: 1.5px solid #ebebeb;
   border-radius: 20px;
   padding: 14px 16px;
@@ -646,7 +646,15 @@ ion-content.parcours-content {
   font-family: inherit;
   transition: background 0.2s, border-color 0.2s;
 
-  &:active { background: #eef1f6; }
+  &:active { background: #f7f9fc; }
+
+  // Halo pastel très léger derrière la carte (voir haloClasse() côté TS) :
+  // un radial-gradient en haut à gauche, presque transparent, plutôt qu'un
+  // aplat de couleur — la carte doit rester lisible comme "blanche".
+  &.jdb-carte--halo-turquoise { background: radial-gradient(circle at 12% 15%, rgba(53,197,200,0.16), transparent 65%), #fff; }
+  &.jdb-carte--halo-lavande   { background: radial-gradient(circle at 12% 15%, rgba(154,135,214,0.16), transparent 65%), #fff; }
+  &.jdb-carte--halo-vert      { background: radial-gradient(circle at 12% 15%, rgba(108,181,140,0.18), transparent 65%), #fff; }
+  &.jdb-carte--halo-sable     { background: radial-gradient(circle at 12% 15%, rgba(201,168,76,0.18), transparent 65%), #fff; }
 
   &.jdb-carte--validee {
     background: #eef3fb;
@@ -654,13 +662,43 @@ ion-content.parcours-content {
   }
 }
 
-.jdb-carte-icone {
+.jdb-carte-icone-wrap {
+  position: relative;
   flex-shrink: 0;
+}
+
+.jdb-carte-icone {
+  display: block;
   width: 48px; height: 48px;
   border-radius: 14px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(39,71,110,0.08);
 }
+
+.jdb-carte-numero {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fff;
+  color: #27476e;
+  font-size: 10.5px;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(39,71,110,0.18);
+  border: 1.5px solid currentColor;
+}
+
+// Teinte du numéro accordée au halo de sa carte.
+.jdb-carte--halo-turquoise .jdb-carte-numero { color: #1d9a9d; }
+.jdb-carte--halo-lavande   .jdb-carte-numero { color: #7a6bb0; }
+.jdb-carte--halo-vert      .jdb-carte-numero { color: #3f8f66; }
+.jdb-carte--halo-sable     .jdb-carte-numero { color: #ab8a3f; }
 
 .jdb-carte-infos { flex: 1; min-width: 0; }
 
