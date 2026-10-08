@@ -103,8 +103,8 @@
                     (click)="allerVersZone(z.id)">
               <img class="list-ico badge-point-icone" [src]="badgeService.badgeImageUrl(z.id)" alt="" />
               <div class="list-txt">
-                <span class="list-name">{{ z.nom }}</span>
-                <span class="list-sub">{{ pointsService.metaDe(z.zoneId)?.sousTitre }}</span>
+                <span class="list-name">{{ pointsService.texte(z.nom, z.nomEn) }}</span>
+                <span class="list-sub">{{ pointsService.texte(pointsService.metaDe(z.zoneId)?.sousTitre ?? '', pointsService.metaDe(z.zoneId)?.sousTitreEn) }}</span>
               </div>
               <span class="list-arrow">›</span>
             </button>
