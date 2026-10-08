@@ -60,13 +60,13 @@
           </ng-container>
 
           <!-- Portrait d'un personnage historique rattaché au point -->
-          <ng-container *ngIf="PERSONNAGES[zone.id] as personnage">
+          <ng-container *ngIf="pointsService.personnageDe(zone.id) as personnage">
             <div class="section-titre">{{ 'parcours.personnage.titre' | translate }}</div>
             <div class="contenu-card personnage-card" (click)="ouvrirPersonnage()">
               <div class="contenu-icone personnage-icone"><ion-icon name="person-outline"></ion-icon></div>
               <div class="contenu-info">
                 <p class="contenu-label">{{ pointsService.texte(personnage.nom, personnage.nomEn) }}</p>
-                <p class="contenu-sous">{{ pointsService.texte(personnage.sousTitre, personnage.sousTitreEn) }}</p>
+                <p class="contenu-sous">{{ pointsService.texte(personnage.sousTitre ?? '', personnage.sousTitreEn) }}</p>
               </div>
               <div class="contenu-tag">{{ 'parcours.personnage.voir' | translate }}</div>
             </div>
@@ -250,7 +250,7 @@
 <div class="personnage-overlay" *ngIf="personnagePopupOuvert && zoneSelectionnee as zone" (click)="fermerPersonnage()">
   <div class="personnage-popup-card" (click)="$event.stopPropagation()">
     <button class="personnage-popup-close" (click)="fermerPersonnage()" aria-label="Fermer">✕</button>
-    <div class="personnage-popup-header" *ngIf="PERSONNAGES[zone.id] as personnage">
+    <div class="personnage-popup-header" *ngIf="pointsService.personnageDe(zone.id) as personnage">
       <div class="personnage-popup-portrait-col">
         <div class="personnage-popup-portrait">
           <img *ngIf="personnage.photo" [src]="pointsService.urlImage(personnage.photo)" alt="" />
@@ -262,11 +262,13 @@
       </div>
       <div>
         <h2 class="personnage-popup-nom">{{ pointsService.texte(personnage.nom, personnage.nomEn) }}</h2>
-        <p class="personnage-popup-sous">{{ pointsService.texte(personnage.sousTitre, personnage.sousTitreEn) }}</p>
+        <p class="personnage-popup-sous">{{ pointsService.texte(personnage.sousTitre ?? '', personnage.sousTitreEn) }}</p>
       </div>
     </div>
     <div class="personnage-popup-texte">
-      <p *ngFor="let p of paragraphesPersonnage(zone.id)" [class.personnage-popup-citation]="p.citation">{{ p.texte }}</p>
+      <p *ngFor="let p of pointsService.paragraphesPersonnageDe(zone.id)"
+         [class.personnage-popup-citation]="p.citation"
+         [innerHTML]="pointsService.texte(p.texte, p.texteEn)"></p>
     </div>
   </div>
 </div>

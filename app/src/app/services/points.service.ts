@@ -89,6 +89,28 @@ export interface PointImage {
   legendeEn?: string;
 }
 
+export interface Personnage {
+  pointId: string;
+  nom: string;
+  nomEn?: string;
+  sousTitre?: string;
+  sousTitreEn?: string;
+  photo?: string;
+  legende?: string;
+  legendeEn?: string;
+}
+
+export interface PersonnageParagraphe {
+  id: string;
+  pointId: string;
+  // Peut contenir des balises <strong> (mise en gras), affiché via
+  // [innerHTML] côté template — voir ParcoursPage.
+  texte: string;
+  texteEn?: string;
+  citation: boolean;
+  ordre: number;
+}
+
 interface CachePoints {
   zones:       ZoneMeta[];
   vrais:       PointVrai[];
@@ -97,6 +119,8 @@ interface CachePoints {
   quiz:        QuizQuestion[];
   sections:    PointSection[];
   images:      PointImage[];
+  personnages: Personnage[];
+  personnageParagraphes: PersonnageParagraphe[];
 }
 
 const CLE_CACHE = 'kaval_points_cache_v2';
@@ -116,6 +140,8 @@ export class PointsService {
   readonly quiz         = signal<QuizQuestion[]>([]);
   readonly sections     = signal<PointSection[]>([]);
   readonly images       = signal<PointImage[]>([]);
+  readonly personnages  = signal<Personnage[]>([]);
+  readonly personnageParagraphes = signal<PersonnageParagraphe[]>([]);
   readonly pret         = signal(false);
   readonly erreur       = signal<string | null>(null);
 
@@ -149,11 +175,13 @@ export class PointsService {
           return [];
         }
       };
-      const [t, q, s, img] = await Promise.all([
+      const [t, q, s, img, pers, persPara] = await Promise.all([
         chargerOptionnel(this.supabase.client.from('temoignages').select('*')),
         chargerOptionnel(this.supabase.client.from('quiz_questions').select('*').order('ordre')),
         chargerOptionnel(this.supabase.client.from('point_sections').select('*').order('ordre')),
         chargerOptionnel(this.supabase.client.from('point_images').select('*').order('ordre')),
+        chargerOptionnel(this.supabase.client.from('personnages').select('*')),
+        chargerOptionnel(this.supabase.client.from('personnage_paragraphes').select('*').order('ordre')),
       ]);
 
       const zones: ZoneMeta[] = (z.data ?? []).map((r: any) => ({
@@ -194,6 +222,15 @@ export class PointsService {
         id: r.id, pointId: r.point_id, chemin: r.chemin, ordre: r.ordre, banniere: r.banniere ?? false,
         legende: r.legende, legendeEn: r.legende_en
       }));
+      const personnages: Personnage[] = pers.map((r: any) => ({
+        pointId: r.point_id, nom: r.nom, nomEn: r.nom_en,
+        sousTitre: r.sous_titre, sousTitreEn: r.sous_titre_en,
+        photo: r.photo, legende: r.legende, legendeEn: r.legende_en
+      }));
+      const personnageParagraphes: PersonnageParagraphe[] = persPara.map((r: any) => ({
+        id: r.id, pointId: r.point_id, texte: r.texte, texteEn: r.texte_en,
+        citation: r.citation ?? false, ordre: r.ordre
+      }));
 
       this.zones.set(zones);
       this.pointsVrai.set(vrais);
@@ -202,8 +239,10 @@ export class PointsService {
       this.quiz.set(quiz);
       this.sections.set(sections);
       this.images.set(images);
+      this.personnages.set(personnages);
+      this.personnageParagraphes.set(personnageParagraphes);
       this.erreur.set(null);
-      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages, quiz, sections, images }) });
+      await Preferences.set({ key: CLE_CACHE, value: JSON.stringify({ zones, vrais, popups, temoignages, quiz, sections, images, personnages, personnageParagraphes }) });
     } catch {
       const chargeDepuisCache = await this.chargerDepuisCache();
       if (!chargeDepuisCache) {
@@ -225,6 +264,8 @@ export class PointsService {
     this.quiz.set(cache.quiz ?? []);
     this.sections.set(cache.sections ?? []);
     this.images.set(cache.images ?? []);
+    this.personnages.set(cache.personnages ?? []);
+    this.personnageParagraphes.set(cache.personnageParagraphes ?? []);
     return true;
   }
 
@@ -250,6 +291,14 @@ export class PointsService {
 
   imagesDe(pointId: string): PointImage[] {
     return this.images().filter(i => i.pointId === pointId);
+  }
+
+  personnageDe(pointId: string): Personnage | undefined {
+    return this.personnages().find(p => p.pointId === pointId);
+  }
+
+  paragraphesPersonnageDe(pointId: string): PersonnageParagraphe[] {
+    return this.personnageParagraphes().filter(p => p.pointId === pointId);
   }
 
   /**
