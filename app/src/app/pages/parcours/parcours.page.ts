@@ -4,7 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { Preferences } from '../../core/preferences';
-import { IonContent } from '@ionic/angular/standalone';
+import { IonContent, IonIcon } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { locationOutline } from 'ionicons/icons';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
@@ -46,7 +48,7 @@ const ARTICLE_POINT: Record<string, string> = {
   templateUrl: './parcours.page.html',
   styleUrls: ['./parcours.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonContent, TranslatePipe]
+  imports: [CommonModule, IonContent, IonIcon, TranslatePipe]
 })
 export class ParcoursPage implements OnInit, OnDestroy {
 
@@ -158,7 +160,9 @@ export class ParcoursPage implements OnInit, OnDestroy {
     private uiState: UiStateService,
     private translate: TranslateService,
     private tutorial: TutorialService,
-  ) {}
+  ) {
+    addIcons({ locationOutline });
+  }
 
   ngOnInit() {
     this.paramSub = this.route.queryParamMap.subscribe(params => {

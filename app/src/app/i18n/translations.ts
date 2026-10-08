@@ -107,7 +107,7 @@ export const TRANSLATIONS = {
         journalDeBord: 'Journal de Bord',
         validees: '{{n}}/{{total}} validées',
         explorer: 'Explore',
-        itineraire: 'Itinéraire',
+        itineraire: 'Le Parcours',
       },
     },
     carte: {
@@ -401,7 +401,7 @@ export const TRANSLATIONS = {
         journalDeBord: 'Logbook',
         validees: '{{n}}/{{total}} completed',
         explorer: 'Explore',
-        itineraire: 'Itinerary',
+        itineraire: 'The Journey',
       },
     },
     carte: {
