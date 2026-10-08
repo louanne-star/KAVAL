@@ -181,7 +181,7 @@ export const TRANSLATIONS = {
       role: 'Explorateur · KAVAL',
       tabs:    { securite: 'Sécurité' },
       stats:   { visitees: 'Visitées', favoris: 'Favoris', zones: 'Zones' },
-      section: { identite: 'Identité', favoris: 'Zones sauvegardées', preferences: 'Préférences' },
+      section: { identite: 'Identité', favoris: 'Favoris', preferences: 'Préférences' },
       recompense: {
         titre: 'Récompense',
         progression: '{{n}}/{{total}} mini-jeux gagnés',
@@ -481,7 +481,7 @@ export const TRANSLATIONS = {
       role: 'Explorer · KAVAL',
       tabs:    { securite: 'Security' },
       stats:   { visitees: 'Visited', favoris: 'Favorites', zones: 'Zones' },
-      section: { identite: 'Identity', favoris: 'Saved zones', preferences: 'Preferences' },
+      section: { identite: 'Identity', favoris: 'Favorites', preferences: 'Preferences' },
       recompense: {
         titre: 'Reward',
         progression: '{{n}}/{{total}} mini-games won',
