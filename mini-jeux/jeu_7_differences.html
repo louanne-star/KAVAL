@@ -7,8 +7,8 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{overscroll-behavior:none}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;align-items:center;padding:12px}
 h1{font-size:1.2rem;margin:4px 0}.bar{display:flex;gap:12px;align-items:center;margin:8px 0 12px;flex-wrap:wrap;justify-content:center}
 .dots{display:flex;gap:7px}.dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--mut)}.dot.on{background:var(--ok);border-color:var(--ok)}
-button{font:inherit;font-size:15px;padding:12px 20px;min-height:44px;border-radius:12px;border:0;background:var(--ac);color:#fff;touch-action:manipulation}button:active{transform:scale(0.96)}
-.imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:640px;margin:0 auto}@media(min-width:900px){.imgs{max-width:720px;gap:14px}}
+button{font:inherit;font-size:15px;padding:12px 20px;min-height:44px;border-radius:12px;border:0;background:var(--ac);color:#fff;touch-action:manipulation}button:active{transform:scale(0.96)}button:disabled{opacity:.45;pointer-events:none}
+.imgs{display:grid;grid-template-columns:1fr;gap:10px;width:100%;max-width:480px;margin:0 auto}@media(min-width:900px){.imgs{grid-template-columns:1fr 1fr;max-width:720px;gap:14px}}
 .pic{position:relative;border-radius:12px;overflow:hidden;background:var(--card);touch-action:manipulation}
 .pic img{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none}
 .mk{position:absolute;border:4px solid var(--ok);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
@@ -29,7 +29,7 @@ const I18N = {
     intro: "Touchez une différence dans l'une des deux images.",
     trouvees: function(n){ return n + ' / 7 trouvées'; },
     victoire: 'Bravo ! Vous avez trouvé les 7 différences 🎉',
-    indice: 'Indice',
+    indice: function(n){ return 'Indice (' + n + ')'; },
     rejouer: 'Rejouer',
   },
   en: {
@@ -37,26 +37,28 @@ const I18N = {
     intro: 'Tap a difference in either image.',
     trouvees: function(n){ return n + ' / 7 found'; },
     victoire: 'Well done! You found all 7 differences 🎉',
-    indice: 'Hint',
+    indice: function(n){ return 'Hint (' + n + ')'; },
     rejouer: 'Play again',
   },
 };
 const T = I18N[LANG];
+var HINT_MAX=3,hintsUsed=0;
 document.title = T.titre;
 document.getElementById('h1').textContent = T.titre;
-document.getElementById('hb').textContent = T.indice;
+document.getElementById('hb').textContent = T.indice(HINT_MAX);
 document.getElementById('rb').textContent = T.rejouer;
 var Z=[{"n": "Fen\u00eatre", "x": 74.09, "y": 7.8, "r": 6.18}, {"n": "Palmier", "x": 14.35, "y": 22.02, "r": 8.87}, {"n": "Pierre", "x": 54.84, "y": 20.99, "r": 4.57}, {"n": "Poign\u00e9e", "x": 73.41, "y": 61.83, "r": 4.03}, {"n": "Sac", "x": 52.28, "y": 69.89, "r": 6.99}, {"n": "Jarre", "x": 95.65, "y": 83.47, "r": 7.53}, {"n": "Rayure", "x": 23.58, "y": 87.58, "r": 4.0}],found=[],sec=0,tm,done=false;
 var dots=document.getElementById('dots'),msg=document.getElementById('msg');
-function init(){found=[];done=false;
-document.querySelectorAll('.mk,.ko').forEach(function(e){e.remove()});dots.innerHTML='';Z.forEach(function(){var d=document.createElement('div');d.className='dot';dots.appendChild(d)});msg.textContent=T.intro;}
+function updateHintBtn(){var hb=document.getElementById('hb'),left=HINT_MAX-hintsUsed;hb.textContent=T.indice(left);hb.disabled=left<=0||done;}
+function init(){found=[];done=false;hintsUsed=0;
+document.querySelectorAll('.mk,.ko').forEach(function(e){e.remove()});dots.innerHTML='';Z.forEach(function(){var d=document.createElement('div');d.className='dot';dots.appendChild(d)});msg.textContent=T.intro;updateHintBtn();}
 var MARK_MIN_PX=28;
 function mark(z,cls){document.querySelectorAll('.pic').forEach(function(p){var rect=p.getBoundingClientRect();var d=Math.max(z.r*2,(MARK_MIN_PX/rect.width)*100);var m=document.createElement('div');m.className=cls||'mk';m.style.left=z.x+'%';m.style.top=z.y+'%';m.style.width=m.style.height=d+'%';if(cls==='hint'){m.className='mk hint';setTimeout(function(){m.remove()},3000)}p.appendChild(m)})}
 document.querySelectorAll('.pic').forEach(function(p){p.addEventListener('click',function(e){if(done)return;var r=p.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100;
 var TAP_MIN_PX=26;var hit=-1;Z.forEach(function(z,i){if(found.indexOf(i)<0){var tol=Math.max(z.r,(TAP_MIN_PX/r.width)*100)*1.15;if(Math.hypot(x-z.x,y-z.y)<=tol)hit=i}});
 if(hit>=0){found.push(hit);mark(Z[hit]);dots.children[found.length-1].classList.add('on');if(navigator.vibrate)navigator.vibrate(30);
-msg.textContent=T.trouvees(found.length);if(found.length===7){done=true;msg.textContent=T.victoire;setTimeout(function(){window.parent.postMessage({type:'jeuTermine'},'*');},1500);}}
+msg.textContent=T.trouvees(found.length);if(found.length===7){done=true;msg.textContent=T.victoire;updateHintBtn();setTimeout(function(){window.parent.postMessage({type:'jeuTermine'},'*');},1500);}}
 else{var k=document.createElement('div');k.className='ko';k.textContent='✕';k.style.left=x+'%';k.style.top=y+'%';p.appendChild(k);setTimeout(function(){k.remove()},600)}})});
-document.getElementById('hb').onclick=function(){if(done)return;for(var i=0;i<Z.length;i++)if(found.indexOf(i)<0){mark(Z[i],'hint');break}};
+document.getElementById('hb').onclick=function(){if(done||hintsUsed>=HINT_MAX)return;for(var i=0;i<Z.length;i++)if(found.indexOf(i)<0){mark(Z[i],'hint');break}hintsUsed++;updateHintBtn();};
 document.getElementById('rb').onclick=init;init();
 </script></body></html>
