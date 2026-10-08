@@ -1,92 +1,104 @@
 [
   {
     "id": "camp_est_principal",
-    "titre": "Bâtisseur du Camp Est",
+    "titre": "Camp Est",
     "zone": "Camp Est",
     "file": "camp_est_principal.svg"
   },
   {
     "id": "four_a_chaux",
-    "titre": "Maître du Four à Chaux",
+    "titre": "Four à Chaux",
     "zone": "Camp Est",
     "file": "four_a_chaux.svg"
   },
   {
     "id": "magasin_a_vivre",
-    "titre": "Gardien du Magasin à Vivre",
+    "titre": "Magasin à Vivre",
     "zone": "Hôpital du Marais",
     "file": "magasin_a_vivre.svg"
   },
   {
     "id": "briqueterie",
-    "titre": "Artisan de la Briqueterie",
+    "titre": "Briqueterie",
     "zone": "Hôpital du Marais",
     "file": "briqueterie.svg"
   },
   {
     "id": "hopital_du_marais",
-    "titre": "Soignant de l'Hôpital",
+    "titre": "Hôpital du Marais",
     "zone": "Hôpital du Marais",
     "file": "hopital_du_marais.svg"
   },
   {
     "id": "caserne_infanterie",
-    "titre": "Sentinelle de la Caserne",
+    "titre": "Caserne d'Infanterie",
     "zone": "Zone Pénitentiaire",
     "file": "caserne_infanterie.svg"
   },
   {
     "id": "batiment_officiers_administration",
-    "titre": "Scribe de l'Administration",
+    "titre": "Bâtiment des Officiers",
     "zone": "Zone Pénitentiaire",
     "file": "batiment_officiers_administration.svg"
   },
   {
     "id": "logement_surveillants_1ere_classe",
-    "titre": "Résident 1ère Classe",
+    "titre": "Logement 1ère Classe",
     "zone": "Zone Pénitentiaire",
     "file": "logement_surveillants_1ere_classe.svg"
   },
   {
     "id": "logement_surveillants_militaires_maries",
-    "titre": "Foyer des Surveillants",
+    "titre": "Logement des Surveillants Mariés",
     "zone": "Zone Pénitentiaire",
     "file": "logement_surveillants_militaires_maries.svg"
   },
   {
     "id": "quartier_cellulaire",
-    "titre": "Geôlier du Quartier",
+    "titre": "Quartier Cellulaire",
     "zone": "Zone Pénitentiaire",
     "file": "quartier_cellulaire.svg"
   },
   {
     "id": "boulevard_du_crime",
-    "titre": "Arpenteur du Boulevard",
+    "titre": "Boulevard du Crime",
     "zone": "Zone Pénitentiaire",
     "file": "boulevard_du_crime.svg"
   },
   {
     "id": "logement_surveillant_principal",
-    "titre": "Porte-clés Principal",
+    "titre": "Logement du Surveillant Principal",
     "zone": "Zone Pénitentiaire",
     "file": "logement_surveillant_principal.svg"
   },
   {
     "id": "chapelle_saint_thomas",
-    "titre": "Fidèle de Saint-Thomas",
+    "titre": "Chapelle Saint-Thomas",
     "zone": "Zone Pénitentiaire",
     "file": "chapelle_saint_thomas.svg"
   },
   {
     "id": "chateau_eau_tour_guet",
-    "titre": "Veilleur de la Tour",
+    "titre": "Château d'Eau",
     "zone": "Zone Pénitentiaire",
     "file": "chateau_eau_tour_guet.svg"
   },
   {
     "id": "hotel_du_commandant",
-    "titre": "Hôte du Commandant",
+    "titre": "Hôtel du Commandant",
     "zone": "Zone Pénitentiaire",
     "file": "hotel_du_commandant.svg"
+  },
+  {
+    "id": "boulangerie",
+    "titre": "La Boulangerie",
+    "zone": "Zone Pénitentiaire",
+    "file": "boulangerie.svg"
+  },
+  {
+    "id": "ateliers",
+    "titre": "Les Ateliers",
+    "zone": "Zone Pénitentiaire",
+    "file": "ateliers.svg"
   }
 ]
