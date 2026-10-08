@@ -61,6 +61,7 @@
 
           <!-- Portrait d'un personnage historique rattaché au point -->
           <ng-container *ngIf="PERSONNAGES[zone.id] as personnage">
+            <div class="section-titre">{{ 'parcours.personnage.titre' | translate }}</div>
             <div class="contenu-card personnage-card" (click)="ouvrirPersonnage()">
               <div class="contenu-icone personnage-icone"><ion-icon name="person-outline"></ion-icon></div>
               <div class="contenu-info">

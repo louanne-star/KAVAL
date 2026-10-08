@@ -84,6 +84,7 @@ export const TRANSLATIONS = {
         jouer: 'Jouer →',
       },
       personnage: {
+        titre: 'Portrait',
         voir: 'Découvrir →',
       },
       galerie: {
@@ -383,6 +384,7 @@ export const TRANSLATIONS = {
         jouer: 'Play →',
       },
       personnage: {
+        titre: 'Portrait',
         voir: 'Discover →',
       },
       galerie: {
