@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { Preferences } from '../../core/preferences';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { locationOutline } from 'ionicons/icons';
+import { locationOutline, personOutline } from 'ionicons/icons';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
@@ -18,6 +18,21 @@ import { TutorialService } from '../../services/tutorial.service';
 import { Langue } from '../../i18n/translations';
 
 type ChoixSlot = 'bonne' | 'm1' | 'm2';
+
+// Portrait d'un personnage historique rattaché à un point (fr/en), affiché
+// via une carte façon "mini-jeu" dans le détail du point qui ouvre un popup.
+// Contenu ponctuel écrit en dur (comme BADGE_SOUS_TITRES plus bas) plutôt
+// qu'en base : pas encore assez de personnages pour justifier une table
+// Supabase dédiée.
+type Paragraphe = { texte: string; citation?: boolean };
+type Personnage = {
+  nom: string;
+  nomEn: string;
+  sousTitre: string;
+  sousTitreEn: string;
+  paragraphes: Paragraphe[];
+  paragraphesEn: Paragraphe[];
+};
 
 const CLE_INTRO_VUE = 'kaval_parcours_intro_vue';
 // Révélation progressive au scroll des cartes de la liste : seulement la
@@ -124,6 +139,55 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
     return this.JEUX_NOMS[this.languageService.langue()][pointId] ?? '';
   }
 
+  // Portrait d'un personnage historique, affiché comme la carte mini-jeu
+  // juste après la 1ère section du point (voir miniJeuBlock dans le html).
+  readonly PERSONNAGES: Record<string, Personnage> = {
+    camp_est_principal: {
+      nom: 'Raoul Tellier, dit « Le Roi de l’Évasion »',
+      nomEn: 'Raoul Tellier, known as “The Escape King”',
+      sousTitre: 'Matricule 13204. Condamné. Évadé récidiviste.',
+      sousTitreEn: 'Prisoner No. 13204. Convict. Repeat escapee.',
+      paragraphes: [
+        { texte: 'Certains hommes se résignent. Raoul Tellier, lui, décide que non.' },
+        { texte: 'Entre 1883 et 1931, il s’évade seize fois du bagne calédonien. Seize tentatives, seize paris contre l’impossible, face aux chiens, aux Canaques lancés à sa poursuite, aux gardiens armés et à la mer elle-même. Ses évasions cumulées lui valent 86 ans de travaux forcés supplémentaires. La justice veut l’enterrer vivant sous les peines, mais Tellier continue.' },
+        { texte: 'Le 7 octobre 1897, sa douzième tentative. Tellier est au Camp Est, affecté à la carrière « comme mineur ». Il observe depuis des semaines. Le gardien du parc au canot ravitaille les Canaques trois jours par semaine. L’embarcation. La fausse passe. La Pointe Chaleix.' },
+        { texte: 'Son plan est calculé au millimètre :' },
+        { texte: 'J’avais remarqué ça et c’était tentant pour un risque-tout comme moi. J’en parlais aux camarades sur leurs deux faces. J’avais calculé qu’il fallait la question de doubler la fausse passe et de couler l’embarcation pour atteindre la Pointe Chaleix.', citation: true },
+        { texte: 'Ils partent. Dix minutes d’avance sur la meute. Mais la brousse calédonienne n’est pas l’alliée qu’on espère. Les Canaques connaissent chaque sentier, chaque vallée. Ce que Tellier n’avait pas calculé, c’est eux :' },
+        { texte: 'Les Canaques n’avaient pas leur pareil et si les soldats n’avaient pas eu les Canaques, ils ne nous auraient pas eus. Ils étaient à la chasse. Elle ne fut pas longue.', citation: true },
+        { texte: 'La traque est féroce. Il reçoit un coup de sagaie dans les côtes, des coups de casse-tête. Il perd beaucoup de sang. Repris.' },
+        { texte: 'Condamné le 23 novembre 1897 à quatre ans de travaux forcés supplémentaires.' },
+        { texte: 'Mais Tellier ne s’arrête pas. Il recommence. Et encore. Ses deux plus longues évasions durent près de trois ans et demi chacune. Sa seizième et dernière tentative s’étend de novembre 1927 à janvier 1931, presque quatre ans en liberté, à plus de 40 ans de bagne derrière lui.' },
+        { texte: 'Mathématiquement, ses peines ne s’éteignent qu’en l’an 2000.' },
+        { texte: 'Raoul Tellier ne s’est jamais vraiment évadé, la Nouvelle-Calédonie est une île. Mais il a refusé, plus que quiconque, de laisser le bagne lui appartenir.' },
+      ],
+      paragraphesEn: [
+        { texte: 'Some men resign themselves. Raoul Tellier decided he would not.' },
+        { texte: 'Between 1883 and 1931, he escaped the Caledonian penal colony sixteen times. Sixteen attempts, sixteen bets against the impossible, facing dogs, Kanak trackers sent after him, armed guards and the sea itself. His combined escapes earned him 86 additional years of forced labour. The justice system wanted to bury him alive under his sentences, but Tellier kept going.' },
+        { texte: 'On 7 October 1897, his twelfth attempt. Tellier was at Camp Est, assigned to the quarry "as a miner". He had been watching for weeks. The boat-park guard supplied the Kanak workers three days a week. The boat. The false channel. Pointe Chaleix.' },
+        { texte: 'His plan was calculated to the millimetre:' },
+        { texte: 'I had noticed that, and it was tempting for a risk-taker like me. I talked about it with my fellow convicts, on both sides. I had worked out that we’d need to go around the false channel and sink the boat to reach Pointe Chaleix.', citation: true },
+        { texte: 'They set off. Ten minutes ahead of the pack. But the Caledonian bush was not the ally they’d hoped for. The Kanak trackers knew every path, every valley. What Tellier hadn’t factored in was them:' },
+        { texte: 'The Kanak trackers had no equal, and if the soldiers hadn’t had them, they would never have caught us. They were hunting us. It didn’t take long.', citation: true },
+        { texte: 'The chase was ferocious. He took a spear wound to the ribs, blows from a war club. He lost a lot of blood. Recaptured.' },
+        { texte: 'Sentenced on 23 November 1897 to four more years of forced labour.' },
+        { texte: 'But Tellier didn’t stop. He tried again. And again. His two longest escapes each lasted nearly three and a half years. His sixteenth and final attempt stretched from November 1927 to January 1931 — almost four years of freedom, after more than 40 years in the penal colony.' },
+        { texte: 'Mathematically, his sentences would not have expired until the year 2000.' },
+        { texte: 'Raoul Tellier never truly escaped — New Caledonia is an island. But more than anyone, he refused to let the penal colony own him.' },
+      ],
+    },
+  };
+
+  personnagePopupOuvert = false;
+  ouvrirPersonnage() { this.personnagePopupOuvert = true; }
+  fermerPersonnage() { this.personnagePopupOuvert = false; }
+
+  paragraphesPersonnage(pointId: string): Paragraphe[] {
+    const p = this.PERSONNAGES[pointId];
+    if (!p) return [];
+    return this.languageService.langue() === 'en' ? p.paragraphesEn : p.paragraphes;
+  }
+
   // Phrase du badge de victoire : une par mini-jeu, pas une seule phrase
   // générique ("Tu as traversé la rivière" n'a aucun sens après le jeu de
   // mémoire ou le tribunal). Repli sur 'parcours.badge.sousTitre' (générique)
@@ -183,7 +247,7 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
     private translate: TranslateService,
     private tutorial: TutorialService,
   ) {
-    addIcons({ locationOutline });
+    addIcons({ locationOutline, personOutline });
   }
 
   ngOnInit() {

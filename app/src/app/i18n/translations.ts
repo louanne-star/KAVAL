@@ -83,6 +83,9 @@ export const TRANSLATIONS = {
         description: 'Saute de rocher en rocher pour gagner un badge',
         jouer: 'Jouer →',
       },
+      personnage: {
+        voir: 'Découvrir →',
+      },
       galerie: {
         titre: 'Photos d\'archives',
         intro: 'Découvre ce lieu à travers des photos d\'archives.',
@@ -378,6 +381,9 @@ export const TRANSLATIONS = {
         dejaComplete: 'Already completed — play again!',
         description: 'Jump from rock to rock to earn a badge',
         jouer: 'Play →',
+      },
+      personnage: {
+        voir: 'Discover →',
       },
       galerie: {
         titre: 'Archive photos',

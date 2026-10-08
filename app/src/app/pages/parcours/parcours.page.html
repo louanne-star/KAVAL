@@ -58,6 +58,18 @@
               </div>
             </div>
           </ng-container>
+
+          <!-- Portrait d'un personnage historique rattaché au point -->
+          <ng-container *ngIf="PERSONNAGES[zone.id] as personnage">
+            <div class="contenu-card personnage-card" (click)="ouvrirPersonnage()">
+              <div class="contenu-icone personnage-icone"><ion-icon name="person-outline"></ion-icon></div>
+              <div class="contenu-info">
+                <p class="contenu-label">{{ pointsService.texte(personnage.nom, personnage.nomEn) }}</p>
+                <p class="contenu-sous">{{ pointsService.texte(personnage.sousTitre, personnage.sousTitreEn) }}</p>
+              </div>
+              <div class="contenu-tag">{{ 'parcours.personnage.voir' | translate }}</div>
+            </div>
+          </ng-container>
         </ng-template>
 
         <!-- Sections de texte du point (Histoire, Guerre médicale, ... — piloté depuis Supabase) -->
@@ -230,5 +242,24 @@
     <p class="image-overlay-legende" *ngIf="pointsService.texte(img.legende ?? '', img.legendeEn)">
       {{ pointsService.texte(img.legende ?? '', img.legendeEn) }}
     </p>
+  </div>
+</div>
+
+<!-- Popup portrait d'un personnage historique -->
+<div class="personnage-overlay" *ngIf="personnagePopupOuvert && zoneSelectionnee as zone" (click)="fermerPersonnage()">
+  <div class="personnage-popup-card" (click)="$event.stopPropagation()">
+    <button class="personnage-popup-close" (click)="fermerPersonnage()" aria-label="Fermer">✕</button>
+    <div class="personnage-popup-header">
+      <div class="personnage-popup-portrait">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <div>
+        <h2 class="personnage-popup-nom">{{ pointsService.texte(PERSONNAGES[zone.id].nom, PERSONNAGES[zone.id].nomEn) }}</h2>
+        <p class="personnage-popup-sous">{{ pointsService.texte(PERSONNAGES[zone.id].sousTitre, PERSONNAGES[zone.id].sousTitreEn) }}</p>
+      </div>
+    </div>
+    <div class="personnage-popup-texte">
+      <p *ngFor="let p of paragraphesPersonnage(zone.id)" [class.personnage-popup-citation]="p.citation">{{ p.texte }}</p>
+    </div>
   </div>
 </div>
