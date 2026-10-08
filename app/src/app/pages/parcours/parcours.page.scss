@@ -638,7 +638,7 @@ ion-content.parcours-content {
   gap: 14px;
   width: 100%;
   text-align: left;
-  background: #fff;
+  background: #f7f9fc;
   border: 1.5px solid #ebebeb;
   border-radius: 20px;
   padding: 14px 16px;
@@ -646,15 +646,15 @@ ion-content.parcours-content {
   font-family: inherit;
   transition: background 0.2s, border-color 0.2s;
 
-  &:active { background: #f7f9fc; }
+  &:active { background: #eef1f6; }
 
   // Halo pastel très léger derrière la carte (voir haloClasse() côté TS) :
   // un radial-gradient en haut à gauche, presque transparent, plutôt qu'un
   // aplat de couleur — la carte doit rester lisible comme "blanche".
-  &.jdb-carte--halo-turquoise { background: radial-gradient(circle at 12% 15%, rgba(53,197,200,0.16), transparent 65%), #fff; }
-  &.jdb-carte--halo-lavande   { background: radial-gradient(circle at 12% 15%, rgba(154,135,214,0.16), transparent 65%), #fff; }
-  &.jdb-carte--halo-vert      { background: radial-gradient(circle at 12% 15%, rgba(108,181,140,0.18), transparent 65%), #fff; }
-  &.jdb-carte--halo-sable     { background: radial-gradient(circle at 12% 15%, rgba(201,168,76,0.18), transparent 65%), #fff; }
+  &.jdb-carte--halo-turquoise { background: radial-gradient(circle at 12% 15%, rgba(53,197,200,0.16), transparent 65%), #f7f9fc; }
+  &.jdb-carte--halo-lavande   { background: radial-gradient(circle at 12% 15%, rgba(154,135,214,0.16), transparent 65%), #f7f9fc; }
+  &.jdb-carte--halo-vert      { background: radial-gradient(circle at 12% 15%, rgba(108,181,140,0.18), transparent 65%), #f7f9fc; }
+  &.jdb-carte--halo-sable     { background: radial-gradient(circle at 12% 15%, rgba(201,168,76,0.18), transparent 65%), #f7f9fc; }
 
   &.jdb-carte--validee {
     background: #eef3fb;
