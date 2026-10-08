@@ -1,0 +1,27 @@
+// ── Bandeau global de synchronisation ───────────────────────────────────────
+// Affiché par-dessus tout le reste (même z-index que le tuto) tant qu'un push
+// (badge/note/commentaire/favori) a échoué et n'a pas encore été rejoué avec
+// succès — voir SyncService.enErreur.
+
+.sync-toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 16px) + 72px);
+  z-index: 9998;
+  background: #fdedeb;
+  color: #c0392b;
+  border: 1px solid #f6c9c2;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  animation: syncToastIn 0.3s ease;
+}
+
+@keyframes syncToastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

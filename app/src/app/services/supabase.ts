@@ -18,12 +18,6 @@ export class SupabaseService {
     return this.supabase;
   }
 
-  async signInAnonymously(): Promise<User | null> {
-    const { data, error } = await this.supabase.auth.signInAnonymously();
-    if (error) throw error;
-    return data.user;
-  }
-
   async getCurrentUser(): Promise<User | null> {
     const { data } = await this.supabase.auth.getUser();
     return data.user;

@@ -82,6 +82,11 @@
           ⚠ {{ erreur() }}
         </div>
 
+        <!-- Confirmation d'e-mail requise avant de pouvoir se connecter -->
+        <div class="auth-info" *ngIf="confirmationEnvoyee()">
+          ✉️ {{ 'auth.confirmationEnvoyee' | translate }}
+        </div>
+
         <!-- Bouton -->
         <button class="auth-btn" type="submit" [disabled]="chargement()">
           <span *ngIf="!chargement()">

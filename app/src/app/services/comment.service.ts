@@ -58,7 +58,9 @@ export class CommentService {
         }));
 
       this._commentairesZone.set({ ...this._commentairesZone(), [zoneId]: comments });
-    } catch {}
+    } catch (err) {
+      console.error(`[Comment] chargement des commentaires de ${zoneId} a échoué`, err);
+    }
   }
 
   // Chaque appel ajoute un nouveau commentaire (un même utilisateur peut en

@@ -4,6 +4,7 @@ export const TRANSLATIONS = {
       etape: 'Étape {{n}}',
       avisSingulier: 'avis',
       avisPluriel: 'avis',
+      syncErreur: 'Synchronisation impossible — nouvelle tentative au prochain lancement.',
     },
     tabs: {
       carte: 'Carte',
@@ -20,6 +21,7 @@ export const TRANSLATIONS = {
       bouton: { connexion: 'Se connecter', inscription: 'Créer mon compte' },
       mdpAide: '8 caractères minimum, avec au moins une majuscule, une minuscule et un chiffre.',
       motDePasseOublie: 'Mot de passe oublié ?',
+      confirmationEnvoyee: "Compte créé ! Vérifiez votre boîte mail et cliquez sur le lien de confirmation avant de vous connecter.",
       oublie: {
         intro: 'Indiquez votre adresse e-mail : si un compte existe, vous recevrez un lien pour choisir un nouveau mot de passe.',
         titre: 'Mot de passe oublié',
@@ -298,6 +300,7 @@ export const TRANSLATIONS = {
       etape: 'Step {{n}}',
       avisSingulier: 'review',
       avisPluriel: 'reviews',
+      syncErreur: "Sync failed — we'll try again next time you open the app.",
     },
     tabs: {
       carte: 'Map',
@@ -314,6 +317,7 @@ export const TRANSLATIONS = {
       bouton: { connexion: 'Log in', inscription: 'Create my account' },
       mdpAide: 'At least 8 characters, with at least one uppercase letter, one lowercase letter and one digit.',
       motDePasseOublie: 'Forgot your password?',
+      confirmationEnvoyee: 'Account created! Check your inbox and click the confirmation link before logging in.',
       oublie: {
         intro: "Enter your email address: if an account exists, you'll receive a link to choose a new password.",
         titre: 'Forgot password',

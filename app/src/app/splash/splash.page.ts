@@ -79,8 +79,14 @@ export class SplashPage implements OnInit {
         this.ratings.chargerDepuisCloud(data.ratings),
         this.favoris.chargerDepuisCloud(data.favoris),
       ]);
-    } catch {
+
+      // Filet de sécurité : si un push avait échoué silencieusement lors
+      // d'une session précédente (ex: badge gagné hors-ligne), on retente de
+      // le pousser maintenant plutôt que de le perdre définitivement.
+      await this.sync.reconcilierSiNecessaire(this.badges.badges(), this.ratings.notes(), this.favoris.favoris());
+    } catch (err) {
       // Offline ou erreur réseau — l'app continue avec les données locales
+      console.error('[Splash] sync en arrière-plan a échoué', err);
     }
   }
 }

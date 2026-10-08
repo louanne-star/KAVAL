@@ -31,6 +31,7 @@ export class AuthPage {
   rgpdDetailOuvert = false;
   chargement = signal(false);
   erreur     = signal<string | null>(null);
+  confirmationEnvoyee = signal(false);
 
   private readonly REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -53,6 +54,7 @@ export class AuthPage {
   basculerOnglet(onglet: 'connexion' | 'inscription') {
     this.onglet = onglet;
     this.erreur.set(null);
+    this.confirmationEnvoyee.set(false);
   }
 
   toggleRgpdDetail() {
@@ -83,12 +85,20 @@ export class AuthPage {
 
     this.chargement.set(true);
     this.erreur.set(null);
+    this.confirmationEnvoyee.set(false);
 
     try {
       const estInscription = this.onglet === 'inscription';
 
       if (estInscription) {
-        await this.auth.sInscrire(this.email, this.motDePasse);
+        const sessionCreee = await this.auth.sInscrire(this.email, this.motDePasse);
+        if (!sessionCreee) {
+          // Confirmation par e-mail activée côté Supabase : pas de session
+          // réelle tant que le lien n'est pas cliqué, donc pas de navigation
+          // vers l'app qui laisserait croire à une connexion effective.
+          this.confirmationEnvoyee.set(true);
+          return;
+        }
       } else {
         await this.auth.seConnecter(this.email, this.motDePasse);
       }
@@ -112,6 +122,10 @@ export class AuthPage {
           this.ratings.chargerDepuisCloud(data.ratings),
           this.favoris.chargerDepuisCloud(data.favoris),
         ]);
+
+        // Filet de sécurité : rejoue un push qui aurait échoué silencieusement
+        // lors d'une session précédente (ex: badge gagné hors-ligne).
+        await this.sync.reconcilierSiNecessaire(this.badges.badges(), this.ratings.notes(), this.favoris.favoris());
       }
 
       if (estInscription) {

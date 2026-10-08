@@ -1,4 +1,5 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
   <app-tutorial-overlay></app-tutorial-overlay>
+  <div class="sync-toast" *ngIf="sync.enErreur()">⚠ {{ 'commun.syncErreur' | translate }}</div>
 </ion-app>

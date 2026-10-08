@@ -46,7 +46,7 @@ const CONTENU = {
     creditsTitre: 'CRÉDITS & REMERCIEMENTS',
     credits: [
       { role: 'Équipe Développement web', nom: 'Ondine Taukolo & Lou-Anne Grosjean' },
-      { role: 'Équipe Stratégie & UX', nom: 'Marie-Loane Diemene, Graig Moury & Anaelle Watanabe' },
+      { role: 'Équipe Stratégie', nom: 'Marie-Loane Diemene, Graig Moury & Anaelle Watanabe' },
       { role: 'Encadrement', nom: 'Université de la Nouvelle-Calédonie' },
       { role: 'Sources historiques', nom: "Association Témoignage d'Un Passé" },
       {

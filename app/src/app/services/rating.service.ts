@@ -59,7 +59,9 @@ export class RatingService {
         };
       }
       this._moyennes.set(moyennes);
-    } catch {}
+    } catch (err) {
+      console.error('[Rating] chargement des moyennes a échoué', err);
+    }
   }
 
   async chargerDepuisCloud(ratings: Record<string, number>): Promise<void> {
