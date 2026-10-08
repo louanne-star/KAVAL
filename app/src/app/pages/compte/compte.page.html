@@ -152,22 +152,6 @@
           </button>
         </div>
 
-        <!-- Paramètres -->
-        <p class="list-label">{{ 'compte.section.parametres' | translate }}</p>
-        <div class="list-card">
-          <!-- TEMPORAIRE — bouton de test pour rejouer le tuto, à retirer avant mise en prod. -->
-          <button class="list-row list-row--last" (click)="relancerTuto()">
-            <div class="list-ico list-ico--amber">
-              <ion-icon name="school-outline"></ion-icon>
-            </div>
-            <div class="list-txt">
-              <span class="list-name">Relancer le tutoriel</span>
-              <span class="list-sub">Debug — à retirer avant prod</span>
-            </div>
-            <span class="list-arrow">›</span>
-          </button>
-        </div>
-
         <!-- Actions -->
         <div class="cp-actions">
           <button class="cp-logout" (click)="seDeconnecter()">{{ 'compte.action.deconnexion' | translate }}</button>

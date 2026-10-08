@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline, heartOutline } from 'ionicons/icons';
+import { personOutline, languageOutline, lockClosedOutline, trashOutline, heartOutline } from 'ionicons/icons';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { REGEX_MDP } from '../../shared/password-policy';
 import { AuthService } from '../../services/auth.service';
@@ -15,7 +15,6 @@ import { BadgeService } from '../../services/badge.service';
 import { RewardService } from '../../services/reward.service';
 import { PointsService } from '../../services/points.service';
 import { LanguageService } from '../../services/language.service';
-import { TutorialService } from '../../services/tutorial.service';
 import { Langue } from '../../i18n/translations';
 
 @Component({
@@ -75,10 +74,9 @@ export class ComptePage {
     readonly languageService: LanguageService,
     readonly rewardService:   RewardService,
     private translate:        TranslateService,
-    private tutorial:         TutorialService,
     private router:           Router,
   ) {
-    addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, schoolOutline, heartOutline });
+    addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, heartOutline });
 
     effect(() => {
       const code = this.rewardService.recompense()?.code ?? null;
@@ -198,11 +196,5 @@ export class ComptePage {
 
   allerVersZone(zoneId: string) {
     this.router.navigate(['/tabs/parcours'], { queryParams: { zone: zoneId } });
-  }
-
-  // TEMPORAIRE — bouton de test pour rejouer le tuto, à retirer avant mise en prod.
-  async relancerTuto() {
-    await this.tutorial.demarrer();
-    this.router.navigate(['/tabs/carte'], { replaceUrl: true });
   }
 }
