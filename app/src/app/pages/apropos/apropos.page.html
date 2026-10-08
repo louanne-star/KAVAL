@@ -28,10 +28,10 @@
   </div>
 
   <!-- Sections -->
-  <div class="sections">
+  <div class="sections" [class.sections--premiere-fois]="premiereOuverture">
 
     <!-- 01 L'Histoire -->
-    <div class="section-card">
+    <div class="section-card" #carteReveal>
       <div class="card-inner">
         <div class="card-left">
           <img src="assets/icon/histoire.png" alt="Histoire" class="card-icon">
@@ -46,7 +46,7 @@
     </div>
 
     <!-- 02 Les Vestiges -->
-    <div class="section-card large">
+    <div class="section-card large" #carteReveal>
       <div class="section-num-row">
         <p class="section-num">02</p>
         <h2 class="section-titre">{{ contenu().vestigesTitre }}</h2>
@@ -67,7 +67,7 @@
     </div>
 
         <!-- 03 L'Artisanat -->
-    <div class="section-card artisanat">
+    <div class="section-card artisanat" #carteReveal>
       <div class="artisanat-content">
         <div class="artisanat-text">
           <p class="section-num">03</p>
@@ -82,7 +82,7 @@
     </div>
 
     <!-- 04 Le Projet -->
-    <div class="section-card projet">
+    <div class="section-card projet" #carteReveal>
       <div class="projet-content">
         <img src="assets/icon/projet.png" alt="Projet" class="projet-img">
         <div>
@@ -94,7 +94,7 @@
     </div>
 
     <!-- 05 Chiffres clés -->
-    <div class="section-card">
+    <div class="section-card" #carteReveal>
       <p class="section-num">05</p>
       <h2 class="section-titre">{{ contenu().chiffresTitre }}</h2>
       <div class="chiffres-grid">
@@ -106,7 +106,7 @@
     </div>
 
     <!-- 06 Crédits -->
-    <div class="section-card credits">
+    <div class="section-card credits" #carteReveal>
       <p class="section-num">06</p>
       <h2 class="section-titre">{{ contenu().creditsTitre }}</h2>
       <div class="credits-list">

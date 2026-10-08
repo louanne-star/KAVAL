@@ -1,9 +1,17 @@
-import { Component, computed } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ViewChildren, QueryList, ElementRef, computed } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
 import { hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { LanguageService } from '../../services/language.service';
+import { Preferences } from '../../core/preferences';
+
+// Révélation progressive au scroll des cartes de sections : seulement la
+// toute première fois qu'on ouvre cette page (voir premiereOuverture plus
+// bas) — les fois suivantes, simple animation d'entrée à chaque affichage,
+// comme avant.
+const CLE_SECTIONS_REVELEES = 'kaval_apropos_sections_revelees';
 
 type Vestige = { nom: string; icone: string; couleur: string; image?: string; legende?: string };
 type Credit = { role: string; nom?: string; lien?: string; html?: string };
@@ -129,12 +137,61 @@ const CONTENU = {
   standalone: true,
   imports: [IonicModule, CommonModule]
 })
-export class AproposPage {
+export class AproposPage implements OnInit, AfterViewInit, OnDestroy {
+
+  @ViewChildren('carteReveal') private carteRevealEls?: QueryList<ElementRef<HTMLElement>>;
+  private carteRevealSub?: Subscription;
+  private carteRevealObserver?: IntersectionObserver;
+
+  // Par défaut on suppose "première fois" (cartes cachées jusqu'au scroll) :
+  // si Preferences confirme qu'on les a déjà révélées avant, on bascule à
+  // false, ce qui active l'animation d'entrée simple (rejouée à chaque
+  // ouverture de la page).
+  premiereOuverture = true;
 
   readonly contenu = computed(() => CONTENU[this.languageService.langue()]);
 
-  constructor(private languageService: LanguageService) {
+  constructor(private languageService: LanguageService, private ngZone: NgZone) {
     addIcons({ hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline, chevronBackOutline, chevronForwardOutline });
+  }
+
+  ngOnInit() {
+    Preferences.get({ key: CLE_SECTIONS_REVELEES }).then(({ value }) => {
+      if (value) {
+        this.premiereOuverture = false;
+      } else {
+        Preferences.set({ key: CLE_SECTIONS_REVELEES, value: '1' });
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+    // Hors zone Angular : on ne fait que (dés)observer des éléments et
+    // toggle une classe CSS, aucune détection de changement nécessaire.
+    this.ngZone.runOutsideAngular(() => {
+      this.carteRevealObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('section-card--visible');
+          this.carteRevealObserver?.unobserve(entry.target);
+        }
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+      const observerNouvellesCartes = () => {
+        this.carteRevealEls?.forEach(ref => {
+          if (!ref.nativeElement.classList.contains('section-card--visible')) {
+            this.carteRevealObserver!.observe(ref.nativeElement);
+          }
+        });
+      };
+      observerNouvellesCartes();
+      this.carteRevealSub = this.carteRevealEls?.changes.subscribe(observerNouvellesCartes);
+    });
+  }
+
+  ngOnDestroy() {
+    this.carteRevealSub?.unsubscribe();
+    this.carteRevealObserver?.disconnect();
   }
 
   popupOuvert: 'histoire' | 'vestiges' | null = null;

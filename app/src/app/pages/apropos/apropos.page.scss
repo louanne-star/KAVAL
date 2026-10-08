@@ -127,6 +127,19 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+// Toute première ouverture de la page (voir AproposPage.premiereOuverture) :
+// pas d'animation de montage immédiate, les cartes restent invisibles
+// jusqu'à ce qu'elles entrent dans le viewport (IntersectionObserver côté
+// TS, qui ajoute .section-card--visible), révélées une par une au scroll.
+.sections--premiere-fois .section-card {
+  animation: none;
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  &.section-card--visible { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .section-num {
   font-size: 12px;
   font-weight: 700;
