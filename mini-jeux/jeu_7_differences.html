@@ -55,7 +55,7 @@ function mark(z,cls){document.querySelectorAll('.pic').forEach(function(p){var r
 document.querySelectorAll('.pic').forEach(function(p){p.addEventListener('click',function(e){if(done)return;var r=p.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100;
 var TAP_MIN_PX=26;var hit=-1;Z.forEach(function(z,i){if(found.indexOf(i)<0){var tol=Math.max(z.r,(TAP_MIN_PX/r.width)*100)*1.15;if(Math.hypot(x-z.x,y-z.y)<=tol)hit=i}});
 if(hit>=0){found.push(hit);mark(Z[hit]);dots.children[found.length-1].classList.add('on');if(navigator.vibrate)navigator.vibrate(30);
-msg.textContent=T.trouvees(found.length);if(found.length===7){done=true;msg.textContent=T.victoire;}}
+msg.textContent=T.trouvees(found.length);if(found.length===7){done=true;msg.textContent=T.victoire;setTimeout(function(){window.parent.postMessage({type:'jeuTermine'},'*');},1500);}}
 else{var k=document.createElement('div');k.className='ko';k.textContent='✕';k.style.left=x+'%';k.style.top=y+'%';p.appendChild(k);setTimeout(function(){k.remove()},600)}})});
 document.getElementById('hb').onclick=function(){if(done)return;for(var i=0;i<Z.length;i++)if(found.indexOf(i)<0){mark(Z[i],'hint');break}};
 document.getElementById('rb').onclick=init;init();
