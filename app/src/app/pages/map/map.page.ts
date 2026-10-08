@@ -22,7 +22,7 @@ import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 // autres points d'une même zone, qui n'en ont pas) — c'est ce qui leur vaut
 // l'étoile sur la carte. Doit rester synchronisé avec les clés de JEUX dans
 // parcours.page.ts à chaque nouveau mini-jeu.
-const POINTS_PHARES = new Set(['camp_est_principal', 'magasin_a_vivre', 'boulangerie', 'hopital_du_marais']);
+const POINTS_PHARES = new Set(['camp_est_principal', 'magasin_a_vivre', 'boulangerie', 'hopital_du_marais', 'logement_surveillants_militaires_maries']);
 
 @Component({
   selector: 'app-map',

@@ -83,6 +83,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
     magasin_a_vivre:    'assets/mini-jeux/bagne-connect.html',
     boulangerie:         'assets/mini-jeux/river_jump.html',
     hopital_du_marais:   'assets/mini-jeux/memoire.html',
+    logement_surveillants_militaires_maries: 'assets/mini-jeux/jeu_7_differences.html',
   };
 
   private readonly JEUX_NOMS: Record<Langue, Record<string, string>> = {
@@ -91,12 +92,14 @@ export class ParcoursPage implements OnInit, OnDestroy {
       magasin_a_vivre:    'Connexion des forçats',
       boulangerie:         'Traverse la Rivière',
       hopital_du_marais:   'Mémoire du Bagne',
+      logement_surveillants_militaires_maries: 'Les 7 différences',
     },
     en: {
       camp_est_principal: 'The Trial',
       magasin_a_vivre:    'Convicts Connect',
       boulangerie:         'Cross the River',
       hopital_du_marais:   'Memory of the Penal Colony',
+      logement_surveillants_militaires_maries: 'Spot the 7 Differences',
     },
   };
 
@@ -114,12 +117,14 @@ export class ParcoursPage implements OnInit, OnDestroy {
       magasin_a_vivre:    'Tu as reconnecté les forçats.',
       boulangerie:         'Tu as traversé la rivière.',
       hopital_du_marais:   'Tu as testé ta mémoire.',
+      logement_surveillants_militaires_maries: 'Tu as repéré les 7 différences.',
     },
     en: {
       camp_est_principal: 'You delivered your verdict.',
       magasin_a_vivre:    'You reconnected the convicts.',
       boulangerie:         'You crossed the river.',
       hopital_du_marais:   'You tested your memory.',
+      logement_surveillants_militaires_maries: 'You spotted all 7 differences.',
     },
   };
 
