@@ -657,11 +657,14 @@ ion-content.parcours-content {
   &.jdb-carte--halo-sable     { background: radial-gradient(circle at 88% 15%, rgba(221,190,115,0.32), transparent 72%), #f7f9fc; }
 
   // Étape validée : pas d'aplat de fond (ça ressemblait à une ligne
-  // sélectionnée dans une liste) — juste une fine bordure verte, le halo
-  // de la carte reste visible dessous.
-  &.jdb-carte--validee {
-    border-color: rgba(46,160,91,0.4);
-  }
+  // sélectionnée dans une liste) — juste une bordure un peu plus marquée,
+  // dans la même teinte que le halo de la carte (voir aussi .jdb-check
+  // plus bas, qui reprend la même couleur).
+  &.jdb-carte--validee { border-color: rgba(39,71,110,0.25); }
+  &.jdb-carte--halo-turquoise.jdb-carte--validee { border-color: rgba(53,197,200,0.6); }
+  &.jdb-carte--halo-lavande.jdb-carte--validee   { border-color: rgba(154,135,214,0.6); }
+  &.jdb-carte--halo-vert.jdb-carte--validee      { border-color: rgba(108,181,140,0.6); }
+  &.jdb-carte--halo-sable.jdb-carte--validee     { border-color: rgba(201,168,76,0.6); }
 }
 
 .jdb-carte-icone-wrap {
@@ -743,8 +746,14 @@ ion-content.parcours-content {
   display: flex; align-items: center; justify-content: center;
   width: 26px; height: 26px;
   border-radius: 50%;
-  background: #2ea05b;
+  background: #27476e;
   color: #fff;
   font-size: 13px; font-weight: 800;
 }
+
+// Même teinte que le halo de la carte, comme le numéro et le badge mini-jeu.
+.jdb-carte--halo-turquoise .jdb-check { background: #178487; }
+.jdb-carte--halo-lavande   .jdb-check { background: #6657a3; }
+.jdb-carte--halo-vert      .jdb-check { background: #357555; }
+.jdb-carte--halo-sable     .jdb-check { background: #93762f; }
 
