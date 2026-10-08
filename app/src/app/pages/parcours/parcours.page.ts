@@ -12,6 +12,7 @@ import { RewardService } from '../../services/reward.service';
 import { PointsService, QuizQuestion, PointImage } from '../../services/points.service';
 import { UiStateService } from '../../services/ui-state.service';
 import { LanguageService } from '../../services/language.service';
+import { TutorialService } from '../../services/tutorial.service';
 import { Langue } from '../../i18n/translations';
 
 type ChoixSlot = 'bonne' | 'm1' | 'm2';
@@ -156,6 +157,7 @@ export class ParcoursPage implements OnInit, OnDestroy {
     readonly languageService: LanguageService,
     private uiState: UiStateService,
     private translate: TranslateService,
+    private tutorial: TutorialService,
   ) {}
 
   ngOnInit() {
@@ -192,9 +194,16 @@ export class ParcoursPage implements OnInit, OnDestroy {
     });
     window.addEventListener('message', this.onMessage);
 
-    Preferences.get({ key: CLE_INTRO_VUE }).then(({ value }) => {
-      if (!value) this.introVisible = true;
-    });
+    // Jamais pendant le tuto guidé (qui visite déjà cette page) — seulement
+    // à la toute première ouverture "libre" de Parcours une fois le tuto fini.
+    // On attend la reprise éventuelle du tuto (asynchrone, lancée par
+    // TabsPage) avant de lire `actif()`, sinon on risque de la consulter
+    // avant qu'elle ait fini de la positionner à true.
+    this.tutorial.reprendreSiEnCours().then(() =>
+      Preferences.get({ key: CLE_INTRO_VUE }).then(({ value }) => {
+        if (!value && !this.tutorial.actif()) this.introVisible = true;
+      })
+    );
   }
 
   fermerIntro() {

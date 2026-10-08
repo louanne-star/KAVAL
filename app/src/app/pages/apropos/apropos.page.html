@@ -53,7 +53,7 @@
         <button class="card-arrow" (click)="ouvrirPopup('vestiges')" [title]="contenu().enSavoirPlus">›</button>
       </div>
       <div class="vestiges-scroll" (scroll)="onVestigesScroll($event)">
-        <div class="vestige-card" *ngFor="let v of contenu().vestiges" (click)="ouvrirVestige(v)">
+        <div class="vestige-card" *ngFor="let v of contenu().vestiges; let i = index" (click)="ouvrirVestige(i)">
           <div class="vestige-img" [style.background]="v.couleur">
             <img *ngIf="v.image" [src]="v.image" [alt]="v.nom" class="vestige-img-photo">
             <ion-icon *ngIf="!v.image" [name]="v.icone"></ion-icon>
@@ -134,11 +134,26 @@
   <div class="popup-overlay" *ngIf="vestigeSelectionne as v" (click)="fermerVestige()">
     <div class="popup-card vestige-popup-card" (click)="$event.stopPropagation()">
       <button class="popup-close" (click)="fermerVestige()">✕</button>
-      <div class="vestige-popup-visuel" [style.background]="v.couleur">
+      <div class="vestige-popup-visuel"
+           [style.background]="v.couleur"
+           (touchstart)="onVestigeTouchStart($event)"
+           (touchend)="onVestigeTouchEnd($event)">
         <img *ngIf="v.image" [src]="v.image" [alt]="v.nom" class="vestige-popup-img">
         <ion-icon *ngIf="!v.image" [name]="v.icone" class="vestige-popup-icone"></ion-icon>
+        <ng-container *ngIf="contenu().vestiges.length > 1">
+          <button class="vestige-popup-fleche vestige-popup-fleche--gauche" (click)="vestigePrecedent(); $event.stopPropagation()">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <button class="vestige-popup-fleche vestige-popup-fleche--droite" (click)="vestigeSuivant(); $event.stopPropagation()">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </ng-container>
       </div>
       <p class="vestige-popup-nom">{{ v.nom }}</p>
+      <p class="vestige-popup-legende" *ngIf="v.legende">{{ v.legende }}</p>
+      <div class="vestige-popup-dots" *ngIf="contenu().vestiges.length > 1">
+        <span *ngFor="let d of contenu().vestiges; let i = index" [class.active]="i === vestigePopupIndex"></span>
+      </div>
     </div>
   </div>
 

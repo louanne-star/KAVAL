@@ -148,13 +148,6 @@
       <div class="jdb-carrousel-img jdb-carrousel-img--1"></div>
       <div class="jdb-carrousel-img jdb-carrousel-img--2"></div>
       <div class="jdb-carrousel-voile"></div>
-
-      <!-- Popup d'intro (une seule fois) -->
-      <div class="jdb-intro" *ngIf="introVisible">
-        <button class="jdb-intro-close" (click)="fermerIntro()" aria-label="Fermer">✕</button>
-        <h2 class="jdb-intro-titre">{{ 'parcours.intro.titre' | translate }}</h2>
-        <p class="jdb-intro-texte">{{ 'parcours.intro.texte' | translate }}</p>
-      </div>
     </div>
 
     <!-- Feuille : journal de bord -->
@@ -215,6 +208,15 @@
   </ng-container>
 
 </ion-content>
+
+<!-- Popup d'intro du journal de bord (une seule fois, après le tuto) -->
+<div class="jdb-intro-overlay" *ngIf="introVisible" (click)="fermerIntro()">
+  <div class="jdb-intro" (click)="$event.stopPropagation()">
+    <button class="jdb-intro-close" (click)="fermerIntro()" aria-label="Fermer">✕</button>
+    <h2 class="jdb-intro-titre">{{ 'parcours.intro.titre' | translate }}</h2>
+    <p class="jdb-intro-texte">{{ 'parcours.intro.texte' | translate }}</p>
+  </div>
+</div>
 
 <!-- Photo agrandie (plein écran) -->
 <div class="image-overlay" *ngIf="imageAgrandie() as img" (click)="fermerImageAgrandie()">

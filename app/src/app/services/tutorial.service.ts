@@ -75,13 +75,26 @@ export class TutorialService {
     await Preferences.set({ key: CLE_ETAPE, value: '0' });
   }
 
+  // Mémorise la promesse de la toute première reprise (TabsPage l'appelle
+  // sans l'attendre dans son constructeur) : les pages enfants (ex. Parcours)
+  // peuvent l'attendre pour savoir avec certitude si le tuto est actif avant
+  // de décider d'afficher leur propre popup — sans cette mise en cache, deux
+  // appels concurrents relisent le storage en parallèle et un lecteur rapide
+  // peut consulter `actif()` avant que la reprise ait fini de le positionner.
+  private reprisePromise: Promise<void> | null = null;
+
   /**
    * Reprend le tuto là où l'utilisateur l'a laissé, uniquement s'il a déjà
    * été démarré sur cet appareil et jamais terminé. N'affecte jamais un
    * compte qui ne l'a jamais commencé (utilisateurs déjà inscrits avant
    * l'introduction de cette fonctionnalité).
    */
-  async reprendreSiEnCours() {
+  reprendreSiEnCours(): Promise<void> {
+    if (!this.reprisePromise) this.reprisePromise = this.resoudreReprise();
+    return this.reprisePromise;
+  }
+
+  private async resoudreReprise() {
     if (this.actif()) return;
     const { value: termine } = await Preferences.get({ key: CLE_TERMINE });
     if (termine) return;
