@@ -78,6 +78,16 @@ export class ComptePage {
   ) {
     addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, heartOutline });
 
+    // RewardService n'a pas de cache local (contrairement aux badges/favoris) : ses
+    // compteurs ne sont normalement chargés qu'une fois, en arrière-plan, au splash.
+    // On les recharge ici pour ne pas rester bloqué à 0/0 si ce chargement a raté
+    // ou pas encore eu le temps d'aboutir quand l'utilisateur ouvre cette page.
+    if (this.auth.estConnecte()) {
+      this.rewardService.chargerTotalJeux();
+      this.rewardService.chargerJeuxGagnes();
+      this.rewardService.chargerRecompense();
+    }
+
     effect(() => {
       const code = this.rewardService.recompense()?.code ?? null;
       if (code === this.dernierCodeQr) return;
