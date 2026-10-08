@@ -727,10 +727,3 @@ ion-content.parcours-content {
   font-size: 13px; font-weight: 800;
 }
 
-.jdb-carte:not(.jdb-carte--validee) .jdb-carte-statut::before {
-  content: '';
-  display: block;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  border: 2px solid #d8dfe8;
-}
