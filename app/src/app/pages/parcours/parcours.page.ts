@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { Preferences } from '../../core/preferences';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { locationOutline, personOutline } from 'ionicons/icons';
+import { locationOutline, personOutline, gameControllerOutline } from 'ionicons/icons';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
@@ -191,7 +191,7 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
     private translate: TranslateService,
     private tutorial: TutorialService,
   ) {
-    addIcons({ locationOutline, personOutline });
+    addIcons({ locationOutline, personOutline, gameControllerOutline });
   }
 
   ngOnInit() {
