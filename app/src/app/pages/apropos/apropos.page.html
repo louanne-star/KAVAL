@@ -150,7 +150,10 @@
         </ng-container>
       </div>
       <p class="vestige-popup-nom">{{ v.nom }}</p>
-      <p class="vestige-popup-legende" *ngIf="v.legende">{{ v.legende }}</p>
+      <div class="vestige-popup-texte" *ngIf="v.description">
+        <p class="vestige-popup-description" [innerHTML]="v.description"></p>
+        <p class="vestige-popup-credit" *ngIf="v.credit">{{ v.credit }}</p>
+      </div>
       <div class="vestige-popup-dots" *ngIf="contenu().vestiges.length > 1">
         <span *ngFor="let d of contenu().vestiges; let i = index" [class.active]="i === vestigePopupIndex"></span>
       </div>

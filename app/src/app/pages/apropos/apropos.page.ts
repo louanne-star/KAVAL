@@ -13,7 +13,10 @@ import { Preferences } from '../../core/preferences';
 // comme avant.
 const CLE_SECTIONS_REVELEES = 'kaval_apropos_sections_revelees';
 
-type Vestige = { nom: string; icone: string; couleur: string; image?: string; legende?: string };
+// description : légende en paragraphe(s), peut contenir des balises <strong>
+// (affichée via [innerHTML] côté template). credit : ligne de crédit photo
+// séparée (album/collection), affichée en dessous, en italique.
+type Vestige = { nom: string; icone: string; couleur: string; image?: string; description?: string; credit?: string };
 type Credit = { role: string; nom?: string; lien?: string; html?: string };
 
 // Mêmes photos que les points « vrai » correspondants (bucket Storage "photos").
@@ -28,11 +31,21 @@ const CONTENU = {
     },
     vestigesTitre: 'LES VESTIGES',
     vestiges: [
-      { nom: 'La Boulangerie', icone: 'flame-outline', couleur: '#2d1a0a', image: PHOTOS + 'boulangerie_result.avif', legende: "Vue de la boulangerie vers 1872 : cheminées pas encore rallongées, rampes d'accès pas encore opérationnelles. Au premier plan, le photographe Ernest Robin pose devant un réverbère à poulie. Album Robin, bibliothèque Bernheim." },
-      { nom: 'Magasin des vivres', icone: 'storefront-outline', couleur: '#0a1a2d', image: PHOTOS + 'magasin-des-vivres_result.avif', legende: 'Magasin des vivres, logement et bureaux du comptable, aile ouest. Album Leloup, collection Kakou, ANC.' },
-      { nom: 'Les Ateliers', icone: 'hammer-outline', couleur: '#1a2e1e', image: PHOTOS + encodeURIComponent('batiment H_result.avif'), legende: 'Le bâtiment en H des ateliers, façade nord-ouest. Cliché Théotime Bray, ANOM.' },
-      { nom: 'Caserne des surveillants', icone: 'home-outline', couleur: '#1a1a2d', image: PHOTOS + encodeURIComponent('la caserne des surveillants maries_result.avif'), legende: 'La caserne des surveillants mariés et ses dépendances. Collection musée Ernest Cognacq, fonds Ubaud, Saint-Martin-de-Ré.' },
-      { nom: 'Chapelle Saint-Thomas', icone: 'prism-outline', couleur: '#2d1a2d', image: PHOTOS + 'chapelle_result.avif', legende: 'La chapelle Saint-Thomas vers 1893, avec son clocher en briques de près de 9 m, dans le style caractéristique de la Pénitentiaire. Cliché Théotime Bray, ANOM.' },
+      { nom: 'La Boulangerie', icone: 'flame-outline', couleur: '#2d1a0a', image: PHOTOS + 'boulangerie_result.avif',
+        description: "Vue de la boulangerie vers <strong>1872</strong> : cheminées pas encore rallongées, rampes d'accès pas encore opérationnelles. Au premier plan, le photographe <strong>Ernest Robin</strong> pose devant un réverbère à poulie.",
+        credit: 'Album Robin, bibliothèque Bernheim.' },
+      { nom: 'Magasin des vivres', icone: 'storefront-outline', couleur: '#0a1a2d', image: PHOTOS + 'magasin-des-vivres_result.avif',
+        description: "Magasin des vivres, logement et bureaux du comptable, <strong>aile ouest</strong>.",
+        credit: 'Album Leloup, collection Kakou, ANC.' },
+      { nom: 'Les Ateliers', icone: 'hammer-outline', couleur: '#1a2e1e', image: PHOTOS + encodeURIComponent('batiment H_result.avif'),
+        description: 'Le bâtiment en <strong>H</strong> des ateliers, façade nord-ouest.',
+        credit: 'Cliché Théotime Bray, ANOM.' },
+      { nom: 'Caserne des surveillants', icone: 'home-outline', couleur: '#1a1a2d', image: PHOTOS + encodeURIComponent('la caserne des surveillants maries_result.avif'),
+        description: 'La caserne des surveillants mariés et ses dépendances.',
+        credit: 'Collection musée Ernest Cognacq, fonds Ubaud, Saint-Martin-de-Ré.' },
+      { nom: 'Chapelle Saint-Thomas', icone: 'prism-outline', couleur: '#2d1a2d', image: PHOTOS + 'chapelle_result.avif',
+        description: "La chapelle Saint-Thomas vers <strong>1893</strong>, avec son clocher en briques de près de <strong>9 m</strong>, dans le style caractéristique de la Pénitentiaire.",
+        credit: 'Cliché Théotime Bray, ANOM.' },
     ] as Vestige[],
     artisanat: {
       titre: "L'ARTISANAT",
@@ -82,11 +95,21 @@ const CONTENU = {
     },
     vestigesTitre: 'THE REMAINS',
     vestiges: [
-      { nom: 'The Bakery', icone: 'flame-outline', couleur: '#2d1a0a', image: PHOTOS + 'boulangerie_result.avif', legende: "View of the bakery around 1872: the chimneys not yet extended, the access ramps not yet in use. In the foreground, photographer Ernest Robin poses in front of a pulley streetlamp. Robin album, Bernheim library." },
-      { nom: 'Provisions Store', icone: 'storefront-outline', couleur: '#0a1a2d', image: PHOTOS + 'magasin-des-vivres_result.avif', legende: "Provisions store, accountant's lodging and offices, west wing. Leloup album, Kakou collection, ANC." },
-      { nom: 'The Workshops', icone: 'hammer-outline', couleur: '#1a2e1e', image: PHOTOS + encodeURIComponent('batiment H_result.avif'), legende: 'The H-shaped workshop building, north-west façade. Photograph by Théotime Bray, ANOM.' },
-      { nom: 'Guards’ Barracks', icone: 'home-outline', couleur: '#1a1a2d', image: PHOTOS + encodeURIComponent('la caserne des surveillants maries_result.avif'), legende: "The married guards' barracks and its outbuildings. Musée Ernest Cognacq collection, Ubaud fund, Saint-Martin-de-Ré." },
-      { nom: 'Saint-Thomas Chapel', icone: 'prism-outline', couleur: '#2d1a2d', image: PHOTOS + 'chapelle_result.avif', legende: 'Saint-Thomas chapel around 1893, with its brick bell tower nearly 9 m high, in the style characteristic of the Penitentiary. Photograph by Théotime Bray, ANOM.' },
+      { nom: 'The Bakery', icone: 'flame-outline', couleur: '#2d1a0a', image: PHOTOS + 'boulangerie_result.avif',
+        description: "View of the bakery around <strong>1872</strong>: the chimneys not yet extended, the access ramps not yet in use. In the foreground, photographer <strong>Ernest Robin</strong> poses in front of a pulley streetlamp.",
+        credit: 'Robin album, Bernheim library.' },
+      { nom: 'Provisions Store', icone: 'storefront-outline', couleur: '#0a1a2d', image: PHOTOS + 'magasin-des-vivres_result.avif',
+        description: "Provisions store, accountant's lodging and offices, <strong>west wing</strong>.",
+        credit: 'Leloup album, Kakou collection, ANC.' },
+      { nom: 'The Workshops', icone: 'hammer-outline', couleur: '#1a2e1e', image: PHOTOS + encodeURIComponent('batiment H_result.avif'),
+        description: 'The <strong>H-shaped</strong> workshop building, north-west façade.',
+        credit: 'Photograph by Théotime Bray, ANOM.' },
+      { nom: 'Guards’ Barracks', icone: 'home-outline', couleur: '#1a1a2d', image: PHOTOS + encodeURIComponent('la caserne des surveillants maries_result.avif'),
+        description: "The married guards' barracks and its outbuildings.",
+        credit: 'Musée Ernest Cognacq collection, Ubaud fund, Saint-Martin-de-Ré.' },
+      { nom: 'Saint-Thomas Chapel', icone: 'prism-outline', couleur: '#2d1a2d', image: PHOTOS + 'chapelle_result.avif',
+        description: 'Saint-Thomas chapel around <strong>1893</strong>, with its brick bell tower nearly <strong>9 m</strong> high, in the style characteristic of the Penitentiary.',
+        credit: 'Photograph by Théotime Bray, ANOM.' },
     ] as Vestige[],
     artisanat: {
       titre: 'CRAFTSMANSHIP',
