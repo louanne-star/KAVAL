@@ -126,7 +126,7 @@
     <div class="popup-card" (click)="$event.stopPropagation()">
       <button class="popup-close" (click)="fermerPopup()">✕</button>
       <h3 class="popup-titre">{{ contenu().popups[popupOuvert].titre }}</h3>
-      <p class="popup-texte">{{ contenu().popups[popupOuvert].texte }}</p>
+      <p class="popup-texte" *ngFor="let p of contenu().popups[popupOuvert].texte" [innerHTML]="p"></p>
     </div>
   </div>
 

@@ -66,11 +66,19 @@ const CONTENU = {
     popups: {
       histoire: {
         titre: 'Histoire du bagne',
-        texte: "Créé en 1864 à la pointe de Nouville, le pénitencier-dépôt de l'Île Nou fut le point d'entrée de la transportation pénale française en Nouvelle-Calédonie : c'est là qu'arrivaient les condamnés, avant d'être répartis vers les camps de l'île ou de la Grande Terre (Bourail, Canala, la vallée du Diahot...). Jusqu'à la fin de la transportation en 1897, environ 22 000 forçats furent envoyés dans la colonie. Les conditions de vie y étaient très dures : le taux de mortalité annuel a atteint environ 27 pour 1 000 entre 1877 et 1883. Les principaux bâtiments du site ont été classés monuments historiques en 1977, et le site a rouvert au public en 2021 grâce au travail de préservation de l'association ATUP (Témoignage d'un Passé).",
+        texte: [
+          "Créé en <strong>1864</strong> à la pointe de Nouville, le pénitencier-dépôt de l'Île Nou fut le point d'entrée de la transportation pénale française en Nouvelle-Calédonie : c'est là qu'arrivaient les condamnés, avant d'être répartis vers les camps de l'île ou de la Grande Terre (Bourail, Canala, la vallée du Diahot...).",
+          "Jusqu'à la fin de la transportation en <strong>1897</strong>, environ <strong>22 000 forçats</strong> furent envoyés dans la colonie. Les conditions de vie y étaient très dures : le taux de mortalité annuel a atteint environ <strong>27 pour 1 000</strong> entre 1877 et 1883.",
+          "Les principaux bâtiments du site ont été classés monuments historiques en <strong>1977</strong>, et le site a rouvert au public en <strong>2021</strong> grâce au travail de préservation de l'association ATUP (Témoignage d'un Passé).",
+        ],
       },
       vestiges: {
         titre: 'Les Vestiges',
-        texte: "Une partie des bâtiments d'origine est aujourd'hui classée monument historique et se visite : l'ancienne boulangerie pénitentiaire (qui abrite désormais une exposition), le bâtiment cellulaire de l'hôpital, l'hôtel du commandant, le presbytère et la chapelle Saint-Thomas. D'autres constructions, notamment celles du Camp Est et de la Vacherie, ont aujourd'hui disparu et ne subsistent que sur d'anciennes photographies. Le site est entretenu par l'association ATUP (Témoignage d'un Passé), qui organise aussi des visites guidées et des ateliers pédagogiques.",
+        texte: [
+          "Une partie des bâtiments d'origine est aujourd'hui classée <strong>monument historique</strong> et se visite : l'ancienne boulangerie pénitentiaire (qui abrite désormais une exposition), le bâtiment cellulaire de l'hôpital, l'hôtel du commandant, le presbytère et la chapelle Saint-Thomas.",
+          "D'autres constructions, notamment celles du <strong>Camp Est</strong> et de la <strong>Vacherie</strong>, ont aujourd'hui disparu et ne subsistent que sur d'anciennes photographies.",
+          "Le site est entretenu par l'association <strong>ATUP</strong> (Témoignage d'un Passé), qui organise aussi des visites guidées et des ateliers pédagogiques.",
+        ],
       },
     },
   },
@@ -120,11 +128,19 @@ const CONTENU = {
     popups: {
       histoire: {
         titre: 'History of the penal colony',
-        texte: "Founded in 1864 at the Nouville headland, the Île Nou penitentiary depot was the entry point for French penal transportation to New Caledonia: this is where convicts arrived before being dispatched to camps on the island or on the mainland (Bourail, Canala, the Diahot valley...). By the end of transportation in 1897, about 22,000 convicts had been sent to the colony. Living conditions were extremely harsh: the annual mortality rate reached about 27 per 1,000 between 1877 and 1883. The site's main buildings were listed as historical monuments in 1977, and the site reopened to the public in 2021 thanks to the preservation work of the ATUP association (Témoignage d'un Passé).",
+        texte: [
+          "Founded in <strong>1864</strong> at the Nouville headland, the Île Nou penitentiary depot was the entry point for French penal transportation to New Caledonia: this is where convicts arrived before being dispatched to camps on the island or on the mainland (Bourail, Canala, the Diahot valley...).",
+          "By the end of transportation in <strong>1897</strong>, about <strong>22,000 convicts</strong> had been sent to the colony. Living conditions were extremely harsh: the annual mortality rate reached about <strong>27 per 1,000</strong> between 1877 and 1883.",
+          "The site's main buildings were listed as historical monuments in <strong>1977</strong>, and the site reopened to the public in <strong>2021</strong> thanks to the preservation work of the ATUP association (Témoignage d'un Passé).",
+        ],
       },
       vestiges: {
         titre: 'The Remains',
-        texte: "Some of the original buildings are now listed historical monuments open to visitors: the former penitentiary bakery (now housing an exhibition), the hospital's cell block, the commandant's residence, the presbytery and the Saint-Thomas chapel. Other structures, notably those of Camp Est and La Vacherie, have since disappeared and survive only in old photographs. The site is maintained by the ATUP association (Témoignage d'un Passé), which also organizes guided tours and educational workshops.",
+        texte: [
+          "Some of the original buildings are now listed <strong>historical monuments</strong> open to visitors: the former penitentiary bakery (now housing an exhibition), the hospital's cell block, the commandant's residence, the presbytery and the Saint-Thomas chapel.",
+          "Other structures, notably those of <strong>Camp Est</strong> and <strong>La Vacherie</strong>, have since disappeared and survive only in old photographs.",
+          "The site is maintained by the <strong>ATUP</strong> association (Témoignage d'un Passé), which also organizes guided tours and educational workshops.",
+        ],
       },
     },
   },

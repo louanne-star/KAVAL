@@ -467,7 +467,11 @@
   font-size: 14px;
   color: #555;
   line-height: 1.7;
-  margin: 0;
+  margin: 0 0 12px;
+
+  &:last-child { margin-bottom: 0; }
+
+  strong { color: #1a2e1e; font-weight: 700; }
 }
 
 // Popup aperçu en grand d'un vestige
