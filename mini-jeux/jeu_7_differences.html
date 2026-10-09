@@ -4,17 +4,20 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1a16;--fg:#f1ebe0;--card:#2a2621;--mut:#a89c8a}}
 :root[data-theme="dark"]{--bg:#1d1a16;--fg:#f1ebe0;--card:#2a2621;--mut:#a89c8a}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{overscroll-behavior:none}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;align-items:center;padding:12px}
-h1{font-size:1.2rem;margin:4px 0}.bar{display:flex;gap:12px;align-items:center;margin:8px 0 12px;flex-wrap:wrap;justify-content:center}
-.dots{display:flex;gap:7px}.dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--mut)}.dot.on{background:var(--ok);border-color:var(--ok)}
-button{font:inherit;font-size:15px;padding:12px 20px;min-height:44px;border-radius:12px;border:0;background:var(--ac);color:#fff;touch-action:manipulation}button:active{transform:scale(0.96)}button:disabled{opacity:.45;pointer-events:none}
-.imgs{display:grid;grid-template-columns:1fr;gap:10px;width:100%;max-width:480px;margin:0 auto}@media(min-width:900px){.imgs{grid-template-columns:1fr 1fr;max-width:720px;gap:14px}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{overscroll-behavior:none}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;align-items:center;padding:10px}
+@media(max-width:899px){body{height:100dvh;overflow:hidden}}
+h1{font-size:1.05rem;margin:2px 0;flex-shrink:0}.bar{display:flex;gap:10px;align-items:center;margin:4px 0;flex-wrap:wrap;justify-content:center;flex-shrink:0}
+.dots{display:flex;gap:6px}.dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--mut)}.dot.on{background:var(--ok);border-color:var(--ok)}
+button{font:inherit;font-size:14px;padding:10px 16px;min-height:40px;border-radius:12px;border:0;background:var(--ac);color:#fff;touch-action:manipulation}button:active{transform:scale(0.96)}button:disabled{opacity:.45;pointer-events:none}
+.imgs{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;flex:1;min-height:0}
+@media(min-width:900px){.imgs{display:grid;grid-template-columns:1fr 1fr;max-width:720px;gap:14px;flex:none}}
 .pic{position:relative;border-radius:12px;overflow:hidden;background:var(--card);touch-action:manipulation}
 .pic img{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none}
+@media(min-width:900px){.pic img{width:100%;height:auto}}
 .mk{position:absolute;border:4px solid var(--ok);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
 .ko{position:absolute;color:var(--ac);font-size:2rem;font-weight:700;transform:translate(-50%,-50%);pointer-events:none;animation:f .6s forwards}
 .hint{animation:p 1s 3}@keyframes f{to{opacity:0}}@keyframes p{50%{box-shadow:0 0 0 12px #f1c40f}}
-#msg{min-height:1.5em;text-align:center;font-weight:600;font-size:15px;padding:0 10px}
+#msg{min-height:1.1em;text-align:center;font-weight:600;font-size:13px;padding:0 10px;flex-shrink:0}
 </style></head><body>
 <h1 id="h1">Jeu des 7 différences</h1>
 <div class="bar"><div class="dots" id="dots"></div><button id="hb">Indice</button><button id="rb" style="background:var(--mut)">Rejouer</button></div>
@@ -61,4 +64,25 @@ msg.textContent=T.trouvees(found.length);if(found.length===7){done=true;msg.text
 else{var k=document.createElement('div');k.className='ko';k.textContent='✕';k.style.left=x+'%';k.style.top=y+'%';p.appendChild(k);setTimeout(function(){k.remove()},600)}})});
 document.getElementById('hb').onclick=function(){if(done||hintsUsed>=HINT_MAX)return;for(var i=0;i<Z.length;i++)if(found.indexOf(i)<0){mark(Z[i],'hint');break}hintsUsed++;updateHintBtn();};
 document.getElementById('rb').onclick=init;init();
+
+// Sous les ~900px (mobile), les deux images sont empilées : on les
+// dimensionne pour qu'elles tiennent toutes les deux à l'écran sans scroll
+// (sinon impossible de comparer les deux images facilement). `.pic` reçoit
+// une taille en px calculée à partir du ratio réel de l'image, pour que la
+// zone cliquable reste strictement égale à l'image affichée (le calcul en
+// % des différences et des marqueurs suppose .pic === la boîte de l'image).
+var imgsEl=document.querySelector('.imgs'),pics=document.querySelectorAll('.pic');
+function ajusterTaille(){
+  if(window.innerWidth>=900){pics.forEach(function(p){p.style.width='';p.style.height=''});return;}
+  var img0=pics[0].querySelector('img');
+  if(!img0.naturalWidth){return;}
+  var ratio=img0.naturalWidth/img0.naturalHeight;
+  var gap=8,availH=imgsEl.clientHeight,availW=imgsEl.clientWidth;
+  var h=Math.min((availH-gap)/2,availW/ratio),w=h*ratio;
+  pics.forEach(function(p){p.style.width=w+'px';p.style.height=h+'px'});
+}
+var img0=pics[0].querySelector('img');
+if(img0.complete)ajusterTaille();else img0.onload=ajusterTaille;
+window.addEventListener('resize',ajusterTaille);
+window.addEventListener('orientationchange',function(){setTimeout(ajusterTaille,50)});
 </script></body></html>
