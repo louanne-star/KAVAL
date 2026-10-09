@@ -20,17 +20,12 @@ export interface JourneyZone {
   zoneNomEn?: string;
 }
 
-export interface SegmentItineraire {
-  coordonnees: [number, number][]; // [lat, lng] pairs, ready for Leaflet
-  distance: number;                // metres from OSRM
-  duree: number;                   // seconds from OSRM
-}
-
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const CLE_PERSISTANCE = 'kaval_journey_v1';
-const OSRM_BASE       = 'https://router.project-osrm.org/route/v1/foot';
 // Position de secours utilisée quand le GPS échoue/est refusé : IUT de Nouvelle-Calédonie, Nouville.
+// Sert uniquement à positionner les points sur la carte (ordre du parcours, marqueurs) — jamais à
+// afficher un itinéraire, qui exige une position GPS réelle (voir MapPage.toggleItineraire).
 const POSITION_DEPART_IUT: [number, number] = [-22.26889, 166.41944];
 const DIRECTION_NOMS  = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
 const DIRECTION_FLECHES: Record<string, string> = {
@@ -46,7 +41,6 @@ export class JourneyService {
   zones               = signal<JourneyZone[]>([]);
   positionUtilisateur = signal<GeolocationPosition | null>(null);
   erreurGPS           = signal<string | null>(null);
-  segmentsItineraire  = signal<SegmentItineraire[]>([]);
 
   // ── Computed ───────────────────────────────────────────────────────────────
   readonly zonesDebloquees = computed(() =>
@@ -78,7 +72,6 @@ export class JourneyService {
   async reinitialiser() {
     await Preferences.remove({ key: CLE_PERSISTANCE });
     this.zones.set([]);
-    this.segmentsItineraire.set([]);
     const pos = this.positionUtilisateur();
     if (pos) this.construireRoute(pos.coords.latitude, pos.coords.longitude);
     else this.demarrerAvecPositionDefaut();
@@ -148,7 +141,6 @@ export class JourneyService {
     if (zones.length === source.length && zones.length > 0) {
       this.zones.set(zones);
       this.sauvegarderEtat(); // écrase l'ancien format (qui avait des zones verrouillées)
-      this.fetcherItineraires(zones);
     }
   }
 
@@ -238,7 +230,6 @@ export class JourneyService {
 
     this.zones.set(zones);
     this.sauvegarderEtat();
-    this.fetcherItineraires(zones);
   }
 
   // Regroupe les points sources par zoneId, chaque groupe trié par ordre curaté
@@ -328,46 +319,6 @@ export class JourneyService {
       }
     });
     return resultats;
-  }
-
-  // ── OSRM real-road routing ─────────────────────────────────────────────────
-
-  private fetcherItineraires(zones: JourneyZone[]) {
-    const promises = zones.slice(0, -1).map((a, i) =>
-      this.fetcherSegment(a, zones[i + 1])
-    );
-    Promise.all(promises).then(segments => this.segmentsItineraire.set(segments));
-  }
-
-  // Au-delà de ce ratio (distance OSRM / distance à vol d'oiseau), on considère que
-  // le détour est absurde plutôt que réel — observé en pratique : dans le cluster
-  // dense de la zone Pénitentiaire (bâtiments à 20-30m les uns des autres), OSRM
-  // piéton fait parfois sortir jusqu'à la rue publique et revenir faute de chemin
-  // direct cartographié, x3 à x6 la distance réelle. Ça donne un tracé en zigzag
-  // qui semble "cassé" visuellement alors qu'il est techniquement continu — une
-  // ligne droite est alors plus fidèle et plus lisible que ce faux détour.
-  private readonly SEUIL_DETOUR_ABSURDE = 2.5;
-
-  private async fetcherSegment(a: JourneyZone, b: JourneyZone): Promise<SegmentItineraire> {
-    const distanceDirecte = this.haversine(a.coords[0], a.coords[1], b.coords[0], b.coords[1]);
-    const fallback: SegmentItineraire = { coordonnees: [a.coords, b.coords], distance: distanceDirecte, duree: 0 };
-    try {
-      const waypoints = `${a.coords[1]},${a.coords[0]};${b.coords[1]},${b.coords[0]}`;
-      const resp = await fetch(
-        `${OSRM_BASE}/${waypoints}?overview=full&geometries=geojson`,
-        { signal: AbortSignal.timeout(8000) }
-      );
-      if (!resp.ok) return fallback;
-      const data = await resp.json();
-      if (data.code !== 'Ok' || !data.routes?.[0]) return fallback;
-      const distance = data.routes[0].distance;
-      if (distanceDirecte > 15 && distance > distanceDirecte * this.SEUIL_DETOUR_ABSURDE) return fallback;
-      const coordonnees = (data.routes[0].geometry.coordinates as [number, number][])
-        .map(([lng, lat]) => [lat, lng] as [number, number]);
-      return { coordonnees, distance, duree: data.routes[0].duration };
-    } catch {
-      return fallback;
-    }
   }
 
   // ── Geometry helpers ───────────────────────────────────────────────────────

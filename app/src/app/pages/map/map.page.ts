@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import maplibreGL from '@maplibre/maplibre-gl-leaflet';
-import { JourneyService, JourneyZone, SegmentItineraire } from '../../services/journey.service';
+import { JourneyService, JourneyZone } from '../../services/journey.service';
 import { BadgeService } from '../../services/badge.service';
 import { RatingService } from '../../services/rating.service';
 import { FavoriteService } from '../../services/favorite.service';
@@ -125,7 +125,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
   private tileSatellite!: L.TileLayer;
   private marqueurs = new Map<string, L.Marker>();
   private overlays  = new Map<string, L.Circle>();
-  private segments     = new Map<string, { bg: L.Polyline; fg: L.Polyline }>();
   private popupMarqueurs: L.Marker[] = [];
 
   // ── Leaflet handles: live navigation (user → next zone) ───────────────────
@@ -258,12 +257,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
       });
     });
 
-    // Redessine les cercles, segments et marqueurs quand les zones, l'itinéraire ou la cible nav changent.
+    // Redessine les cercles et marqueurs quand les zones changent.
     effect(() => {
-      const zones    = this.journeyService.zones();
-      const segments = this.journeyService.segmentsItineraire();
-      this.navCibleId(); // masque/affiche les segments selon l'état nav
-      if (this.mapPret()) this.mettreAJourCarte(zones, segments);
+      const zones = this.journeyService.zones();
+      if (this.mapPret()) this.mettreAJourCarte(zones);
     });
 
     // Affiche tous les points popup dès que le contenu est chargé — indépendant des badges/itinéraire.
@@ -487,7 +484,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
 
   // ── Zone layer update ─────────────────────────────────────────────────────
 
-  private mettreAJourCarte(zones: JourneyZone[], itineraires: SegmentItineraire[]) {
+  private mettreAJourCarte(zones: JourneyZone[]) {
     if (zones.length === 0) {
       this.nettoyerTout();
       return;
@@ -517,8 +514,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
       }
     });
 
-    this.mettreAJourSegments(zones, itineraires);
-
     zones.forEach(zone => {
       this.marqueurs.get(zone.id)?.remove();
       const marqueur = L.marker(zone.coords, {
@@ -533,45 +528,6 @@ export class MapPage implements AfterViewInit, OnDestroy {
         }));
       this.marqueurs.set(zone.id, marqueur);
     });
-  }
-
-  // ── Ghost segments ────────────────────────────────────────────────────────
-
-  private mettreAJourSegments(zones: JourneyZone[], itineraires: SegmentItineraire[]) {
-    this.segments.forEach(s => { s.bg.remove(); s.fg.remove(); });
-    this.segments.clear();
-
-    // Pendant la navigation active, on n'affiche que le tracé OSRM live —
-    // sauf si on n'a pas de position réelle, auquel cas ce tracé live ne peut
-    // jamais se dessiner : on garde alors le tracé fantôme pour ne pas laisser
-    // la carte sans aucune ligne.
-    if (untracked(() => this.navCibleId()) && untracked(() => this.journeyService.positionUtilisateur())) return;
-
-    for (let i = 0; i < zones.length - 1; i++) {
-      const a = zones[i];
-      const b = zones[i + 1];
-      const coords: L.LatLngExpression[] = itineraires[i]?.coordonnees.length > 1
-        ? itineraires[i].coordonnees
-        : [a.coords, b.coords];
-
-      let couleur: string, poidsCore: number, poidsBord: number, opacite: number, dash: string | undefined, className: string | undefined;
-
-      const badges = this.badgeService.badges();
-      if (badges.has(b.id)) {
-        // Segment complété : navy plein bien visible
-        couleur = '#27476e'; poidsCore = 6; poidsBord = 12; opacite = 0.95; dash = undefined; className = undefined;
-      } else if (badges.has(a.id)) {
-        // Segment prochain : bleu animé
-        couleur = '#3498db'; poidsCore = 4; poidsBord = 10; opacite = 0.9; dash = '12 7'; className = 'seg-prochain';
-      } else {
-        // Segments futurs : discrets mais lisibles sur le fond de carte clair
-        couleur = '#8a93a6'; poidsCore = 3; poidsBord = 7; opacite = 0.55; dash = '4 8'; className = undefined;
-      }
-
-      const bg = L.polyline(coords, { weight: poidsBord, color: '#ffffff', opacity: opacite }).addTo(this.map);
-      const fg = L.polyline(coords, { weight: poidsCore, color: couleur, opacity: opacite, dashArray: dash, className }).addTo(this.map);
-      this.segments.set(String(i), { bg, fg });
-    }
   }
 
   // ── Live navigation: user position → next zone ────────────────────────────
@@ -884,11 +840,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
   private nettoyerTout() {
     this.marqueurs.forEach(m => m.remove());
     this.overlays.forEach(o => o.remove());
-    this.segments.forEach(s => { s.bg.remove(); s.fg.remove(); });
     this.supprimerNavActive();
     this.marqueurs.clear();
     this.overlays.clear();
-    this.segments.clear();
     this.marqueurUtilisateur?.remove();
     this.marqueurUtilisateur = undefined;
   }
