@@ -54,28 +54,12 @@
     width:100%;
   }
 
-  .eyebrow{
-    font-size:11px;
-    letter-spacing:3px;
-    color:var(--gold);
-    text-transform:uppercase;
-    font-weight:700;
-    margin-bottom:6px;
-  }
-
   h1{
     margin:0;
     font-size:clamp(26px,7.5vw,34px);
     letter-spacing:-0.3px;
     font-weight:800;
     color:#fff;
-  }
-
-  .subtitle{
-    margin-top:8px;
-    font-size:13px;
-    color:var(--text-dim);
-    font-style:italic;
   }
 
   .instructions{
@@ -185,14 +169,6 @@
   .tex-6{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c6); }
   .tex-7{ background:radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 55%), var(--c7); }
 
-  footer{
-    text-align:center;
-    font-size:11px;
-    color:var(--text-dim);
-    letter-spacing:0.3px;
-    max-width:380px;
-  }
-
   .overlay{
     position:fixed;
     inset:0;
@@ -252,15 +228,13 @@
 
 <div class="page">
   <header>
-    <div class="eyebrow" data-i18n="eyebrow">Bagne de l'île sèche</div>
     <h1 data-i18n="titre">Connexion des forçats</h1>
-    <div class="subtitle" data-i18n="sousTitre">Relie chaque paire, nul ne s'évade seul</div>
-    <p class="instructions" data-i18n="instructions">Fais glisser d'un symbole à son identique pour tracer une chaîne. Les chaînes ne peuvent jamais se croiser.</p>
+    <p class="instructions" data-i18n="instructions">Glisse ton doigt d'un symbole à son jumeau pour les relier. Les traits ne doivent jamais se croiser.</p>
   </header>
 
   <div class="board-frame">
     <div class="toolbar">
-      <span class="label" data-i18n="niveau">Niveau moyen · 7 paires</span>
+      <span class="label" data-i18n="niveau">7 paires</span>
       <button class="reset-btn" id="resetBtn" data-i18n="recommencer">Recommencer</button>
     </div>
 
@@ -269,8 +243,6 @@
       <svg class="paths" id="svgPaths"></svg>
     </div>
   </div>
-
-  <footer data-i18n="astuce">Astuce : les gardiens ont posé leurs cadenas sur certaines cases, impossible d'y faire passer une autre chaîne.</footer>
 </div>
 
 <div class="overlay" id="overlay">
@@ -289,25 +261,19 @@
   document.documentElement.lang = LANG;
   const I18N = {
     fr: {
-      eyebrow: "Bagne de l'île sèche",
       titre: 'Connexion des forçats',
-      sousTitre: "Relie chaque paire, nul ne s'évade seul",
-      instructions: "Fais glisser d'un symbole à son identique pour tracer une chaîne. Les chaînes ne peuvent jamais se croiser.",
-      niveau: 'Niveau moyen · 7 paires',
+      instructions: "Glisse ton doigt d'un symbole à son jumeau pour les relier. Les traits ne doivent jamais se croiser.",
+      niveau: '7 paires',
       recommencer: 'Recommencer',
-      astuce: "Astuce : les gardiens ont posé leurs cadenas sur certaines cases, impossible d'y faire passer une autre chaîne.",
       victoireTitre: 'Évasion réussie',
       victoireTexte: 'Tous les forçats sont enchaînés ensemble. La cour du bagne est enfin silencieuse.',
       rejouer: 'Rejouer',
     },
     en: {
-      eyebrow: 'The Dry Island penal colony',
       titre: 'Connect the Convicts',
-      sousTitre: 'Link every pair, no one escapes alone',
-      instructions: 'Drag from one symbol to its match to draw a chain. Chains can never cross.',
-      niveau: 'Medium level · 7 pairs',
+      instructions: 'Drag your finger from one symbol to its twin to connect them. The lines must never cross.',
+      niveau: '7 pairs',
       recommencer: 'Restart',
-      astuce: "Tip: the guards have locked some cells with padlocks, so no other chain can pass through them.",
       victoireTitre: 'Escape successful',
       victoireTexte: 'All the convicts are now chained together. The penal colony yard is finally silent.',
       rejouer: 'Play again',
