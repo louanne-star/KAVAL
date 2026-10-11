@@ -19,6 +19,7 @@ const BADGE_FICHIERS: Record<string, string> = {
   chapelle_saint_thomas:                   '06 - Chapelle.png',
   logement_surveillant_principal:          '07 - Logement surveillant.png',
   quartier_cellulaire:                     '09 - Quartier cellulaire.png',
+  logement_surveillants_1ere_classe:       '11 - Logment surveillants 1ere classe.png',
   logement_surveillants_militaires_maries: '10 - Logement surveillants maries.png',
   batiment_officiers_administration:       '12 - Batiment officiers administration.png',
   magasin_a_vivre:                         '13 - Magasin.png',
