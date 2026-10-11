@@ -11,14 +11,21 @@ const BUCKET_BADGES = 'badges';
 // fournie). Les points absents de cette liste retombent sur l'ancien badge
 // SVG généré localement (voir badgeImageUrl juste en dessous).
 const BADGE_FICHIERS: Record<string, string> = {
+  camp_est_principal:                      '01 - Camp Est.png',
   four_a_chaux:                            '02 - Four a chaux.png',
   caserne_infanterie:                      '03 - Caserne d_infanterie.png',
+  hotel_du_commandant:                     '04 - Hotel du commandant.png',
   chateau_eau_tour_guet:                   '05 - Chateau d_eau.png',
   chapelle_saint_thomas:                   '06 - Chapelle.png',
+  logement_surveillant_principal:          '07 - Logement surveillant.png',
+  quartier_cellulaire:                     '09 - Quartier cellulaire.png',
   logement_surveillants_militaires_maries: '10 - Logement surveillants maries.png',
   batiment_officiers_administration:       '12 - Batiment officiers administration.png',
+  magasin_a_vivre:                         '13 - Magasin.png',
   briqueterie:                             '14 - Briqueterie.png',
   hopital_du_marais:                       '15 - Hopital du marais.png',
+  ateliers:                                'Ateliers.png',
+  boulangerie:                             'Boulangerie.png',
   boulevard_du_crime:                      'Boulevard du crime.png',
 };
 
