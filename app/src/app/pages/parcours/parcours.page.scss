@@ -850,30 +850,6 @@ ion-content.parcours-content {
   width: 72px; height: 72px;
 }
 
-.jdb-carte-numero {
-  position: absolute;
-  top: -7px;
-  left: -7px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: #fff;
-  color: #27476e;
-  font-size: 10.5px;
-  font-weight: 800;
-  box-shadow: 0 2px 6px rgba(39,71,110,0.18);
-  border: 1.5px solid currentColor;
-}
-
-// Teinte du numéro accordée au halo de sa carte.
-.jdb-carte--halo-turquoise .jdb-carte-numero { color: #1d9a9d; }
-.jdb-carte--halo-lavande   .jdb-carte-numero { color: #7a6bb0; }
-.jdb-carte--halo-sable     .jdb-carte-numero { color: #ab8a3f; }
-
 .jdb-carte-infos { flex: 1; min-width: 0; }
 
 .jdb-carte-titre {
