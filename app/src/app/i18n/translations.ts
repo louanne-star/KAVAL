@@ -15,7 +15,7 @@ export const TRANSLATIONS = {
       sousTitre: "BAGNE DE L'ÎLE NOU",
     },
     auth: {
-      pourquoi: "KAVAL est une application pour explorer le site historique du bagne de l'Île Nou.",
+      pourquoi: "Découvrez cette application pour explorer les sites historiques de l'île Nou, force à vous !",
       onglets: { connexion: 'Connexion', inscription: 'Inscription' },
       champs: { email: 'Email', motDePasse: 'Mot de passe' },
       bouton: { connexion: 'Se connecter', inscription: 'Créer mon compte' },
@@ -315,7 +315,7 @@ export const TRANSLATIONS = {
       sousTitre: 'NOU ISLAND PENAL COLONY',
     },
     auth: {
-      pourquoi: 'KAVAL is an app to explore the historical site of the Île Nou penal colony.',
+      pourquoi: 'Discover this app and explore the historical sites of Île Nou. Your journey starts here.',
       onglets: { connexion: 'Log in', inscription: 'Sign up' },
       champs: { email: 'Email', motDePasse: 'Password' },
       bouton: { connexion: 'Log in', inscription: 'Create my account' },
