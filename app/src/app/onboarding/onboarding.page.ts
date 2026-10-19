@@ -49,6 +49,7 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
   // nom : raison sociale, ne se traduit pas. role : clé de traduction.
   readonly collaborateurs = [
     { role: 'encadrement', nom: 'Université de la Nouvelle-Calédonie' },
+    { role: 'sources',     nom: 'Louis-José Barbançon' },
     { role: 'sources',     nom: 'Association Témoignage d\'Un Passé' },
     { role: 'ouvrages',    nom: '« Le bagne en héritage » · « Le Mémorial du bagne calédonien »' },
   ];
