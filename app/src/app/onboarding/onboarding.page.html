@@ -87,7 +87,12 @@
     </section>
 
     <!-- ═══════════════════════ ÉCRAN 4 — PROJET COLLABORATIF ═══════════════════════ -->
-    <section class="ecran ecran-clair">
+    <!-- ecran-collaboratif : écran le plus haut en contenu (titre + cluster +
+         carte) — pas de centrage vertical ici (voir .ecran-collaboratif), sinon
+         le contenu déborde et chevauche les boutons Retour/Suivant qui restent
+         calés sur la hauteur de l'écran. Le bouton Suivant est donc aussi dans
+         le flux normal (après la carte) plutôt qu'ancré en position absolue. -->
+    <section class="ecran ecran-clair ecran-collaboratif">
       <button class="btn-retour" (click)="precedent()">
         <ion-icon name="arrow-back-outline"></ion-icon> {{ 'onboarding.retour' | translate }}
       </button>
@@ -107,15 +112,15 @@
           </div>
         </div>
 
-        <div class="onb-collab-tags">
-          <div class="onb-collab-tag" *ngFor="let c of collaborateurs">
-            <span class="onb-collab-tag-role">{{ ('onboarding.collaboratif.roles.' + c.role) | translate }}</span>
-            <span class="onb-collab-tag-nom">{{ c.nom }}</span>
+        <div class="onb-collab-card">
+          <div class="onb-collab-row" *ngFor="let c of collaborateurs">
+            <span class="onb-collab-row-role">{{ ('onboarding.collaboratif.roles.' + c.role) | translate }}</span>
+            <span class="onb-collab-row-nom">{{ c.nom }}</span>
           </div>
         </div>
-      </div>
 
-      <button class="btn-onb-suivant" (click)="suivant()">{{ 'onboarding.suivant' | translate }} <ion-icon name="arrow-forward-outline"></ion-icon></button>
+        <button class="btn-onb-suivant-flow" (click)="suivant()">{{ 'onboarding.suivant' | translate }} <ion-icon name="arrow-forward-outline"></ion-icon></button>
+      </div>
     </section>
 
     <!-- ═══════════════════════ ÉCRAN 5 — PRÊT À DÉCOUVRIR ═══════════════════════ -->
