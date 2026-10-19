@@ -10,7 +10,7 @@
       <div class="hero-contenu">
         <div class="hero-centre">
           <img [src]="branding.logoBlanc()" alt="" class="hero-logo" />
-          <h1 class="hero-nom">KAVAL</h1>
+          <h1 class="hero-nom">Forçats'Nou</h1>
           <p class="hero-slogan">{{ 'onboarding.hero.slogan1' | translate }}<br>{{ 'onboarding.hero.slogan2' | translate }}<br>{{ 'onboarding.hero.slogan3' | translate }}</p>
           <p class="hero-baseline">{{ 'onboarding.hero.baseline' | translate }}</p>
         </div>
@@ -100,7 +100,7 @@
              voir EquipeService), silhouette de repli tant qu'un slot n'a pas
              encore de photo, flottant doucement autour du logo. -->
         <div class="onb-equipe-cluster">
-          <div class="onb-equipe-logo"><img [src]="branding.logoBadge()" alt="KAVAL" /></div>
+          <div class="onb-equipe-logo"><img [src]="branding.logoBadge()" alt="Forçats'Nou" /></div>
           <div class="onb-equipe-bulle" *ngFor="let m of equipe.bulles()">
             <img *ngIf="m" [src]="m.photoUrl" alt="" />
             <ion-icon *ngIf="!m" name="person-outline"></ion-icon>
@@ -128,7 +128,7 @@
       </button>
 
       <div class="ecran-photo-contenu ecran-photo-contenu-centre">
-        <img [src]="branding.logoBadge()" alt="KAVAL" class="onb-logo-final" />
+        <img [src]="branding.logoBadge()" alt="Forçats'Nou" class="onb-logo-final" />
         <h1>{{ 'onboarding.fin.titre' | translate }}</h1>
         <p class="onb-texte onb-texte-clair">{{ 'onboarding.fin.texte' | translate }}</p>
 

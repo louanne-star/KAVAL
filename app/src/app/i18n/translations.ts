@@ -42,7 +42,7 @@ export const TRANSLATIONS = {
         succesTexte: 'Vous allez être redirigé vers l\'application.',
       },
       rgpd: {
-        accepte: "J'accepte que mes données (email, position GPS, avis) soient utilisées pour faire fonctionner KAVAL.",
+        accepte: "J'accepte que mes données (email, position GPS, avis) soient utilisées pour faire fonctionner Forçats'Nou.",
         masquer: 'Masquer',
         enSavoirPlus: 'En savoir plus',
         detail: "Ton email sert à créer et retrouver ton compte. Ta position GPS est utilisée pour détecter ton passage sur les sites du parcours et débloquer ta progression. Tes avis sont partagés avec les autres utilisateurs de l'application. Ces données sont stockées de façon sécurisée, ne sont jamais revendues ni partagées avec des tiers, et tu peux à tout moment en demander l'accès, la modification ou la suppression.",
@@ -178,7 +178,7 @@ export const TRANSLATIONS = {
       },
     },
     compte: {
-      role: 'Explorateur · KAVAL',
+      role: "Explorateur · Forçats'Nou",
       tabs:    { securite: 'Sécurité' },
       stats:   { visitees: 'Visitées', favoris: 'Favoris', zones: 'Zones' },
       section: { identite: 'Identité', favoris: 'Favoris', preferences: 'Préférences' },
@@ -292,7 +292,7 @@ export const TRANSLATIONS = {
         },
       },
       fin: {
-        titre: 'Prêt à découvrir KAVAL ?',
+        titre: "Prêt à découvrir Forçats'Nou ?",
         texte: "Rejoins l'aventure et explore l'île Nou.",
         creerCompte: 'Créer un compte',
         dejaCompte:  'Déjà un compte ? Se connecter',
@@ -342,7 +342,7 @@ export const TRANSLATIONS = {
         succesTexte: "You'll be redirected to the app.",
       },
       rgpd: {
-        accepte: 'I agree that my data (email, GPS location, reviews) will be used to run KAVAL.',
+        accepte: "I agree that my data (email, GPS location, reviews) will be used to run Forçats'Nou.",
         masquer: 'Hide',
         enSavoirPlus: 'Learn more',
         detail: "Your email is used to create and recover your account. Your GPS location is used to detect when you pass historical sites on the trail and unlock your progress. Your reviews are shared with other users of the app. This data is stored securely, is never sold or shared with third parties, and you can request access, modification or deletion of it at any time.",
@@ -478,7 +478,7 @@ export const TRANSLATIONS = {
       },
     },
     compte: {
-      role: 'Explorer · KAVAL',
+      role: "Explorer · Forçats'Nou",
       tabs:    { securite: 'Security' },
       stats:   { visitees: 'Visited', favoris: 'Favorites', zones: 'Zones' },
       section: { identite: 'Identity', favoris: 'Favorites', preferences: 'Preferences' },
@@ -592,7 +592,7 @@ export const TRANSLATIONS = {
         },
       },
       fin: {
-        titre: 'Ready to discover KAVAL?',
+        titre: "Ready to discover Forçats'Nou?",
         texte: 'Join the adventure and explore Île Nou.',
         creerCompte: 'Create an account',
         dejaCompte:  'Already have an account? Sign in',

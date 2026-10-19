@@ -39,8 +39,8 @@ const CONTENU = {
       texte: "Les forçats de l'Île Nou étaient aussi de talentueux artisans. Leurs gravures sur nacre témoignent d'un savoir-faire unique, né de la contrainte et de la volonté de créer malgré l'adversité.",
     },
     projet: {
-      titre: 'LE PROJET KAVAL',
-      texte: "KAVAL est né d'une SAE (Situation d'Apprentissage et d'Évaluation) du BUT Métiers du Multimédia et de l'Internet (MMI) de l'Université de la Nouvelle-Calédonie. Conçue par une équipe d'étudiants passionnés d'histoire et de patrimoine calédonien, l'application a pour mission de faire découvrir le bagne de l'Île Nou au plus grand nombre.",
+      titre: "LE PROJET FORÇATS'NOU",
+      texte: "Forçats'Nou est né d'une SAE (Situation d'Apprentissage et d'Évaluation) du BUT Métiers du Multimédia et de l'Internet (MMI) de l'Université de la Nouvelle-Calédonie. Conçue par une équipe d'étudiants passionnés d'histoire et de patrimoine calédonien, l'application a pour mission de faire découvrir le bagne de l'Île Nou au plus grand nombre.",
     },
     chiffresTitre: 'CHIFFRES CLÉS',
     chiffres: [
@@ -102,8 +102,8 @@ const CONTENU = {
       texte: "The convicts of Nou Island were also talented craftsmen. Their mother-of-pearl engravings bear witness to a unique skill, born of constraint and the will to create despite adversity.",
     },
     projet: {
-      titre: 'THE KAVAL PROJECT',
-      texte: "KAVAL was born from a capstone project of the Multimedia and Internet Professions degree (BUT MMI) at the University of New Caledonia. Designed by a team of students passionate about Caledonian history and heritage, the app's mission is to introduce the Nou Island penal colony to as many people as possible.",
+      titre: "THE FORÇATS'NOU PROJECT",
+      texte: "Forçats'Nou was born from a capstone project of the Multimedia and Internet Professions degree (BUT MMI) at the University of New Caledonia. Designed by a team of students passionate about Caledonian history and heritage, the app's mission is to introduce the Nou Island penal colony to as many people as possible.",
     },
     chiffresTitre: 'KEY FIGURES',
     chiffres: [
