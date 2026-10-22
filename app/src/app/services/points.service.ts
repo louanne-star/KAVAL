@@ -98,7 +98,6 @@ export interface Personnage {
   photo?: string;
   legende?: string;
   legendeEn?: string;
-  photoGrande?: boolean;
 }
 
 export interface PersonnageParagraphe {
@@ -226,8 +225,7 @@ export class PointsService {
       const personnages: Personnage[] = pers.map((r: any) => ({
         pointId: r.point_id, nom: r.nom, nomEn: r.nom_en,
         sousTitre: r.sous_titre, sousTitreEn: r.sous_titre_en,
-        photo: r.photo, legende: r.legende, legendeEn: r.legende_en,
-        photoGrande: r.photo_grande ?? false
+        photo: r.photo, legende: r.legende, legendeEn: r.legende_en
       }));
       const personnageParagraphes: PersonnageParagraphe[] = persPara.map((r: any) => ({
         id: r.id, pointId: r.point_id, texte: r.texte, texteEn: r.texte_en,

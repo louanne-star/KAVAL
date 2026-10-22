@@ -248,7 +248,7 @@
 <div class="personnage-overlay" *ngIf="personnagePopupOuvert && zoneSelectionnee as zone" (click)="fermerPersonnage()">
   <div class="personnage-popup-card" (click)="$event.stopPropagation()">
     <button class="personnage-popup-close" (click)="fermerPersonnage()" aria-label="Fermer">✕</button>
-    <div class="personnage-popup-header" [class.personnage-popup-header--grand]="personnage.photoGrande" *ngIf="pointsService.personnageDe(zone.id) as personnage">
+    <div class="personnage-popup-header" *ngIf="pointsService.personnageDe(zone.id) as personnage">
       <div class="personnage-popup-portrait-col">
         <div class="personnage-popup-portrait">
           <img *ngIf="personnage.photo" [src]="pointsService.urlImage(personnage.photo)" alt="" />
