@@ -559,7 +559,7 @@ h1 {
   width: 100%;
   max-width: 320px;
   margin: 4px auto 0;
-  background: #dcecf5;
+  background: #eaf4fa;
   border-radius: 16px;
   padding: 4px 18px;
 }
@@ -593,6 +593,10 @@ h1 {
   font-size: 13px;
   font-weight: 700;
   color: #173b63;
+
+  & + & {
+    margin-top: 4px;
+  }
 }
 
 // ── Pagination ──────────────────────────────────────────────────────────────
