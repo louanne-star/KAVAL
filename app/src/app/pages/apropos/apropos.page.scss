@@ -395,6 +395,10 @@
   color: #1a2e1e;
   font-weight: 700;
   margin: 0;
+
+  & + & {
+    margin-top: 6px;
+  }
 }
 
 .credit-lien {
