@@ -115,7 +115,7 @@
         <div class="onb-collab-card">
           <div class="onb-collab-row" *ngFor="let c of collaborateurs">
             <span class="onb-collab-row-role">{{ ('onboarding.collaboratif.roles.' + c.role) | translate }}</span>
-            <span class="onb-collab-row-nom">{{ c.nom }}</span>
+            <span class="onb-collab-row-nom" *ngFor="let nom of c.noms">{{ nom }}</span>
           </div>
         </div>
 

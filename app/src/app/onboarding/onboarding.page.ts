@@ -46,12 +46,13 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
     { num: '04', cle: 'personnaliser', icone: 'sparkles-outline' },
   ];
 
-  // nom : raison sociale, ne se traduit pas. role : clé de traduction.
+  // noms : raisons sociales, ne se traduisent pas. role : clé de traduction.
+  // Un rôle peut regrouper plusieurs noms (ex: deux sources historiques)
+  // sous un seul titre plutôt que de le répéter.
   readonly collaborateurs = [
-    { role: 'encadrement', nom: 'Université de la Nouvelle-Calédonie' },
-    { role: 'sources',     nom: 'Louis-José Barbançon' },
-    { role: 'sources',     nom: 'Association Témoignage d\'Un Passé' },
-    { role: 'ouvrages',    nom: '« Le bagne en héritage » · « Le Mémorial du bagne calédonien »' },
+    { role: 'encadrement', noms: ['Université de la Nouvelle-Calédonie'] },
+    { role: 'sources',     noms: ['Louis-José Barbançon', 'Association Témoignage d\'Un Passé'] },
+    { role: 'ouvrages',    noms: ['« Le bagne en héritage » · « Le Mémorial du bagne calédonien »'] },
   ];
 
   private scrollTimeout?: ReturnType<typeof setTimeout>;
