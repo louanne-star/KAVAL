@@ -390,18 +390,6 @@ ion-content.parcours-content {
   padding-right: 30px;
 }
 
-.personnage-popup-header--grand {
-  flex-direction: column;
-  padding-right: 0;
-
-  .personnage-popup-portrait-col { width: 100%; }
-
-  .personnage-popup-portrait {
-    width: 100%;
-    height: 240px;
-  }
-}
-
 .personnage-popup-portrait-col {
   flex-shrink: 0;
   width: 96px;
