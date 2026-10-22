@@ -233,7 +233,7 @@ export const TRANSLATIONS = {
       suivant: 'Suivant →',
       passer: 'Passer',
       etapes: {
-        bienvenue:            { titre: 'Bienvenue sur Kaval !', texte: "Ce petit guide vous montre comment explorer le bagne de l'Île Nou. Suivez les bulles, ou appuyez directement sur les éléments qu'elles indiquent." },
+        bienvenue:            { titre: "Bienvenue sur Forçats'Nou !", texte: "Ce petit guide vous montre comment explorer le bagne de l'Île Nou. Suivez les bulles, ou appuyez directement sur les éléments qu'elles indiquent." },
         carteRecentrer:       { titre: 'Votre position', texte: 'Appuyez ici pour vous recentrer sur votre position géographique.' },
         carteSatellite:       { titre: 'Vue satellite', texte: "Changez d'affichage à tout moment pour passer de la vue carte à la vue satellite." },
         cartePoints:          { titre: "Les points d'intérêt", texte: "Un point gris reste à visiter, un point orange est votre prochaine étape et un point vert a déjà été validé. Une étoile signale un lieu incontournable." },
@@ -534,7 +534,7 @@ export const TRANSLATIONS = {
       suivant: 'Next →',
       passer: 'Skip',
       etapes: {
-        bienvenue:            { titre: 'Welcome to Kaval!', texte: 'This quick guide shows you how to explore the Île Nou penal colony. Follow the bubbles, or tap directly on the elements they point to.' },
+        bienvenue:            { titre: "Welcome to Forçats'Nou!", texte: 'This quick guide shows you how to explore the Île Nou penal colony. Follow the bubbles, or tap directly on the elements they point to.' },
         carteRecentrer:       { titre: 'Your position', texte: 'Tap here to recenter the map on your geographic position.' },
         carteSatellite:       { titre: 'Satellite view', texte: 'Switch views at any time to go from map view to satellite view.' },
         cartePoints:          { titre: 'Points of interest', texte: 'A grey point is still to visit, an orange point is your next stop and a green point has already been validated. A star marks a must-see place.' },
