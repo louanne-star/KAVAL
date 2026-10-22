@@ -30,6 +30,30 @@ const BADGE_FICHIERS: Record<string, string> = {
   boulevard_du_crime:                      'Boulevard du crime.png',
 };
 
+// Couleur dominante de chaque illustration du musée (relevée à la main sur
+// l'image), pour que la pastille "visité" reprenne la couleur du badge
+// plutôt qu'une teinte générique.
+const BADGE_COULEURS: Record<string, string> = {
+  camp_est_principal:                      '#999999',
+  four_a_chaux:                            '#fa8510',
+  caserne_infanterie:                      '#646f4b',
+  hotel_du_commandant:                     '#0c3683',
+  chateau_eau_tour_guet:                   '#225281',
+  chapelle_saint_thomas:                   '#fbba00',
+  logement_surveillant_principal:          '#39332d',
+  quartier_cellulaire:                     '#a7833a',
+  logement_surveillants_1ere_classe:       '#764a82',
+  logement_surveillants_militaires_maries: '#b80071',
+  batiment_officiers_administration:       '#ded1ba',
+  magasin_a_vivre:                         '#977849',
+  briqueterie:                             '#964a22',
+  hopital_du_marais:                       '#2d6a4f',
+  ateliers:                                '#b81800',
+  boulangerie:                             '#db8e1a',
+  boulevard_du_crime:                      '#a50100',
+};
+const COULEUR_BADGE_REPLI = '#27476e';
+
 @Injectable({ providedIn: 'root' })
 export class BadgeService {
 
@@ -55,6 +79,20 @@ export class BadgeService {
       return this.supabase.client.storage.from(BUCKET_BADGES).getPublicUrl(fichier).data.publicUrl;
     }
     return variante === 'grand' ? `assets/badges/${pointId}.svg` : `assets/badges/${pointId}-icon.svg`;
+  }
+
+  badgeCouleur(pointId: string): string {
+    return BADGE_COULEURS[pointId] ?? COULEUR_BADGE_REPLI;
+  }
+
+  // Même couleur que badgeCouleur, éclaircie pour servir de fond (ex: pastille
+  // "Mini-jeu") derrière un texte/icône de la même teinte, pleine opacité.
+  badgeCouleurClaire(pointId: string, alpha = 0.12): string {
+    const hex = this.badgeCouleur(pointId).replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
   badges(): Set<string> {
