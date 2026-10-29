@@ -17,9 +17,6 @@ import { LanguageService } from '../services/language.service';
 
 type EtatPermission = 'inconnu' | 'en_cours' | 'accordee' | 'refusee' | 'indisponible';
 
-// Index (0-based) de l'écran localisation : la progression y est bloquée
-// tant que la permission GPS n'est pas accordée.
-const INDEX_ECRAN_LOCALISATION = 1;
 const NB_ECRANS = 5;
 
 @Component({
@@ -99,25 +96,16 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
     this.scrollTimeout = setTimeout(() => {
       const el = this.pisteRef.nativeElement;
       const i = Math.round(el.scrollLeft / el.clientWidth);
-
-      // Verrou : impossible de rester sur l'écran suivant la localisation
-      // (ou au-delà) tant que la permission n'est pas accordée.
-      if (i > INDEX_ECRAN_LOCALISATION && this.permission() !== 'accordee') {
-        this.allerA(INDEX_ECRAN_LOCALISATION);
-        this.messagePermission.set(this.translate.instant('onboarding.localisation.erreurs.requise'));
-        return;
-      }
-
       this.indexActif.set(i);
     }, 90);
   }
 
+  // La localisation n'est plus bloquante : avec la position de secours de
+  // repli, l'app reste utilisable sans GPS (voir JourneyService). On
+  // continue de la demander ici, mais sans empêcher de passer à l'écran
+  // suivant si elle n'est pas accordée.
   allerA(i: number) {
     const cible = Math.max(0, Math.min(NB_ECRANS - 1, i));
-    if (cible > INDEX_ECRAN_LOCALISATION && this.permission() !== 'accordee') {
-      this.messagePermission.set(this.translate.instant('onboarding.localisation.erreurs.requise'));
-      return;
-    }
     const el = this.pisteRef.nativeElement;
     el.scrollTo({ left: cible * el.clientWidth, behavior: 'smooth' });
     this.indexActif.set(cible);
