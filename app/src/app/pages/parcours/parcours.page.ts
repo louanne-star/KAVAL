@@ -97,7 +97,8 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   // Mini-jeu disponible pour un point précis (id du point, pas la zone géographique).
   readonly JEUX: Record<string, string> = {
     camp_est_principal: 'assets/mini-jeux/tribunal.html',
-    magasin_a_vivre:    'assets/mini-jeux/bagne-connect.html',
+    magasin_a_vivre:    'assets/mini-jeux/argot/index.html',
+    boulangerie:         'assets/mini-jeux/evasion/index.html',
     hopital_du_marais:   'assets/mini-jeux/memoire.html',
     logement_surveillants_militaires_maries: 'assets/mini-jeux/jeu_7_differences.html',
   };
@@ -105,13 +106,15 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   private readonly JEUX_NOMS: Record<Langue, Record<string, string>> = {
     fr: {
       camp_est_principal: 'Le tribunal',
-      magasin_a_vivre:    'Connexion des forçats',
+      magasin_a_vivre:    'Les mots du bagne',
+      boulangerie:         'Évasion',
       hopital_du_marais:   'Mémoire du Bagne',
       logement_surveillants_militaires_maries: 'Les 7 différences',
     },
     en: {
       camp_est_principal: 'The Trial',
-      magasin_a_vivre:    'Convicts Connect',
+      magasin_a_vivre:    'Convict Slang',
+      boulangerie:         'Escape',
       hopital_du_marais:   'Memory of the Penal Colony',
       logement_surveillants_militaires_maries: 'Spot the 7 Differences',
     },
@@ -136,13 +139,15 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   private readonly BADGE_SOUS_TITRES: Record<Langue, Record<string, string>> = {
     fr: {
       camp_est_principal: 'Tu as rendu ton verdict.',
-      magasin_a_vivre:    'Tu as reconnecté les forçats.',
+      magasin_a_vivre:    'Tu maîtrises l\'argot du bagne.',
+      boulangerie:         'Tu t\'es évadé du bagne.',
       hopital_du_marais:   'Tu as testé ta mémoire.',
       logement_surveillants_militaires_maries: 'Tu as repéré les 7 différences.',
     },
     en: {
       camp_est_principal: 'You delivered your verdict.',
-      magasin_a_vivre:    'You reconnected the convicts.',
+      magasin_a_vivre:    'You\'ve mastered the penal colony\'s slang.',
+      boulangerie:         'You escaped the penal colony.',
       hopital_du_marais:   'You tested your memory.',
       logement_surveillants_militaires_maries: 'You spotted all 7 differences.',
     },

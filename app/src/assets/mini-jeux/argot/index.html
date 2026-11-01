@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les Mots du Bagne – Nouvelle-Calédonie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ CHARTE ============ */
+:root{
+  --nuit:#192D3D; --petrole:#29485B; --ivoire:#F5EBDD; --parchemin:#DCC9A6;
+  --miel:#A96F3F; --terre:#B95F43; --vert:#587C4A;
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --texte:'Lora',Georgia,serif;
+  /* ===== IMAGES À FOURNIR (voir liste) : si absentes, le décor CSS prend le relais ===== */
+  --img-accueil:url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/argot/accueil.webp");
+  --img-question-ui:url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/argot/question-ui.webp");
+  --img-bureau:url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/argot/bureau.webp");
+  --img-bilan:url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/argot/bilan.webp");
+  --img-parchemin:url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/argot/parchemin.webp");
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#0e1820}
+body{display:grid;place-items:center;font-family:var(--texte);overflow:hidden}
+
+/* Scène 16/9 mise à l'échelle : toutes les tailles en cqw */
+.stage{position:relative;width:min(100vw,calc(100vh*16/9));aspect-ratio:16/9;container-type:size;overflow:hidden;background:#2a1a10;color:var(--ivoire)}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity .6s}
+.bg.q{background-image:var(--img-question-ui)}
+.bg.a{background-image:var(--img-accueil),var(--img-bureau)}
+.bg.d{background-image:var(--img-bilan)}
+
+/* ---------- Décor de secours en CSS ---------- */
+.decor{position:absolute;inset:0;pointer-events:none}
+.has-img .decor{display:none}
+.window{position:absolute;left:28%;right:18%;top:9%;height:36%;background:linear-gradient(#7cc3e8,#cfe9f4 70%);overflow:hidden;border:.5cqw solid #4a3828}
+.window svg{position:absolute;inset:0;width:100%;height:100%}
+.bars{position:absolute;inset:0;display:flex;justify-content:space-around}
+.bars i{width:.9cqw;height:100%;background:linear-gradient(90deg,#3a2c24,#6b5547,#3a2c24)}
+.wall{position:absolute;inset:0 0 45% 0;background:linear-gradient(#8a6a4c,#b79470)}
+.desk{position:absolute;inset:50% 0 0 0;background:
+  repeating-linear-gradient(92deg,rgba(0,0,0,.08) 0 .2cqw,transparent .2cqw 2.4cqw),
+  linear-gradient(#7a4a2a,#3d2314)}
+.lamp{position:absolute;left:2%;top:42%;width:6cqw;height:16cqw}
+.chain{position:absolute;right:-2%;bottom:6%;width:13cqw;height:9cqw}
+.stamp{position:absolute;right:6%;top:56%;width:6cqw;height:9cqw}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 45%,rgba(10,6,3,.55))}
+
+/* ---------- Écran de question : le visuel sert de fond, seul le contenu variable est posé dessus ---------- */
+.stage{--p:calc(100cqw/1672)} /* 1 unité = 1 px du visuel d'origine (1672 px de large) */
+.qn,.score,.dots,.mot,.rep,.hit{position:absolute}
+.qn{left:calc(var(--p)*135);top:calc(var(--p)*50);height:calc(var(--p)*34);display:flex;align-items:center;font-family:var(--serif);font-weight:600;font-size:calc(var(--p)*26);letter-spacing:.07em;color:var(--ivoire);text-transform:uppercase}
+.score{left:calc(var(--p)*1237);top:calc(var(--p)*46);width:calc(var(--p)*120);height:calc(var(--p)*42);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:calc(var(--p)*26);color:var(--ivoire)}
+.dots{left:calc(var(--p)*1378);top:calc(var(--p)*58);display:flex;gap:calc(var(--p)*7)}
+.dots i{width:calc(var(--p)*17);height:calc(var(--p)*17);border-radius:50%;border:calc(var(--p)*2) solid #e6d3b0;opacity:.85}
+.dots i.ok{background:var(--vert);border-color:var(--vert);opacity:1}
+.dots i.ko{background:var(--terre);border-color:var(--terre);opacity:1}
+.dots i.cur{background:#e9a04a;border-color:#e9a04a;opacity:1}
+.mot{left:calc(var(--p)*405);width:calc(var(--p)*410);top:calc(var(--p)*558);height:calc(var(--p)*76);display:flex;align-items:center;justify-content:center;white-space:nowrap;
+  font-family:var(--serif);font-weight:700;font-size:calc(var(--p)*56);letter-spacing:.02em;color:#16283a}
+.rep{all:unset;box-sizing:border-box;position:absolute;cursor:pointer;display:flex;align-items:center;padding:0 calc(var(--p)*28) 0 calc(var(--p)*34);
+  font-family:var(--serif);font-weight:600;font-size:calc(var(--p)*24);line-height:1.12;color:var(--ivoire);border-radius:calc(var(--p)*12);transition:box-shadow .15s,background .25s,opacity .2s}
+.rep b{font-size:calc(var(--p)*27);color:#e3cda4;width:calc(var(--p)*24);flex:none}
+.rep em{font-style:normal;opacity:.7;margin:0 calc(var(--p)*16) 0 calc(var(--p)*10);flex:none}
+.rep span{flex:1;text-align:left}
+.rep:hover,.rep:focus-visible,.rep.sel{box-shadow:0 0 0 calc(var(--p)*3) #d9a066,0 0 calc(var(--p)*22) rgba(217,160,102,.75)}
+.rep.sel{background:rgba(169,111,63,.95);color:#fff}
+.rep.sel b{color:#fff}
+.rep.good{background:rgba(88,124,74,.94)}
+.rep.bad{background:rgba(185,95,67,.94)}
+.rep.off{opacity:.25;pointer-events:none}
+.locked .rep,.locked .hit{pointer-events:none}
+.hit{all:unset;position:absolute;cursor:pointer;border-radius:calc(var(--p)*30);transition:box-shadow .15s}
+.hit:hover,.hit:focus-visible{box-shadow:0 0 0 calc(var(--p)*3) #d9a066,0 0 calc(var(--p)*18) rgba(217,160,102,.7)}
+.hit[disabled]{background:rgba(16,30,42,.62);cursor:default;box-shadow:none;pointer-events:none}
+#b5050{left:calc(var(--p)*455);top:calc(var(--p)*835);width:calc(var(--p)*205);height:calc(var(--p)*57)}
+#bIndice{left:calc(var(--p)*688);top:calc(var(--p)*835);width:calc(var(--p)*284);height:calc(var(--p)*57)}
+#bValider{left:calc(var(--p)*1002);top:calc(var(--p)*835);width:calc(var(--p)*236);height:calc(var(--p)*57)}
+
+/* ---------- Boutons génériques (pop-ups, accueil, bilan) ---------- */
+.btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.8cqw;padding:.9cqw 2.2cqw;border-radius:3cqw;
+  font-family:var(--texte);font-weight:600;font-size:1.35cqw;color:var(--ivoire);background:var(--nuit);border:.14cqw solid var(--miel);transition:filter .2s,transform .15s}
+.btn:hover,.btn:focus-visible{filter:brightness(1.2);transform:translateY(-.15cqw)}
+.btn:focus-visible,.rep:focus-visible{outline:.25cqw solid var(--parchemin);outline-offset:.2cqw}
+.btn.main{background:var(--terre);border-color:#d98266;font-size:1.6cqw;padding:1cqw 3cqw}
+.btn[disabled]{opacity:.4;cursor:default;filter:grayscale(1);pointer-events:none}
+
+/* ---------- Indice d'époque ---------- */
+.indice{position:absolute;z-index:6;left:calc(var(--p)*300);right:calc(var(--p)*300);bottom:calc(var(--p)*128);background:var(--ivoire);color:#2a1f17;border:.2cqw solid var(--miel);border-radius:1cqw;
+  padding:1.2cqw 2cqw;font-size:1.3cqw;line-height:1.5;font-style:italic;box-shadow:0 .6cqw 2cqw rgba(0,0,0,.5);display:none}
+.indice.on{display:block}
+
+/* ---------- Panneaux centraux ---------- */
+.overlay{position:absolute;inset:0;z-index:10;display:none;place-items:center;background:rgba(10,18,26,.55);backdrop-filter:blur(.3cqw)}
+.overlay.on{display:grid}
+.panel{background:var(--nuit);border:.25cqw solid var(--miel);border-radius:2cqw;padding:1.6cqw;width:62cqw;box-shadow:0 2cqw 5cqw rgba(0,0,0,.7)}
+.panel.center{text-align:center;padding:4cqw}
+.card{background:var(--ivoire);color:#2a1f17;border-radius:1.2cqw;padding:2.4cqw 3cqw}
+.has-parch #popup .panel{background:none;border:0;box-shadow:none;padding:0;width:62cqw}
+.has-parch #popup .card{background:var(--img-parchemin) center/100% 100% no-repeat;border-radius:0;padding:4.5cqw 7.5cqw;aspect-ratio:1252/665;display:flex;flex-direction:column;justify-content:center;filter:drop-shadow(0 1.2cqw 2cqw rgba(0,0,0,.6))}
+.card h2{font-family:var(--serif);font-size:3cqw;margin-bottom:1.2cqw}
+.card h2.ok{color:var(--vert)} .card h2.ko{color:var(--terre)}
+.def{font-size:1.5cqw;line-height:1.5;margin-bottom:1.4cqw}
+.def strong{font-family:var(--serif);font-size:1.9cqw;color:var(--nuit)}
+.cit{border-left:.3cqw solid var(--miel);padding-left:1.4cqw;font-size:1.25cqw;line-height:1.55;font-style:italic;color:#4a3a2a}
+.cit small{display:block;margin-top:.6cqw;font-style:normal;font-size:1.05cqw;color:#7a6446}
+.actions{display:flex;justify-content:flex-end;gap:1.2cqw;margin-top:1.4cqw}
+.panel.center h1{white-space:nowrap;font-family:var(--serif);font-size:5.6cqw;line-height:1;font-weight:700;letter-spacing:.02em}
+.panel.center .sub{font-family:var(--serif);font-style:italic;font-size:2cqw;margin:1.4cqw 0 3cqw;opacity:.9}
+.foot{position:absolute;bottom:1.6cqw;left:0;right:0;text-align:center;z-index:11}
+.foot .btn{background:transparent;border-color:transparent;font-size:1.1cqw;opacity:.8;text-decoration:underline}
+.big{font-family:var(--serif);font-size:7cqw;font-weight:700;color:var(--parchemin);line-height:1}
+.rang{font-family:var(--serif);font-size:3cqw;margin:1cqw 0 .6cqw}
+.msg{font-size:1.4cqw;opacity:.9;margin-bottom:2.6cqw}
+.src{max-height:34cqh;overflow:auto;text-align:left;font-size:1.2cqw;line-height:1.6}
+.src li{margin:0 0 .6cqw 2cqw}
+.hide{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---------- Téléphone en portrait ---------- */
+.tourner{display:none;position:fixed;inset:0;z-index:50;place-items:center;
+  padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));
+  background:var(--nuit);color:var(--ivoire);font-family:var(--serif);font-size:30px;text-align:center}
+@media (orientation:portrait) and (pointer:coarse){.tourner{display:grid}}
+</style>
+</head>
+<body>
+<div class="tourner" aria-hidden="true"><p>Tourne ton téléphone en mode paysage pour jouer.</p></div>
+<main class="stage" id="stage">
+
+  <!-- Fonds (images optionnelles + décor CSS de secours) -->
+  <div class="bg q" id="bgq"></div><div class="bg a hide" id="bga"></div><div class="bg d hide" id="bgd"></div>
+  <div class="decor" id="decor">
+    <div class="wall"></div>
+    <div class="window">
+      <svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 40 L12 28 L22 34 L38 14 L52 30 L62 22 L80 38 L100 32 V60 H0Z" fill="#4f7a6a"/>
+        <rect x="0" y="42" width="100" height="18" fill="#2f86b3"/>
+        <rect x="0" y="36" width="100" height="6" fill="#b59b75"/>
+        <rect x="58" y="22" width="9" height="16" fill="#a8916d"/>
+      </svg>
+      <div class="bars"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="desk"></div>
+    <svg class="lamp" viewBox="0 0 60 160" aria-hidden="true"><path d="M20 10h20v40a14 14 0 0 1-20 0z" fill="rgba(220,240,255,.35)"/><ellipse cx="30" cy="40" rx="5" ry="9" fill="#ffc15a"/><path d="M14 90h32l8 50H6z" fill="#a8683a"/><rect x="4" y="140" width="52" height="12" rx="3" fill="#7d4a28"/></svg>
+    <svg class="stamp" viewBox="0 0 60 90" aria-hidden="true"><rect x="18" y="0" width="24" height="42" rx="11" fill="#7b3a1e"/><rect x="12" y="42" width="36" height="8" fill="#c9a24e"/><rect x="4" y="58" width="52" height="20" rx="3" fill="#6a3b22"/></svg>
+    <svg class="chain" viewBox="0 0 130 90" aria-hidden="true"><g fill="none" stroke="#5a3a2a" stroke-width="8"><ellipse cx="40" cy="45" rx="26" ry="16"/><ellipse cx="78" cy="55" rx="26" ry="16"/><ellipse cx="108" cy="30" rx="22" ry="14"/></g></svg>
+    <div class="vignette"></div>
+  </div>
+
+  <!-- ÉCRAN B : question -->
+  <section id="screenQ" class="hide">
+    <div class="qn" id="qn"></div>
+    <div class="score" id="score"></div>
+    <div class="dots" id="dots"></div>
+    <div class="mot" id="mot"></div>
+    <div id="answers" role="group" aria-label="Réponses"></div>
+    <div class="indice" id="indice" role="note"></div>
+    <button class="hit" id="b5050" type="button" aria-label="Joker 50/50"></button>
+    <button class="hit" id="bIndice" type="button" aria-label="Indice d'époque"></button>
+    <button class="hit" id="bValider" type="button" aria-label="Valider" disabled></button>
+  </section>
+
+  <!-- ÉCRAN C : restitution -->
+  <div class="overlay" id="popup">
+    <div class="panel">
+      <div class="card">
+        <h2 id="pTitre"></h2>
+        <p class="def" id="pDef"></p>
+        <blockquote class="cit" id="pCit"></blockquote>
+      </div>
+      <div class="actions"><button class="btn main" id="bNext" type="button">Question suivante ➔</button></div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN A : accueil -->
+  <div class="overlay on" id="screenA" style="background:rgba(10,18,26,.2);backdrop-filter:none">
+    <div class="panel center">
+      <h1>Les Mots du Bagne</h1>
+      <p class="sub">Voyage au cœur du vocabulaire de la transportation en Nouvelle-Calédonie</p>
+      <button class="btn main" id="bStart" type="button">Commencer l'immersion</button>
+    </div>
+    <div class="foot"><button class="btn" data-credits type="button">Crédits &amp; Sources d'archives</button></div>
+  </div>
+
+  <!-- ÉCRAN D : bilan -->
+  <div class="overlay" id="screenD" style="background:rgba(10,18,26,.2);backdrop-filter:none">
+    <div class="panel center">
+      <p style="font-family:var(--serif);font-size:2.4cqw">Bilan de votre parcours historique</p>
+      <div class="big" id="fScore">0</div>
+      <div class="rang" id="fRang"></div>
+      <p class="msg" id="fMsg"></p>
+      <div style="display:flex;gap:1.4cqw;justify-content:center">
+        <button class="btn main" id="bRestart" type="button">Recommencer une partie</button>
+        <button class="btn" data-credits type="button">Explorer les sources &amp; crédits</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crédits -->
+  <div class="overlay" id="credits" style="z-index:20">
+    <div class="panel">
+      <div class="card">
+        <h2>Crédits &amp; sources d'archives</h2>
+        <ul class="src" id="srcList"></ul>
+      </div>
+      <div class="actions"><button class="btn" id="bCloseCred" type="button">Fermer</button></div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ============ CONTENU ============
+   Chaque question : mot, bonne réponse, 3 leurres, définition, indice, citation d'archive.
+   → Remplacer les champs "cit"/"src" par de vraies citations sourcées (Dr Collin, Trinquet, registres…). */
+const SOURCES = [
+  "Livre 1 — ouvrage général sur le bagne et le pénitencier de Nouvelle-Calédonie (titre et éditeur à préciser). Témoignages cités : Alexis Trinquet, Dr Grosperrin, Dr Le Prévost, Armand de La Loyère, Lucien Jossevel, Jean Allemane, Dr Léon Collin.",
+  "« Le bagne en héritage — Destins de familles issues de la colonisation pénale », Les Nouvelles calédoniennes, avec Louis-José Barbançon et Evelyne Henriot ; textes de Bérengère Bourgeot et Gilles Caprais.",
+  "Exposition « Descendants de l’Iphigénie, 1864-2024 » — conception : Association Témoignage d’un passé ; relecture : Louis-José Barbançon ; infographie : Mériba Karé ; fiches matricules : ANOM. Bibliographie : Louis-José Barbançon, <em>L’Archipel des forçats — le Mémorial du bagne calédonien</em>.",
+  "Objets : collection Louis-Georges Viale (menottes, poucettes, cabriolet) ; collection ATUP (entraves).",
+  "À COMPLÉTER : crédits visuels (illustrations de l’application). Polices : Cormorant Garamond &amp; Lora (licence OFL)."
+];
+const Q = [
+ {mot:"CARABOUSSE", ok:"Une cellule de prison", ko:["Un outil agricole","Un repas de ration","Un vêtement de travail"],
+  def:"La carabousse désigne la prison ou la cellule de réclusion dans l'argot des forçats.",
+  indice:"On y envoyait les condamnés punis pour une faute disciplinaire.", cit:"", src:""},
+ {mot:"POUCETTES", ok:"Instrument à vis écrasant les pouces", ko:["Petits sacs de tabac","Bonnets de laine","Pièces de monnaie du camp"],
+  def:"Les poucettes sont un instrument de fer forgé, à vis, qui écrase les pouces : le Dr Le Prévost, médecin du bagne, y voit un instrument de torture entre les mains du bourreau.",
+  indice:"Le nom évoque la partie du corps qu’elles serrent, à l’aide d’une vis.", cit:"Cet instrument est en fer forgé, assez peu volumineux et assez léger pour se mettre dans la poche du gilet [...] Le bourreau n’a plus qu’à tourner l’écrou.", src:"Dr Le Prévost, médecin du bagne — cité dans le Livre 1 ; objet : collection Louis-Georges Viale"},
+ {mot:"TRANSPORTÉ", ok:"Condamné aux travaux forcés outre-mer", ko:["Surveillant militaire du camp","Colon libre arrivé par bateau","Marin du convoi"],
+  def:"Le transporté est un condamné de droit commun aux travaux forcés, expédié outre-mer : environ 22 000 hommes et femmes en Nouvelle-Calédonie, dès le convoi de l’Iphigénie (1864).",
+  indice:"Le mot désigne un statut pénal, pas un métier.", cit:"Condamnés de droit commun, ils forment la grande majorité des forçats envoyés en Nouvelle-Calédonie, ils sont environ 22 000 condamnés, hommes et femmes confondus.", src:"Lexique, panneau de crédits de l’exposition « Descendants de l’Iphigénie, 1864-2024 »"},
+ {mot:"DÉPORTÉ", ok:"Condamné politique en enceinte fortifiée", ko:["Voleur multirécidiviste","Commerçant en faillite","Soldat d'infanterie de marine"],
+  def:"Le déporté est un condamné politique, comme les Communards envoyés en Nouvelle-Calédonie après 1871 (presqu'île Ducos, île des Pins).",
+  indice:"Ne pas confondre avec le « transporté », condamné de droit commun.", cit:"Cacot, la riche histoire du déporté devenu Calédonien", src:"Titre de la fiche Famille Cacot (Théophile Cacot, communard déporté en 1872) — « Le bagne en héritage » (Livre 2)"},
+ {mot:"RELÉGUÉ", ok:"Récidiviste condamné à l'exil perpétuel", ko:["Forçat en cavale","Ancien gardien du bagne","Prisonnier de guerre"],
+  def:"Le relégué est un délinquant multirécidiviste : la relégation est une peine perpétuelle qui s’ajoute à la dernière peine subie (loi de 1885).",
+  indice:"Son exil ne relève pas d'une peine de travaux forcés.", cit:"La relégation est une peine perpétuelle qui s’ajoute à la dernière peine subie. Les relégués sont considérés comme des délinquants multirécidivistes.", src:"Lexique, panneau de crédits de l’exposition « Descendants de l’Iphigénie, 1864-2024 »"},
+ {mot:"LIBÉRÉ", ok:"Ancien forçat encore tenu à résidence", ko:["Gardien en congé","Navire de transport","Évadé repris"],
+  def:"Le libéré a purgé sa peine de travaux forcés, mais ne peut pas quitter la colonie : il reste sous surveillance.",
+  indice:"La liberté n'était que partielle.", cit:"isolés sur une pointe de sable aride, logés dans de mauvaises cases en paille [...] nous sommes complètement abandonnés...", src:"Plainte des libérés lépreux de la pointe Kungu devant le Conseil privé — cité dans le Livre 1"},
+ {mot:"DOUBLAGE", ok:"Obligation de rester dans la colonie", ko:["Double ration de pain","Seconde condamnation pour évasion","Travail de nuit"],
+  def:"Le doublage oblige le forçat libéré à résider dans la colonie pendant une durée égale à sa peine (à vie si elle dépasse huit ans).",
+  indice:"Le principe : la durée de la peine est « doublée » en exil.", cit:"", src:""},
+ {mot:"CONCESSION", ok:"Terre accordée à un condamné méritant", ko:["Remise de peine pour bonne conduite","Cellule individuelle","Cantine du camp"],
+  def:"La concession est une parcelle attribuée à un condamné de bonne conduite afin qu'il devienne colon, notamment à Bourail.",
+  indice:"On pense ici à la colonisation pénale agricole.", cit:"Le 18 octobre 1883, Rosalie obtient une concession provisoire, le lot rural numéro 39 à la Pouéo.", src:"Anne-Marie Edeline Peyronnet, p.262 (famille Peyronnet, Bourail) — « Le bagne en héritage » (Livre 2)"},
+ {mot:"CHIOURME", ok:"L'ensemble des forçats d'un bagne", ko:["Le chef de camp","Une ration de soupe","La cloche d'appel"],
+  def:"La chiourme désigne la masse des forçats d'un bagne, par extension la population pénale.",
+  indice:"Le mot est collectif.", cit:"", src:""},
+ {mot:"MATRICULE", ok:"Numéro d'identification du condamné", ko:["Nom d'une case du camp","Type de chaîne","Grade de surveillant"],
+  def:"Le matricule est le numéro d'identification du condamné, consigné au registre d'écrou. Il remplace souvent son nom au quotidien.",
+  indice:"Il figure sur les fiches et registres de l'administration pénitentiaire.", cit:"Sur chaque vêtement s’étale en chiffres noirs très apparents le numéro matricule.", src:"Dr Grosperrin, médecin du bagne, p.153 — Livre 1"}
+];
+const PLAQUES=[[876,370,1294,440],[884,456,1302,526],[886,543,1316,615],[890,634,1330,708]]; // positions des 4 plaques dans le visuel
+function fitMot(){const m=$("mot"); let f=56; m.style.fontSize=`calc(var(--p)*${f})`; while(m.scrollWidth>m.clientWidth+1&&f>32){f-=2; m.style.fontSize=`calc(var(--p)*${f})`;}}
+document.fonts&&document.fonts.ready.then(()=>{if($("mot").textContent) fitMot();});
+const RANGS = [[800,"Historiographe du Bagne","Vous maîtrisez remarquablement le vocabulaire de la transportation."],
+               [500,"Connaisseur du Pénitencier","Belle connaissance du sujet : quelques notions restent à approfondir."],
+               [0,"Novice des Archives","Le parcours commence : rejouez pour explorer les archives."]];
+
+/* ============ MOTEUR ============ */
+const $ = id => document.getElementById(id);
+let i, score, sel, locked, used50, usedHint, res;
+
+const shuffle = a => { a = a.slice(); for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];} return a; };
+const pad = n => String(n).padStart(2,"0");
+
+function show(name){
+  $("screenQ").classList.toggle("hide", name!=="Q");
+  $("screenA").classList.toggle("on", name==="A");
+  $("screenD").classList.toggle("on", name==="D");
+  $("bgq").classList.toggle("hide", name==="A"||name==="D");
+  $("bga").classList.toggle("hide", name!=="A");
+  $("bgd").classList.toggle("hide", name!=="D");
+}
+function start(){ i=0; score=0; res=[]; show("Q"); load(); }
+function dots(){
+  $("dots").innerHTML = Q.map((_,k)=>`<i class="${res[k]===1?"ok":res[k]===0?"ko":k===i?"cur":""}"></i>`).join("");
+}
+function load(){
+  const q=Q[i]; sel=null; locked=false; used50=false; usedHint=false;
+  $("qn").textContent=`Question ${pad(i+1)} / ${Q.length}`;
+  $("score").textContent=`${score} pts`;
+  $("mot").textContent=q.mot;
+  $("screenQ").classList.remove("locked");
+  $("indice").classList.remove("on");
+  $("bValider").disabled=true;
+  $("b5050").disabled=false; $("bIndice").disabled=false;
+  const opts = shuffle([{t:q.ok,c:true},...q.ko.map(t=>({t,c:false}))]);
+  $("answers").innerHTML = opts.map((o,k)=>{const [x0,y0,x1,y1]=PLAQUES[k];
+    return `<button type="button" class="rep" data-c="${o.c}" style="left:calc(var(--p)*${x0});top:calc(var(--p)*${y0});width:calc(var(--p)*${x1-x0});height:calc(var(--p)*${y1-y0})"><b>${"ABCD"[k]}</b><em>—</em><span>${o.t}</span></button>`;}).join("");
+  fitMot();
+  document.querySelectorAll(".rep").forEach(b=>b.onclick=()=>{
+    if(locked) return;
+    document.querySelectorAll(".rep").forEach(x=>x.classList.remove("sel"));
+    b.classList.add("sel"); sel=b; $("bValider").disabled=false;
+  });
+  dots();
+}
+function validate(){
+  if(!sel||locked) return;
+  locked=true; $("screenQ").classList.add("locked");
+  const q=Q[i], good = sel.dataset.c==="true";
+  document.querySelectorAll(".rep").forEach(b=>{ if(b.dataset.c==="true") b.classList.add("good"); });
+  if(!good) sel.classList.add("bad");
+  if(good){ score+=100; res[i]=1; } else res[i]=0;
+  $("score").textContent=`${score} pts`; dots();
+  $("b5050").disabled=true; $("bIndice").disabled=true; $("bValider").disabled=true;
+  setTimeout(()=>{
+    $("pTitre").textContent = good ? "Exact !" : "Information historique :";
+    $("pTitre").className = good ? "ok" : "ko";
+    $("pDef").innerHTML = `<strong>${q.mot[0]+q.mot.slice(1).toLowerCase()}</strong> — ${q.def}`;
+    $("pCit").innerHTML = q.cit ? `« ${q.cit} »<small>${q.src}</small>` : ""; $("pCit").style.display = q.cit ? "" : "none";
+    $("bNext").textContent = i===Q.length-1 ? "Voir mon bilan ➔" : "Question suivante ➔";
+    $("popup").classList.add("on"); $("bNext").focus();
+  }, 900);
+}
+function next(){
+  $("popup").classList.remove("on");
+  if(++i>=Q.length) return end();
+  load();
+}
+function end(){
+  const r = RANGS.find(r=>score>=r[0]);
+  $("fScore").textContent=`${score} / ${Q.length*100}`;
+  $("fRang").textContent=r[1]; $("fMsg").textContent=r[2];
+  show("D");
+  window.parent?.postMessage({ type: 'jeuTermine' }, '*');
+}
+$("bStart").onclick=start; $("bRestart").onclick=start;
+$("bValider").onclick=validate; $("bNext").onclick=next;
+$("b5050").onclick=()=>{
+  if(locked||used50) return; used50=true; $("b5050").disabled=true;
+  const wrong=[...document.querySelectorAll('.rep[data-c="false"]')];
+  shuffle(wrong).slice(0,2).forEach(b=>{b.classList.add("off"); if(b===sel){b.classList.remove("sel"); sel=null; $("bValider").disabled=true;}});
+};
+$("bIndice").onclick=()=>{
+  if(locked) return; const el=$("indice"); el.textContent=Q[i].indice; el.classList.toggle("on");
+};
+document.querySelectorAll("[data-credits]").forEach(b=>b.onclick=()=>$("credits").classList.add("on"));
+$("bCloseCred").onclick=()=>$("credits").classList.remove("on");
+$("srcList").innerHTML=SOURCES.map(s=>`<li>${s}</li>`).join("");
+
+/* Raccourcis clavier : A-D pour choisir, Entrée pour valider */
+addEventListener("keydown",e=>{
+  if($("screenQ").classList.contains("hide")||locked) return;
+  const k="abcd".indexOf(e.key.toLowerCase());
+  if(k>-1){ const b=document.querySelectorAll(".rep")[k]; if(b&&!b.classList.contains("off")) b.click(); }
+});
+
+/* Détection des images : si présentes, elles remplacent le décor CSS de secours */
+const ok = (src,fn,ko)=>{const p=new Image(); p.onload=fn; p.onerror=ko||(()=>{}); p.src=src;};
+$("stage").classList.add("has-img");
+$("stage").classList.add("has-parch");
+
+</script>
+</body>
+</html>
