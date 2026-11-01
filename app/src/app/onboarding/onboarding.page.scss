@@ -128,6 +128,29 @@ h1 {
   max-width: 320px;
 }
 
+// Bouton d'installation Android/Chrome (beforeinstallprompt) : même gabarit
+// que le CTA principal mais en contour, pour rester secondaire par rapport
+// à "Créer un compte".
+.btn-onb-installer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.6);
+  border-radius: 30px;
+  padding: 14px 28px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  max-width: 320px;
+
+  ion-icon { font-size: 18px; }
+}
+
 .btn-onb-suivant {
   position: absolute;
   right: 22px;

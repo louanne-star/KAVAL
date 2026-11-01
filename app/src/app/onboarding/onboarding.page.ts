@@ -7,13 +7,14 @@ import { addIcons } from 'ionicons';
 import {
   arrowForwardOutline, arrowBackOutline, checkmarkCircle,
   mapOutline, saveOutline, refreshOutline, ribbonOutline, sparklesOutline,
-  personOutline, location, shareOutline,
+  personOutline, location, shareOutline, downloadOutline,
 } from 'ionicons/icons';
 import { Preferences } from '../core/preferences';
 import { CLE_ONBOARDING_TERMINE } from './onboarding.constants';
 import { BrandingService } from '../services/branding.service';
 import { EquipeService } from '../services/equipe.service';
 import { LanguageService } from '../services/language.service';
+import { InstallService } from '../services/install.service';
 
 type EtatPermission = 'inconnu' | 'en_cours' | 'accordee' | 'refusee' | 'indisponible';
 
@@ -66,11 +67,12 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
     readonly branding: BrandingService,
     readonly equipe: EquipeService,
     readonly languageService: LanguageService,
+    readonly installService: InstallService,
   ) {
     addIcons({
       arrowForwardOutline, arrowBackOutline, checkmarkCircle,
       mapOutline, saveOutline, refreshOutline, ribbonOutline, sparklesOutline,
-      personOutline, location, shareOutline,
+      personOutline, location, shareOutline, downloadOutline,
     });
     this.peutInstallerIos.set(this.detecterIosSafariNonInstalle());
     this.verifierPermissionExistante();
