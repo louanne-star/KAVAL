@@ -22,8 +22,42 @@
       "updateMode": "prefetch",
       "resources": {
         "files": [
-          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+          "/**/*.(svg|cur|otf|ttf|woff|woff2)"
         ]
+      }
+    },
+    {
+      "name": "cdn-pinned",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "urls": [
+          "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "images-app",
+      "urls": [
+        "/**/*.(jpg|jpeg|png|apng|webp|avif|gif)"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 80,
+        "maxAge": "30d"
+      }
+    },
+    {
+      "name": "images-supabase-storage",
+      "urls": [
+        "https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 120,
+        "maxAge": "30d"
       }
     }
   ]
