@@ -297,6 +297,7 @@ export const TRANSLATIONS = {
       fin: {
         titre: "Prêt à découvrir Forçats'Nou ?",
         texte: "Rejoins l'aventure et explore l'île Nou.",
+        installer: "Pour installer l'app sur ton iPhone, appuie sur le bouton Partager de Safari, puis sur « Sur l'écran d'accueil ».",
         creerCompte: 'Créer un compte',
         dejaCompte:  'Déjà un compte ? Se connecter',
       },
@@ -600,6 +601,7 @@ export const TRANSLATIONS = {
       fin: {
         titre: "Ready to discover Forçats'Nou?",
         texte: 'Join the adventure and explore Île Nou.',
+        installer: 'To install the app on your iPhone, tap the Share button in Safari, then tap "Add to Home Screen".',
         creerCompte: 'Create an account',
         dejaCompte:  'Already have an account? Sign in',
       },

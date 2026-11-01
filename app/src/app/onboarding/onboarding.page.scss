@@ -307,6 +307,35 @@ h1 {
   margin-bottom: 18px;
 }
 
+// Carte d'instructions "Ajouter à l'écran d'accueil", affichée uniquement
+// sur Safari iOS (pas de prompt d'installation natif contrairement à
+// Chrome/Android) — voir peutInstallerIos() côté TS.
+.onb-install-ios {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 340px;
+  margin: 18px auto 0;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 14px;
+  text-align: left;
+
+  ion-icon {
+    flex-shrink: 0;
+    font-size: 24px;
+    color: #fff;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: rgba(255,255,255,0.9);
+  }
+}
+
 // ── Illustration localisation ─────────────────────────────────────────────────
 
 .onb-illustration {
