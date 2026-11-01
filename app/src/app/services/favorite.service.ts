@@ -1,3 +1,6 @@
+// Liste des zones mises en favori par le visiteur, gardée localement et
+// synchronisée avec Supabase. Utilisé par map.page.ts, recherche.page.ts,
+// favoris.page.ts et compte.page.ts.
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SyncService } from './sync.service';

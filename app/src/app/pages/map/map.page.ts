@@ -1,3 +1,7 @@
+// Onglet "Carte" : affiche le site du bagne (Leaflet + vue satellite
+// MapLibre), les zones à débloquer selon la position GPS, et la fiche détail
+// d'un point (commentaires, notes, favoris). Le contenu détaillé d'un point
+// (histoire, quiz, mini-jeu) est plutôt dans parcours.page.ts.
 import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracked, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';

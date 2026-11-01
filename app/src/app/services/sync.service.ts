@@ -1,3 +1,7 @@
+// Envoie vers Supabase les actions faites localement (favoris, notes,
+// badges...) et détecte si un push a échoué (hors-ligne) pour afficher un
+// bandeau d'erreur. Utilisé par favorite/rating/badge/comment.service.ts à
+// chaque modification de données utilisateur.
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SupabaseService } from './supabase';

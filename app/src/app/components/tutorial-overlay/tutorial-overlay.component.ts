@@ -1,3 +1,7 @@
+// Le voile sombre + bulle d'explication du tutoriel guidé : repère
+// l'élément réel à l'écran (via l'attribut data-tuto) et découpe un trou
+// dedans. Affiché par app.component.ts, piloté par tutorial.service.ts qui
+// décrit les étapes.
 import { Component, ElementRef, OnDestroy, ViewChild, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';

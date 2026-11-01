@@ -1,3 +1,6 @@
+// Petit état partagé entre pages qui n'a pas sa place ailleurs : faut-il
+// cacher la barre de navigation (tabs.page.ts), et où recentrer la carte en
+// revenant dessus depuis la fiche d'un point (map.page.ts / parcours.page.ts).
 import { Injectable, signal } from '@angular/core';
 
 // Permet à une page routée (ex: mini-jeu plein écran) de masquer la nav

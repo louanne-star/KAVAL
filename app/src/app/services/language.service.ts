@@ -1,3 +1,7 @@
+// Langue actuelle de l'app (fr/en) : devinée au premier lancement depuis le
+// téléphone, puis mémorisée. Branche les textes de i18n/translations.ts sur
+// ngx-translate. Utilisé dans presque toutes les pages pour afficher le bon
+// texte (voir pointsService.texte() pour le contenu venant de Supabase).
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { TranslateService } from '@ngx-translate/core';

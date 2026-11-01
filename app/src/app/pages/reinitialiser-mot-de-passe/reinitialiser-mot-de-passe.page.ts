@@ -1,3 +1,6 @@
+// Écran ouvert depuis le lien reçu par email après "mot de passe oublié"
+// (voir mot-de-passe-oublie.page.ts) : vérifie que le lien est valide, puis
+// laisse saisir le nouveau mot de passe.
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

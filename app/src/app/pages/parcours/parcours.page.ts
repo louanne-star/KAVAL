@@ -1,3 +1,7 @@
+// Onglet "Parcours" : liste des points en journal de bord, et la fiche
+// détail de chaque point (histoire, témoignage, quiz, mini-jeu). C'est ici
+// que le mini-jeu s'ouvre en plein écran (iframe, voir JEUX plus bas) et que
+// le badge est débloqué une fois gagné (badge.service.ts, reward.service.ts).
 import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ViewChild, ViewChildren, QueryList, ElementRef, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';

@@ -1,3 +1,6 @@
+// Charge et envoie les commentaires laissés par les visiteurs sur une zone,
+// avec leur note associée. Utilisé uniquement par map.page.ts, dans la fiche
+// détail d'un point.
 import { Injectable, signal } from '@angular/core';
 import { SyncService } from './sync.service';
 import { SupabaseService } from './supabase';

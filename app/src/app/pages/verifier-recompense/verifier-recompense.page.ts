@@ -1,3 +1,7 @@
+// Page ouverte via le QR code/lien de la récompense (voir reward.service.ts
+// et compte.page.ts, qui le génère) : destinée au personnel du musée pour
+// vérifier qu'un code n'a pas déjà été utilisé, avec un code PIN de
+// confirmation avant de le marquer comme utilisé.
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

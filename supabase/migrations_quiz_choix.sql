@@ -14,7 +14,7 @@ alter table quiz_questions add column if not exists mauvaise_reponse_1 text;
 alter table quiz_questions add column if not exists mauvaise_reponse_2 text;
 
 -- ── Backfill des 2 fausses réponses pour les 5 questions déjà en base ───────
--- ⚠️ Ces fausses réponses sont inventées par Claude pour que le quiz soit
+-- ⚠️ Ces fausses réponses sont provisoires, juste pour que le quiz soit
 -- jouable tout de suite — relis-les et corrige-les si besoin (Table Editor
 -- > quiz_questions), elles ne sont pas garanties historiquement plausibles.
 

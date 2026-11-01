@@ -1,3 +1,7 @@
+// Gère les badges gagnés en complétant un mini-jeu : qui a quel badge, et
+// l'image à afficher pour chaque point (fournie par le musée, ou un badge
+// SVG généré à défaut). Utilisé par parcours.page.ts (qui les débloque) et
+// par la carte/recherche/favoris/compte (qui les affichent).
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SyncService } from './sync.service';

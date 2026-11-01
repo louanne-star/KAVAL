@@ -1,3 +1,6 @@
+// Liste des points mis en favori (voir favorite.service.ts). Proche de
+// recherche.page.ts qui a aussi un filtre "favoris", mais cette page y est
+// dédiée entièrement, accessible depuis le cœur en haut de la carte/compte.
 import { Component, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';

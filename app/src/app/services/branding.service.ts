@@ -1,3 +1,6 @@
+// Logos et image de fond modifiables depuis Supabase sans republier l'app,
+// avec un repli sur les fichiers embarqués si Supabase ne répond pas.
+// Utilisé par app.component.ts et onboarding.page.ts.
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SupabaseService } from './supabase';

@@ -1,3 +1,7 @@
+// Les 5 écrans d'intro affichés au premier lancement (défilement horizontal) :
+// bienvenue, demande de géolocalisation, proposition de créer un compte,
+// présentation de l'équipe, puis fin. Affiché par splash.page.ts une seule
+// fois (voir onboarding.constants.ts pour le flag "déjà vu").
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';

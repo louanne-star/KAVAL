@@ -1,3 +1,6 @@
+// Page "Mon compte" : pseudo/avatar, changement de mot de passe, suppression
+// du compte, langue, et résumé des badges/favoris/récompense gagnés
+// (voir badge.service.ts et reward.service.ts pour ces données).
 import { Component, signal, computed, effect } from '@angular/core';
 import * as QRCode from 'qrcode';
 import { CommonModule } from '@angular/common';

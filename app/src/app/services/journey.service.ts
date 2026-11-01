@@ -1,3 +1,7 @@
+// Construit la liste ordonnée des zones du parcours (position, distance au
+// visiteur, zone débloquée ou non selon le GPS). Utilisé par parcours.page.ts
+// (journal de bord) et map.page.ts (marqueurs sur la carte), ainsi que par
+// recherche et favoris pour parcourir les mêmes zones.
 import { Injectable, signal, computed } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { PointsService } from './points.service';

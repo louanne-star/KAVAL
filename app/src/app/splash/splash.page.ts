@@ -1,3 +1,6 @@
+// Écran affiché au tout lancement de l'app : attend que la session (si déjà
+// connecté) et les données essentielles soient chargées, puis redirige soit
+// vers l'onboarding (premier lancement), soit directement vers les tabs.
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';

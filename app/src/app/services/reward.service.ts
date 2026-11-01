@@ -1,3 +1,7 @@
+// Suit le nombre de mini-jeux gagnés et gère la récompense (entrée gratuite
+// au musée) : génération du code, consultation de son statut. Utilisé par
+// parcours.page.ts (qui déclare une victoire) et compte.page.ts (qui montre
+// la récompense) ; le code est ensuite vérifié par verifier-recompense.page.ts.
 import { Injectable, signal } from '@angular/core';
 import { SupabaseService } from './supabase';
 import { AuthService } from './auth.service';

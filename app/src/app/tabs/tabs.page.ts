@@ -1,3 +1,7 @@
+// Barre d'onglets en bas de l'écran (Carte / Parcours / À propos) : c'est le
+// squelette de navigation principal de l'app, chaque onglet affichant une
+// page différente via le routeur. Lance aussi le tutoriel guidé au premier
+// lancement (voir tutorial.service.ts).
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';

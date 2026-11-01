@@ -1,3 +1,6 @@
+// Charge les photos de l'équipe depuis Supabase, pour les bulles autour du
+// logo sur l'écran "Un projet collaboratif" de l'onboarding. Utilisé
+// uniquement par onboarding.page.ts.
 import { Injectable, signal, computed } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SupabaseService } from './supabase';

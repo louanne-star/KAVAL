@@ -1,3 +1,7 @@
+// Onglet "À propos" : présentation du projet, chiffres clés, vestiges,
+// crédits et remerciements. Contrairement aux autres pages, le texte est
+// écrit directement ici (pas chargé depuis Supabase) car ce contenu ne
+// change presque jamais.
 import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ViewChildren, QueryList, ElementRef, computed } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';

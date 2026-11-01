@@ -1,3 +1,7 @@
+// Composant racine de l'app : démarre les services globaux (langue,
+// branding, synchro, connexion réseau, mises à jour) et affiche la zone de
+// routage plus le tutoriel par-dessus. Tout le reste de l'app (splash,
+// onboarding, tabs...) s'affiche à l'intérieur via le routeur Angular.
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';

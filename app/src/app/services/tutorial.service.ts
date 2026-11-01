@@ -1,3 +1,7 @@
+// Décrit les étapes du tutoriel guidé (quel écran, quel élément mettre en
+// surbrillance, quel texte afficher) et où en est l'utilisateur. Lu par
+// tabs.page.ts pour savoir s'il faut lancer le tuto, et par
+// tutorial-overlay.component.ts qui affiche réellement les bulles.
 import { Injectable, signal, computed } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { JourneyService } from './journey.service';

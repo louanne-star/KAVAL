@@ -1,3 +1,6 @@
+// Écran de connexion / inscription (un seul écran, deux onglets). Après
+// connexion, redirige vers la page d'où l'utilisateur venait (voir
+// ActivatedRoute). Lié à mot-de-passe-oublie.page.ts ("mot de passe oublié").
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
