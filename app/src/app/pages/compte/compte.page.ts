@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { personOutline, languageOutline, lockClosedOutline, trashOutline, heartOutline } from 'ionicons/icons';
+import { personOutline, languageOutline, lockClosedOutline, trashOutline, heartOutline, downloadOutline } from 'ionicons/icons';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { REGEX_MDP } from '../../shared/password-policy';
 import { AuthService } from '../../services/auth.service';
@@ -18,6 +18,7 @@ import { BadgeService } from '../../services/badge.service';
 import { RewardService } from '../../services/reward.service';
 import { PointsService } from '../../services/points.service';
 import { LanguageService } from '../../services/language.service';
+import { InstallService } from '../../services/install.service';
 import { Langue } from '../../i18n/translations';
 
 @Component({
@@ -76,10 +77,11 @@ export class ComptePage {
     readonly pointsService:   PointsService,
     readonly languageService: LanguageService,
     readonly rewardService:   RewardService,
+    readonly installService:  InstallService,
     private translate:        TranslateService,
     private router:           Router,
   ) {
-    addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, heartOutline });
+    addIcons({ personOutline, languageOutline, lockClosedOutline, trashOutline, heartOutline, downloadOutline });
 
     // RewardService n'a pas de cache local (contrairement aux badges/favoris) : ses
     // compteurs ne sont normalement chargés qu'une fois, en arrière-plan, au splash.
