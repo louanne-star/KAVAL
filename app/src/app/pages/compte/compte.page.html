@@ -152,6 +152,24 @@
           </button>
         </div>
 
+        <!-- Installation PWA : visible uniquement si Chrome/Edge a détecté que
+             l'app est installable (voir InstallService) et pas déjà installée. -->
+        <ng-container *ngIf="installService.peutInstaller()">
+          <p class="list-label">{{ 'compte.section.parametres' | translate }}</p>
+          <div class="list-card">
+            <button class="list-row list-row--last" (click)="installService.installer()">
+              <div class="list-ico list-ico--amber">
+                <ion-icon name="download-outline"></ion-icon>
+              </div>
+              <div class="list-txt">
+                <span class="list-name">{{ 'compte.installer.titre' | translate }}</span>
+                <span class="list-sub">{{ 'compte.installer.sousTitre' | translate }}</span>
+              </div>
+              <span class="list-arrow">›</span>
+            </button>
+          </div>
+        </ng-container>
+
         <!-- Actions -->
         <div class="cp-actions">
           <button class="cp-logout" (click)="seDeconnecter()">{{ 'compte.action.deconnexion' | translate }}</button>

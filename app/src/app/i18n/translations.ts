@@ -184,7 +184,8 @@ export const TRANSLATIONS = {
       role: "Explorateur · Forçats'Nou",
       tabs:    { securite: 'Sécurité' },
       stats:   { visitees: 'Visitées', favoris: 'Favoris', zones: 'Zones' },
-      section: { identite: 'Identité', favoris: 'Favoris', preferences: 'Préférences' },
+      section: { identite: 'Identité', favoris: 'Favoris', preferences: 'Préférences', parametres: 'Paramètres' },
+      installer: { titre: "Installer l'app", sousTitre: "Ajouter Forçats'Nou à l'écran d'accueil" },
       recompense: {
         titre: 'Récompense',
         progression: '{{n}}/{{total}} mini-jeux gagnés',
@@ -489,7 +490,8 @@ export const TRANSLATIONS = {
       role: "Explorer · Forçats'Nou",
       tabs:    { securite: 'Security' },
       stats:   { visitees: 'Visited', favoris: 'Favorites', zones: 'Zones' },
-      section: { identite: 'Identity', favoris: 'Favorites', preferences: 'Preferences' },
+      section: { identite: 'Identity', favoris: 'Favorites', preferences: 'Preferences', parametres: 'Settings' },
+      installer: { titre: 'Install the app', sousTitre: "Add Forçats'Nou to your home screen" },
       recompense: {
         titre: 'Reward',
         progression: '{{n}}/{{total}} mini-games won',
