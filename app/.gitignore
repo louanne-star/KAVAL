@@ -68,3 +68,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Images des mini-jeux hébergées sur Supabase Storage (buckets "argot"/"evasion"),
+# gardées ici localement seulement le temps de l'upload.
+/src/assets/mini-jeux/argot/_extracted
+/src/assets/mini-jeux/evasion/assets

@@ -14,6 +14,7 @@
 (() => {
   "use strict";
 
+  const BUCKET_URL = 'https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/evasion';
   const LARGEUR = 1536, HAUTEUR = 1024;     // taille de la maquette
   const NB_ETAPES = 5;
   /* En dessous de cette échelle, le texte devient trop petit :
@@ -111,9 +112,9 @@
 
   // Précharge les images d'une histoire pour éviter les cartes vides
   function precharger(h) {
-    const urls = [`assets/decors/${h.decors.plan}.webp`, `assets/decors/${h.decors.fuite}.webp`];
+    const urls = [`${BUCKET_URL}/decors/${h.decors.plan}.webp`, `${BUCKET_URL}/decors/${h.decors.fuite}.webp`];
     h.etapes.forEach((e) => e.choix.forEach((c) => urls.push(imageCarte(c.image))));
-    Object.values(FINS).forEach((f) => urls.push(`assets/fins/${f.image}.webp`));
+    Object.values(FINS).forEach((f) => urls.push(`${BUCKET_URL}/fins/${f.image}.webp`));
     urls.forEach((u) => { const i = new Image(); i.src = u; });
   }
   /* Typographie française : espace insécable avant ? ! : ; et dans « » */
@@ -131,7 +132,7 @@
     el.appendChild(span);
   }
 
-  const imageCarte = (n) => `assets/cartes/carte-${String(n).padStart(2, "0")}.webp`;
+  const imageCarte = (n) => `${BUCKET_URL}/cartes/carte-${String(n).padStart(2, "0")}.webp`;
 
   // ---------- Glossaire ----------
   /* Les mots difficiles deviennent des boutons soulignés ; chaque mot
@@ -286,7 +287,7 @@
       li.appendChild(b);
       liste.appendChild(li);
     });
-    changerDecor(`assets/decors/${HISTOIRES[0].decors.plan}.webp`);
+    changerDecor(`${BUCKET_URL}/decors/${HISTOIRES[0].decors.plan}.webp`);
     montrer("accueil");
     annoncer("Accueil. Choisis ton histoire.");
     liste.querySelector("button").focus({ preventScroll: true });
@@ -305,7 +306,7 @@
     reinitialiser(h);
     $("intro-titre").textContent = h.titre;
     ecrire($("intro-texte"), h.intro);
-    changerDecor(`assets/decors/${h.decors.plan}.webp`);
+    changerDecor(`${BUCKET_URL}/decors/${h.decors.plan}.webp`);
     montrer("intro");
     annoncer(h.titre);
     $("btn-commencer").focus({ preventScroll: true });
@@ -342,7 +343,7 @@
     const e = h.etapes[etat.etape];
     const plan = etat.etape < 2;
 
-    changerDecor(`assets/decors/${plan ? h.decors.plan : h.decors.fuite}.webp`);
+    changerDecor(`${BUCKET_URL}/decors/${plan ? h.decors.plan : h.decors.fuite}.webp`);
     $("etape-phase").textContent = plan ? "Le plan" : "La fuite";
     $("etape-titre").textContent = e.titre;
     ecrire($("etape-texte"), e.texte);
@@ -490,7 +491,7 @@
     const h = etat.histoire;
     const repris = cle === "repris";
 
-    changerDecor(`assets/fins/${f.image}.webp`);
+    changerDecor(`${BUCKET_URL}/fins/${f.image}.webp`);
     ecrans.fin.classList.toggle("repris", repris);
     $("fin-surtitre").textContent = h.titre;
     $("fin-titre").textContent = f.titre;

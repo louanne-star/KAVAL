@@ -86,7 +86,7 @@ button:focus-visible { outline: calc(var(--u) * 3) solid var(--creme); outline-o
 .parchemin {
   position: absolute;
   aspect-ratio: 1200 / 801;   /* proportions de parchemin.webp : l'image n'est jamais déformée */
-  background: url("../assets/ui/parchemin.webp") center / 100% 100% no-repeat;
+  background: url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/evasion/ui/parchemin.webp") center / 100% 100% no-repeat;
   filter: drop-shadow(0 calc(var(--u) * 10) calc(var(--u) * 18) rgba(0, 0, 0, .45));
   display: flex;
   flex-direction: column;
@@ -127,7 +127,7 @@ button:focus-visible { outline: calc(var(--u) * 3) solid var(--creme); outline-o
   place-items: center;
   width: calc(var(--u) * 300);
   height: calc(var(--u) * 58);
-  background: url("../assets/ui/pinceau.webp") center / 100% 100% no-repeat;
+  background: url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/evasion/ui/pinceau.webp") center / 100% 100% no-repeat;
   color: var(--creme);
   font-weight: 700;
   font-size: calc(var(--u) * 21);
@@ -145,7 +145,7 @@ button:focus-visible { outline: calc(var(--u) * 3) solid var(--creme); outline-o
   align-self: center;
   min-height: calc(var(--u) * 62);
   padding: 0 calc(var(--u) * 46);
-  background: url("../assets/ui/pinceau.webp") center / 100% 100% no-repeat;
+  background: url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/evasion/ui/pinceau.webp") center / 100% 100% no-repeat;
   color: var(--creme);
   font-family: var(--f-pinceau);
   font-size: calc(var(--u) * 27);
@@ -488,7 +488,7 @@ button:focus-visible { outline: calc(var(--u) * 3) solid var(--creme); outline-o
   position: relative;
   width: calc(var(--u) * 300);
   height: calc(var(--u) * 545);
-  background: url("../assets/ui/carte.webp") center / 100% 100% no-repeat;
+  background: url("https://onuavovmdbfigwfbagtd.supabase.co/storage/v1/object/public/evasion/ui/carte.webp") center / 100% 100% no-repeat;
   filter: drop-shadow(0 calc(var(--u) * 10) calc(var(--u) * 16) rgba(0, 0, 0, .45));
   text-align: center;
   color: var(--encre);
