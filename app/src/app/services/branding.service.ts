@@ -1,3 +1,4 @@
+// Logos et image de fond de l'app, remplaçables depuis Supabase sans redéploiement.
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SupabaseService } from './supabase';
@@ -33,10 +34,8 @@ export class BrandingService {
       const cheminBadge = cheminDe('logo_badge');
       const cheminFond  = cheminDe('fond_onboarding');
 
-      // Le bucket peut ne pas encore exister ou le fichier pas encore être
-      // uploadé (setup manuel, voir migrations_branding.sql) : on vérifie que
-      // l'image se charge vraiment avant de basculer dessus, pour ne jamais
-      // afficher une icône d'image cassée.
+      // On vérifie que l'image se charge vraiment avant de basculer dessus,
+      // au cas où le bucket ou le fichier ne serait pas encore prêt.
       let miseAJour = false;
       if (cheminBlanc) {
         const url = this.urlPublique(cheminBlanc);

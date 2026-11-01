@@ -72,7 +72,7 @@
           </ng-container>
         </ng-template>
 
-        <!-- Sections de texte du point (Histoire, Guerre médicale, ... — piloté depuis Supabase) -->
+        <!-- Sections de texte du point (Histoire, Guerre médicale, ...), pilotées depuis Supabase -->
         <!-- Le mini-jeu s'intercale juste après la 1ère section (Histoire), avant les suivantes -->
         <ng-container *ngFor="let s of pointsService.sectionsDe(zone.id); let first = first">
           <div class="section-titre" [attr.data-tuto]="first ? 'point-histoire' : null">{{ pointsService.texte(s.titre, s.titreEn) }}</div>

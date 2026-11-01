@@ -1,3 +1,4 @@
+// Page connexion/inscription, avec sync des données cloud à la connexion.
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

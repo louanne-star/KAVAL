@@ -1,3 +1,4 @@
+// Routes de l'app, avec authGuard sur toutes les pages qui demandent un compte.
 import { Routes } from '@angular/router';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';

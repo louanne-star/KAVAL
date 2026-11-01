@@ -1,3 +1,5 @@
+// Tuto guidé de l'app : liste des étapes, navigation entre elles, et reprise
+// là où l'utilisateur s'était arrêté.
 import { Injectable, signal, computed } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { JourneyService } from './journey.service';
@@ -32,9 +34,8 @@ const etape = (id: string, cle: string, cible?: string, route?: string): EtapeTu
 // de mini-jeu).
 export const ZONE_ID_DEMO = 'camp_est';
 
-// Chaque fonctionnalité est traitée en une seule fois (icône sur la carte
-// puis, dans la foulée, la page qu'elle ouvre) plutôt que d'être survolée au
-// début et revisitée à la fin — plus logique à suivre pour l'utilisateur.
+// Chaque fonctionnalité est traitée en une fois (icône sur la carte puis la
+// page qu'elle ouvre), plus logique à suivre que de tout survoler au début.
 export const ETAPES_TUTO: EtapeTuto[] = [
   etape('bienvenue',            'bienvenue'),
   etape('carte-recentrer',      'carteRecentrer',      'carte-recentrer',   '/tabs/carte'),
@@ -68,27 +69,20 @@ export class TutorialService {
 
   constructor(private journeyService: JourneyService) {}
 
-  /** Lance le tuto depuis le début — appelé juste après une inscription réussie. */
+  // Lance le tuto depuis le début, appelé juste après une inscription réussie.
   async demarrer() {
     this.etapeIndex.set(0);
     this.actif.set(true);
     await Preferences.set({ key: CLE_ETAPE, value: '0' });
   }
 
-  // Mémorise la promesse de la toute première reprise (TabsPage l'appelle
-  // sans l'attendre dans son constructeur) : les pages enfants (ex. Parcours)
-  // peuvent l'attendre pour savoir avec certitude si le tuto est actif avant
-  // de décider d'afficher leur propre popup — sans cette mise en cache, deux
-  // appels concurrents relisent le storage en parallèle et un lecteur rapide
-  // peut consulter `actif()` avant que la reprise ait fini de le positionner.
+  // Mémorise la promesse de la 1ère reprise (TabsPage l'appelle sans
+  // l'attendre). Les pages enfants (ex. Parcours) peuvent l'attendre pour
+  // savoir si le tuto est actif avant d'afficher leur propre popup.
   private reprisePromise: Promise<void> | null = null;
 
-  /**
-   * Reprend le tuto là où l'utilisateur l'a laissé, uniquement s'il a déjà
-   * été démarré sur cet appareil et jamais terminé. N'affecte jamais un
-   * compte qui ne l'a jamais commencé (utilisateurs déjà inscrits avant
-   * l'introduction de cette fonctionnalité).
-   */
+  // Reprend le tuto là où il a été laissé, seulement s'il a déjà été démarré
+  // sur cet appareil et jamais terminé.
   reprendreSiEnCours(): Promise<void> {
     if (!this.reprisePromise) this.reprisePromise = this.resoudreReprise();
     return this.reprisePromise;
@@ -115,7 +109,7 @@ export class TutorialService {
     Preferences.set({ key: CLE_ETAPE, value: String(prochain) });
   }
 
-  /** Bouton "Passer" : masque le tuto pour cette session, sans le marquer terminé. */
+  // Bouton "Passer" : masque le tuto pour cette session, sans le marquer terminé.
   passer() {
     this.actif.set(false);
   }
@@ -125,13 +119,8 @@ export class TutorialService {
     Preferences.set({ key: CLE_TERMINE, value: '1' });
   }
 
-  /**
-   * Résout la route à rejoindre pour une étape donnée.
-   * - `undefined` : pas de navigation nécessaire, on reste sur la page actuelle.
-   * - `string` : url à rejoindre.
-   * - `null` : impossible à résoudre (données pas encore chargées) → l'appelant
-   *   doit sauter l'étape.
-   */
+  // undefined = pas de navigation, string = url à rejoindre, null = pas
+  // résolvable (données pas chargées), l'appelant doit sauter l'étape.
   resoudreRoute(e: EtapeTuto): string | null | undefined {
     if (!e.route) return undefined;
     if (e.route === SENTINELLE_POINT_CAMP_EST) {

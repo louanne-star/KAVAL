@@ -1,3 +1,4 @@
+// Carrousel d'accueil (bienvenue, localisation, connexion, équipe, fin).
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -101,8 +102,8 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
       if (status.state === 'granted') this.permission.set('accordee');
       else if (status.state === 'denied') this.permission.set('refusee');
     } catch {
-      // API Permissions non supportée (ex. Safari) — on se fiera uniquement
-      // au résultat de l'appel getCurrentPosition lors du clic sur "Autoriser".
+      // API Permissions non supportée (ex. Safari), on se fiera au résultat
+      // de getCurrentPosition au clic sur "Autoriser".
     }
   }
 
@@ -115,10 +116,8 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
     }, 90);
   }
 
-  // La localisation n'est plus bloquante : avec la position de secours de
-  // repli, l'app reste utilisable sans GPS (voir JourneyService). On
-  // continue de la demander ici, mais sans empêcher de passer à l'écran
-  // suivant si elle n'est pas accordée.
+  // La localisation n'est plus bloquante : l'app reste utilisable sans GPS,
+  // donc on continue de la demander mais sans bloquer l'écran suivant.
   allerA(i: number) {
     const cible = Math.max(0, Math.min(NB_ECRANS - 1, i));
     const el = this.pisteRef.nativeElement;

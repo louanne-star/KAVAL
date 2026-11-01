@@ -1,3 +1,5 @@
+// Écran de démarrage : redirige vers la carte, le login ou l'onboarding
+// selon l'état de session, pendant que la sync tourne en arrière-plan.
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -85,7 +87,7 @@ export class SplashPage implements OnInit {
       // le pousser maintenant plutôt que de le perdre définitivement.
       await this.sync.reconcilierSiNecessaire(this.badges.badges(), this.ratings.notes(), this.favoris.favoris());
     } catch (err) {
-      // Offline ou erreur réseau — l'app continue avec les données locales
+      // Offline ou erreur réseau, l'app continue avec les données locales
       console.error('[Splash] sync en arrière-plan a échoué', err);
     }
   }

@@ -103,8 +103,7 @@ export interface Personnage {
 export interface PersonnageParagraphe {
   id: string;
   pointId: string;
-  // Peut contenir des balises <strong> (mise en gras), affiché via
-  // [innerHTML] côté template — voir ParcoursPage.
+  // Peut contenir des balises <strong>, affiché via [innerHTML] dans ParcoursPage.
   texte: string;
   texteEn?: string;
   citation: boolean;
@@ -154,12 +153,9 @@ export class PointsService {
 
   async charger(): Promise<void> {
     try {
-      // Zones + points sont critiques : sans eux, rien ne peut s'afficher (carte,
-      // parcours...), donc une erreur ici fait tomber tout le chargement sur le
-      // cache local. Témoignages/quiz sont du contenu optionnel qui ne doit
-      // jamais bloquer le reste — chacun se charge indépendamment et retombe
-      // silencieusement sur une liste vide en cas d'erreur (ex: table pas
-      // encore créée dans Supabase).
+      // Zones + points sont critiques : une erreur ici fait tomber tout le
+      // chargement sur le cache local. Témoignages/quiz sont optionnels,
+      // chacun retombe silencieusement sur une liste vide en cas d'erreur.
       const [z, p] = await Promise.all([
         this.supabase.client.from('zones').select('*').order('ordre'),
         this.supabase.client.from('points').select('*').order('ordre'),
@@ -301,13 +297,8 @@ export class PointsService {
     return this.personnageParagraphes().filter(p => p.pointId === pointId);
   }
 
-  /**
-   * Image à utiliser en bannière derrière le titre : automatique s'il n'y a
-   * qu'une seule photo, sinon celle marquée `banniere` en base. Si un point a
-   * plusieurs photos mais qu'aucune n'est encore marquée bannière (décision
-   * pas encore prise), ne retourne rien — le point garde son fond bleu par
-   * défaut tant que le choix n'est pas fait.
-   */
+  // Bannière du point : automatique s'il n'y a qu'une photo, sinon celle
+  // marquée `banniere` en base. Rien si plusieurs photos sans bannière choisie.
   banniereDe(pointId: string): PointImage | undefined {
     const imgs = this.imagesDe(pointId);
     if (imgs.length === 1) return imgs[0];

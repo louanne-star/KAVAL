@@ -1,3 +1,5 @@
+// Page Carte : affichage Leaflet/MapLibre des points du parcours, navigation
+// GPS en direct vers le prochain point, et popups d'info des lieux annexes.
 import { Component, AfterViewInit, OnDestroy, signal, computed, effect, untracked, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
@@ -18,10 +20,8 @@ import { UiStateService } from '../../services/ui-state.service';
 import { LanguageService } from '../../services/language.service';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
-// Points "phares" : chacun a son propre mini-jeu dédié (contrairement aux
-// autres points d'une même zone, qui n'en ont pas) — c'est ce qui leur vaut
-// l'étoile sur la carte. Doit rester synchronisé avec les clés de JEUX dans
-// parcours.page.ts à chaque nouveau mini-jeu.
+// Points "phares" : ceux qui ont leur propre mini-jeu dédié, d'où l'étoile
+// sur la carte. À garder synchro avec les clés de JEUX dans parcours.page.ts.
 const POINTS_PHARES = new Set(['camp_est_principal', 'magasin_a_vivre', 'boulangerie', 'hopital_du_marais', 'logement_surveillants_militaires_maries']);
 
 @Component({
@@ -239,9 +239,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
       });
     });
 
-    // Retour depuis la fiche détail d'un point (bouton "← Retour", navigation
-    // navigateur) : rouvre la fiche exactement où on l'avait laissée — même
-    // zoom, même centrage — plutôt qu'un zoom fixe arbitraire.
+    // Retour depuis la fiche détail d'un point : rouvre la fiche au même
+    // zoom et au même centrage qu'avant, pas un zoom fixe arbitraire.
     effect(() => {
       const etat  = this.uiState.pointARouvrir();
       const zones = this.journeyService.zones();
@@ -263,7 +262,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
       if (this.mapPret()) this.mettreAJourCarte(zones);
     });
 
-    // Affiche tous les points popup dès que le contenu est chargé — indépendant des badges/itinéraire.
+    // Affiche tous les points popup dès que le contenu est chargé, indépendant des badges/itinéraire.
     effect(() => {
       const popups = this.pointsService.pointsPopup();
       if (this.mapPret()) this.dessinerPopups(popups);
@@ -326,12 +325,10 @@ export class MapPage implements AfterViewInit, OnDestroy {
       zoomControl:  false
     });
 
-    // Fond de carte vectoriel sobre (style "Positron" d'OpenFreeMap, gratuit
-    // et sans clé API — contrairement à Mapbox/CARTO/Stadia), avec une ombre
-    // ajoutée sous les bâtiments pour un effet de relief façon carte Snap —
-    // la bascule maplibre-gl-leaflet ne supportant pas l'inclinaison de
-    // caméra (pitch), on simule le volume avec un fill-translate plutôt
-    // qu'une vraie extrusion 3D.
+    // Style "Positron" d'OpenFreeMap (gratuit, pas de clé API), avec une
+    // ombre sous les bâtiments pour un effet de relief. maplibre-gl-leaflet
+    // ne gère pas l'inclinaison de caméra, donc on simule le volume avec
+    // un fill-translate plutôt qu'une vraie extrusion 3D.
     this.tileNormale = maplibreGL({
       style: 'https://tiles.openfreemap.org/styles/positron'
     }).addTo(this.map);
@@ -339,11 +336,9 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.tileNormale.getMaplibreMap().on('load', () => {
       const gl = this.tileNormale.getMaplibreMap();
 
-      // Petits arbres dispersés aléatoirement sur les zones de parc/bois,
-      // façon cartes Snap — pas de données de points d'arbres individuels
-      // dans les tuiles OpenMapTiles, donc on sème des points au hasard à
-      // l'intérieur des polygones, avec 3 tailles/variantes pour un rendu
-      // naturel plutôt qu'une grille régulière.
+      // Les tuiles OpenMapTiles n'ont pas de points d'arbres individuels,
+      // donc on sème des points au hasard dans les zones de parc/bois,
+      // avec 3 tailles pour casser l'effet de grille régulière.
       const dessinerArbre = (r: number, teinte: string, teinteClaire: string) => {
         const t = Math.ceil(r * 2.6);
         const canvas = document.createElement('canvas');
@@ -577,7 +572,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
       });
 
     } catch {
-      // AbortError ou panne réseau — garde le dernier tracé
+      // AbortError ou panne réseau, garde le dernier tracé
     }
   }
 
@@ -664,9 +659,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
   private readonly PIN_PATH  = 'M16 1C8.3 1 2 7.3 2 15C2 25.5 16 45 16 45C16 45 30 25.5 30 15C30 7.3 23.7 1 16 1Z';
   private readonly STAR_PATH = 'M16 8.3l1.9 4.2 4.4.4-3.4 3 1 4.4-3.9-2.4-3.9 2.4 1-4.4-3.4-3 4.4-.4z';
 
-  // estActuel = le point où l'on en est dans le parcours (le plus proche pas
-  // encore validé) — pas un état lié au clic sur le point, qui n'affecte que
-  // la fiche du bas, pas la couleur du marqueur.
+  // estActuel = le prochain point à valider dans le parcours, pas un état
+  // lié au clic (le clic n'affecte que la fiche du bas, pas la couleur).
   private creerIcone(zone: JourneyZone, estActuel: boolean): L.DivIcon {
     if (this.badgeService.aBadge(zone.id)) {
       // Validé : le check remplace l'étoile, point phare ou non.
@@ -735,7 +729,7 @@ export class MapPage implements AfterViewInit, OnDestroy {
     }
   }
 
-  // ── Popups (infos au clic, hors itinéraire/badges — toujours affichés) ────
+  // ── Popups (infos au clic, toujours affichés, hors itinéraire/badges) ────
 
   iconeZone(zoneId: string): string {
     return this.pointsService.metaDe(zoneId)?.icone ?? '📍';
@@ -776,11 +770,8 @@ export class MapPage implements AfterViewInit, OnDestroy {
     this.miniPopupPos.set({ x: xBorne, y });
   }
 
-  // Décale la carte si besoin pour que la mini-carte (qui s'ouvre au-dessus du
-  // marqueur) soit entièrement visible, sans que l'utilisateur ait à glisser
-  // la carte lui-même. Mesure la position réelle de la carte après rendu
-  // Angular (d'où le setTimeout à l'appel) et la recentre dans une zone sûre
-  // qui évite le header en haut et la barre d'onglets en bas.
+  // Décale la carte si besoin pour que la mini-bulle reste entièrement
+  // visible (pas cachée par le header ou la barre d'onglets).
   private recentrerPourMiniPopup() {
     const el = this.miniPopupEl?.nativeElement;
     if (!el) return;
@@ -850,14 +841,11 @@ export class MapPage implements AfterViewInit, OnDestroy {
   // ── UI actions ────────────────────────────────────────────────────────────
 
   recentrer() {
-    // En plus de recentrer, rapproche le zoom actuel de 50% (borné au maxZoom
-    // de la carte) plutôt qu'un niveau fixe, pour "resserrer" quelle que soit
-    // l'échelle à laquelle l'utilisateur regardait la carte.
+    // Rapproche aussi le zoom de 50% plutôt qu'un niveau fixe.
     const zoomCible = Math.min(this.map.getZoom() * 1.5, this.map.getMaxZoom());
 
-    // Cible le prochain point à valider (là où l'utilisateur doit se rendre),
-    // pas sa position GPS — sauf s'il n'y a plus de point à faire (parcours
-    // terminé), auquel cas on recentre sur lui.
+    // Cible le prochain point à valider, pas la position GPS, sauf si le
+    // parcours est terminé.
     const prochain = this.prochaineZoneSansBadge();
     if (prochain) {
       this.map.flyTo(prochain.coords as L.LatLngExpression, zoomCible, { duration: 0.8 });

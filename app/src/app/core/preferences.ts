@@ -1,8 +1,6 @@
-// Remplace @capacitor/preferences : Kaval est désormais une web app pure (PWA),
-// sans pont natif Capacitor. Même API (get/set/remove) et même préfixe de clé
-// ("CapacitorStorage.") que l'implémentation web de @capacitor/preferences, pour
-// ne pas perdre les données déjà enregistrées par les utilisateurs existants
-// (badges, parcours, favoris, langue, tutoriel...).
+// Remplace @capacitor/preferences maintenant que l'app est une PWA pure.
+// Même API et même préfixe de clé, pour ne pas perdre les données déjà
+// enregistrées par les utilisateurs existants.
 
 const PREFIXE = 'CapacitorStorage.';
 

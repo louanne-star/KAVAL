@@ -42,13 +42,9 @@ export class AuthService {
     this._user.set(data.user);
   }
 
-  /**
-   * Retourne `true` si une session a bien été créée (utilisateur connecté).
-   * Si la confirmation par e-mail est activée côté Supabase, `data.user` est
-   * renvoyé non-nul mais `data.session` reste `null` tant que le lien reçu
-   * par e-mail n'a pas été cliqué — dans ce cas on ne met pas à jour `_user`,
-   * sinon l'app croit l'utilisateur connecté jusqu'au prochain rechargement.
-   */
+  // true si une session a bien été créée. Si la confirmation par e-mail est
+  // activée, data.user existe mais data.session reste null tant que le lien
+  // reçu par e-mail n'a pas été cliqué : dans ce cas on ne met pas à jour _user.
   async sInscrire(email: string, motDePasse: string): Promise<boolean> {
     const { data, error } = await this.supabase.client.auth.signUp({
       email, password: motDePasse

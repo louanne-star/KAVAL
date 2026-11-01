@@ -2,10 +2,8 @@ import { Injectable, signal } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
 
-// Le service worker se met à jour tout seul en arrière-plan ; sans ça,
-// l'utilisateur reste sur une vieille version jusqu'au prochain rechargement
-// complet, sans le savoir. On affiche donc un bandeau explicite dès qu'une
-// nouvelle version est prête, plutôt qu'un rechargement silencieux.
+// Affiche un bandeau quand une nouvelle version du service worker est prête,
+// plutôt qu'un rechargement silencieux qui surprendrait l'utilisateur.
 @Injectable({ providedIn: 'root' })
 export class AppUpdateService {
 

@@ -1,3 +1,5 @@
+// Construit et suit le parcours : ordre de visite des points, position GPS
+// en direct, et persistance de l'ordre une fois calculé.
 import { Injectable, signal, computed } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { PointsService } from './points.service';
@@ -23,9 +25,9 @@ export interface JourneyZone {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const CLE_PERSISTANCE = 'kaval_journey_v1';
-// Position de secours utilisée quand le GPS échoue/est refusé : IUT de Nouvelle-Calédonie, Nouville.
-// Sert uniquement à positionner les points sur la carte (ordre du parcours, marqueurs) — jamais à
-// afficher un itinéraire, qui exige une position GPS réelle (voir MapPage.toggleItineraire).
+// Position de secours si le GPS échoue/est refusé (IUT de Nouvelle-Calédonie,
+// Nouville). Sert juste à positionner les points sur la carte, jamais à
+// afficher un itinéraire : ça exige une vraie position GPS.
 const POSITION_DEPART_IUT: [number, number] = [-22.26889, 166.41944];
 const DIRECTION_NOMS  = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
 const DIRECTION_FLECHES: Record<string, string> = {
@@ -98,10 +100,9 @@ export class JourneyService {
 
   // ── Persistence ────────────────────────────────────────────────────────────
 
-  // Reconstruit la liste des vrai points depuis Supabase/cache (chargé au préalable via PointsService).
-  // ordreCurateur = ordre éditorial (colonne points.ordre) : utilisé pour trier les points À
-  // L'INTÉRIEUR d'une même zone (voir regrouperParZone) — distinct de JourneyZone.ordre, qui est
-  // la position finale dans le tour une fois les zones elles-mêmes réordonnées.
+  // ordreCurateur = ordre éditorial (colonne points.ordre), utilisé pour trier
+  // les points à l'intérieur d'une même zone (regrouperParZone). Différent de
+  // JourneyZone.ordre, qui est la position finale une fois les zones réordonnées.
   private sourcePoints(): (Omit<JourneyZone, 'ordre' | 'debloque'> & { ordreCurateur: number })[] {
     const zonesMeta = new Map(this.pointsService.zones().map(z => [z.id, z]));
     return this.pointsService.pointsVrai().map(p => {
@@ -161,10 +162,9 @@ export class JourneyService {
       return;
     }
 
-    // Filet de sécurité : sur certains appareils, watchPosition ne rappelle
-    // jamais (ni succès ni erreur) quand le GPS n'arrive pas à capter de
-    // signal — le "timeout" de l'API n'est alors pas fiable. On force donc
-    // le repli sur l'IUT si rien n'est arrivé après 10s.
+    // Sur certains appareils, watchPosition ne rappelle jamais si le GPS ne
+    // capte rien (le timeout de l'API n'est pas fiable). Repli forcé sur
+    // l'IUT après 10s si rien n'est arrivé.
     const delaiSecours = setTimeout(() => this.demarrerAvecPositionDefaut(), 10000);
 
     this.gpsWatchId = navigator.geolocation.watchPosition(
@@ -181,10 +181,8 @@ export class JourneyService {
     );
   }
 
-  // Affiche le bandeau d'erreur GPS (une clé de traduction, résolue dans le
-  // template — voir carte.gps.* dans translations.ts) et l'efface
-  // automatiquement après 5 minutes pour ne pas laisser un avertissement
-  // obsolète affiché indéfiniment.
+  // Affiche le bandeau d'erreur GPS (clé de traduction, voir carte.gps.*
+  // dans translations.ts), effacé automatiquement après 5 minutes.
   private afficherErreurGPS(cleTraduction: string) {
     this.erreurGPS.set(cleTraduction);
     clearTimeout(this.erreurGPSTimeout);
@@ -209,13 +207,10 @@ export class JourneyService {
 
   // ── Route construction (ordre optimal des zones, points curatés par zone) ──
   //
-  // L'ancien algorithme (plus-proche-voisin glouton point par point) pouvait
-  // choisir une zone proche mais géographiquement excentrée (ex. camp_est, en
-  // impasse au bout de la presqu'île) avant d'avoir fini les zones centrales,
-  // forçant un aller-retour de plusieurs kilomètres. On ordonne maintenant les
-  // ZONES de façon optimale (permutation exhaustive, réaliste vu leur petit
-  // nombre), et à l'intérieur de chaque zone on respecte l'ordre curaté en
-  // base (points.ordre) plutôt que de le recalculer.
+  // Avant, un plus-proche-voisin point par point pouvait partir vers une zone
+  // proche mais excentrée (camp_est, en impasse) et forcer un gros détour.
+  // Maintenant on ordonne les ZONES par permutation exhaustive (petit nombre,
+  // donc ça passe), et dans chaque zone on garde l'ordre curaté en base.
 
   private construireRoute(lat: number, lng: number) {
     const source = this.sourcePoints();

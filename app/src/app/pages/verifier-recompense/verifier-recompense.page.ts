@@ -1,3 +1,5 @@
+// Page ouverte en scannant le QR code de récompense : l'équipe du musée y
+// vérifie et valide le code avec un PIN.
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

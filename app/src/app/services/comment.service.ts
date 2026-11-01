@@ -1,3 +1,5 @@
+// Commentaires de la communauté laissés sur chaque point, avec la note de
+// leur auteur affichée à côté.
 import { Injectable, signal } from '@angular/core';
 import { SyncService } from './sync.service';
 import { SupabaseService } from './supabase';

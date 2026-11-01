@@ -85,11 +85,10 @@
     </section>
 
     <!-- ═══════════════════════ ÉCRAN 4 — PROJET COLLABORATIF ═══════════════════════ -->
-    <!-- ecran-collaboratif : écran le plus haut en contenu (titre + cluster +
-         carte) — pas de centrage vertical ici (voir .ecran-collaboratif), sinon
-         le contenu déborde et chevauche les boutons Retour/Suivant qui restent
-         calés sur la hauteur de l'écran. Le bouton Suivant est donc aussi dans
-         le flux normal (après la carte) plutôt qu'ancré en position absolue. -->
+    <!-- ecran-collaboratif : écran le plus chargé (titre + cluster + carte),
+         pas de centrage vertical sinon le contenu chevauche les boutons
+         Retour/Suivant. Le bouton Suivant reste donc dans le flux normal,
+         après la carte, plutôt qu'ancré en position absolue. -->
     <section class="ecran ecran-clair ecran-collaboratif">
       <button class="btn-retour" (click)="precedent()">
         <ion-icon name="arrow-back-outline"></ion-icon> {{ 'onboarding.retour' | translate }}

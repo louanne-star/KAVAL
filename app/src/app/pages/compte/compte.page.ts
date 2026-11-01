@@ -1,3 +1,4 @@
+// Page Compte : identité, favoris, récompense, paramètres et suppression.
 import { Component, signal, computed, effect } from '@angular/core';
 import * as QRCode from 'qrcode';
 import { CommonModule } from '@angular/common';

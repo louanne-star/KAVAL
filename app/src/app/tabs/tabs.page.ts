@@ -1,3 +1,4 @@
+// Shell des 3 onglets principaux (carte/parcours/apropos), avec barre de nav custom.
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
@@ -47,9 +48,8 @@ export class TabsPage {
     // sur /tabs/parcours sans jamais passer par la carte.
     journeyService.initialiser();
 
-    // Reprend le tuto d'onboarding s'il a été démarré (inscription) mais pas
-    // terminé — ex: l'app a été relancée en plein milieu. N'affecte jamais un
-    // utilisateur qui ne l'a jamais commencé.
+    // Reprend le tuto s'il a été démarré mais pas terminé (ex: app relancée
+    // en plein milieu). N'affecte jamais un utilisateur qui ne l'a jamais commencé.
     this.tutorial.reprendreSiEnCours();
 
     router.events

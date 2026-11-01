@@ -1,3 +1,4 @@
+// Photos de l'équipe affichées sur l'écran "projet collaboratif" de l'onboarding.
 import { Injectable, signal, computed } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SupabaseService } from './supabase';

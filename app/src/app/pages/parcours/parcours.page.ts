@@ -1,3 +1,5 @@
+// Page Parcours : liste des points à visiter (journal de bord) et fiche
+// détaillée d'un point, avec son quiz et son mini-jeu éventuel.
 import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ViewChild, ViewChildren, QueryList, ElementRef, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,16 +22,13 @@ import { Langue } from '../../i18n/translations';
 type ChoixSlot = 'bonne' | 'm1' | 'm2';
 
 const CLE_INTRO_VUE = 'kaval_parcours_intro_vue';
-// Révélation progressive au scroll des cartes de la liste : seulement la
-// toute première fois qu'on ouvre cette page (voir premiereOuverture plus
-// bas) — les fois suivantes, simple animation d'entrée à chaque affichage
-// de la liste, comme sur la page à propos.
+// Les cartes apparaissent au scroll seulement la 1ère fois qu'on ouvre la
+// page (voir premiereOuverture plus bas), sinon simple animation d'entrée.
 const CLE_LISTE_REVELEE = 'kaval_parcours_liste_revelee';
 // Doit correspondre au "gap" de .carrousel dans parcours.page.scss.
 const CARROUSEL_GAP = 12;
 
-// Genre de chaque point (pour "Explore le/la ..."), en français uniquement —
-// pas nécessaire en anglais ("Explore" n'a pas besoin d'article.
+// Genre de chaque point pour "Explore le/la ...", utile qu'en français.
 const ARTICLE_POINT: Record<string, string> = {
   four_a_chaux:                          'le',
   magasin_a_vivre:                       'le',
@@ -58,25 +57,19 @@ const ARTICLE_POINT: Record<string, string> = {
 export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(IonContent) private ionContent?: IonContent;
-  // Cartes de la liste "journal de bord" : révélées (fondu + léger slide) au
-  // fur et à mesure qu'elles entrent dans le viewport, plutôt que toutes
-  // visibles d'un coup — IntersectionObserver plutôt qu'un scroll-listener
-  // pour ne rien calculer à chaque frame de scroll.
+  // Cartes révélées au fur et à mesure qu'elles entrent dans le viewport
+  // (IntersectionObserver, pas un scroll-listener qui tournerait à chaque frame).
   @ViewChildren('carteReveal') private carteRevealEls?: QueryList<ElementRef<HTMLElement>>;
   private carteRevealSub?: Subscription;
   private carteRevealObserver?: IntersectionObserver;
-  // Position de scroll de la liste au moment où on ouvre un point, pour la
-  // restaurer au retour (le composant n'est jamais détruit entre-temps :
-  // même route, seul le query param "zone" change).
+  // Scroll de la liste au moment d'ouvrir un point, pour y revenir au retour.
   private scrollListe = 0;
 
   zoneSelectionnee: JourneyZone | null = null;
   enRedirection = false;
   introVisible = false;
-  // Par défaut on suppose "première fois" (cartes cachées jusqu'au scroll) :
-  // si Preferences confirme que la liste a déjà été révélée avant, on bascule
-  // à false, ce qui active l'animation d'entrée simple (rejouée à chaque
-  // ouverture de la page, comme sur la page à propos).
+  // true par défaut (1ère fois), passe à false si Preferences dit que la
+  // liste a déjà été révélée (animation d'entrée simple à la place).
   premiereOuverture = true;
   jeuOuvert = false;
   imageAgrandie = signal<PointImage | null>(null);
@@ -124,10 +117,8 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
     return this.JEUX_NOMS[this.languageService.langue()][pointId] ?? '';
   }
 
-  // Portrait d'un personnage historique, affiché comme la carte mini-jeu
-  // juste après la 1ère section du point (voir miniJeuBlock dans le html) —
-  // contenu chargé depuis Supabase (pointsService.personnageDe/
-  // paragraphesPersonnageDe), pas codé en dur ici.
+  // Portrait d'un personnage historique, affiché après la 1ère section du
+  // point. Contenu chargé depuis Supabase, pas codé en dur ici.
   personnagePopupOuvert = false;
   ouvrirPersonnage() { this.personnagePopupOuvert = true; }
   fermerPersonnage() { this.personnagePopupOuvert = false; }
@@ -195,19 +186,15 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Lu une seule fois, à l'arrivée sur la page : permet de savoir si on
-    // atterrit directement sur un point précis (ex: "Explorer" depuis la
-    // carte) plutôt que sur la liste, pour ne jamais déclencher le popup
-    // d'intro dans ce cas (voir plus bas).
+    // Pour savoir si on arrive direct sur un point précis (depuis "Explorer"
+    // sur la carte) plutôt que sur la liste, et ne pas déclencher le popup d'intro.
     const zoneInitiale = this.route.snapshot.queryParamMap.get('zone');
 
     this.paramSub = this.route.queryParamMap.subscribe(params => {
       const zoneId = params.get('zone');
       if (!zoneId) {
         // Pas de point précis : liste des points dans l'ordre du parcours
-        // (journeyService.zones(), déjà calculé par proximité GPS — ou par
-        // rapport à une position par défaut si l'utilisateur n'a pas
-        // partagé sa position, voir JourneyService.construireRoute()).
+        // (journeyService.zones(), calculé par proximité GPS).
         this.enRedirection = false;
         this.zoneSelectionnee = null;
         this.setJeuOuvert(false);
@@ -224,10 +211,8 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
         this.initQuiz();
         this.scrollHautDetail();
       } else {
-        // zones() pas encore chargées (ex: reload direct sur une page détail,
-        // avant que le GPS/l'itinéraire ne soit prêt) ou id invalide : jamais
-        // de "page d'attente" affichée ici, direction la carte — elle rouvrira
-        // ce point automatiquement dès que ses données seront prêtes.
+        // zones() pas encore chargées (reload direct, GPS pas prêt) ou id
+        // invalide : retour à la carte, qui rouvrira ce point automatiquement.
         this.enRedirection = true;
         this.router.navigate(['/tabs/carte'], { queryParams: { point: zoneId } });
       }
@@ -242,12 +227,9 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // Jamais pendant le tuto guidé (qui visite déjà cette page), ni quand on
-    // atterrit directement sur un point précis (ex: "Explorer" depuis la
-    // carte) — seulement à la toute première ouverture "libre" de la liste
-    // une fois le tuto fini. On attend la reprise éventuelle du tuto
-    // (asynchrone, lancée par TabsPage) avant de lire `actif()`, sinon on
-    // risque de la consulter avant qu'elle ait fini de la positionner à true.
+    // Pas pendant le tuto, ni si on arrive direct sur un point précis.
+    // On attend reprendreSiEnCours() avant de lire actif(), sinon on
+    // risque de la lire avant qu'elle soit mise à true.
     this.tutorial.reprendreSiEnCours().then(() =>
       Preferences.get({ key: CLE_INTRO_VUE }).then(({ value }) => {
         if (!value && !zoneInitiale && !this.tutorial.actif()) this.introVisible = true;
@@ -267,10 +249,7 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
     return article === "l'" ? article : article + ' ';
   }
 
-  // Halo pastel en fond de carte d'étape, une teinte fixe par zone (pas par
-  // étape) pour casser le monochrome bleu sans transformer l'app en
-  // patchwork multicolore : Camp Est = sable, Hôpital du Marais = lavande,
-  // Zone Pénitentiaire = turquoise.
+  // Halo pastel en fond de carte, une teinte fixe par zone (pas par étape).
   private static readonly HALOS_PAR_ZONE: Record<string, string> = {
     camp_est: 'sable',
     hopital: 'lavande',
@@ -329,12 +308,9 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
     this.uiState.navMasquee.set(v);
   }
 
-  // Mis en cache par chemin de jeu : le sanitizer crée un nouvel objet
-  // SafeResourceUrl à chaque appel, donc si ce getter en recréait un neuf à
-  // chaque cycle de détection de changement (déclenché très souvent, ex.
-  // toutes les mises à jour GPS), Angular verrait une référence différente
-  // et réassignerait iframe.src à chaque fois — ce qui recharge le jeu en
-  // boucle, même sans changer de zone.
+  // Le sanitizer crée un nouvel objet à chaque appel : sans ce cache, ce
+  // getter en recréerait un à chaque détection de changement et l'iframe
+  // rechargerait le jeu en boucle même sans changer de zone.
   private jeuUrlCache: { jeu: string; url: SafeResourceUrl } | null = null;
 
   get jeuUrl(): SafeResourceUrl | null {
@@ -374,11 +350,9 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // Bouton "← Retour" : comportement navigateur (retourne à la page d'où on
-  // vient, quelle qu'elle soit — Carte, Recherche, Compte...) plutôt qu'une
-  // redirection fixe. Quand on vient de la Carte, celle-ci rouvre la fiche
-  // du point avec son zoom/centrage d'origine via UiStateService (voir
-  // MapPage.explorer() et son effect de réouverture).
+  // "← Retour" : revient d'où on vient (Carte, Recherche, Compte...) plutôt
+  // qu'une redirection fixe. Depuis la Carte, le point se rouvre au même
+  // zoom via UiStateService (voir MapPage.explorer()).
   retourListe() {
     this.setJeuOuvert(false);
     this.location.back();

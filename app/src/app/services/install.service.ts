@@ -1,10 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 
-// Chrome/Edge sur Android ne montrent plus de bandeau d'installation
-// automatique : il capture l'évènement "beforeinstallprompt" et le déclenche
-// seulement sur demande (bouton "Installer l'app" dans le tuto). Sur Safari
-// iOS, cet évènement n'existe pas (voir le bloc d'instructions dédié dans
-// onboarding.page.ts).
+// Capture l'évènement "beforeinstallprompt" de Chrome/Edge pour déclencher
+// l'install sur demande (bouton dans le tuto), vu que Chrome ne montre plus
+// de bandeau automatique. N'existe pas sur Safari iOS.
 @Injectable({ providedIn: 'root' })
 export class InstallService {
 

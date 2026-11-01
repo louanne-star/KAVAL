@@ -1,3 +1,5 @@
+// Racine de l'app : router outlet, overlay du tuto, et bandeaux globaux
+// (hors connexion, mise à jour, erreur de sync).
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';

@@ -1,3 +1,4 @@
+// Récompense débloquée quand tous les mini-jeux sont gagnés (entrée musée).
 import { Injectable, signal } from '@angular/core';
 import { SupabaseService } from './supabase';
 import { AuthService } from './auth.service';
@@ -27,8 +28,8 @@ export class RewardService {
     return this._jeuxGagnes().has(pointId);
   }
 
-  // Appelé uniquement depuis le message "jeuTermine" d'un mini-jeu (jamais
-  // depuis l'arrivée GPS) — seul signal fiable que le joueur a vraiment gagné.
+  // Appelé uniquement depuis le message "jeuTermine" d'un mini-jeu, jamais
+  // depuis l'arrivée GPS, seul signal fiable que le joueur a vraiment gagné.
   async gagnerJeu(pointId: string): Promise<void> {
     if (this._jeuxGagnes().has(pointId)) return;
     const uid = this.auth.userId;
@@ -43,13 +44,12 @@ export class RewardService {
     } catch {}
 
     // Le trigger Supabase crée la récompense côté serveur dès que tous les
-    // jeux sont gagnés — on recharge pour la détecter si c'est le cas.
+    // jeux sont gagnés, on recharge pour la détecter si c'est le cas.
     await this.chargerRecompense();
   }
 
-  // Nombre total de mini-jeux à gagner — lu en base (table mini_jeux_points)
-  // plutôt que codé en dur, pour qu'ajouter un futur mini-jeu n'exige qu'un
-  // INSERT côté Supabase, sans toucher au code.
+  // Lu en base plutôt que codé en dur, pour qu'ajouter un mini-jeu n'exige
+  // qu'un INSERT côté Supabase.
   async chargerTotalJeux(): Promise<void> {
     try {
       const { count } = await this.supabase.client

@@ -1,3 +1,4 @@
+// Page À propos : histoire, vestiges, chiffres clés et crédits du projet.
 import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ViewChildren, QueryList, ElementRef, computed } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
@@ -7,10 +8,8 @@ import { hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutli
 import { LanguageService } from '../../services/language.service';
 import { Preferences } from '../../core/preferences';
 
-// Révélation progressive au scroll des cartes de sections : seulement la
-// toute première fois qu'on ouvre cette page (voir premiereOuverture plus
-// bas) — les fois suivantes, simple animation d'entrée à chaque affichage,
-// comme avant.
+// Les cartes apparaissent au scroll seulement la 1ère fois (voir
+// premiereOuverture plus bas), sinon simple animation d'entrée.
 const CLE_SECTIONS_REVELEES = 'kaval_apropos_sections_revelees';
 
 type Vestige = { nom: string; icone: string; couleur: string; image?: string; legende?: string };
@@ -255,8 +254,8 @@ export class AproposPage implements OnInit, AfterViewInit, OnDestroy {
     this.vestigePopupIndex = (this.vestigePopupIndex - 1 + total) % total;
   }
 
-  // Swipe tactile sur la photo agrandie — seuil en pixels avant de considérer
-  // le geste comme volontaire plutôt qu'un simple tap qui tremble.
+  // Swipe tactile sur la photo agrandie, seuil avant de le considérer
+  // volontaire plutôt qu'un simple tap qui tremble.
   private readonly SEUIL_SWIPE = 40;
   private touchStartX = 0;
 

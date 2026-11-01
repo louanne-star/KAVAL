@@ -1,3 +1,4 @@
+// Badges gagnés par l'utilisateur, avec leurs images et couleurs.
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SyncService } from './sync.service';
@@ -7,9 +8,8 @@ const CLE = 'kaval_badges_v1';
 const BUCKET_BADGES = 'badges';
 
 // Fichier du bucket Storage "badges" pour chaque point déjà illustré par le
-// musée — noms choisis à la main, pas de convention uniforme (voir capture
-// fournie). Les points absents de cette liste retombent sur l'ancien badge
-// SVG généré localement (voir badgeImageUrl juste en dessous).
+// musée, noms choisis à la main, pas de convention uniforme. Les points
+// absents de cette liste retombent sur l'ancien badge SVG local.
 const BADGE_FICHIERS: Record<string, string> = {
   camp_est_principal:                      '01 - Camp Est.png',
   four_a_chaux:                            '02 - Four a chaux.png',
@@ -68,11 +68,9 @@ export class BadgeService {
     });
   }
 
-  // Image du badge d'un point : celle du musée (bucket Storage "badges") si
-  // disponible, sinon repli sur l'ancien badge SVG généré localement. Le
-  // musée ne fournit qu'une seule taille (contrairement à l'ancien système
-  // qui avait un fichier dédié par taille) — on la réutilise en grand sur
-  // l'écran de célébration comme en compact partout ailleurs.
+  // Image du badge d'un point : celle du musée si disponible, sinon repli
+  // sur l'ancien badge SVG local. Le musée ne fournit qu'une seule taille,
+  // réutilisée en grand comme en compact.
   badgeImageUrl(pointId: string, variante: 'icone' | 'grand' = 'icone'): string {
     const fichier = BADGE_FICHIERS[pointId];
     if (fichier) {
