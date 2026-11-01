@@ -1,3 +1,7 @@
+// Charge tout le contenu éditorial des points depuis Supabase : histoire,
+// quiz, témoignages, photos, personnages... et le garde en cache local pour
+// un accès hors-ligne. C'est le service central dont dépendent presque
+// toutes les pages : parcours, carte, à propos, recherche, favoris, compte.
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SupabaseService } from './supabase';

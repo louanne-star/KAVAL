@@ -1,3 +1,6 @@
+// Écran où l'on saisit son email pour recevoir le lien de réinitialisation
+// du mot de passe. Accessible depuis auth.page.ts ; le lien reçu par mail
+// ouvre ensuite reinitialiser-mot-de-passe.page.ts.
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

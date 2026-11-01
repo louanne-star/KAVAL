@@ -1,3 +1,6 @@
+// Page de recherche : filtre tous les points par nom et par statut (visités
+// / favoris), réutilise les mêmes zones que journey.service.ts. Proche de
+// favoris.page.ts qui ne montre, elle, que les favoris.
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

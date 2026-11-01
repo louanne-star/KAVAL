@@ -1,3 +1,5 @@
+// Note (étoiles) laissée par le visiteur sur une zone, plus la moyenne de
+// toutes les notes reçues. Utilisé uniquement par map.page.ts.
 import { Injectable, signal } from '@angular/core';
 import { Preferences } from '../core/preferences';
 import { SyncService } from './sync.service';

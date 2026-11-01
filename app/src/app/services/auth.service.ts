@@ -1,3 +1,7 @@
+// Gère le compte connecté : qui est l'utilisateur actuel, connexion,
+// inscription, mot de passe. Utilisé par toutes les pages qui ont besoin de
+// savoir si quelqu'un est connecté (compte, carte, parcours...) et par
+// sync.service.ts pour savoir à qui appartiennent les données à envoyer.
 import { Injectable, signal, computed } from '@angular/core';
 import { User } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase';
