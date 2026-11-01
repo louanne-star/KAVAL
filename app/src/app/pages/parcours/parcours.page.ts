@@ -139,15 +139,15 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   private readonly BADGE_SOUS_TITRES: Record<Langue, Record<string, string>> = {
     fr: {
       camp_est_principal: 'Tu as rendu ton verdict.',
-      magasin_a_vivre:    'Tu as reconnecté les forçats.',
-      boulangerie:         'Tu as traversé la rivière.',
+      magasin_a_vivre:    'Tu maîtrises l\'argot du bagne.',
+      boulangerie:         'Tu t\'es évadé du bagne.',
       hopital_du_marais:   'Tu as testé ta mémoire.',
       logement_surveillants_militaires_maries: 'Tu as repéré les 7 différences.',
     },
     en: {
       camp_est_principal: 'You delivered your verdict.',
-      magasin_a_vivre:    'You reconnected the convicts.',
-      boulangerie:         'You crossed the river.',
+      magasin_a_vivre:    'You\'ve mastered the penal colony\'s slang.',
+      boulangerie:         'You escaped the penal colony.',
       hopital_du_marais:   'You tested your memory.',
       logement_surveillants_militaires_maries: 'You spotted all 7 differences.',
     },

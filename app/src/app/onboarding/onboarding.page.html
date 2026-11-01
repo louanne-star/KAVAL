@@ -52,11 +52,9 @@
 
         <p class="onb-permission-erreur" *ngIf="messagePermission() as msg">{{ msg }}</p>
 
-        <!-- Filet de sécurité : si la permission était déjà accordée avant
-             l'ouverture de l'onboarding, l'avancée automatique ne se
-             déclenche pas (pas de clic sur "Autoriser") — ce bouton reste
-             le moyen explicite de continuer. -->
-        <button class="btn-onb-suivant-localisation" *ngIf="permission() === 'accordee'" (click)="suivant()">
+        <!-- La localisation n'est pas obligatoire pour continuer : avec la
+             position de secours de repli, l'app reste utilisable sans GPS. -->
+        <button class="btn-onb-suivant-localisation" (click)="suivant()">
           {{ 'onboarding.suivant' | translate }} <ion-icon name="arrow-forward-outline"></ion-icon>
         </button>
       </div>
