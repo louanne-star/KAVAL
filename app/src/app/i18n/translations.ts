@@ -181,8 +181,7 @@ export const TRANSLATIONS = {
       role: "Explorateur · Forçats'Nou",
       tabs:    { securite: 'Sécurité' },
       stats:   { visitees: 'Visitées', favoris: 'Favoris', zones: 'Zones' },
-      section: { identite: 'Identité', favoris: 'Favoris', preferences: 'Préférences', parametres: 'Paramètres' },
-      tuto: { titre: 'Relancer le tutoriel', sousTitre: 'Revoir la visite guidée de la carte' },
+      section: { identite: 'Identité', favoris: 'Favoris', preferences: 'Préférences' },
       recompense: {
         titre: 'Récompense',
         progression: '{{n}}/{{total}} mini-jeux gagnés',
@@ -482,8 +481,7 @@ export const TRANSLATIONS = {
       role: "Explorer · Forçats'Nou",
       tabs:    { securite: 'Security' },
       stats:   { visitees: 'Visited', favoris: 'Favorites', zones: 'Zones' },
-      section: { identite: 'Identity', favoris: 'Favorites', preferences: 'Preferences', parametres: 'Settings' },
-      tuto: { titre: 'Replay the tutorial', sousTitre: 'Watch the map guided tour again' },
+      section: { identite: 'Identity', favoris: 'Favorites', preferences: 'Preferences' },
       recompense: {
         titre: 'Reward',
         progression: '{{n}}/{{total}} mini-games won',
