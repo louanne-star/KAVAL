@@ -6,6 +6,8 @@ export const TRANSLATIONS = {
       avisPluriel: 'avis',
       syncErreur: 'Synchronisation impossible, nouvelle tentative au prochain lancement.',
       horsLigne: 'Tu es hors connexion. Certaines données peuvent être indisponibles.',
+      majDisponible: 'Nouvelle version disponible.',
+      recharger: 'Recharger',
     },
     tabs: {
       carte: 'Carte',
@@ -307,6 +309,8 @@ export const TRANSLATIONS = {
       avisPluriel: 'reviews',
       syncErreur: "Sync failed, we'll try again next time you open the app.",
       horsLigne: "You're offline. Some data may be unavailable.",
+      majDisponible: 'New version available.',
+      recharger: 'Reload',
     },
     tabs: {
       carte: 'Map',

@@ -1,6 +1,10 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
   <app-tutorial-overlay></app-tutorial-overlay>
+  <div class="maj-toast" *ngIf="appUpdate.misAJourDisponible()">
+    <span>{{ 'commun.majDisponible' | translate }}</span>
+    <button (click)="appUpdate.recharger()">{{ 'commun.recharger' | translate }}</button>
+  </div>
   <div class="hors-ligne-toast" *ngIf="!connectivity.enLigne()">⚠ {{ 'commun.horsLigne' | translate }}</div>
   <div class="sync-toast" *ngIf="sync.enErreur()">⚠ {{ 'commun.syncErreur' | translate }}</div>
 </ion-app>
