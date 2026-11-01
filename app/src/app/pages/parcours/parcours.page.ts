@@ -97,8 +97,8 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   // Mini-jeu disponible pour un point précis (id du point, pas la zone géographique).
   readonly JEUX: Record<string, string> = {
     camp_est_principal: 'assets/mini-jeux/tribunal.html',
-    magasin_a_vivre:    'assets/mini-jeux/bagne-connect.html',
-    boulangerie:         'assets/mini-jeux/river_jump.html',
+    magasin_a_vivre:    'assets/mini-jeux/argot/index.html',
+    boulangerie:         'assets/mini-jeux/evasion/index.html',
     hopital_du_marais:   'assets/mini-jeux/memoire.html',
     logement_surveillants_militaires_maries: 'assets/mini-jeux/jeu_7_differences.html',
   };
@@ -106,15 +106,15 @@ export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
   private readonly JEUX_NOMS: Record<Langue, Record<string, string>> = {
     fr: {
       camp_est_principal: 'Le tribunal',
-      magasin_a_vivre:    'Connexion des forçats',
-      boulangerie:         'Traverse la Rivière',
+      magasin_a_vivre:    'Les mots du bagne',
+      boulangerie:         'Évasion',
       hopital_du_marais:   'Mémoire du Bagne',
       logement_surveillants_militaires_maries: 'Les 7 différences',
     },
     en: {
       camp_est_principal: 'The Trial',
-      magasin_a_vivre:    'Convicts Connect',
-      boulangerie:         'Cross the River',
+      magasin_a_vivre:    'Convict Slang',
+      boulangerie:         'Escape',
       hopital_du_marais:   'Memory of the Penal Colony',
       logement_surveillants_militaires_maries: 'Spot the 7 Differences',
     },
