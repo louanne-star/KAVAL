@@ -7,7 +7,7 @@ import { addIcons } from 'ionicons';
 import {
   arrowForwardOutline, arrowBackOutline, checkmarkCircle,
   mapOutline, saveOutline, refreshOutline, ribbonOutline, sparklesOutline,
-  personOutline, location,
+  personOutline, location, shareOutline,
 } from 'ionicons/icons';
 import { Preferences } from '../core/preferences';
 import { CLE_ONBOARDING_TERMINE } from './onboarding.constants';
@@ -35,6 +35,11 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
   indexActif = signal(0);
   permission = signal<EtatPermission>('inconnu');
   messagePermission = signal<string | null>(null);
+
+  // Safari iOS n'a pas de prompt d'installation natif (contrairement à
+  // Chrome/Android) : sans ça, rien n'indique à l'utilisateur qu'il peut
+  // ajouter l'app à son écran d'accueil ni comment faire.
+  readonly peutInstallerIos = signal(false);
 
   readonly avantages = [
     { num: '01', cle: 'progression',   icone: 'save-outline' },
@@ -65,8 +70,9 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
     addIcons({
       arrowForwardOutline, arrowBackOutline, checkmarkCircle,
       mapOutline, saveOutline, refreshOutline, ribbonOutline, sparklesOutline,
-      personOutline, location,
+      personOutline, location, shareOutline,
     });
+    this.peutInstallerIos.set(this.detecterIosSafariNonInstalle());
     this.verifierPermissionExistante();
   }
 
@@ -77,6 +83,13 @@ export class OnboardingPage implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.pisteRef?.nativeElement.removeEventListener('scroll', this.onScrollBound);
     clearTimeout(this.scrollTimeout);
+  }
+
+  private detecterIosSafariNonInstalle(): boolean {
+    const estIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window);
+    const estDejaInstallee = (navigator as any).standalone === true
+      || window.matchMedia('(display-mode: standalone)').matches;
+    return estIOS && !estDejaInstallee;
   }
 
   private async verifierPermissionExistante() {

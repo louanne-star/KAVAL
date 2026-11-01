@@ -135,6 +135,11 @@
         <h1>{{ 'onboarding.fin.titre' | translate }}</h1>
         <p class="onb-texte onb-texte-clair">{{ 'onboarding.fin.texte' | translate }}</p>
 
+        <div class="onb-install-ios" *ngIf="peutInstallerIos()">
+          <ion-icon name="share-outline"></ion-icon>
+          <p>{{ 'onboarding.fin.installer' | translate }}</p>
+        </div>
+
         <button class="btn-onb-clair" (click)="terminer('inscription')">
           {{ 'onboarding.fin.creerCompte' | translate }} <ion-icon name="arrow-forward-outline"></ion-icon>
         </button>

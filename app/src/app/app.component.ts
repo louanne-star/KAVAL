@@ -6,6 +6,8 @@ import { LanguageService } from './services/language.service';
 import { BrandingService } from './services/branding.service';
 import { TutorialOverlayComponent } from './components/tutorial-overlay/tutorial-overlay.component';
 import { SyncService } from './services/sync.service';
+import { ConnectivityService } from './services/connectivity.service';
+import { AppUpdateService } from './services/app-update.service';
 
 @Component({
   selector: 'app-root',
@@ -18,5 +20,7 @@ export class AppComponent {
     private languageService: LanguageService,
     private brandingService: BrandingService,
     readonly sync: SyncService,
+    readonly connectivity: ConnectivityService,
+    readonly appUpdate: AppUpdateService,
   ) {}
 }

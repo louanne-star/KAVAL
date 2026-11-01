@@ -5,6 +5,9 @@ export const TRANSLATIONS = {
       avisSingulier: 'avis',
       avisPluriel: 'avis',
       syncErreur: 'Synchronisation impossible, nouvelle tentative au prochain lancement.',
+      horsLigne: 'Tu es hors connexion. Certaines données peuvent être indisponibles.',
+      majDisponible: 'Nouvelle version disponible.',
+      recharger: 'Recharger',
     },
     tabs: {
       carte: 'Carte',
@@ -45,7 +48,7 @@ export const TRANSLATIONS = {
         accepte: "J'accepte que mes données (email, position GPS, avis) soient utilisées pour faire fonctionner Forçats'Nou.",
         masquer: 'Masquer',
         enSavoirPlus: 'En savoir plus',
-        detail: "Ton email sert à créer et retrouver ton compte. Ta position GPS est utilisée pour détecter ton passage sur les sites du parcours et débloquer ta progression. Tes avis sont partagés avec les autres utilisateurs de l'application. Ces données sont stockées de façon sécurisée, ne sont jamais revendues ni partagées avec des tiers, et tu peux à tout moment en demander l'accès, la modification ou la suppression.",
+        detail: "Ton email sert à créer et retrouver ton compte. Ta position GPS est utilisée pour détecter ton passage sur les sites du parcours et débloquer ta progression. Pendant la navigation pas à pas, ta position sert aussi à calculer ton itinéraire à pied via un service de cartographie externe (OpenStreetMap), sans y être conservée. Tes avis sont partagés avec les autres utilisateurs de l'application. Tes données sont stockées de façon sécurisée, ne sont jamais revendues, et tu peux à tout moment en demander l'accès, la modification ou la suppression.",
       },
       note: 'Ton compte permet de sauvegarder ta progression.',
       erreurs: {
@@ -294,6 +297,7 @@ export const TRANSLATIONS = {
       fin: {
         titre: "Prêt à découvrir Forçats'Nou ?",
         texte: "Rejoins l'aventure et explore l'île Nou.",
+        installer: "Pour installer l'app sur ton iPhone, appuie sur le bouton Partager de Safari, puis sur « Sur l'écran d'accueil ».",
         creerCompte: 'Créer un compte',
         dejaCompte:  'Déjà un compte ? Se connecter',
       },
@@ -305,6 +309,9 @@ export const TRANSLATIONS = {
       avisSingulier: 'review',
       avisPluriel: 'reviews',
       syncErreur: "Sync failed, we'll try again next time you open the app.",
+      horsLigne: "You're offline. Some data may be unavailable.",
+      majDisponible: 'New version available.',
+      recharger: 'Reload',
     },
     tabs: {
       carte: 'Map',
@@ -345,7 +352,7 @@ export const TRANSLATIONS = {
         accepte: "I agree that my data (email, GPS location, reviews) will be used to run Forçats'Nou.",
         masquer: 'Hide',
         enSavoirPlus: 'Learn more',
-        detail: "Your email is used to create and recover your account. Your GPS location is used to detect when you pass historical sites on the trail and unlock your progress. Your reviews are shared with other users of the app. This data is stored securely, is never sold or shared with third parties, and you can request access, modification or deletion of it at any time.",
+        detail: "Your email is used to create and recover your account. Your GPS location is used to detect when you pass historical sites on the trail and unlock your progress. During turn-by-turn navigation, your location is also used to calculate your walking route through an external mapping service (OpenStreetMap), without being stored there. Your reviews are shared with other users of the app. This data is stored securely, is never sold, and you can request access, modification or deletion of it at any time.",
       },
       note: 'Your account lets you save your progress.',
       erreurs: {
@@ -594,6 +601,7 @@ export const TRANSLATIONS = {
       fin: {
         titre: "Ready to discover Forçats'Nou?",
         texte: 'Join the adventure and explore Île Nou.',
+        installer: 'To install the app on your iPhone, tap the Share button in Safari, then tap "Add to Home Screen".',
         creerCompte: 'Create an account',
         dejaCompte:  'Already have an account? Sign in',
       },
