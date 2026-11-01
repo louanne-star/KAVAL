@@ -14,13 +14,14 @@ import { RatingService } from '../../services/rating.service';
 import { CommentService } from '../../services/comment.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { TutorialService } from '../../services/tutorial.service';
+import { LegalFooterLinkComponent } from '../../components/legal-footer-link/legal-footer-link.component';
 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.page.html',
   styleUrls: ['./auth.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe, RouterLink]
+  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe, RouterLink, LegalFooterLinkComponent]
 })
 export class AuthPage {
 

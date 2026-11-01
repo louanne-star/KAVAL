@@ -37,6 +37,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/verifier-recompense/verifier-recompense.page').then(m => m.VerifierRecompensePage),
   },
   {
+    path: 'mentions-legales',
+    loadComponent: () => import('./pages/mentions-legales/mentions-legales.page').then(m => m.MentionsLegalesPage),
+  },
+  {
     path: 'compte',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/compte/compte.page').then(m => m.ComptePage),

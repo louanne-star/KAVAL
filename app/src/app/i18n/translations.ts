@@ -8,6 +8,7 @@ export const TRANSLATIONS = {
       horsLigne: 'Tu es hors connexion. Certaines données peuvent être indisponibles.',
       majDisponible: 'Nouvelle version disponible.',
       recharger: 'Recharger',
+      mentionsLegales: 'Mentions légales et politique de confidentialité',
     },
     tabs: {
       carte: 'Carte',
@@ -314,6 +315,7 @@ export const TRANSLATIONS = {
       horsLigne: "You're offline. Some data may be unavailable.",
       majDisponible: 'New version available.',
       recharger: 'Reload',
+      mentionsLegales: 'Legal notice and privacy policy',
     },
     tabs: {
       carte: 'Map',

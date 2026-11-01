@@ -1,0 +1,58 @@
+ion-content {
+  --background: #f7f7f5;
+}
+
+.ml-header ion-toolbar {
+  --background: #27476e;
+  --color: #fff;
+}
+
+.ml-sheet {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 20px 48px;
+  color: #2b2b2b;
+  line-height: 1.55;
+  font-size: 15px;
+}
+
+h1 {
+  font-size: 20px;
+  color: #27476e;
+  margin: 24px 0 4px;
+}
+
+h2 {
+  font-size: 16px;
+  color: #27476e;
+  margin: 26px 0 8px;
+}
+
+p, ul {
+  margin: 0 0 12px;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+strong {
+  color: #1c1c1c;
+}
+
+.ml-maj {
+  font-style: italic;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+.ml-separateur {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 36px 0;
+}
+
+.ml-ouvrages {
+  font-size: 13.5px;
+  color: #555;
+}

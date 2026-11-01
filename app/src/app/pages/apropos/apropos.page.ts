@@ -7,6 +7,7 @@ import { addIcons } from 'ionicons';
 import { hammerOutline, flameOutline, storefrontOutline, homeOutline, prismOutline, leafOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { LanguageService } from '../../services/language.service';
 import { Preferences } from '../../core/preferences';
+import { LegalFooterLinkComponent } from '../../components/legal-footer-link/legal-footer-link.component';
 
 // Les cartes apparaissent au scroll seulement la 1ère fois (voir
 // premiereOuverture plus bas), sinon simple animation d'entrée.
@@ -150,7 +151,7 @@ const CONTENU = {
   templateUrl: './apropos.page.html',
   styleUrls: ['./apropos.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, LegalFooterLinkComponent]
 })
 export class AproposPage implements OnInit, AfterViewInit, OnDestroy {
 

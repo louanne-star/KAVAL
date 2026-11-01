@@ -11,6 +11,7 @@ import { BadgeService } from '../../services/badge.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { RatingService } from '../../services/rating.service';
 import { PointsService } from '../../services/points.service';
+import { LegalFooterLinkComponent } from '../../components/legal-footer-link/legal-footer-link.component';
 
 type Filtre = 'tous' | 'visites' | 'favoris';
 
@@ -19,7 +20,7 @@ type Filtre = 'tous' | 'visites' | 'favoris';
   templateUrl: './recherche.page.html',
   styleUrls: ['./recherche.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe]
+  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe, LegalFooterLinkComponent]
 })
 export class RecherchePage implements OnInit {
 

@@ -18,6 +18,7 @@ import { UiStateService } from '../../services/ui-state.service';
 import { LanguageService } from '../../services/language.service';
 import { TutorialService } from '../../services/tutorial.service';
 import { Langue } from '../../i18n/translations';
+import { LegalFooterLinkComponent } from '../../components/legal-footer-link/legal-footer-link.component';
 
 type ChoixSlot = 'bonne' | 'm1' | 'm2';
 
@@ -52,7 +53,7 @@ const ARTICLE_POINT: Record<string, string> = {
   templateUrl: './parcours.page.html',
   styleUrls: ['./parcours.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonContent, IonIcon, TranslatePipe]
+  imports: [CommonModule, IonContent, IonIcon, TranslatePipe, LegalFooterLinkComponent]
 })
 export class ParcoursPage implements OnInit, AfterViewInit, OnDestroy {
 

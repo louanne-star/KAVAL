@@ -18,13 +18,14 @@ import { PointsService } from '../../services/points.service';
 import { LanguageService } from '../../services/language.service';
 import { InstallService } from '../../services/install.service';
 import { Langue } from '../../i18n/translations';
+import { LegalFooterLinkComponent } from '../../components/legal-footer-link/legal-footer-link.component';
 
 @Component({
   selector: 'app-compte',
   templateUrl: './compte.page.html',
   styleUrls: ['./compte.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe]
+  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe, LegalFooterLinkComponent]
 })
 export class ComptePage {
 

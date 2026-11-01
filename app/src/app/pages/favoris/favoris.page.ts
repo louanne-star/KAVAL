@@ -10,13 +10,14 @@ import { FavoriteService } from '../../services/favorite.service';
 import { BadgeService } from '../../services/badge.service';
 import { RatingService } from '../../services/rating.service';
 import { PointsService } from '../../services/points.service';
+import { LegalFooterLinkComponent } from '../../components/legal-footer-link/legal-footer-link.component';
 
 @Component({
   selector: 'app-favoris',
   templateUrl: './favoris.page.html',
   styleUrls: ['./favoris.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, TranslatePipe]
+  imports: [IonicModule, CommonModule, TranslatePipe, LegalFooterLinkComponent]
 })
 export class FavorisPage implements OnInit {
 
