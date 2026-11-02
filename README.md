@@ -94,4 +94,4 @@ La config Supabase (URL + clé anonyme) est dans `app/src/environments/environme
 
 ## Et après ?
 
-Ce dépôt correspond au livrable remis pour la SAE. À la demande de l'ATUP (notre commanditaire), le développement de l'application continue au-delà du rendu, porté par Ondine Taukolo et Lou-Anne Grosjean, pour finaliser les points listés ci-dessus et ajouter le contenu restant.
+Ce dépôt correspond au livrable remis pour la SAE. À la demande de l'ATUP (notre commanditaire), le développement de l'application continue au-delà du rendu, porté par Ondine Taukolo et Lou-Anne Grosjean, pour finaliser les points listés ci-dessus et ajouter du contenu supplémentaire.
